@@ -22,15 +22,20 @@ import relflow as rf
 
 signed_scalar = rf.Extension(name="signed_scalar", types=(int | float,))
 
-@signed_scalar.register
+@signed_scalar.register(rf.Component.Request)
 class Request(rf.RequestBase):
     type: Literal["signed_scalar"] = "signed_scalar"
     clip: Annotated[float, pydantic.Field(gt=0.0)] = 10.0
 ```
 
-Register components with their exact names. Names such as `signed_scalar` must
-use lowercase letters, digits, and underscores. A duplicate extension name
-replaces the registry entry with a warning.
+Pass the component role explicitly; classes and functions may use any Python
+name. A separately defined writer registers with
+`signed_scalar.register(rf.Component.write, write_signed_scalar)`, where
+`write_signed_scalar` implements the writing contract below.
+
+Extension names such as `signed_scalar` must use lowercase letters, digits,
+and underscores. A duplicate extension name replaces the registry entry with
+a warning.
 
 Request options inherit [shared leaf behavior](../core-concepts/data-types.qmd#shared-leaf-options).
 Parents supply field names; constructors accept configuration only. Name
@@ -128,8 +133,8 @@ with no targets or loss bits. Return a `Parcel` with payload shape
 correct leaf-to-parent route. `EmbedderBase.embed` restores fixed geometry.
 `Parcel` and `Prediction` are available from `relflow.structs.packages`.
 
-Both Embedder and Decoder constructors must accept annotated `schema` and
-`address` parameters. `DecoderBase` owns query/mean pooling over ancestor
+Both Embedder and Decoder constructors receive `schema` and `address`.
+`DecoderBase` owns query/mean pooling over ancestor
 context and optional aligned sibling conditioning. Implement `decode(pooled)`
 to return a TensorDict of raw predictions. Pass `conditioned=False` to the base
 constructor to disable direct sibling conditioning.
@@ -156,7 +161,7 @@ summary on the model side. The extension owns distributed reduction. With
 
 ### Loss and output
 
-`loss(module, prediction, batch, strata)` requires annotated parameters. Use
+`loss(module, prediction, batch, strata)` returns the scalar objective. Use
 `batch.trainable` to select objectives and target state to determine where
 content is meaningful. `module.track((address, strata, metric, component), value=...)`
 records metrics using the [evaluation naming convention](evaluation.qmd#read-the-metrics);
