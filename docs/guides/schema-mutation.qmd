@@ -24,8 +24,12 @@ selected = model.select(amounts)
 model.update(amounts, mask=0.10)
 ```
 
-Selection is read-only. Updates are strict by default: every matched node must
-support each supplied option. Narrow the predicate rather than mixing unrelated
+Selection is read-only and evaluates predicates against the current schema on
+every call. Plain callables are accepted; `rf.predicate(func)` wraps one for
+composition with `&`, `|`, or `~`.
+
+Updates are strict by default: every matched node must support each supplied
+option. Narrow the predicate rather than mixing unrelated
 node types. `strict=False` permits partial application to supporting nodes;
 an option supported by none of the selected nodes still raises.
 
