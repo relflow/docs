@@ -1,0 +1,109 @@
+# Learning Modes And Embeddings
+
+An embedding is a numeric representation of the context the model has learned.
+Set `embed=True` where you want to export one. The model still needs a learning
+objective, such as a supervised dispute target.
+
+## Choose Where To Export
+
+This model learns to predict payment disputes and exports the payment context
+and a summary of the account's recent transactions:
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    embed=True,
+    amount=rf.Number,
+    merchant=rf.Category,
+    recent_transactions=rf.Branch(
+        length=32,
+        overflow="tail",
+        embed=True,
+        amount=rf.Number,
+        merchant=rf.Category,
+        days_ago=rf.Number,
+    ),
+    disputed=rf.Boolean(mask=True),
+)
+```
+
+| `embed=True` location | Exported representation |
+| --- | --- |
+| Root | The root's reduced context. |
+| Branch | The branch's reduced context. |
+| Leaf | The decoder's pooled context before its datatype output head. |
+
+The `xs` preset uses one-output reductions. This example therefore exports one
+payment vector and one history-summary vector per payment. It does not export
+one vector per transaction. A nested branch inside the history would retain
+those outer transaction positions when exporting its own summary.
+
+A leaf embedding is different from its raw input embedding: it can include
+ancestor context and visible, aligned sibling fields. A branch embedding
+summarizes the inputs controlled by that branch's reduction.
+
+## Read The Output
+
+After [training](../guides/lightning.qmd), `payments` is an application-supplied
+Arrow table containing prediction inputs:
+
+```python
+import pyarrow.compute as pc
+
+predictions = model.predict(payments)["predictions"]
+payment_embedding = pc.struct_field(
+    pc.struct_field(predictions, "/"),
+    "embedding",
+)
+history_embedding = pc.struct_field(
+    pc.struct_field(predictions, "/recent_transactions"),
+    "embedding",
+)
+```
+
+Exported vectors are float32 and L2-normalized along their `d_model` axis;
+zero vectors remain zero. Repeated outer coordinates and multiple reduction
+outputs appear as fixed-size Arrow list axes. See
+[Prediction Output](../guides/prediction-output.qmd) for the full Arrow contract.
+
+`rf.Attention(n_outputs=...)` exports multiple reduction outputs.
+`reduction=None` retains routed child slots, whose count depends on branch
+length and child outputs. These choices change the shape of the representation;
+see [Branch](../data-types/branch.qmd).
+
+Evaluate an embedding on its intended downstream task. A useful dispute
+predictor does not by itself establish useful similarity or clustering.
+Preserve the schema and trained state with
+[the model artifact](../guides/lightning.qmd#save-and-load).
+
+## Learn Without A Label
+
+A model can also learn by reconstructing values hidden from otherwise
+unlabeled records. For example, replace the supervised target with sampled
+reconstruction of transaction amounts and merchant categories:
+
+```python
+model = rf.Model.xs(
+    embed=True,
+    recent_transactions=rf.Branch(
+        length=32,
+        overflow="tail",
+        days_ago=rf.Number,
+        amount=rf.Number(mask=rf.Mask(rate=0.15, reconstruct=True)),
+        merchant=rf.Category(mask=rf.Mask(rate=0.10, reconstruct=True)),
+    ),
+)
+```
+
+`embed=True` alone creates no objective. Sampled reconstruction supplies the
+learning signal in this example; it does not request ordinary decoded
+prediction output. [Masking](dynamic-masking.qmd) explains that distinction.
+Supervised and sampled reconstruction objectives can coexist, with each leaf's
+`weight` scaling its contribution.
+
+[Pretraining And Fine-Tuning](../guides/pretraining.qmd) shows how to transfer
+reconstruction training to a labeled task. The
+[reconstruction transfer proof](../proofs/representation/reconstruction-transfer.html)
+compares frozen root embeddings with raw features, an untrained encoder, and
+training on independently permuted views.

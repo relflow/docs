@@ -1,0 +1,116 @@
+---
+title: Account Risk
+engine: markdown
+---
+
+An account model can answer questions at different levels: which recent payments
+will be disputed, and how much the account will lose over the next month.
+This advanced example combines repeated targets with an account-level target.
+Start with [Add Transaction History](../tutorials/transaction-history.qmd)
+for a single payment prediction.
+
+## One Observation
+
+```yaml
+account_id: account-42
+account_age_days: 420
+recent_transactions:
+  - days_ago: 3
+    amount: 86.50
+    merchant: grocery
+    line_items:
+      - sku: basket-17
+        quantity: 2
+      - sku: basket-03
+        quantity: 1
+    disputed_next_30_days: false
+loss_next_30_days: 0.0
+```
+
+One record describes an account at a decision time. Transactions and line items
+contain only information available then. Both labels describe the following
+30 days: a dispute for each listed transaction, and total account loss in the
+application's common currency. Define the outcome window and loss attribution
+before creating training and held-out records.
+
+## Place Each Target With Its Subject
+
+```python
+import relflow as rf
+
+model = rf.Model.md(
+    account_age_days=rf.Number,
+    recent_transactions=rf.Branch(
+        length=64,
+        overflow="tail",
+        days_ago=rf.Number,
+        amount=rf.Number,
+        merchant=rf.Category,
+        line_items=rf.Branch(
+            length=16,
+            sku=rf.Category,
+            quantity=rf.Number,
+        ),
+        disputed_next_30_days=rf.Boolean(mask=True),
+    ),
+    loss_next_30_days=rf.Number(mask=True),
+)
+```
+
+```{typst}
+//| label: fig-customer-risk
+//| fig-alt: "Account context contains account age and repeated recent transactions. Each transaction has age, amount, merchant, repeated line items, and a future dispute target. The account root has a future loss target."
+//| fig-cap: "Dispute predictions keep transaction coordinates; the loss prediction belongs to the account."
+#tree(node("account", kind: "root", children: (
+  node("account_age_days", width: 150pt, type: "Number"),
+  node("recent_transactions", width: 160pt, kind: "branch", repeated: true, children: (
+    node("days_ago", type: "Number"),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+    node("line_items", kind: "branch", repeated: true, children: (
+      node("sku", type: "Category"),
+      node("quantity", type: "Number"),
+    )),
+    node("disputed_next_30_days", width: 175pt, kind: "target", type: "Boolean", detail: "per transaction"),
+  )),
+  node("loss_next_30_days", width: 160pt, kind: "target", type: "Number"),
+)))
+```
+
+Line items form context within each transaction. The transaction history then
+sends its reduced representation to the account root. Each dispute decoder
+uses its ancestor context and aligned visible siblings; its output retains the
+transaction coordinates. See [Model Tree](../core-concepts/model-tree.qmd).
+
+Both targets use `mask=True`. Their labels supply supervision and are excluded
+from input embedding. At prediction time, omit `loss_next_30_days` and omit
+`disputed_next_30_days` from each transaction. Keep the transaction records:
+they define the repeated positions to predict.
+
+## Preserve The Context The Task Needs
+
+The `md` preset uses Attention reductions with four summaries per parent
+coordinate. Those summaries bound the context sent upward; they are not one
+token per original line item. If matching a SKU across transactions matters,
+represent the shared relationship through aligned input or preprocessing.
+Nesting does not join database tables.
+
+`overflow="tail"` assumes transactions are sorted oldest to newest. The line
+items keep the default first-items policy. Choose both capacities from the
+records the application needs to model.
+
+## Evaluate The Two Outcomes
+
+Fit using [data modules](../guides/data-modules.qmd) and
+[Training And Checkpoints](../guides/lightning.qmd). Hold out later decision
+windows and control overlap between related account snapshots.
+
+Inspect dispute ranking and calibration separately from account-loss errors.
+Their combined validation loss can hide a regression in one target. This
+example specifies a model design; it makes no claim about measured quality.
+
+The prediction addresses are `/recent_transactions/disputed_next_30_days` and
+`/loss_next_30_days`. Retain `account_id` and the application's transaction
+identifiers when joining outputs back to records. Account for the retained
+history window: an attention summary is not a transaction identifier.
+See [Prediction Output](../guides/prediction-output.qmd).

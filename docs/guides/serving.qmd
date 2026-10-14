@@ -1,0 +1,105 @@
+---
+title: Serving
+---
+
+`rf.Deployment` serves a checkpoint or an in-memory model through FastAPI.
+The examples deploy the trained payment model from
+[Your First Model](../getting-started.qmd); requests omit its dispute label.
+Install the optional dependency:
+
+```bash
+pip install 'relflow[serving]'
+```
+
+Save the trained model as shown in [Training And Checkpoints](lightning.qmd#save-and-load),
+then create an ASGI application in your application module:
+
+```python
+import relflow as rf
+
+app = rf.Deployment(checkpoint="artifacts/payment.rf").app()
+```
+
+Or start Uvicorn through relflow with
+`rf.Deployment(checkpoint="artifacts/payment.rf").serve()`. The default port is 8000.
+The model is loaded at startup and placed on the selected accelerator.
+
+## Requests
+
+`POST /predict` accepts a JSON object, an array of JSON objects, or an Arrow IPC
+stream. This YAML illustrates **one** JSON request for a payment model; send its
+JSON representation over HTTP:
+
+```yaml
+payment_id: payment-42
+amount: 86.50
+merchant: grocery
+```
+
+```bash
+curl http://localhost:8000/predict \
+  -H 'Content-Type: application/json' \
+  --data-binary @request.json
+```
+
+`request.json` is supplied by your application. A single object returns a single
+object; an array returns an array in request order. For Arrow, send an IPC stream
+with `Content-Type: application/vnd.apache.arrow.stream`; the response is also
+an IPC stream. `GET /health` supplies a health endpoint, and `/docs` exposes the
+API reference.
+
+Default responses contain `predictions` plus a `model` provenance field with
+`version` and `checkpoint`. They omit the interactive prediction table's
+`inputs` column. A postprocessor controls application response fields;
+provenance is appended afterward, so `model` is a reserved name.
+
+## Validate application inputs
+
+Optional Pydantic signatures validate JSON requests before prediction and
+responses after postprocessing. For the request above:
+
+```python
+from pydantic import BaseModel
+
+class PaymentRequest(BaseModel):
+    payment_id: str
+    amount: float
+    merchant: str
+
+app = (
+    rf.Deployment(checkpoint="artifacts/payment.rf")
+    .forge(request=PaymentRequest)
+    .app()
+)
+```
+
+These signatures apply to JSON. Arrow requests are validated through the
+preprocessing and model-binding contracts.
+
+## Reuse processing
+
+Reuse the `decision` processor from [Postprocessors](postprocessors.qmd) to
+return a payment identifier, dispute probability, and review flag:
+
+```python
+app = (
+    rf.Deployment(checkpoint="artifacts/payment.rf", retain=("payment_id",))
+    .postprocess(decision.partial(threshold=0.8))
+    .app()
+)
+```
+
+Retention exposes `payment_id` to the postprocessor. The final result must
+contain one row per valid request in request order. If the API accepts raw fields
+that require [preprocessing](preprocessors.qmd), attach that processor with
+`.preprocess(prepare)` and make the request signature match those raw fields.
+
+Concurrent JSON requests can share a model microbatch. `max_batch_size` bounds
+its size; `batch_timeout` sets the optional collection wait in seconds.
+`accelerator` selects `auto`, `cpu`, `cuda`, or `mps`. An in-memory model can be
+supplied with `model=model` instead of a checkpoint.
+
+Use one process for an in-memory model or a deployment configured with
+signatures, processors, or queued mutations. For
+`Deployment(workers=2).serve()`, the configuration must be checkpoint-based and
+cannot carry those in-process objects or a tuple retention projection.

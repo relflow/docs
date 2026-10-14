@@ -1,0 +1,68 @@
+---
+title: Postprocessors
+---
+
+A postprocessor turns the [prediction table](prediction-output.qmd) into the
+shape an application needs. It receives and returns an eager Polars DataFrame.
+
+For a trained payment model with a Boolean `/disputed` target:
+
+```python
+import polars as pl
+import relflow as rf
+
+@rf.postprocess
+def decision(frame: pl.DataFrame, *, threshold: float) -> pl.DataFrame:
+    disputed = pl.col("predictions").struct.field("/disputed")
+    probability = disputed.struct.field("content").struct.field("probability")
+    return frame.select(
+        payment_id=pl.col("inputs").struct.field("payment_id"),
+        dispute_probability=probability,
+        review=probability >= threshold,
+    )
+
+# request_table is supplied by the application.
+result = model.predict(
+    request_table,
+    retain=("payment_id",),
+    postprocess=decision.partial(threshold=0.8),
+)
+```
+
+One output record has this shape; the probability is a placeholder:
+
+```yaml
+payment_id: payment-42
+dispute_probability: <probability of true>
+review: <true or false>
+```
+
+The threshold is an application decision rule. The example uses the content
+probability; incorporate the predicted value state when your application needs
+to treat missingness separately.
+
+## Compose and reuse
+
+The first callback parameter must be `frame`; additional parameters are
+keyword-only and bound with `.partial(...)`. A tuple of decorated processors
+runs left to right. The pipeline converts Arrow to Polars before its first
+stage and back to Arrow after its last.
+
+Use the same configured processor in each output path:
+
+```python
+processor = decision.partial(threshold=0.8)
+writer = rf.Writer("payment-predictions", postprocessor=processor)
+deployment = rf.Deployment(model=model, retain=("payment_id",)).postprocess(processor)
+```
+
+For `Writer`, configure `retain=("payment_id",)` on the prediction data module.
+Serving requires `relflow[serving]`.
+
+Processors may change rows or columns, but must return an eager frame with at
+least one column. Retain every source column they need; source data is not
+otherwise available in the written table. A `Writer` requires the same output
+schema across batches in its shard.
+
+HTTP serving has an additional requirement: preserve one final row per valid
+request in request order. relflow checks the count; the processor owns order.

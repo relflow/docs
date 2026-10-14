@@ -1,0 +1,93 @@
+---
+engine: markdown
+title: Add Transaction History
+description: Extend the payment model with earlier transactions from the same account.
+---
+
+The [first model](../getting-started.qmd) reads one payment. Now add earlier
+transactions from the same account, keeping the same prediction target.
+
+## Add A Collection To Each Record
+
+Your application supplies a `recent_transactions` list alongside the current
+payment:
+
+```yaml
+amount: 84.50
+merchant: North Market
+recent_transactions:
+  - days_ago: 7
+    amount: 32.00
+    merchant: Station Cafe
+  - days_ago: 1
+    amount: 56.20
+    merchant: North Market
+disputed: false
+```
+
+Include only transactions known before the current payment. Order them from
+oldest to newest. A payment with no earlier transactions has an empty list.
+
+## Describe The Collection With A Branch
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    batch_size=128,
+    amount=rf.Number,
+    merchant=rf.Category,
+    recent_transactions=rf.Branch(
+        length=32,
+        overflow="tail",
+        days_ago=rf.Number,
+        amount=rf.Number,
+        merchant=rf.Category,
+    ),
+    disputed=rf.Boolean(mask=True),
+)
+```
+
+`Branch` describes a collection of records with the same fields. This branch
+keeps at most 32 transactions; `overflow="tail"` retains the last 32 in the
+supplied order. The model combines their information with the current
+payment's amount and merchant to predict `disputed`.
+
+```{typst}
+//| label: fig-payment-history-tutorial
+//| fig-alt: "A payment combines its amount and merchant with a repeated recent_transactions branch containing days_ago, amount, and merchant. Disputed remains the prediction target."
+//| fig-cap: "The payment gains a history; its prediction target stays the same."
+#tree(node("payment", kind: "root", children: (
+  node("amount", type: "Number"),
+  node("merchant", type: "Category"),
+  node("recent_transactions", kind: "branch", repeated: true, width: 165pt, children: (
+    node("days_ago", type: "Number"),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+  )),
+  node("disputed", kind: "target", type: "Boolean"),
+)))
+```
+
+## Use The Same Training Steps
+
+Train this new model with the history present in each record. Here,
+`train_payments` and `validation_payments` are application-supplied Arrow
+tables with the nested structure shown above:
+
+```python
+data = rf.ArrowDataModule(
+    model=model,
+    train=train_payments,
+    validate=validation_payments,
+)
+model.optimizer = rf.adamw(learning_rate=1e-3)
+model.fit(data, max_epochs=20)
+```
+
+Prediction requests have the same structure and omit `disputed`. The call
+remains `model.predict(new_payments)`.
+
+If your source uses different names or shapes, continue with
+[Binding Data](../core-concepts/binding-data.qmd). To prepare these histories
+from transaction tables, see [Preprocessing](../guides/preprocessors.qmd).

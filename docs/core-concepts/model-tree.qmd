@@ -1,0 +1,188 @@
+---
+engine: markdown
+---
+
+# Model Tree
+
+The schema describes one observation. Fields describe values; a branch groups
+related values; the model root combines them to predict a target.
+
+## Follow One Observation
+
+Here is one payment with its account's recent transactions:
+
+```yaml
+amount: 86.50
+merchant: grocery
+recent_transactions:
+  - amount: 42.75
+    merchant: grocery
+    days_ago: 3
+  - amount: 18.50
+    merchant: cafe
+    days_ago: 1
+disputed: false
+```
+
+The model follows the same structure:
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    amount=rf.Number,
+    merchant=rf.Category,
+    recent_transactions=rf.Branch(
+        length=32,
+        overflow="tail",
+        amount=rf.Number,
+        merchant=rf.Category,
+        days_ago=rf.Number,
+    ),
+    disputed=rf.Boolean(mask=True),
+)
+```
+
+```{typst}
+//| label: fig-model-tree
+//| fig-alt: A payment combines amount and merchant with a repeated recent_transactions branch containing amount, merchant, and days_ago, then predicts disputed.
+//| fig-cap: Each transaction keeps its fields together. The history contributes context for predicting a dispute on the current payment.
+#tree(node("payment", kind: "root", children: (
+  node("amount", type: "Number"),
+  node("merchant", type: "Category"),
+  node("recent_transactions", kind: "branch", repeated: true, children: (
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+    node("days_ago", type: "Number"),
+  )),
+  node("disputed", kind: "target", type: "Boolean"),
+)))
+```
+
+The amount, merchant, and age at one history position belong to the same
+transaction. The branch builds context from those transactions, and the root
+combines it with the current payment. `mask=True` makes `disputed` the answer
+to learn while keeping it out of the inputs.
+
+`length=32` limits the history to 32 transactions. With oldest-to-newest input,
+`overflow="tail"` keeps the latest ones. Sorting and excluding future records
+belong in application data preparation.
+
+## Names And Addresses
+
+The parent names each child: `amount=rf.Number` creates an `amount` field.
+Use the bare class for defaults; call it for options, as in
+`disputed=rf.Boolean(mask=True)`.
+
+An address identifies a location in the schema. Use one argument per child
+name; RelFlow adds the leading slash and separators:
+
+```python
+root = rf.Address()                                      # /
+history_amount = rf.Address("recent_transactions", "amount")
+selected = model.select(rf.where("address") == history_amount)
+```
+
+The second address is `/recent_transactions/amount`. Addresses are used in
+prediction fields, metrics, and schema mutations. They identify the schema
+location even when a [query](querypaths.qmd) reads another source path.
+`rf.Address` is a string subclass; serialized output uses plain string keys.
+
+The root is anonymous, has address `/`, and represents one observation.
+The diagram label `payment` is illustrative, not a model option or address
+prefix. A field named `name` is an ordinary child, with address `/name`.
+Repeated data belongs in a child branch. A child branch reads a list even
+when `length=1`.
+
+Definitions take no positional arguments or `name` option. Use `fields` for
+generated schemas or a child name that collides with configuration:
+
+```python
+transactions = rf.Branch(
+    length=32,
+    fields={"amount": rf.Number, "description": rf.Category},
+)
+```
+
+Reusing a definition creates independent named nodes and learned modules;
+it does not share weights. See [Binding Data](binding-data.qmd) for how names
+and nesting select source values.
+
+## Choose A Size
+
+`rf.Model.xs(...)`, `.sm(...)`, `.md(...)`, `.lg(...)`, and `.xl(...)` supply
+architecture defaults. Start with `xs` or `sm` to establish a working model,
+then compare larger sizes on validation data. Schema size, vocabularies, and
+decoded fields also affect memory and compute.
+
+The presets leave collection lengths, overflow, queries, masking, datatype
+options, optimizer settings, and runtime settings to the application.
+See [Model Presets](../reference/model-presets.qmd) for the size table,
+node-local overrides, and checkpoint rules. For schemas stored in YAML,
+see [Model Templates](../guides/model-templates.qmd).
+
+## Configure The Context
+
+Use `rf.Model(...)` with required `d_model`, `n_layers`, and `n_heads` to
+choose the architecture directly. `d_model` is the shared embedding width.
+Root encoder settings apply to the root; child branches have their own settings.
+
+| Setting | Controls |
+| --- | --- |
+| `attention` | Branch encoder: `"mha"`, `"gqa"`, `"mqa"`, or `None`. |
+| `n_layers`, `n_heads`, `dropout` | That branch's encoder. |
+| `ffnx` | Feed-forward hidden width as a multiplier of `d_model`; default `8` on every node. |
+| `reduction` | Context passed to the parent; default `rf.Attention()`. |
+| `length` | Maximum retained records in a child branch. |
+| `overflow` | Keep the first records (`"head"`, default), last records (`"tail"`), or raise (`"error"`). |
+| `mask` | Inputs to hide or reconstruct; see [Masking](dynamic-masking.qmd). |
+| `embed=True` | Export a representation; see [Embeddings](embeddings.qmd). |
+
+Set a positive integer `ffnx` on a root, branch, or tensorfield to change that
+node's feed-forward width. Each child keeps its own default unless configured.
+A branch uses it for its sequence encoder, coordinate encoder, and learned
+reduction. A tensorfield uses it for its query decoder and aligned context
+projection:
+
+```python
+model = rf.Model(
+    d_model=64,
+    n_layers=2,
+    n_heads=4,
+    ffnx=8,
+    amount=rf.Number,
+    merchant=rf.Category,
+    recent_transactions=rf.Branch(
+        length=32,
+        overflow="tail",
+        ffnx=4,
+        amount=rf.Number,
+        merchant=rf.Category,
+        days_ago=rf.Number,
+    ),
+    disputed=rf.Boolean(mask=True, ffnx=6),
+)
+```
+
+RelFlow's hidden neural activations use tanh GELU and its neural normalization
+uses RMSNorm with epsilon `1e-5`. Pretrained text encoders retain their own
+architectures. Checkpoints created with the previous architecture require
+the matching RelFlow version; train and save a new model to adopt these defaults.
+
+Encoder and reduction settings are separate. `attention=None` disables encoder
+attention while leaving the reduction in place. `rf.Mean()` averages present
+inputs; `reduction=None` preserves routed child slots. Attention reductions
+have their own settings and inherit omitted heads/dropout from the branch.
+See [Branch](../data-types/branch.qmd) for the full contract.
+
+Padding and structurally skipped inputs do not contribute to attention or
+mean pooling. An explicit null remains a modeled value state; see
+[Value state](data-types.qmd#value-state).
+A decoder pools representations along its ancestor path and can condition
+learned queries on visible siblings at matching coordinates. Tree connections
+show ownership; database joins belong in [preprocessing](../guides/preprocessors.qmd).
+
+Only declared options are accepted. Use `description` for notes.
+A leaf's `active=False` retains it in the schema while excluding it from
+execution. Change an existing model through
+[mutation methods](../guides/schema-mutation.qmd).

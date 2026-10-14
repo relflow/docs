@@ -1,0 +1,36 @@
+---
+title: relflow
+body-classes: home
+toc: false
+---
+
+relflow turns a data schema into a trainable PyTorch model.
+Describe the values you have and the outcome you want to predict.
+
+For example, learn whether a payment will later be disputed:
+
+```yaml
+amount: 84.50
+merchant: North Market
+disputed: false
+```
+
+The model reads `amount` and `merchant`, and learns to predict `disputed`.
+Later, add an account's transaction history as a nested collection.
+
+[Build your first model →](getting-started.qmd){.btn .btn-primary}
+
+## Start Small
+
+1. [Your first model](getting-started.qmd): define fields, train, and predict.
+2. [Add transaction history](tutorials/transaction-history.qmd): give each payment a collection of earlier transactions.
+3. [Work with your data](guides/data-modules.qmd): use Arrow, Polars, or Parquet datasets.
+
+## Go Further When You Need To
+
+- [Training and checkpoints](guides/lightning.qmd): control fitting, validation, and saved models.
+- [Model structure](core-concepts/model-tree.qmd): understand nested contexts and configure the architecture.
+- [Account risk example](case-studies/customer-risk.qmd): combine several histories and prediction targets.
+
+The examples use payments and accounts. The same field and branch definitions
+work with other kinds of tabular and nested records.

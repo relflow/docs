@@ -1,0 +1,81 @@
+{
+  "schema": 1,
+  "upstream": {
+    "repository": "https://github.com/relflow/relflow",
+    "commit": "8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c",
+    "version": "0.2.4"
+  },
+  "fields": {
+    "Boolean": [
+      "threshold"
+    ],
+    "Category": [
+      "p_unavailable",
+      "topk"
+    ],
+    "Cluster": [
+      "bounds",
+      "ema_decay",
+      "p_unavailable",
+      "revive_temperature"
+    ],
+    "DateParts": [
+      "dateparts",
+      "jitter",
+      "pattern"
+    ],
+    "Enum": [
+      "p_unavailable",
+      "topk",
+      "values"
+    ],
+    "Hash": [
+      "n_bands",
+      "n_buckets",
+      "n_hashes",
+      "offset"
+    ],
+    "Number": [
+      "alpha",
+      "jitter",
+      "n_bands",
+      "objective",
+      "offset"
+    ],
+    "Quantile": [
+      "compression",
+      "n_bands",
+      "objective"
+    ],
+    "Set": [
+      "p_unavailable",
+      "threshold"
+    ],
+    "Text": [
+      "encoder_batch_size",
+      "encoder_pooling",
+      "jitter",
+      "max_length",
+      "model",
+      "objective",
+      "tokenizer_batch_size"
+    ],
+    "Vector": [
+      "jitter",
+      "n_dim",
+      "objective"
+    ]
+  },
+  "tokens": [
+    "valued",
+    "null",
+    "padded",
+    "masked",
+    "other"
+  ],
+  "attention_modes": [
+    "mha",
+    "gqa",
+    "mqa"
+  ]
+}

@@ -1,0 +1,94 @@
+---
+engine: markdown
+title: Your First Model
+description: Predict whether a payment will be disputed, from its amount and merchant.
+---
+
+Start with one payment and one outcome: will this payment later be disputed?
+You need Python 3.12 or newer. Install relflow in your project:
+
+```bash
+uv add relflow
+```
+
+## Describe One Payment
+
+Each training record contains the information available at payment time and
+the outcome observed later:
+
+```yaml
+amount: 84.50
+merchant: North Market
+disputed: false
+```
+
+## Define The Fields
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    batch_size=128,
+    amount=rf.Number,
+    merchant=rf.Category,
+    disputed=rf.Boolean(mask=True),
+)
+```
+
+`Number` represents the amount, `Category` represents the merchant, and
+`Boolean` represents the yes-or-no outcome. `mask=True` marks `disputed` as
+a prediction target: the model learns from its value without seeing it as
+an input. `Model.xs` supplies a small model configuration.
+
+```{typst}
+//| label: fig-first-payment
+//| fig-alt: "A payment has amount and merchant input fields, and a disputed Boolean prediction target."
+//| fig-cap: "Two input fields support one prediction."
+#tree(node("payment", kind: "root", children: (
+  node("amount", type: "Number"),
+  node("merchant", type: "Category"),
+  node("disputed", kind: "target", type: "Boolean"),
+)))
+```
+
+## Train The Model
+
+Use your application's Parquet files, with one payment per row and the three
+columns above. Train on earlier payments and validate on a later period;
+both splits include the observed `disputed` labels.
+
+```python
+import pyarrow.parquet as pq
+
+train_payments = pq.read_table("payments/train.parquet")
+validation_payments = pq.read_table("payments/validation.parquet")
+
+data = rf.ArrowDataModule(
+    model=model,
+    train=train_payments,
+    validate=validation_payments,
+)
+model.optimizer = rf.adamw(learning_rate=1e-3)
+model.fit(data, max_epochs=20)
+```
+
+relflow configures the training loop, stops early when validation loss stops
+improving, and restores the best validation checkpoint.
+
+## Predict New Payments
+
+The request table contains `amount` and `merchant`. It omits `disputed`,
+because that is the outcome you want to predict.
+
+```python
+new_payments = pq.read_table("payments/requests.parquet")
+predictions = model.predict(new_payments)
+```
+
+`predictions` is an Arrow table. Its `predictions` column contains the result
+for `/disputed`; [Prediction Output](guides/prediction-output.qmd) explains how
+to read its probability.
+
+Next, [add transaction history](tutorials/transaction-history.qmd) to give
+each payment more context. For training options and saving your model, see
+[Training And Checkpoints](guides/lightning.qmd).
