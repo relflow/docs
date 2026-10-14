@@ -25,6 +25,27 @@ mappings is also supported for small interactive requests. Use a typed Arrow
 object for empty input: relflow preserves the output schema and skips the
 forward pass.
 
+## Batch direct requests
+
+Pass a positive `batch_size` to limit the processed observations sent to each
+model call:
+
+```python
+result = model.predict(request_table, batch_size=256, retain=("payment_id",))
+```
+
+RelFlow preprocesses the full input once, chunks the resulting Arrow rows
+before encoding and model execution, joins their prediction tables, then
+postprocesses the combined table once. Retained inputs follow those processed
+rows. This preserves the scope of processors that filter, expand, or group data.
+
+The override updates `model.batch_size`. Direct `batch_size=None`, including
+omission, preserves whole-input execution even when that model setting is
+smaller. Direct input and the returned Arrow table remain in memory; for
+file-backed streaming output use [Batch Inference](batch-inference.qmd).
+Data-module prediction reads the current model size, with optional overrides
+on the method call; see [Batch size](lightning.qmd#batch-size).
+
 ## Read a field
 
 Prediction keys are full, slash-prefixed schema addresses. A dispute target

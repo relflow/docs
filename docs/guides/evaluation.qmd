@@ -11,10 +11,14 @@ With a trained model and a configured validation split:
 ```python
 import relflow as rf
 
-metrics = model.validate(datamodule)
+metrics = model.validate(datamodule, batch_size=256)
 validation_loss = metrics[0]["loss/validate"]
 dispute_auc = metrics[0][".disputed/validate.auc.content"]
 ```
+
+Set the evaluation batch size on the method call; see
+[Batch size](lightning.qmd#batch-size) for its persistent model setting and
+per-device meaning.
 
 relflow uses Lightning's native logging. Attached loggers receive training
 metrics only at the configured step cadence, every `log_every_n_steps` optimizer

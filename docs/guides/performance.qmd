@@ -51,14 +51,13 @@ writes that same value, and rebuilt loaders use the selected size:
 from lightning.pytorch.callbacks import BatchSizeFinder
 import relflow as rf
 
-model.optimizer = rf.adamw(learning_rate=1e-3, fused=None)
 datamodule = rf.ArrowDataModule(
     model=model,
     train=train_table,
     validate=validation_table,
 )
 finder = BatchSizeFinder(mode="binsearch", steps_per_trial=3, max_val=64)
-model.fit(datamodule, devices=1, callbacks=[finder], max_epochs=20)
+model.fit(datamodule, fused=None, devices=1, callbacks=[finder], max_epochs=20)
 ```
 
 `model`, `train_table`, and `validation_table` are application-supplied.
@@ -69,19 +68,25 @@ MPS. The finder restores its temporary checkpoint before the real fit;
 The finder does not support distributed strategies. On a multi-GPU machine,
 `devices="auto"` normally selects all visible GPUs, so tune on one device
 first with Lightning's `Tuner` (which uses `BatchSizeFinder` internally),
-then train with automatic device count and no finder callback. This CUDA
-example assumes BF16 support for both the probe and the real fit:
+then train with automatic device count and no finder callback. The native
+Trainer probe needs an explicit optimizer factory. This CUDA example assumes
+BF16 support for both the probe and the real fit:
 
 ```python
 import lightning.pytorch as lit
 from lightning.pytorch.tuner import Tuner
 
+model.optimizer = rf.adamw(learning_rate=1e-3, fused=None)
 tuning = lit.Trainer(accelerator="auto", devices=1, precision="bf16-mixed")
 Tuner(tuning).scale_batch_size(
     model, datamodule=datamodule, mode="binsearch", max_val=64,
 )
+model.optimizer = None
 model.fit(datamodule, max_epochs=20)
 ```
+
+The probe's optimizer assignment is cleared before the ordinary fit, which
+configures its own optimization for the current model.
 
 Keep a conservative cap and supply enough representative records to fill the
 candidate batches, including dense histories and participating targets.
@@ -99,9 +104,10 @@ comparing trials, and account for incomplete final accumulation windows.
 
 ## Feed The Device
 
-`model.batch_size` controls encoded model batches. Loader settings belong on
-the data module; tune them after measuring whether input preparation leaves the
-device idle:
+Loop `batch_size` overrides set the model's current encoded batch size, for
+example `model.fit(datamodule, batch_size=128, max_epochs=30)`. The value is per
+device under DDP. Loader settings belong on the data module; tune them after
+measuring whether input preparation leaves the device idle:
 
 ```python
 datamodule = rf.ArrowDataModule(
@@ -133,18 +139,18 @@ rather than exact row accounting for partial batches. Compare runs with the
 same batch geometry. Prediction throughput is retained by the callback and
 sent directly to attached loggers; it is not a `trainer.callback_metrics` result.
 
-## Use The AdamW Factory
+## Configure AdamW {#use-the-adamw-factory}
 
 ```python
-import relflow as rf
-
-model.optimizer = rf.adamw(learning_rate=1e-3)
+model.fit(datamodule, learning_rate=1e-4, weight_decay=0.01, fused=True, max_epochs=30)
 ```
 
-The factory defaults to fused Torch AdamW. Biases, one-dimensional parameters,
-and names containing `"norm"` receive no weight decay by default. Use
-`fused=False` for an unsupported device or `fused=None` for Torch's selection.
-When resuming, keep optimizer settings consistent with the saved run.
+Ordinary fits default to fused Torch AdamW. Use `fused=False` for an unsupported
+device or `fused=None` for Torch's selection. Biases, scalar and one-dimensional
+parameters, and names containing `"norm"` receive no weight decay by default.
+See [Optimization](lightning.qmd#configure-optimization-and-callbacks) for all
+options and per-run state. When resuming, keep optimizer settings consistent
+with the saved run.
 
 ## Compile Encoder And Pool Regions
 

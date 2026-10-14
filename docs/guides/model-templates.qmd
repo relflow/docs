@@ -31,7 +31,6 @@ from pathlib import Path
 import relflow as rf
 
 model = rf.Model.from_yaml(Path("payment-model.yaml"))
-model.optimizer = rf.adamw(learning_rate=1e-3)
 ```
 
 Each `fields` mapping assigns names to its children, just as Python keyword
@@ -56,14 +55,12 @@ n_layers: 2
 n_heads: 4
 ```
 
-Python keyword arguments override the file's root or runtime options:
+Python keyword arguments override the file's root settings:
 
 ```python
 model = rf.Model.from_yaml(
     "payment-model.yaml",
     n_layers=3,
-    batch_size=256,
-    optimizer=rf.adamw(learning_rate=1e-3),
 )
 ```
 
@@ -146,6 +143,9 @@ A template creates a new architecture with fresh model state. It does not
 restore trained parameters, category vocabularies, or quantile normalization
 state. Use [checkpoint loading](lightning.qmd) to resume a trained model.
 
-Supply optimizer and scheduler configurations through Python, not YAML. Data
-sources, preprocessors, and the training loop also remain application code;
+Once the application supplies a data module named `data`, configure
+optimization on `model.fit(...)`, for example
+`model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)`.
+Training options and schedulers belong to that call, not the YAML architecture.
+Data sources, preprocessors, and the training loop also remain application code;
 see [Data Modules](data-modules.qmd) and [Preprocessing](preprocessors.qmd).

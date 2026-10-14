@@ -99,12 +99,14 @@ trained with a data module:
 ```python
 predictions = model.predict(
     request_table,
+    batch_size=256,
     preprocess=pipeline,
     retain=("payment_id",),
 )
 ```
 
-Retention reads the processed columns. Before any
+Direct preprocessing runs on the full input once, before its processed Arrow
+rows are divided into model batches. Retention reads the processed columns. Before any
 [postprocessing](postprocessors.qmd), predictions contain one row per processed
 observation. Filtering removes observations; exploding or a one-to-many join can
 add them. Keep a business key when outputs must be joined back to source records;

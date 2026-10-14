@@ -18,6 +18,7 @@ data = rf.ArrowDataModule(
 )
 model.predict(
     datamodule=data,
+    batch_size=256,
     callbacks=[rf.Writer("payment-predictions")],
     return_predictions=False,
 )
@@ -29,7 +30,8 @@ the canonical `inputs` and `predictions` columns described in
 sort distributed results downstream; relflow does not add row identity.
 
 To collect bounded batched output in memory, use
-`model.predict(datamodule=data, devices=1)`. This returns one Arrow table.
+`model.predict(datamodule=data, batch_size=256, devices=1)`. This returns one Arrow table.
+The batch size is per device and updates the model's current size.
 Prediction has no automatic time limit.
 
 With multiple ranks or data workers, the loader trims the final group to divide
@@ -53,6 +55,8 @@ Open the resulting shards as one Arrow dataset for further batch processing:
 result = ds.dataset("payment-predictions", format="parquet")
 ```
 
-Use `model.predict(request_table)` for bounded in-memory requests and
-[Deployment](serving.qmd) for online requests. Direct `model.predict` processes
-its supplied input as one unit; use the data module to batch larger datasets.
+For bounded in-memory requests, `model.predict(request_table, batch_size=256)`
+chunks processed rows before model execution and collects one Arrow table.
+[Prediction Output](prediction-output.qmd#batch-direct-requests) explains its
+preprocessing and postprocessing order. Data-module prediction with a Writer
+streams file-backed datasets. Use [Deployment](serving.qmd) for online requests.

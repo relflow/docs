@@ -49,11 +49,23 @@ exports context and creates no objective. `ffnx` defaults independently to 8
 on each node; tanh GELU and RMSNorm are fixed.
 
 Use `rf.ArrowDataModule(model=model, train=train, validate=validate)` for
-canonical training examples. Name application-supplied inputs. Configure
-`model.optimizer = rf.adamw(learning_rate=1e-3)` before fitting. Prediction
-returns an Arrow table with a `predictions` column. Show observation and output
+canonical training examples. Name application-supplied inputs. Configure AdamW
+through `model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)`;
+omitted options use defaults. Each fit binds a fresh optimizer to the current
+parameters, with any scheduler supplied for that run. Full training continuation
+uses `ckpt_path`. Reserve `rf.adamw(...)` and explicit `model.optimizer` setup
+for custom optimization or native `lit.Trainer` examples. Prediction returns
+an Arrow table with a `predictions` column. Show observation and output
 examples as one YAML record, nesting repeated values under their field names.
 Keep examples realistic without constructing or executing miniature datasets.
+Set batch size on the loop method in ordinary training examples. A positive
+`batch_size` on any loop updates the persistent model setting; Arrow data
+modules read it when creating loaders, while custom Lightning loaders own their
+configuration. Under DDP it is per device. Direct prediction with explicit
+`batch_size=N` preprocesses once, chunks processed Arrow rows before encoding,
+and postprocesses the combined output once. Omission or `None` preserves direct
+whole-input behavior. Constructor batch size remains the initial/checkpoint
+setting and supports native Trainer/Tuner workflows.
 
 Verify API claims against pinned upstream source and `contracts/relflow.json`;
 existing prose alone is not evidence. Update the contract deliberately when

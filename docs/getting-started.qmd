@@ -28,7 +28,6 @@ disputed: false
 import relflow as rf
 
 model = rf.Model.xs(
-    batch_size=128,
     amount=rf.Number,
     merchant=rf.Category,
     disputed=rf.Boolean(mask=True),
@@ -68,10 +67,10 @@ data = rf.ArrowDataModule(
     train=train_payments,
     validate=validation_payments,
 )
-model.optimizer = rf.adamw(learning_rate=1e-3)
-model.fit(data, max_epochs=20)
+model.fit(data, batch_size=128, max_epochs=20)
 ```
 
+`batch_size=128` sets the number of payments per training batch on each device.
 relflow configures the training loop, stops early when validation loss stops
 improving, and restores the best validation checkpoint.
 
@@ -82,7 +81,7 @@ because that is the outcome you want to predict.
 
 ```python
 new_payments = pq.read_table("payments/requests.parquet")
-predictions = model.predict(new_payments)
+predictions = model.predict(new_payments, batch_size=256)
 ```
 
 `predictions` is an Arrow table. Its `predictions` column contains the result

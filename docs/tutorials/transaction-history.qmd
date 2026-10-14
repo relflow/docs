@@ -34,7 +34,6 @@ oldest to newest. A payment with no earlier transactions has an empty list.
 import relflow as rf
 
 model = rf.Model.xs(
-    batch_size=128,
     amount=rf.Number,
     merchant=rf.Category,
     recent_transactions=rf.Branch(
@@ -81,12 +80,11 @@ data = rf.ArrowDataModule(
     train=train_payments,
     validate=validation_payments,
 )
-model.optimizer = rf.adamw(learning_rate=1e-3)
-model.fit(data, max_epochs=20)
+model.fit(data, batch_size=128, max_epochs=20)
 ```
 
 Prediction requests have the same structure and omit `disputed`. The call
-remains `model.predict(new_payments)`.
+remains `model.predict(new_payments, batch_size=256)`.
 
 If your source uses different names or shapes, continue with
 [Binding Data](../core-concepts/binding-data.qmd). To prepare these histories

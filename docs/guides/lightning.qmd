@@ -18,8 +18,14 @@ datamodule = rf.ArrowDataModule(
     train=train_table,
     validate=validation_table,
 )
-model.optimizer = rf.adamw(learning_rate=1e-3)
-model.fit(datamodule, max_epochs=50, checkpoint_dir="checkpoints/payments")
+model.fit(
+    datamodule,
+    batch_size=128,
+    learning_rate=1e-4,
+    weight_decay=0.01,
+    max_epochs=30,
+    checkpoint_dir="checkpoints/payments",
+)
 ```
 
 For eager Polars frames, use `rf.PolarsDataModule(model=model,
@@ -134,19 +140,84 @@ and BF16 mixed precision when all selected devices support it. Otherwise
 precision is FP32. Unused-parameter detection supports parameters omitted from
 a batch's reconstruction objectives. Supply explicit `accelerator`, `devices`,
 `precision`, or `strategy` to override these choices. Other Trainer arguments
-pass through; `callbacks` works on all four loops. `batch_size` updates the one
-model-owned batch size. relflow installs its required callbacks automatically.
+pass through; `callbacks` works on all four loops. relflow installs its
+required callbacks automatically.
 Compile
 selected model regions before the loop with `model.compile()` if desired;
 [Performance](performance.qmd) describes exactly what this compiles.
 
+## Batch Size
+
+Set `batch_size` on `fit`, `validate`, `test`, or `predict`. It must be a positive
+integer. The value updates `model.batch_size` and remains current for later
+loops; omitting it or passing `None` leaves that setting unchanged.
+
+```python
+model.fit(datamodule, batch_size=128, max_epochs=30)
+model.validate(validation_data, batch_size=256)
+model.test(test_data, batch_size=256)
+model.predict(datamodule=prediction_data, batch_size=256, devices=1)
+```
+
+Here `validation_data`, `test_data`, and `prediction_data` are application data
+modules supplying their corresponding named splits. `ArrowDataModule` reads
+the model's current batch size when creating each loader. Custom Lightning data
+modules own their loader configuration; changing the model setting does not
+reconfigure a custom prebuilt loader.
+
+Under DDP the size is per device. With two devices and `batch_size=128`, a
+complete distributed training batch contains 256 observations before gradient
+accumulation. The constructor's `batch_size` remains the initial setting,
+defaulting to one, and is saved in the model artifact. Native Trainer and Tuner
+workflows can continue to use it.
+
+For direct Arrow input, `model.predict(request_table, batch_size=256)` also
+chunks the processed observations before encoding. Omitting that override
+preserves whole-input execution. See
+[Direct prediction batches](prediction-output.qmd#batch-direct-requests).
+
 ## Configure Optimization And Callbacks
 
-Pass an optimizer instance or a factory receiving the model, either through
-`Model(optimizer=...)` or `model.optimizer`. A factory collects the current
-parameters when Lightning configures optimization. `scheduler` accepts a
-scheduler, a Lightning scheduler configuration, or a factory receiving
-`(model, optimizer)`.
+Configure AdamW on `fit(...)`. Omitted options use these effective defaults:
+
+| Option | Default | Controls |
+| --- | --- | --- |
+| `learning_rate` | `1e-3` | AdamW learning rate. |
+| `weight_decay` | `0.01` | Decay for eligible parameters. |
+| `betas` | `(0.9, 0.95)` | First- and second-moment coefficients. |
+| `eps` | `1e-8` | Numerical stability term. |
+| `fused` | `True` | Fused Torch AdamW; `False` disables it and `None` delegates to Torch. |
+| `decay_bias` | `False` | Allow decay on bias parameters. |
+| `decay_1d` | `False` | Allow decay on scalar and one-dimensional parameters. |
+| `no_decay_name_fragments` | `("norm",)` | Case-insensitive parameter-name fragments excluded from decay. |
+
+Built-in AdamW binds the current parameters when training starts. Every ordinary
+fit creates fresh optimizer state, including after schema mutation or rollback.
+Options supplied to one call do not become defaults for the next call:
+
+```python
+model.fit(datamodule, learning_rate=1e-3, max_epochs=30)
+model.fit(datamodule, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)
+```
+
+The second run starts from the first run's restored best model, with new
+optimization state. Use [`ckpt_path`](#resume-training) to continue a saved
+run's optimizer, scheduler, and loop progress instead.
+
+Pass any scheduler as `fit(scheduler=...)` for that run. A scheduler factory
+receives `(model, optimizer)` and returns a scheduler or Lightning scheduler
+configuration. Prefer a factory so it binds the optimizer created for the
+current call; a scheduler bound to another optimizer is rejected. A scheduler
+supplied to a previous fit is not reused automatically.
+
+For custom optimization, `fit(optimizer=...)` accepts an optimizer instance or
+a factory receiving the model. Factories should collect the current parameters;
+reusing an optimizer built before mutation or rollback can refer to replaced
+modules and is rejected. Custom optimizer instances manage their own state.
+An explicit optimizer cannot be combined with the built-in AdamW options.
+Advanced `Model(optimizer=..., scheduler=...)` or model-attribute configurations
+remain defaults for native Lightning workflows and custom fits; ordinary fits
+need no separate optimizer assignment.
 
 Set `early_stopping=False` or `rollback=False` to disable either policy. Train-only
 fitting disables both or explicitly chooses a training monitor such as
@@ -154,8 +225,8 @@ fitting disables both or explicitly chooses a training monitor such as
 `rf.RollbackCheckpoint` callback. Policy callbacks in `callbacks` replace their
 automatic defaults; other Lightning callbacks run alongside the built-ins.
 
-`model.fit(...)` supplies AdamW at `1e-3` when no optimizer is configured.
-Direct `lit.Trainer.fit(...)` requires an explicit optimizer. Use Trainer directly
+Direct `lit.Trainer.fit(...)` requires an explicit optimizer configuration,
+such as `model.optimizer = rf.adamw(learning_rate=1e-3)`. Use Trainer directly
 when a Lightning tool needs it; the model methods accept its execution options
 for ordinary loops.
 
@@ -205,7 +276,6 @@ progress. Recreate the runtime configuration and pass the checkpoint to `fit`:
 
 ```python
 resumed = rf.Model.load("checkpoints/recovery/last.ckpt")
-resumed.optimizer = rf.adamw(learning_rate=1e-3)
 resume_data = rf.ArrowDataModule(
     model=resumed,
     train=train_table,
@@ -213,6 +283,8 @@ resume_data = rf.ArrowDataModule(
 )
 resumed.fit(
     resume_data,
+    batch_size=128,
+    learning_rate=1e-3,
     max_epochs=100,
     ckpt_path="checkpoints/recovery/last.ckpt",
 )
@@ -224,8 +296,9 @@ what tells Lightning to resume training state.
 
 Another `fit` call without `ckpt_path` starts a new optimizer run from the current
 model state. Use the best full checkpoint to continue with optimizer and
-scheduler state matching the restored best model. After rollback, construct a
-new optimizer instance or supply a factory; factories bind the current graph.
+scheduler state matching the restored best model. A new ordinary fit after
+rollback creates AdamW on the restored parameters automatically. Supply any
+scheduler again for that new run.
 
 To learn from unlabeled transaction records before the supervised task, see
 [Pretraining And Fine-Tuning](pretraining.qmd). That is an optional separate workflow.

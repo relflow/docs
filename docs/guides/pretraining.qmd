@@ -52,7 +52,6 @@ model = rf.Model.xs(
         ),
     ),
 )
-model.optimizer = rf.adamw(learning_rate=1e-3)
 pretraining_data = rf.ArrowDataModule(
     model=model,
     train=pretrain_table,
@@ -60,6 +59,7 @@ pretraining_data = rf.ArrowDataModule(
 )
 model.fit(
     pretraining_data,
+    batch_size=128,
     max_epochs=50,
     checkpoint_dir="checkpoints/payment-pretraining",
 )
@@ -138,11 +138,11 @@ these boundaries.
 
 ## Start A New Training Run
 
-Assign a fresh optimizer factory after the edits and start a new fit with
-labeled Arrow splits. A smaller learning rate is a starting point to evaluate:
+Start a new fit with labeled Arrow splits. The call binds a fresh optimizer
+to the edited model, including its new target. A smaller learning rate is a
+starting point to evaluate:
 
 ```python
-finetuned.optimizer = rf.adamw(learning_rate=1e-4)
 finetuning_data = rf.ArrowDataModule(
     model=finetuned,
     train=finetune_table,
@@ -150,6 +150,9 @@ finetuning_data = rf.ArrowDataModule(
 )
 finetuned.fit(
     finetuning_data,
+    batch_size=128,
+    learning_rate=1e-4,
+    weight_decay=0.01,
     max_epochs=20,
     checkpoint_dir="checkpoints/payment-finetuning",
 )
@@ -159,8 +162,9 @@ finetuned.save("artifacts/payment-disputes.rf")
 This starts new optimization from the transferred model state. Use `ckpt_path`
 with a full Lightning checkpoint when [resuming the same task](lightning.qmd#resume-training),
 including its optimizer and loop progress.
-Reapply any processors, scheduler, and desired compilation after loading and
-schema edits. For DDP, every rank must construct the same final schema.
+Reapply processors and desired compilation after loading and schema edits.
+Pass any scheduler to this fit call; it is not inherited from pretraining.
+For DDP, every rank must construct the same final schema.
 
 Fine-tuning here updates the model end to end, including the new decoder and
 existing encoders. Loaded [vocabularies](../core-concepts/vocabulary.qmd) and

@@ -24,6 +24,7 @@ def decision(frame: pl.DataFrame, *, threshold: float) -> pl.DataFrame:
 # request_table is supplied by the application.
 result = model.predict(
     request_table,
+    batch_size=256,
     retain=("payment_id",),
     postprocess=decision.partial(threshold=0.8),
 )
@@ -36,6 +37,9 @@ payment_id: payment-42
 dispute_probability: <probability of true>
 review: <true or false>
 ```
+
+With direct prediction, the postprocessor receives the combined result once,
+after all model batches have completed.
 
 The threshold is an application decision rule. The example uses the content
 probability; incorporate the predicted value state when your application needs

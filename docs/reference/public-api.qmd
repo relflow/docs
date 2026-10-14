@@ -24,9 +24,8 @@ datamodule = rf.ArrowDataModule(
     train=train_table,
     validate=validation_table,
 )
-model.optimizer = rf.adamw(learning_rate=1e-3)
-model.fit(datamodule, max_epochs=20)
-predictions = model.predict(request_table)
+model.fit(datamodule, batch_size=128, max_epochs=20)
+predictions = model.predict(request_table, batch_size=256)
 ```
 
 `mask=True` declares the prediction target. Fitting restores the best validation
@@ -59,8 +58,8 @@ Constructor options live with their owning type.
 | `rf.DuckDBDataModule` | Read restartable Arrow batches from configured DuckDB queries. |
 | `rf.source` | Configure Arrow file reading. |
 | `rf.preprocess`, `rf.Preprocessor` | Transform eager Polars frames before binding data. |
-| `rf.adamw` | Configure the AdamW optimizer factory, fused by default. |
-| `model.fit` | Train a data module with automatic hardware selection, early stopping, and best-checkpoint rollback. |
+| `rf.adamw` | Build an AdamW factory for custom or native Lightning workflows. |
+| `model.fit` | Configure AdamW and train a data module with automatic hardware selection, early stopping, and best-checkpoint rollback. |
 | `model.validate`, `model.test` | Evaluate the corresponding data-module split and return aggregate metrics. |
 | `model.track` | Log a custom metric through Lightning; training defaults to step logging and evaluation to pass aggregates. |
 | `rf.EarlyStopping`, `rf.RollbackCheckpoint` | Configure stopping and best-checkpoint restoration explicitly. |
@@ -80,7 +79,7 @@ For an unlabeled training objective followed by a labeled task, see
 
 | API | Purpose |
 | --- | --- |
-| `model.predict` | Return predictions as an Arrow table from Arrow input or a prediction data module. |
+| `model.predict` | Return an Arrow prediction table, with optional batch sizing for direct input or a prediction data module. |
 | `model.save`, `rf.Model.load` | Save and restore the schema and learned model state. |
 | `rf.Writer` | Write Lightning prediction batches to rank-partitioned Parquet files. |
 | `rf.postprocess`, `rf.Postprocessor` | Transform eager Polars frames after prediction writing. |

@@ -59,7 +59,6 @@ multiplier, and the dispute decoder's heads independently:
 import relflow as rf
 
 model = rf.Model.sm(
-    batch_size=128,
     n_layers=3,
     amount=rf.Number,
     merchant=rf.Category,
@@ -130,8 +129,9 @@ affected address. Reusing a branch or leaf definition in another model creates
 a separately resolved tree and leaves the original definition unchanged.
 
 The preset leaves history lengths, overflow, field roles, queries, objective
-weights, and datatype-specific options to the application. Batch size also
-remains explicit: its ordinary default is one. Optimizers, learning rates,
+weights, and datatype-specific options to the application. Set batch size on
+the loop, such as `model.fit(data, batch_size=128, max_epochs=30)`. Constructor
+batch size remains the initial value, defaulting to one. Optimization,
 schedulers, training budgets, hardware, and data-loader settings belong to the
 [training workflow](../guides/lightning.qmd), not the size profile.
 
@@ -196,7 +196,6 @@ class PaymentModel(rf.Model):
     compact = rf.presets.factory(compact)
 
 payment_model = PaymentModel.compact(
-    batch_size=128,
     amount=rf.Number,
     merchant=rf.Category,
     disputed=rf.Boolean(mask=True),

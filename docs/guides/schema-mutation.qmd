@@ -75,9 +75,11 @@ Mutation is prohibited during active forward, inference, and Lightning loops.
 Change the model between complete operations. Avoid direct attribute edits that
 bypass graph rebuilding.
 
-Rebuilds replace runtime modules, so recreate optimization through a factory
-and a new fitting loop after editing a trained model. An existing optimizer
-instance can refer to replaced parameters. Existing data modules keep the
+Rebuilds replace runtime modules. After editing a trained model, call
+`model.fit(data, batch_size=128, learning_rate=1e-4, max_epochs=30)` to start fresh optimization
+on its current parameters, including added fields. Supply any scheduler for
+this new run. Custom optimizer instances must also bind the current parameters;
+an old instance can refer to replaced modules. Existing data modules keep the
 model reference and use its current schema; application caches and exported
 artifacts remain your responsibility.
 

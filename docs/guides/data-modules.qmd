@@ -39,8 +39,10 @@ data = rf.ArrowDataModule(
 ## Splits and preparation
 
 The available splits are `train`, `validate`, `test`, and `predict`; supply at
-least one. Training shuffles by default. The other splits do not. The model's
-`batch_size` sets the batches the data module produces.
+least one. Training shuffles by default. The other splits do not. Set model
+batch size on the loop, for example `model.fit(data, batch_size=128, max_epochs=30)`.
+Arrow data modules read the model's current size whenever they create loaders;
+see [Batch size](lightning.qmd#batch-size) for overrides on the other loops.
 
 Choose splits before constructing the module. For time-based evaluation, define
 an observation cutoff, build features only from information available then, and
