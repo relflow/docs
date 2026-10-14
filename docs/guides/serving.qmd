@@ -96,6 +96,10 @@ that require [preprocessing](preprocessors.qmd), attach that processor with
 
 Concurrent JSON requests can share a model microbatch. `max_batch_size` bounds
 its size; `batch_timeout` sets the optional collection wait in seconds.
+For Arrow requests, `max_batch_size` bounds model batches after preprocessing.
+The preprocessor sees the full request table, and the postprocessor sees the
+combined output.
+
 `accelerator` selects `auto`, `cpu`, `cuda`, or `mps`. An in-memory model can be
 supplied with `model=model` instead of a checkpoint.
 
