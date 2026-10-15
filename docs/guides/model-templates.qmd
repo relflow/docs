@@ -103,6 +103,13 @@ This reads the same structure as [Add Transaction History](../tutorials/transact
 `overflow: tail` assumes records are ordered oldest to newest; the template does
 not sort them or join database tables.
 
+Omit `length` or use `length: null` to retain all selected records and resolve
+width from each batch. An unbounded branch must also omit `overflow` or set it
+to `null`. Any explicit overflow policy requires a finite length. With a finite
+length, omitted or null overflow selects `head`. These rules match Python
+construction and serialized schemas; the anonymous root remains a singleton.
+See [automatic lengths and limits](../data-types/branch.qmd#automatic-lengths-and-limits).
+
 Nested option mappings use existing configuration fields. For example, an
 explicit masking policy can be written as:
 

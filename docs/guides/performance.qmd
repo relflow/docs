@@ -7,17 +7,25 @@ same data, hardware, precision, and optimization budget.
 
 ## Control Work First
 
-Repeated branches reserve their configured lengths. Nested lengths multiply
-coordinate counts. Choose lengths and overflow rules that retain the context
-the task needs; reductions determine how much of each branch reaches its
-parent. These choices can change model quality and are not interchangeable
-performance switches.
+Repeated branches use the largest retained collection length in each batch.
+The default `length=None` retains all slots; a finite limit bounds retention
+and permits an overflow policy. Even bounded branches compact their internal
+width below the cap when possible. Nested batch maxima can multiply coordinate
+counts. Choose limits that retain the context the task needs; reductions
+determine how much reaches the parent. These choices also affect model quality.
+See [Branch](../data-types/branch.qmd#automatic-lengths-and-limits).
 
 Padding and structurally skipped coordinates are absent from attention.
 Eligible encoder work packs present coordinates when the layers have no
 customizations or active stochastic dropout. This is automatic; it does not
 require changing the input schema. Null and learned-mask coordinates remain
 present model inputs.
+
+Padding is not free. Dense embedding buffers, concatenation, unpacking, and
+learned pooling still consume memory. Packed attention operates on real
+sequences, whose pairwise work grows quadratically with their lengths. One long
+record can dominate a batch even when its neighbors are short. Set finite
+limits for untrusted inputs.
 
 On CUDA, eligible encoder sequences with every coordinate present omit padding
 masks, allowing PyTorch to select native FlashAttention. The same presence
@@ -174,17 +182,19 @@ execution.
 
 Coordinate encoders, routing, tensorfield operations, mean pooling, losses,
 metrics, and optimizer execution keep their ordinary paths. Each selected
-region uses `torch.compile(fullgraph=True)`. Custom compute implementations
-remain eager, as do customized regions and regions with nested hooks,
-including hooks added after compilation.
+dense region uses `torch.compile(fullgraph=True)`. Packed grouping and its
+grouped encoder execution stay eager so changing batch composition does not
+create a compiler specialization for every group layout. Custom compute
+implementations remain eager, as do customized regions and regions with
+nested hooks, including hooks added after compilation.
 
 ```python
 model.compile(backend="inductor", dynamic=True, options={})
 ```
 
 `backend="inductor"`, `dynamic=None`, and `options=None` are the defaults.
-`dynamic=None` lets Torch decide when to generalize shapes; `True` requests
-dynamic shapes and `False` specializes them. Inductor defaults preserve eager
+Omitting `dynamic`, or passing `None`, enables dynamic shapes; `True` also
+enables them and `False` specializes shapes. Inductor defaults preserve eager
 random draws and disable CUDA graphs and automatic tensor padding.
 Backend-specific `options` override those defaults. Floating-point results can
 still differ.

@@ -48,6 +48,13 @@ Use one argument per address component, such as
 exports context and creates no objective. `ffnx` defaults independently to 8
 on each node; tanh GELU and RMSNorm are fixed.
 
+Child branches default to `length=None, overflow=None`, retaining all selected
+slots with batch-dependent widths. A positive integer length sets a hard cap;
+only bounded branches accept `head`, `tail`, or `error`, with omitted overflow
+resolving to `head`. Finite output axes remain fixed-size Arrow lists, while
+unbounded axes use variable-size lists. Explain memory costs and the warning
+for public serving; automatic widths do not make padding free.
+
 Use `rf.ArrowDataModule(model=model, train=train, validate=validate)` for
 canonical training examples. Name application-supplied inputs. Configure AdamW
 through `model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)`;

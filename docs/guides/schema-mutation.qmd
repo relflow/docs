@@ -37,6 +37,18 @@ an option supported by none of the selected nodes still raises.
 always-hidden reconstruction target. Use `description` for notes and declared
 field options for configuration.
 
+Batch-dependent widths need no schema mutation. To deliberately remove an
+existing branch limit, clear its overflow policy in the same update:
+
+```python
+history = rf.where("address") == rf.Address("recent_transactions")
+model.update(history, length=None, overflow=None)
+```
+
+Changing only `length=None` while retaining `"head"`, `"tail"`, or `"error"`
+is invalid and restores the previous schema and graph. See
+[automatic lengths and limits](../data-types/branch.qmd#automatic-lengths-and-limits).
+
 ## Make A Temporary Change
 
 ```python

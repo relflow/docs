@@ -171,8 +171,10 @@ branch records must remain to establish output positions. Targets using an
 explicit value query or conditional reconstruction selector still need their
 source structure and selector to be bindable.
 
-Conditional predictions retain the schema's fixed shape. Use each coordinate's
-`inferred` flag to identify requested outputs. See
+Conditional predictions retain their structural positions, using fixed-size
+axes for finite branch limits and variable-size lists for automatic lengths;
+see [repeated coordinates](../guides/prediction-output.qmd#repeated-coordinates).
+Use each coordinate's `inferred` flag to identify requested outputs. See
 [Prediction Output](../guides/prediction-output.qmd) for the Arrow contract.
 
 [Pretraining And Fine-Tuning](../guides/pretraining.qmd) shows how to change

@@ -70,15 +70,64 @@ a different structural path and a preprocessor for sorting, filtering, or derive
 values.
 
 A child branch requires a list of objects, including when `length=1`. Only
-the generated model root reads one object directly. Each branch adds a shape
-axis. `length` caps retained items,
-shorter collections are padded, and `overflow` chooses which excess items
-survive. Padding does not contribute to attention or reduction.
+the generated model root reads one object directly. Each child branch adds a
+repeated axis. Its execution width follows the selected collections in each
+batch; an explicit `length` caps retained items. Padding does not contribute to
+attention or reduction, but it still has storage and processing costs.
 
 Definitions are reusable: binding clones them without changing the original.
 Use `fields={"length": rf.Number}` for generated schemas or child names that
 collide with configuration. Use [Set](set.qmd) for membership alone and
 [Vector](vector.qmd) for one numeric vector.
+
+## Automatic Lengths And Limits
+
+Omitting `length`, or setting `length=None`, retains every collection slot:
+
+```python
+history = rf.Branch(
+    amount=rf.Number,
+    merchant=rf.Category,
+)
+```
+
+Each batch uses the largest retained collection length, including null object
+slots. Widths can grow or shrink between batches; all-empty collections have
+width zero. Nested widths are resolved after any parent limit has selected its
+records. Leaves beneath the same branch share its geometry, independently of
+values, masking, or which target is supplied. This changes execution geometry,
+without updating the schema, growing parameters, or replacing the optimizer.
+
+Set a positive integer `length` for a hard limit. Only bounded branches accept
+`overflow="head"`, `"tail"`, or `"error"`; omission or `None` selects `"head"`
+when a limit exists. `Branch(overflow="tail", ...)` without a finite length is
+an error. The generated root always remains a singleton with `length=1` and
+internal `overflow="error"`.
+
+Bounded branches also pad only to the largest retained length in each batch,
+up to their cap. [Prediction output](../guides/prediction-output.qmd#repeated-coordinates)
+keeps a fixed-size Arrow axis for a finite limit and uses a variable-size list
+for `length=None`.
+
+::: {.callout-warning}
+## Inference-time DoS/DDoS attack vector
+
+With `length=None`, untrusted requests control nested collection sizes during
+inference. Oversized collections can exhaust CPU/GPU memory or compute and deny
+service to other users. Requests from multiple sources can amplify this into a
+distributed denial-of-service (DDoS) attack.
+
+Set finite branch lengths and enforce request-size limits before
+[public serving](../guides/serving.qmd#bound-public-requests). A batch-size limit
+alone does not bound nested collections. RelFlow logs one aggregate warning per
+model generation for active unbounded branches; the warning enforces no limit.
+No hidden cap is applied to `length=None`.
+:::
+
+Existing Python or YAML definitions that omit `length` now retain all items;
+use `length=1` to retain the previous singleton limit. Existing checkpoints
+with numeric lengths keep those explicit limits. Unbounded branches serialize
+and restore with null length and overflow; batch widths are never saved as limits.
 
 ## Options
 
@@ -90,8 +139,8 @@ These are the direct `rf.Branch` defaults. A
 | --- | --- | --- |
 | `fields` | `None` | Named child mapping, combinable with keyword children; names must be unique. |
 | `query` | `None` | Optional node-relative structural path. |
-| `length` | `1` | Positive maximum retained items per parent coordinate. |
-| `overflow` | `"head"` | Keep first items (`"head"`), keep last items (`"tail"`), or raise (`"error"`). Order comes from the processed source. |
+| `length` | `None` | Retain all items, or set a positive integer maximum per parent coordinate. |
+| `overflow` | `None` | For finite lengths: keep first items (`"head"`, the bounded default), last items (`"tail"`), or raise (`"error"`). Unbounded branches keep `None`. Order comes from the processed source. |
 | `attention` | `"mha"` | Encoder mode; see below. |
 | `n_layers` | `1` | Positive sequence-encoder depth. |
 | `n_heads` | `4` | Positive, even encoder head count and fallback for Attention reduction. Active attention requires heads to divide `d_model` with at least two dimensions per head. |
@@ -140,7 +189,7 @@ information from earlier encoder attention.
 Choose reduction from the evidence the parent needs. A mean is not a raw-field
 sum, and more learned summaries do not perform a join. Capacity must survive
 later reductions too. `model.schema.branch_outputs` reports each branch's
-static routed width.
+static routed width, or `None` when pass-through width depends on the batch.
 
 The [nested cardinality proof](../proofs/structure/attention-preserves-nested-cardinality.html)
 tests whether session summaries preserve enough information for their parent.

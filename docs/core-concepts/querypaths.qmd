@@ -63,7 +63,11 @@ parent's path. This assumes history arrives in oldest-to-newest order.
 
 Without a query, the root uses the source row and a child selects its own name.
 A child branch must select a list of structs. Branch queries select source
-positions; `length` sets the model's capacity and padding.
+positions before branch geometry is resolved. With `length=None`, the branch
+keeps all selected slots. A finite `length` applies its overflow policy to that
+selection; each batch then uses its largest retained width. Descendant widths
+are determined from the retained parent records. See
+[Branch](../data-types/branch.qmd#automatic-lengths-and-limits).
 
 ## Path syntax
 

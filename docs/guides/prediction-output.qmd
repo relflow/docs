@@ -112,11 +112,26 @@ your preprocessor transforms units, reverse that application transform in a
 Category and Enum always include `topk`, even when empty. A Set threshold can
 vary the number of returned candidates.
 
-The Arrow row dimension always means observations. A repeated branch appears
-as fixed-width lists inside each leaf's output, including length-one branches.
-Vectors and embeddings also keep their width axis. A branch embedding's shape
-follows its reduction output. The generated root singleton is omitted; a
-one-row request has the same nested schema as a larger batch.
+## Repeated Coordinates
+
+The Arrow row dimension always means observations. Repeated branch axes follow
+their configured limits:
+
+| Branch length | Arrow axis |
+| --- | --- |
+| Positive integer | A fixed-size list at that limit, including length one. |
+| `None` | A variable-size list with the actual retained slots for each record. |
+
+Model computation uses each batch's compact width. The writer pads a bounded
+axis to its declared limit with null coordinates. Unbounded axes preserve empty
+lists, null collections, and structural slots without dropping positions based
+on a leaf's values. Nested branches can mix fixed and variable axes.
+
+Vectors and embeddings keep their feature-width axis. Branch embeddings follow
+the reduction output: learned summaries have a fixed output count, while
+pass-through contexts can have a variable count. The generated root singleton
+is omitted. Types remain stable across different batch widths, zero-row
+requests, concatenation, and streaming through `rf.Writer`.
 
 ## Retain source columns
 

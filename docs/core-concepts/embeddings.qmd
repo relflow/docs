@@ -63,8 +63,9 @@ history_embedding = pc.struct_field(
 ```
 
 Exported vectors are float32 and L2-normalized along their `d_model` axis;
-zero vectors remain zero. Repeated outer coordinates and multiple reduction
-outputs appear as fixed-size Arrow list axes. See
+zero vectors remain zero. Repeated outer coordinates use fixed-size Arrow
+lists for finite branch limits and variable-size lists for `length=None`.
+Multiple learned reduction outputs retain a fixed-size list axis. See
 [Prediction Output](../guides/prediction-output.qmd) for the full Arrow contract.
 
 `rf.Attention(n_outputs=...)` exports multiple reduction outputs.

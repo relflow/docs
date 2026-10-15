@@ -53,6 +53,34 @@ Default responses contain `predictions` plus a `model` provenance field with
 `inputs` column. A postprocessor controls application response fields;
 provenance is appended afterward, so `model` is a reserved name.
 
+## Bound Public Requests
+
+::: {.callout-warning}
+## Inference-time DoS/DDoS attack vector
+
+An unbounded `Branch(length=None)` lets a client control nested collection sizes
+during inference. A single oversized request can exhaust CPU/GPU memory or
+compute and interrupt service. Requests from multiple sources can amplify this
+into a distributed denial-of-service (DDoS) attack. Automatic batch widths and
+sparse attention do not impose a resource limit.
+:::
+
+Set finite `Branch(length=...)` limits on every branch that reads untrusted
+collections. Use `overflow="error"` when excess items must raise an error rather
+than be truncated. These limits bound retained model input; they do not prevent
+resource exhaustion while receiving, parsing, or preprocessing a request.
+
+Enforce request-body size limits before parsing, for both JSON and Arrow, at the
+application ingress or reverse proxy. Also validate collection sizes and nesting
+depth, and apply rate and concurrency limits appropriate to the service.
+`max_batch_size` bounds observation rows, not items inside each row or request
+bytes. One row can contain an oversized nested collection.
+
+RelFlow logs one aggregate warning per model generation for active unbounded
+paths; serving startup checks the same guard after queued schema changes. The
+warning does not reject requests or impose a cap. See
+[branch limits](../data-types/branch.qmd#automatic-lengths-and-limits).
+
 ## Validate application inputs
 
 Optional Pydantic signatures validate JSON requests before prediction and
