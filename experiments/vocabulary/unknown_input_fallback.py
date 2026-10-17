@@ -123,7 +123,7 @@ def build() -> rf.Model:
 
 def prediction(model: rf.Model, rows: list[dict]) -> np.ndarray:
     result = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    return np.asarray([row["/target"]["content"] for row in result], dtype=np.float64)
+    return np.asarray([row["target"]["content"] for row in result], dtype=np.float64)
 
 
 def rmse(actual: np.ndarray, predicted: np.ndarray | float) -> float:

@@ -1,7 +1,8 @@
 # relflow Modeling Proof Specification
 
 Status: active. Recorded results live in `results.yaml`, with implemented
-coverage tracked in [`README.md`](README.md). Sections marked planned describe
+coverage registered by proof ID in that file. [`README.md`](README.md) explains
+execution and compatibility. Sections marked planned describe
 hypotheses awaiting implementation and measurement.
 
 Scope: empirical regression proofs for learned model behavior
@@ -179,6 +180,20 @@ indexed by stable proof IDs. This documentation repository owns those scripts,
 their tests, and recorded evidence. Its site build reads them without importing
 RelFlow or executing experiments.
 Only reporting and command-line handling are shared between experiments.
+
+### Prediction format compatibility
+
+Executable readers target RelFlow 0.3.1 prediction output: decoded fields use
+ordinary child names under `predictions`, repeated branch records are variable
+lists, and requested embeddings use `representations` records with `path`,
+`parents`, `output_index`, and `embedding`. Read structural positions from those
+records rather than reconstructing them from leaf values or value-state logits.
+
+Updating a reader is a source migration, not a new learning measurement. Keep
+`results.yaml`, historical package versions, run fingerprints, budgets, seeds,
+and measurements unchanged. Fresh runs must record their own provenance and
+quality gates; the static site must continue to show when archived evidence
+comes from an earlier source or package version.
 
 A falling training loss is not proof of inference. The primary measurement must
 use held-out data or, for a deliberately mechanistic proof, explicitly say that

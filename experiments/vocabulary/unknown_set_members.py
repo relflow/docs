@@ -127,8 +127,8 @@ def build() -> rf.Model:
 
 def prediction(model: rf.Model, rows: list[dict]) -> tuple[np.ndarray, list[set[str]]]:
     output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    values = np.asarray([row["/target"]["content"] for row in output], dtype=np.float64)
-    labels = [{candidate["value"] for candidate in row["/labels"]["content"]} for row in output]
+    values = np.asarray([row["target"]["content"] for row in output], dtype=np.float64)
+    labels = [{candidate["value"] for candidate in row["labels"]["content"]} for row in output]
     return values, labels
 
 

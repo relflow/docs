@@ -106,7 +106,7 @@ def records(*, rows: int, seed: int) -> Iterator[dict]:
 
 def prediction(model: rf.Model, rows: list[dict], *, key: str = "x") -> np.ndarray:
     output = model.predict([{key: row["x"], "code": row["code"]} for row in rows])["predictions"].to_pylist()
-    return np.asarray([row["/y"]["content"] for row in output], dtype=np.float64)
+    return np.asarray([row["y"]["content"] for row in output], dtype=np.float64)
 
 
 def equal(first, second) -> bool:

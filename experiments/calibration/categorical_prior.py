@@ -163,7 +163,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         for novel in (False, True):
             rows = list(records(rows=8192, seed=seed + 3, novel=novel))
             predictions = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-            values = [row["/label"]["content"] for row in predictions]
+            values = [row["label"]["content"] for row in predictions]
             p = np.asarray(
                 [item["probability"] if item["value"] == "yes" else 1 - item["probability"] for item in values]
             )

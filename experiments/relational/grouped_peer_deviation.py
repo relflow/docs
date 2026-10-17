@@ -139,7 +139,7 @@ def predict(model: rf.Model, rows: list[dict]) -> np.ndarray:
         for row in rows
     ]
     output = model.predict(inputs).to_pylist()
-    return np.asarray([value["content"] for row in output for value in row["predictions"]["/items/deviation"]])
+    return np.asarray([item["deviation"]["content"] for row in output for item in row["predictions"]["items"]])
 
 
 def rmse(actual: np.ndarray, predicted: np.ndarray | float) -> float:

@@ -130,7 +130,7 @@ def build() -> rf.Model:
 
 def prediction(model: rf.Model, rows: list[dict], target: str) -> np.ndarray:
     output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    return np.asarray([row[f"/{target}"]["content"] for row in output], dtype=np.float64)
+    return np.asarray([row[target]["content"] for row in output], dtype=np.float64)
 
 
 def error(actual: np.ndarray, predicted: np.ndarray | float) -> float:

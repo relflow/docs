@@ -146,7 +146,7 @@ def build() -> rf.Model:
 def predict(model: rf.Model, rows: list[dict]) -> np.ndarray:
     visible = [{"group": row["group"], "x": row["x"]} for row in rows]
     result = model.predict(pa.Table.from_pylist(visible))["predictions"].to_pylist()
-    return np.asarray([row["/y"]["content"] for row in result], dtype=float)
+    return np.asarray([row["y"]["content"] for row in result], dtype=float)
 
 
 def auc(normal: np.ndarray, anomalous: np.ndarray) -> float:
