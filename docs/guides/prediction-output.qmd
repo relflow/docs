@@ -16,23 +16,31 @@ merchant: grocery
 ```
 
 ```python
-# model is trained; request_table is an application-supplied Arrow table.
-result = model.predict(request_table, retain=("payment_id",))
+import relflow as rf
+
+# model is trained; the Parquet file is supplied by the application.
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
+    retain=("payment_id",),
+)
+result = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
-Arrow tables and record batches are accepted directly. A nonempty sequence of
-mappings is also supported for small interactive requests. Use a typed Arrow
-object for empty input: relflow preserves the output schema and skips the
-forward pass.
+The data module reads the file in batches. `devices=1` collects the returned
+Arrow table on one device. For large outputs, use a
+[Writer](batch-inference.qmd) to write prediction files as batches complete.
 
 ## Batch direct requests
 
-Pass a positive `batch_size` to limit the processed observations sent to each
-model call:
+For applications that already hold observations in memory, direct prediction
+is also available. Set a positive `batch_size` on `model.predict(...)` to limit
+the processed observations sent to each model call.
 
-```python
-result = model.predict(request_table, batch_size=256, retain=("payment_id",))
-```
+This direct API accepts Arrow tables and record batches. A nonempty sequence
+of mappings is also supported for small interactive requests. Use a typed
+Arrow object for empty input: relflow preserves the output schema and skips
+the forward pass. File paths belong on the data module's `predict` split.
 
 RelFlow preprocesses the full input once, chunks the resulting Arrow rows
 before encoding and model execution, joins their prediction tables, then

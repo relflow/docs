@@ -1,0 +1,78 @@
+---
+engine: markdown
+---
+
+# Tree Routing And Decoding
+
+The model builds context from the leaves toward the root, then each requested
+field decoder reads the context available along its schema path. For the
+payment example, earlier transactions contribute history context, which the
+root combines with the current amount and merchant to predict `disputed`.
+
+This routing explanation was checked
+against the [pinned 0.2.4 execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py).
+
+## Context Moves Toward The Root
+
+```{typst}
+//| label: fig-mechanism-tree-routing
+//| fig-alt: "A payment root contains amount, merchant, a repeated recent_transactions branch with days_ago, amount, and merchant, and the disputed prediction target. Transactions build local history context before the root combines it with the current payment."
+//| fig-cap: "Connections show schema ownership. History builds context before the root combines it with the current payment; the disputed decoder reads that context."
+#tree(node("payment", kind: "root", body: [Combines current payment and history.], children: (
+  node("amount", type: "Number"),
+  node("merchant", type: "Category"),
+  node("recent_transactions", kind: "branch", repeated: true, body: [Builds history context.], children: (
+    node("days_ago", type: "Number"),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+  )),
+  node("disputed", kind: "target", type: "Boolean", body: [Supervised value hidden from input.]),
+)))
+```
+
+Each active leaf first supplies a field representation with its presence
+information. The runtime sends it to its owning branch. Branches execute from
+the deepest level upward, so a parent receives representations from its nested
+branches after those branches have encoded and reduced their own children.
+
+For this payment model, the history branch processes its transaction fields
+first. The root then processes the current payment fields and the history's
+output. With more nesting, the same rule repeats at each level. Branches at one
+depth form a group in the execution plan; this grouping describes dependencies,
+without promising parallel execution.
+
+The root is anonymous at `rf.Address()`. `payment` in the figure describes the
+observation; it does not add an address prefix. For schema construction and
+addresses, see [Model Tree](../../core-concepts/model-tree.qmd).
+
+## A Decoder Reads Its Path
+
+A target decoder receives the representations retained along its heritage:
+the schema path through its ancestors to the field. A nested target can
+therefore use both local branch context and broader root context. Decoding
+starts after context has been built; it does not reconstruct the input tree
+one parent prediction at a time.
+
+Query pooling uses learned queries shaped for the target's coordinates. Where
+sibling representations align with those coordinates, the decoder can also
+condition those queries on sibling context. The field's decoder then produces
+the datatype-specific answer, such as the Boolean output for `disputed`. See
+the [pinned decoder implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/base.py).
+
+`mask=True` keeps the supervised value out of the input while retaining its
+coordinate for reconstruction. `embed=True` requests an exported contextual
+representation and adds no reconstruction objective. These roles have their
+own explanations in [Masking And Objectives](../../core-concepts/dynamic-masking.qmd)
+and [Embeddings](../../core-concepts/embeddings.qmd).
+
+## Read The Result
+
+Prediction returns an Arrow table with a `predictions` column. The output
+follows schema names and repeated field coordinates; it is not the runtime's
+internal list of routed representations. Follow
+[Read Predictions](../prediction-output.qmd) for one payment's output and its
+state, content, and inference flag.
+
+Continue with [Branch Summaries](branch-reduction.qmd) for the information passed
+between levels, or [How Fields Interact](field-interactions.qmd) for the context
+built inside each branch.

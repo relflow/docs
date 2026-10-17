@@ -5,6 +5,10 @@ description: Predict whether a payment will be disputed, from its amount and mer
 ---
 
 Start with one payment and one outcome: will this payment later be disputed?
+A risk team needs this estimate while the payment is still being processed,
+so it can decide which payments deserve review. Historical outcomes teach the
+model; new payments supply only the evidence available at that decision.
+
 You need Python 3.12 or newer. Install relflow in your project:
 
 ```bash
@@ -52,20 +56,15 @@ an input. `Model.xs` supplies a small model configuration.
 
 ## Train The Model
 
-Use your application's Parquet files, with one payment per row and the three
+Use your application's Parquet files (`.parquet`), with one payment per row and the three
 columns above. Train on earlier payments and validate on a later period;
 both splits include the observed `disputed` labels.
 
 ```python
-import pyarrow.parquet as pq
-
-train_payments = pq.read_table("payments/train.parquet")
-validation_payments = pq.read_table("payments/validation.parquet")
-
 data = rf.ArrowDataModule(
     model=model,
-    train=train_payments,
-    validate=validation_payments,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 model.fit(data, batch_size=128, max_epochs=20)
 ```
@@ -76,15 +75,19 @@ improving, and restores the best validation checkpoint.
 
 ## Predict New Payments
 
-The request table contains `amount` and `merchant`. It omits `disputed`,
+The request file contains `amount` and `merchant`. It omits `disputed`,
 because that is the outcome you want to predict.
 
 ```python
-new_payments = pq.read_table("payments/requests.parquet")
-predictions = model.predict(new_payments, batch_size=256)
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
+)
+predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
-`predictions` is an Arrow table. Its `predictions` column contains the result
+`devices=1` collects the predictions on one device. `predictions` is an Arrow
+table. Its `predictions` column contains the result
 for `/disputed`; [Prediction Output](guides/prediction-output.qmd) explains how
 to read its probability.
 

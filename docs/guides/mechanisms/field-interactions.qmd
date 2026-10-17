@@ -1,0 +1,91 @@
+---
+engine: markdown
+---
+
+# How Fields Interact
+
+A payment's amount has more meaning alongside its merchant and the account's
+earlier activity. RelFlow builds that context at two scales: fields belonging
+to one event record, then events belonging to the same history. This keeps the
+relationship between an amount and its merchant available when the model
+compares transactions.
+Start with [transaction history](../../tutorials/transaction-history.qmd) for
+the application example.
+
+This explanation was checked against the [pinned 0.2.4 branch encoder](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/encoder.py).
+
+## Within One Transaction
+
+Consider one payment whose earlier transactions are known before it occurs:
+
+```yaml
+amount: 86.50
+merchant: grocery
+recent_transactions:
+  - days_ago: 3
+    amount: 42.75
+    merchant: grocery
+  - days_ago: 1
+    amount: 18.50
+    merchant: cafe
+disputed: false
+```
+
+Each field first supplies an embedding at each transaction coordinate.
+Coordinate attention groups the direct sibling fields at the same coordinate:
+`days_ago`, `amount`, and `merchant` from the first transaction interact with one
+another. The second transaction has its own group. This step allows an amount's
+representation to depend on the merchant attached to that amount.
+
+Two histories can have the same total spend and merchant counts while pairing
+the larger purchase with different merchants. Keeping each transaction's
+fields together preserves that distinction as evidence for learning.
+
+The coordinate encoder operates on active direct leaf fields. A nested branch
+contributes its own representation later; it does not join this group of direct
+fields. When fewer than two active direct fields are available, there is no
+coordinate interaction to perform. Setting branch attention to `None` also
+disables this encoder.
+
+## Across The History
+
+After coordinate attention, the branch concatenates its children's tokens into
+one sequence and applies its sequence encoder. Tokens from different history
+positions can now interact. Across a longer history, the model can learn
+patterns such as repeated purchases at one merchant, changing amounts, or
+activity concentrated in a short period. Whether these patterns help predict
+a dispute must be checked on held-out payments.
+
+These two stages answer different questions:
+
+| Stage | Available context | Example relationship |
+| --- | --- | --- |
+| Coordinate attention | Direct fields of one transaction | Which merchant received this amount? |
+| Sequence attention | Present child tokens across the branch | How does this transaction compare with earlier ones? |
+| Branch reduction | The branch's encoded history | Which context should reach the current payment? |
+
+Reduction is a separate step, described in [Branch Summaries](branch-reduction.qmd).
+With the default reduction, the branch passes a learned summary to its parent,
+which combines that history context with the current payment. The summary is
+trained for the model's objectives; it is not a readable transaction ledger
+or a guaranteed calculation of a business statistic.
+
+## Presence And Position
+
+Padding represents an absent coordinate. The encoder excludes it from attention
+and restores zero output at absent positions. A null value at a present
+coordinate has its own field state; replacing it with zero changes what the
+model observes. See [field states](../../core-concepts/data-types.qmd).
+
+Rotary position information gives attention a signal about token positions.
+Order says which event came first; `days_ago` supplies its age relative to the
+current payment. Adjacent events can be days or months apart, so position and
+elapsed time supply different evidence. Input ordering still belongs to the
+application: sort history oldest to newest and keep only records known before
+the payment. Position information does not repair an incorrectly ordered
+history or prevent future information from entering the inputs.
+
+Encoder updates use residual attention and feed-forward blocks with RMSNorm and
+tanh GELU, as defined in the [pinned neural blocks](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/blocks.py).
+Architecture options and collection limits belong in the
+[model tree](../../core-concepts/model-tree.qmd) and [Branch reference](../../data-types/branch.qmd).

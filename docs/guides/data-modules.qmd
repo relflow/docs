@@ -18,28 +18,38 @@ from [Your First Model](../getting-started.qmd). `payment_id` can remain a
 source column without becoming a model field. Repeated transaction histories
 stay nested in their observation; see [Add Transaction History](../tutorials/transaction-history.qmd).
 
-The tables and frames below are supplied by your application. relflow does not
-load example data or choose train/validation splits for you.
+Your application supplies the Parquet files and chooses the train/validation
+splits.
 
 ## Arrow
 
-Use `ArrowDataModule` with existing Arrow tables:
+Pass Parquet file paths to `ArrowDataModule`:
 
 ```python
 import relflow as rf
 
-# model matches the record structure; these are application-supplied Arrow tables.
+# model matches the records in these application-supplied files.
 data = rf.ArrowDataModule(
     model=model,
-    train=train_table,
-    validate=validation_table,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 ```
 
+Nested structs and lists remain part of each observation. Existing in-memory
+`pyarrow.Table` objects are also supported.
+
+On the unreleased `dev/schema-inference` branch, omit `model=` to configure sources
+and preprocessing first. Then call `rf.infer(data, ...)` to draft fields from
+the module's processed training observations. Build the model and call
+`model.fit(data, ...)` to bind the module. See
+[Draft A Schema From Data](schema-inference.qmd).
+
 ## Splits and preparation
 
-The available splits are `train`, `validate`, `test`, and `predict`; supply at
-least one. Training shuffles by default. The other splits do not. Set model
+Supply `train`, `validate`, `test`, and `predict` independently; at least one is
+required. Each supplied path or source belongs to its named split. Training
+shuffles by default. The other splits do not. Set model
 batch size on the loop, for example `model.fit(data, batch_size=128, max_epochs=30)`.
 Arrow data modules read the model's current size whenever they create loaders;
 see [Batch size](lightning.qmd#batch-size) for overrides on the other loops.
@@ -60,17 +70,8 @@ output for downstream joins. See [Batch Inference](batch-inference.qmd).
 
 ## Polars
 
-Use `PolarsDataModule` for in-memory eager frames:
-
-```python
-data = rf.PolarsDataModule(
-    model=model,
-    train=train_frame,
-    validate=validation_frame,
-)
-```
-
-It converts each frame to Arrow once and uses the same pipeline. Collect a
+For applications that already use in-memory eager frames, `PolarsDataModule`
+converts each frame to Arrow once and uses the same pipeline. Collect a
 `LazyFrame` explicitly before passing it in.
 
 ## Files and restartable sources
@@ -80,13 +81,13 @@ Each split also accepts a `pa.RecordBatch`, Arrow Dataset, file path or glob,
 batches. A reader itself is one-shot; wrap its creation in a callable when
 repeated epochs need it.
 
-A file-backed setup can be just as small:
+Use `rf.source(...)` to configure a directory or glob explicitly:
 
 ```python
 data = rf.ArrowDataModule(
     model=model,
-    train="warehouse/train/*.parquet",
-    validate="warehouse/validation/*.parquet",
+    train=rf.source("payments/train", format="parquet"),
+    validate=rf.source("payments/validation/*.parquet", format="parquet"),
 )
 ```
 

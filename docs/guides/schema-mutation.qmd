@@ -52,14 +52,20 @@ is invalid and restores the previous schema and graph. See
 ## Make A Temporary Change
 
 ```python
-with model.override(amounts, active=False):
-    ablated = model.predict(observations)
+prediction_data = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
+)
 
-ordinary = model.predict(observations)
+with model.override(amounts, active=False):
+    ablated = model.predict(datamodule=prediction_data, batch_size=256, devices=1)
+
+ordinary = model.predict(datamodule=prediction_data, batch_size=256, devices=1)
 ```
 
-`observations` is the application's Arrow input. The context manager restores
-the previous schema attributes, even on exit through an exception. It does
+`payments/requests.parquet` is an application-supplied Parquet file. The data
+module reads the model's current schema for each prediction loop. The context
+manager restores the previous schema attributes, even on exit through an exception. It does
 not snapshot all weights, vocabularies, or normalizers: compatible learned-state
 changes inside the context remain. See [Evaluation](evaluation.qmd) for an
 ablation example.

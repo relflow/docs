@@ -66,6 +66,21 @@ coordinates differ. A state-accuracy improvement alone does not establish
 better content predictions. Use validation data to choose thresholds and
 checkpoints, leaving the test split for a final assessment.
 
+Separate the modeling choices you want to test:
+
+| Question | Comparison |
+| --- | --- |
+| Does the history help? | Compare the payment-only model with the same task using earlier transactions. |
+| Does learning from records help? | Compare with a tuned tabular baseline using application-designed counts, totals, recency, and other relevant features. |
+| Is the representation reusable? | Fit a simple downstream predictor on exported, frozen embeddings and evaluate the intended task. |
+| Does pretraining help? | Compare fine-tuning with the same supervised architecture trained from scratch. |
+
+Keep the prediction time and future outcome window identical across these
+comparisons. A payment without a recorded dispute yet may still be awaiting
+its outcome; define when a negative label is ready before building the splits.
+See [Business Prediction Examples](../case-studies/relational-tasks.qmd) for concrete
+entity, history, and outcome-window definitions.
+
 Boolean fields accept one threshold or a list of thresholds for metrics:
 
 ```python

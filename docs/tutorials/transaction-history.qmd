@@ -7,6 +7,13 @@ description: Extend the payment model with earlier transactions from the same ac
 The [first model](../getting-started.qmd) reads one payment. Now add earlier
 transactions from the same account, keeping the same prediction target.
 
+The business question becomes more specific: how does this payment fit the
+account's recent behavior? Previous visits to the same merchant, changes in
+amount, and gaps between transactions can provide context. An **event
+history** preserves those observations so the model can learn their
+relationships. Compare it with your existing aggregate features to find out
+whether that detail improves dispute prediction.
+
 ## Add A Collection To Each Record
 
 Your application supplies a `recent_transactions` list alongside the current
@@ -27,6 +34,10 @@ disputed: false
 
 Include only transactions known before the current payment. Order them from
 oldest to newest. A payment with no earlier transactions has an empty list.
+
+Order describes which transaction came first; `days_ago` describes elapsed
+time. Consecutive history entries might be minutes or weeks apart, so make
+the time gap explicit when it matters to the task.
 
 ## Describe The Collection With A Branch
 
@@ -70,22 +81,31 @@ payment's amount and merchant to predict `disputed`.
 
 ## Use The Same Training Steps
 
-Train this new model with the history present in each record. Here,
-`train_payments` and `validation_payments` are application-supplied Arrow
-tables with the nested structure shown above:
+Train this new model with the history present in each record. Your application
+supplies Parquet files with the nested structure shown above:
 
 ```python
 data = rf.ArrowDataModule(
     model=model,
-    train=train_payments,
-    validate=validation_payments,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 model.fit(data, batch_size=128, max_epochs=20)
 ```
 
-Prediction requests have the same structure and omit `disputed`. The call
-remains `model.predict(new_payments, batch_size=256)`.
+Prediction files have the same structure and omit `disputed`:
+
+```python
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
+)
+predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
+```
 
 If your source uses different names or shapes, continue with
 [Binding Data](../core-concepts/binding-data.qmd). To prepare these histories
 from transaction tables, see [Preprocessing](../guides/preprocessors.qmd).
+
+[Learning From Event Histories](../guides/learning-from-event-data.qmd)
+extends this pattern to recurring payments and other future outcomes.

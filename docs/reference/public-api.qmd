@@ -7,9 +7,8 @@ reference pages. For a first payment model, start with
 ## Common workflow
 
 Define the payment fields, provide training and validation data, then fit and
-predict. Here, `train_table`, `validation_table`, and `request_table` are
-application-supplied Arrow tables. The training and validation tables include
-`disputed`; prediction requests can omit it.
+predict. The application supplies the Parquet files shown below. Training and
+validation records include `disputed`; prediction requests can omit it.
 
 ```python
 import relflow as rf
@@ -21,11 +20,15 @@ model = rf.Model.xs(
 )
 datamodule = rf.ArrowDataModule(
     model=model,
-    train=train_table,
-    validate=validation_table,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 model.fit(datamodule, batch_size=128, max_epochs=20)
-predictions = model.predict(request_table, batch_size=256)
+prediction_data = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
+)
+predictions = model.predict(datamodule=prediction_data, batch_size=256, devices=1)
 ```
 
 `mask=True` declares the prediction target. Fitting restores the best validation
@@ -37,6 +40,7 @@ checkpoint by default. Predictions are returned as an Arrow table.
 | --- | --- |
 | `rf.Model.xs`, `.sm`, `.md`, `.lg`, `.xl` | Build from fields with capacity defaults for the root, child branches, and leaf decoders; explicit node settings take precedence. |
 | `rf.Model(...)` | Build with explicit dimensions from named fields and branches, or accept an existing `rf.Schema`. |
+| `rf.infer`, `rf.Inference` | Draft and review fields from a data module's preprocessed training sample; see [Schema Inference](../guides/schema-inference.qmd) (unreleased). |
 | `rf.Branch(...)` | Group repeated transaction records into a local context. |
 | `rf.Boolean`, `rf.Number`, `rf.Category` | Represent a dispute outcome, payment amount, or merchant label. |
 | `rf.Enum`, `rf.Set`, `rf.DateParts` | Represent declared currency codes, merchant tags, or booking calendar parts. |

@@ -21,16 +21,27 @@ def decision(frame: pl.DataFrame, *, threshold: float) -> pl.DataFrame:
         review=probability >= threshold,
     )
 
-# request_table is supplied by the application.
-result = model.predict(
-    request_table,
-    batch_size=256,
+# The request file is supplied by the application.
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
     retain=("payment_id",),
-    postprocess=decision.partial(threshold=0.8),
+)
+model.predict(
+    datamodule=requests,
+    batch_size=256,
+    devices=1,
+    callbacks=[rf.Writer(
+        "payment-decisions",
+        postprocessor=decision.partial(threshold=0.8),
+    )],
+    return_predictions=False,
 )
 ```
 
-One output record has this shape; the probability is a placeholder:
+The Writer applies the processor to each prediction batch and writes Parquet
+files under `payment-decisions`. One output record has this shape; the
+probability is a placeholder:
 
 ```yaml
 payment_id: payment-42
@@ -38,8 +49,9 @@ dispute_probability: <probability of true>
 review: <true or false>
 ```
 
-With direct prediction, the postprocessor receives the combined result once,
-after all model batches have completed.
+The direct in-memory prediction API accepts `postprocess=` on the prediction
+call. It applies the processor to the combined result once, after all model
+batches have completed. A Writer applies it to each output batch.
 
 The threshold is an application decision rule. The example uses the content
 probability; incorporate the predicted value state when your application needs

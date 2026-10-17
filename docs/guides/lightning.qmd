@@ -6,17 +6,18 @@ validation checkpoint restored.
 
 ## Fit A Model
 
-Start with a constructed model and independent Arrow `train_table` and
-`validation_table` inputs. The model needs at least one reconstruction
-objective, such as `disputed=rf.Boolean(mask=True)` on the payment label.
+Start with a constructed model and independent, application-supplied Parquet
+files at `payments/train.parquet` and `payments/validation.parquet`. The model needs
+at least one reconstruction objective, such as `disputed=rf.Boolean(mask=True)`
+on the payment label.
 
 ```python
 import relflow as rf
 
 datamodule = rf.ArrowDataModule(
     model=model,
-    train=train_table,
-    validate=validation_table,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 model.fit(
     datamodule,
@@ -28,8 +29,7 @@ model.fit(
 )
 ```
 
-For eager Polars frames, use `rf.PolarsDataModule(model=model,
-train=train_frame, validate=validation_frame)`. It converts the frames to Arrow
+For eager Polars frames, use `rf.PolarsDataModule`. It converts the frames to Arrow
 at ingress. See [Data Modules](data-modules.qmd) for source and split choices.
 
 Early stopping and rollback are enabled by default. Both monitor `loss/validate`
@@ -46,8 +46,15 @@ Use a relflow artifact to retain the schema and learned model state:
 ```python
 model.save("artifacts/payment.rf")
 loaded = rf.Model.load("artifacts/payment.rf")
-predictions = loaded.predict(observations)
+prediction_data = rf.ArrowDataModule(
+    model=loaded,
+    predict="payments/requests.parquet",
+)
+predictions = loaded.predict(datamodule=prediction_data, batch_size=256, devices=1)
 ```
+
+The application supplies `payments/requests.parquet` as a Parquet file.
+Prediction records can omit the `disputed` target.
 
 The artifact contains the state dictionary, schema, batch size, and producing
 relflow version. State includes field-owned buffers such as vocabularies and
@@ -171,7 +178,7 @@ accumulation. The constructor's `batch_size` remains the initial setting,
 defaulting to one, and is saved in the model artifact. Native Trainer and Tuner
 workflows can continue to use it.
 
-For direct Arrow input, `model.predict(request_table, batch_size=256)` also
+For direct in-memory Arrow input, setting `batch_size=256` on `model.predict(...)` also
 chunks the processed observations before encoding. Omitting that override
 preserves whole-input execution. See
 [Direct prediction batches](prediction-output.qmd#batch-direct-requests).
@@ -278,8 +285,8 @@ progress. Recreate the runtime configuration and pass the checkpoint to `fit`:
 resumed = rf.Model.load("checkpoints/recovery/last.ckpt")
 resume_data = rf.ArrowDataModule(
     model=resumed,
-    train=train_table,
-    validate=validation_table,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 resumed.fit(
     resume_data,

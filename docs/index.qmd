@@ -4,8 +4,9 @@ body-classes: home
 toc: false
 ---
 
-relflow turns a data schema into a trainable PyTorch model.
-Describe the values you have and the outcome you want to predict.
+relflow learns predictions and representations from structured business data.
+Describe the fields you have and the outcome you want to predict; the schema
+defines a trainable PyTorch model.
 
 For example, learn whether a payment will later be disputed:
 
@@ -16,7 +17,13 @@ disputed: false
 ```
 
 The model reads `amount` and `merchant`, and learns to predict `disputed`.
-Later, add an account's transaction history as a nested collection.
+A risk team can use that prediction to prioritize payments for review.
+The later dispute outcome supplies the training answer.
+
+As the question grows, add the account's earlier transactions as an **event
+history**. Each transaction keeps its amount, merchant, and timing together.
+The model can learn patterns within a transaction and across the history,
+giving the current payment context about the account's behavior.
 
 [Build your first model →](getting-started.qmd){.btn .btn-primary}
 
@@ -31,6 +38,8 @@ Later, add an account's transaction history as a nested collection.
 - [Training and checkpoints](guides/lightning.qmd): control fitting, validation, and saved models.
 - [Model structure](core-concepts/model-tree.qmd): understand nested contexts and configure the architecture.
 - [Account risk example](case-studies/customer-risk.qmd): combine several histories and prediction targets.
+- [Learning from event histories](guides/learning-from-event-data.qmd): predict repeat payments and learn several outcomes from shared context.
+- [Business prediction examples](case-studies/relational-tasks.qmd): model customer retention, reviewer engagement, and study reporting.
 
 The examples use payments and accounts. The same field and branch definitions
 work with other kinds of tabular and nested records.

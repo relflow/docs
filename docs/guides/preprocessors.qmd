@@ -72,18 +72,11 @@ they are not automatically fitted or saved in the model checkpoint.
 Use `preprocessor=` on either [data module](data-modules.qmd):
 
 ```python
-# Tables and frames below come from the application.
+# Raw Parquet files come from the application.
 arrow_data = rf.ArrowDataModule(
     model=model,
-    train=train_table,
-    validate=validation_table,
-    preprocessor=pipeline,
-)
-
-polars_data = rf.PolarsDataModule(
-    model=model,
-    train=train_frame,
-    validate=validation_frame,
+    train="payments/raw/train.parquet",
+    validate="payments/raw/validation.parquet",
     preprocessor=pipeline,
 )
 ```
@@ -93,20 +86,25 @@ One value applies to every split. A mapping such as
 separately; omitted splits receive no processors. Polars modules use the same
 Arrow pipeline, so callbacks receive eager Polars frames with either module.
 
-Direct prediction uses `preprocess=`. Pass it explicitly even when the model was
-trained with a data module:
+For file-backed prediction, configure the pipeline and retention on a
+prediction data module:
 
 ```python
-predictions = model.predict(
-    request_table,
-    batch_size=256,
-    preprocess=pipeline,
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="payments/raw/requests.parquet",
+    preprocessor=pipeline,
     retain=("payment_id",),
 )
+predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
-Direct preprocessing runs on the full input once, before its processed Arrow
-rows are divided into model batches. Retention reads the processed columns. Before any
+The direct in-memory prediction API uses `preprocess=` on the prediction
+call. Direct preprocessing runs on the full input once, before its processed
+Arrow rows are divided into model batches. File-backed data modules apply
+processors at their configured [scope](#scope-and-context).
+
+Retention reads the processed columns. Before any
 [postprocessing](postprocessors.qmd), predictions contain one row per processed
 observation. Filtering removes observations; exploding or a one-to-many join can
 add them. Keep a business key when outputs must be joined back to source records;

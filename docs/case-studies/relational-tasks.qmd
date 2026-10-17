@@ -1,0 +1,151 @@
+---
+engine: markdown
+title: Retention, Engagement, And Trial Reporting
+description: Define useful predictions from customer, review, and clinical-study histories, with precise outcome windows.
+---
+
+A retention team needs to decide which customers deserve attention. A feedback
+team wants to keep reviewers contributing. A trial operations team wants to
+anticipate larger reported totals. Each question combines information about one
+customer or study with a history of related activity.
+
+RelFlow can represent that context in one observation: attributes at the root,
+repeated records in a branch, and a target describing a later outcome.
+
+## Retail: Who Will Make No Purchase Next Week?
+
+A retail team can rank recently active customers by their estimated chance of
+making no purchase next week, then choose whom to contact. Whether that contact
+changes purchasing requires a separate intervention evaluation.
+
+Define the population as customers who bought something in the preceding seven
+days. For each customer, predict `inactive_next_7_days`: true when there is no
+purchase after the decision time through seven days later. This gives the team
+a specific measure of short-term inactivity.
+
+Customer attributes describe the person. Their purchase history describes
+interactions: which articles they bought, through which channels, and how long
+ago. Your application joins those records and keeps only information available
+at the decision time before supplying the observation to RelFlow.
+
+### One Illustrative Observation
+
+A training observation contains customer attributes and earlier purchases.
+The final Boolean records what happened during the following seven days and
+is attached once that window has completed:
+
+```yaml
+customer_age: 34
+club_member_status: ACTIVE
+recent_purchases:
+  - days_ago: 6
+    article_id: article-17
+    sales_channel: online
+  - days_ago: 2
+    article_id: article-03
+    sales_channel: store
+inactive_next_7_days: true
+```
+
+### Describe The Customer And Their Purchases
+
+```python
+import relflow as rf
+
+model = rf.Model.sm(
+    customer_age=rf.Number,
+    club_member_status=rf.Category,
+    recent_purchases=rf.Branch(
+        length=32,
+        overflow="tail",
+        days_ago=rf.Number,
+        article_id=rf.Category,
+        sales_channel=rf.Category,
+    ),
+    inactive_next_7_days=rf.Boolean(mask=True),
+)
+```
+
+The customer is the subject of the prediction; each purchase keeps its own
+article, channel, and age together. Supply purchases oldest to newest so the
+branch retains the most recent 32. Choose that capacity for the history your
+application needs. `mask=True` keeps the later outcome out of the inputs while
+using it as supervision. Omit that field when requesting a new prediction.
+Retain customer identifiers and decision times in your application to associate
+the result with the right customer snapshot.
+
+A table containing days since the last purchase, purchase counts, and channel
+counts is a sensible baseline. Keeping individual purchases gives the model
+access to combinations of article, channel, and timing that those summaries
+may omit. Compare both approaches on later decision windows with the same
+eligible customers and available evidence. Use relational context when that
+comparison justifies its preparation and processing cost.
+
+### Train And Predict From Parquet Files
+
+Prepare your application's training and validation files with one customer
+observation per row and the fields above. Use earlier decision windows for
+training and later windows for validation:
+
+```python
+data = rf.ArrowDataModule(
+    model=model,
+    train="retention/train.parquet",
+    validate="retention/validation.parquet",
+)
+model.fit(data, batch_size=128, max_epochs=20)
+```
+
+For new decisions, prepare the same customer attributes and purchase history
+in a request file, omitting `inactive_next_7_days`:
+
+```python
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="retention/requests.parquet",
+)
+predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
+```
+
+[Prediction Output](../guides/prediction-output.qmd) explains how to read the
+result for `/inactive_next_7_days`.
+
+## Engagement: Will An Active Reviewer Stop Posting?
+
+A team seeking fresh product feedback can use the same structure to anticipate
+review inactivity. Choose customers who posted a review in the preceding 91
+days, and define the target as no review during the following 91 days.
+
+Customer attributes stay at the root. Earlier reviews form the history, keeping
+each product, rating, and review age together. This outcome measures
+participation in a feedback channel: a customer can keep buying without posting
+a review. Compare a richer review history with review recency and frequency
+summaries before using it to prioritize invitations for feedback.
+
+## Clinical Studies: Which Studies Will Report Larger Totals?
+
+A trial operations team may want to anticipate which ongoing studies will
+report larger totals of affected subjects. For studies that have already
+started, define a 365-day outcome: the sum of `subjects_affected` in reports
+marked `serious` or `deaths` that arrive after the decision time through
+365 days later.
+
+Study attributes provide the root context. Earlier reports form a branch,
+keeping report type, affected-subject count, and report age together. The later
+total is a masked numeric target. This sum can count a person in more than one
+report, so it does not measure unique affected people or an individual's risk.
+Define how incomplete reporting affects label availability; a missing report
+does not establish a zero total.
+
+## Keep The Decision Time In Every Example
+
+Construct every observation as it could have been seen at its decision time.
+An event that happened earlier but was reported later is unavailable until its
+report arrives. Mutable customer or study attributes also need values known at
+that time. Attach labels from the specified future window, and allow that
+window to finish before treating them as observed outcomes.
+
+The same entity can appear at several decision times. Keep later evaluation
+windows separate and control overlap between their label periods and training
+examples. [Evaluation](../guides/evaluation.qmd) explains the comparison;
+[Preprocessing](../guides/preprocessors.qmd) covers preparing the nested inputs.

@@ -4,6 +4,11 @@ engine: markdown
 
 # Pretraining And Fine-Tuning
 
+Your application may have years of payment histories but far fewer settled
+dispute labels. Pretraining uses observed fields as answers: hide selected
+amounts or merchants and learn to recover them from context. Labeled payments
+then teach the business outcome.
+
 Pretraining learns from relationships in a broad collection of records.
 Fine-tuning starts from those learned weights and adapts the model to a specific
 task. In relflow, both use `model.fit(...)`; the data and reconstruction
@@ -18,6 +23,22 @@ objectives determine what the model learns.
 Pretraining is optional. A supervised model can also start from newly
 initialized weights. An ordinary float mask, such as `mask=0.15`, only supplies
 input dropout; pretraining needs `reconstruct=True` to create an objective.
+
+Reconstruction uses an amount or merchant that was already present in the
+saved history. A dispute label describes an outcome that became known after
+the current payment. Keep that distinction when preparing records: the
+available history supplies context, and the later dispute supplies the
+supervised answer. For a recurring-payment task, define a future period in
+which another payment is expected and label whether it occurred. Its input
+history still ends at the decision cutoff.
+
+Once the model has learned from your histories, you can adapt it with labeled
+examples or keep it fixed and test exported
+[embeddings](../core-concepts/embeddings.qmd) as inputs to separate task
+predictors. Evaluate both choices against the existing task workflow on the
+same held-out observations. The
+[event-history guide](learning-from-event-data.qmd) explains how to define
+observations, decision cutoffs, and future outcome windows.
 
 ## Pretrain On Histories
 
@@ -54,8 +75,8 @@ model = rf.Model.xs(
 )
 pretraining_data = rf.ArrowDataModule(
     model=model,
-    train=pretrain_table,
-    validate=pretrain_validation_table,
+    train="payments/pretraining/train.parquet",
+    validate="payments/pretraining/validation.parquet",
 )
 model.fit(
     pretraining_data,
@@ -66,8 +87,8 @@ model.fit(
 model.save("artifacts/payment-pretrained.rf")
 ```
 
-The two tables are independent, application-supplied Arrow splits with this
-record structure. Histories are sorted oldest to newest for `overflow="tail"`.
+The two paths identify independent, application-supplied Parquet files with
+this record structure. Histories are sorted oldest to newest for `overflow="tail"`.
 Use `rf.PolarsDataModule` with eager frames when the application prepares its
 splits in Polars. Keep preparation consistent through the
 [preprocessing pipeline](preprocessors.qmd).
@@ -138,15 +159,15 @@ these boundaries.
 
 ## Start A New Training Run
 
-Start a new fit with labeled Arrow splits. The call binds a fresh optimizer
-to the edited model, including its new target. A smaller learning rate is a
-starting point to evaluate:
+Start a new fit with labeled Parquet files supplied by your application.
+The call binds a fresh optimizer to the edited model, including its new target.
+A smaller learning rate is a starting point to evaluate:
 
 ```python
 finetuning_data = rf.ArrowDataModule(
     model=finetuned,
-    train=finetune_table,
-    validate=finetune_validation_table,
+    train="payments/finetuning/train.parquet",
+    validate="payments/finetuning/validation.parquet",
 )
 finetuned.fit(
     finetuning_data,

@@ -1,0 +1,158 @@
+---
+title: Learning From Event Histories
+description: Predict repeat payments, learn several outcomes from one history, and forecast future values.
+---
+
+A payment service may need to anticipate repeat payments and decide which
+payments deserve review. Both decisions depend on the account's behavior:
+which merchants it pays, how amounts change, and how much time passes between
+payments. RelFlow can learn from those event histories alongside the fields
+that describe the account today.
+
+Start with the [payment tutorial](../tutorials/transaction-history.qmd), then
+extend the record when a new prediction needs more context.
+
+## Keep Events And Account Context Together {#describe-the-evidence-before-the-architecture}
+
+Consider a payment to an internet provider. Two earlier payments to the same
+merchant, with the same amount and about a month between them, give the model
+evidence that another payment may follow:
+
+```yaml
+account_age_days: 420
+amount: 24.00
+merchant: Harbor Internet
+recent_transactions:
+  - days_ago: 61
+    amount: 24.00
+    merchant: Harbor Internet
+  - days_ago: 31
+    amount: 24.00
+    merchant: Harbor Internet
+  - days_ago: 1
+    amount: 32.00
+    merchant: Station Cafe
+disputed: false
+repeats_next_30_days: true
+```
+
+The transaction list is the **event history**. Each event keeps its amount,
+merchant, and time together. `account_age_days` supplies **profile context**
+at the current payment. Account attributes can change, so use the values
+known at that decision time.
+
+Order and elapsed time carry different information. Sort transactions from
+oldest to newest; `days_ago` tells the model whether adjacent payments were
+one day or one month apart. The history stops before the current payment.
+
+The two Boolean fields are later outcomes. Here, `repeats_next_30_days` means
+another payment to the same merchant after the current payment and within
+30 days. Attach that label after the window has completed. This defines a
+future merchant-repeat task; identifying a subscription would require its
+own label definition.
+
+## Learn Two Outcomes From The Same History {#ideas-from-transaction-and-time-series-models}
+
+Place both targets on the payment record. The encoders learn context shared
+by the two predictions; each target has its own decoder and supervision:
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    account_age_days=rf.Number,
+    amount=rf.Number,
+    merchant=rf.Category,
+    recent_transactions=rf.Branch(
+        length=32,
+        overflow="tail",
+        days_ago=rf.Number,
+        amount=rf.Number,
+        merchant=rf.Category,
+    ),
+    disputed=rf.Boolean(mask=True),
+    repeats_next_30_days=rf.Boolean(mask=True),
+)
+data = rf.ArrowDataModule(
+    model=model,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
+)
+model.fit(data, batch_size=128, max_epochs=30)
+```
+
+Your application supplies Parquet files with this record structure. Prediction
+files omit both outcome fields. The outputs identify the separate targets at
+`/disputed` and `/repeats_next_30_days`; see
+[Prediction Output](prediction-output.qmd).
+
+Shared context lets you test whether learning the account's behavior helps
+both tasks. Inspect each outcome separately: improvement on repeat payments
+can accompany a regression in dispute detection. The
+[account risk example](../case-studies/customer-risk.qmd) extends this pattern
+to transaction-level and account-level outcomes.
+
+## Choose A Learning Workflow
+
+With settled outcome labels, train the supervised model directly. When you
+have many more histories than labels, first hide selected historical amounts
+or merchants and learn to reconstruct them from the remaining context. That
+gives unlabeled activity a learning role before adapting the model to dispute
+or repeat-payment prediction.
+
+Reconstructing a hidden historical payment asks what fits the observed
+history. Predicting a later outcome asks what happens after the decision.
+Define and evaluate those objectives separately. The
+[pretraining guide](pretraining.qmd) shows how to change objectives while
+reusing compatible learned state.
+
+You can also export a **contextual representation**: learned vectors combining
+the account fields and its history. Keep the encoder fixed while training
+separate task predictors on those vectors. This tests whether the learned
+context is useful for another outcome before updating the encoder for it.
+[Embeddings](../core-concepts/embeddings.qmd) explains that workflow.
+
+## Forecast A Future Value
+
+The same record-and-history pattern applies to numerical forecasts. For
+example, a market-data application can supply daily bars and ask for the
+next trading day's closing price:
+
+```python
+market_model = rf.Model.xs(
+    daily_bars=rf.Branch(
+        length=64,
+        overflow="tail",
+        days_ago=rf.Number,
+        open=rf.Number,
+        high=rf.Number,
+        low=rf.Number,
+        close=rf.Number,
+        volume=rf.Number,
+    ),
+    next_close=rf.Number(mask=True),
+)
+```
+
+Each bar keeps its price and volume measurements together. Prepare observations
+at the end of a trading day, including only completed bars known then. The
+`next_close` label comes from the following trading day and becomes available
+after that day closes. Train from Parquet files through `ArrowDataModule`, as
+above, using files prepared for this market schema.
+
+This defines one future-value prediction. If the application needs several
+future steps, define their target structure and evaluation horizon explicitly.
+
+## Make The Comparison About The Decision
+
+For repeat payments, compare with rules based on merchant, amount, and cadence.
+For disputes, compare with the existing tabular model and its history features.
+For the closing-price example, include a last-known-close baseline. Keep the
+available evidence and outcome windows identical across comparisons.
+
+Then test the choices separately: does adding history help, do shared targets
+help each task, and does reconstruction pretraining improve the same supervised
+prediction? [Evaluation](evaluation.qmd) explains these comparisons.
+
+[Business Prediction Examples](../case-studies/relational-tasks.qmd) applies
+the approach to customer retention, reviewer engagement, and study reporting.

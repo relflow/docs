@@ -1,5 +1,12 @@
 # Learning Modes And Embeddings
 
+Transaction histories can inform several business decisions, from payment
+review to account retention. A learned history vector can be tested as a
+common input to separate predictors for these tasks, alongside existing
+spending summaries. This lets you evaluate reuse of the context learned from
+your records. Each predictor still needs its own task labels and held-out
+assessment.
+
 An embedding is a numeric representation of the context the model has learned.
 Set `embed=True` where you want to export one. The model still needs a learning
 objective, such as a supervised dispute target.
@@ -45,13 +52,19 @@ summarizes the inputs controlled by that branch's reduction.
 
 ## Read The Output
 
-After [training](../guides/lightning.qmd), `payments` is an application-supplied
-Arrow table containing prediction inputs:
+After [training](../guides/lightning.qmd), read prediction inputs from your
+application's Parquet file:
 
 ```python
 import pyarrow.compute as pc
 
-predictions = model.predict(payments)["predictions"]
+requests = rf.ArrowDataModule(
+    model=model,
+    predict="payments/requests.parquet",
+)
+predictions = model.predict(
+    datamodule=requests, batch_size=256, devices=1,
+)["predictions"]
 payment_embedding = pc.struct_field(
     pc.struct_field(predictions, "/"),
     "embedding",
@@ -77,6 +90,27 @@ Evaluate an embedding on its intended downstream task. A useful dispute
 predictor does not by itself establish useful similarity or clustering.
 Preserve the schema and trained state with
 [the model artifact](../guides/lightning.qmd#save-and-load).
+
+To evaluate a frozen representation, keep the exporting model fixed and
+generate vectors in prediction mode for the training and held-out
+observations. Fit separate task predictors using only the training vectors
+and labels. Keep the exporting model fixed throughout: this measures what a
+downstream predictor can learn from the representation as exported.
+
+Choose cohort and time boundaries before training. For an evaluation on
+unseen accounts, exclude held-out accounts from both representation learning
+and downstream predictor training. Each history vector represents the account
+at a defined decision cutoff; the task label records an outcome over a later
+period. Keep records after that cutoff out of the input snapshot.
+
+Compare existing features alone, vectors alone, and their combination on the
+same observations. Choose predictor settings on the same validation split and
+assess the fixed choices on test data. For account-closure prediction,
+evaluate precision and recall at a fixed contact capacity. For payment review,
+measure dispute recall at a fixed review capacity. These task metrics help
+decide whether the reusable representation earns a place in the workflow.
+[Learning From Event Histories](../guides/learning-from-event-data.qmd) explains
+how to prepare the observations and outcome windows for these experiments.
 
 ## Learn Without A Label
 

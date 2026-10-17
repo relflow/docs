@@ -2,18 +2,17 @@
 title: Batch Inference
 ---
 
-Use Lightning prediction with `rf.Writer` to write results directly to Parquet.
-This keeps large jobs from accumulating every prediction in memory.
+Supply your application's Parquet request files through `ArrowDataModule`.
+Use Lightning prediction with `rf.Writer` to write results directly to Parquet,
+keeping large jobs from accumulating every prediction in memory.
 
 ```python
-import pyarrow.dataset as ds
-
 import relflow as rf
 
 # model is trained; request files are supplied by the application.
 data = rf.ArrowDataModule(
     model=model,
-    predict=ds.dataset("warehouse/payments/scoring", format="parquet"),
+    predict="payments/scoring/*.parquet",
     retain=("payment_id",),
 )
 model.predict(
@@ -34,10 +33,10 @@ To collect bounded batched output in memory, use
 The batch size is per device and updates the model's current size.
 Prediction has no automatic time limit.
 
-With multiple ranks or data workers, the loader trims the final group to divide
-evenly among consumers, so trailing rows can be omitted even with
-`drop_last=False`. Use one device and `num_workers=0` when every input row must
-be processed.
+With multiple distributed ranks, the loader trims the final group to divide
+evenly among ranks, so trailing rows can be omitted even with `drop_last=False`.
+Local data workers receive complete rank batches, including a partial tail.
+Use one device with `drop_last=False` when every input row must be processed.
 
 A [postprocessor](postprocessors.qmd) can give files a consumer-specific schema:
 
@@ -52,11 +51,13 @@ Processors may change rows and columns for offline output.
 Open the resulting shards as one Arrow dataset for further batch processing:
 
 ```python
+import pyarrow.dataset as ds
+
 result = ds.dataset("payment-predictions", format="parquet")
 ```
 
-For bounded in-memory requests, `model.predict(request_table, batch_size=256)`
-chunks processed rows before model execution and collects one Arrow table.
+Direct prediction also supports bounded in-memory requests, processing rows in
+batches and collecting one Arrow table.
 [Prediction Output](prediction-output.qmd#batch-direct-requests) explains its
 preprocessing and postprocessing order. Data-module prediction with a Writer
 streams file-backed datasets. Use [Deployment](serving.qmd) for online requests.

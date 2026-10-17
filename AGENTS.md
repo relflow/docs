@@ -55,6 +55,12 @@ resolving to `head`. Finite output axes remain fixed-size Arrow lists, while
 unbounded axes use variable-size lists. Explain memory costs and the warning
 for public serving; automatic widths do not make padding free.
 
+Prefer application-supplied Parquet file paths (`.parquet`) for ordinary
+training and prediction examples. Pass paths to `rf.ArrowDataModule`, including
+its `predict` split; the direct `model.predict(...)` input is an in-memory API.
+Reserve table-input examples for explaining that API. Returned predictions
+remain Arrow tables.
+
 Use `rf.ArrowDataModule(model=model, train=train, validate=validate)` for
 canonical training examples. Name application-supplied inputs. Configure AdamW
 through `model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)`;

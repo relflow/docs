@@ -1,0 +1,45 @@
+{
+  "purpose": "Maintainer provenance for independently written teaching examples. Research informs the explanations; the public guides teach RelFlow workflows rather than compare papers.",
+  "reviewed_on": "2026-10-17",
+  "research": [
+    {
+      "work": "PRAGMA",
+      "source": "https://arxiv.org/html/2604.08649v2",
+      "ideas": ["Profile context alongside event history", "Recurring payments", "Representations used for several supervised outcomes"],
+      "adaptation": "The guide defines a merchant-repeat prediction over an application-chosen 30-day window. It does not reproduce the paper's subscription task or claim equivalent training or performance."
+    },
+    {
+      "work": "FATA-Trans",
+      "source": "https://arxiv.org/html/2310.13818v1",
+      "ideas": ["Shared record attributes and event-varying fields", "Sequence order and elapsed time convey different information"]
+    },
+    {
+      "work": "TabBERT",
+      "source": "https://arxiv.org/abs/2011.01843",
+      "ideas": ["Relationships within an event and across a history", "Masked-field reconstruction", "Frozen representations evaluated with separate task predictors"]
+    },
+    {
+      "work": "UniTTab",
+      "source": "https://link.springer.com/article/10.1007/s10994-025-06778-1",
+      "ideas": ["Numerical and categorical values in one event history", "Historical reconstruction followed by supervised adaptation", "Future account outcomes"]
+    },
+    {
+      "work": "Kronos",
+      "source": "https://arxiv.org/abs/2508.02739",
+      "ideas": ["Market bars as multivariate event records", "Explicit forecast origin and future horizon"],
+      "adaptation": "The RelFlow example defines a single next-close regression target. It does not reproduce autoregressive bar generation."
+    }
+  ],
+  "relational_examples": {
+    "repository": "https://github.com/PriorLabs/relarena",
+    "commit": "92d8ea32e406739f2c652208a2c608138042cf58",
+    "source_prefix": "src/relarena/userdb/relbench_v1/",
+    "tasks": [
+      {"source": "rel-hm/user-churn.yaml", "idea": "Seven-day purchase inactivity among recently active customers"},
+      {"source": "rel-amazon/user-churn.yaml", "idea": "Ninety-one-day review inactivity, distinct from purchase inactivity"},
+      {"source": "rel-trial/study-adverse.yaml", "idea": "Future reported subject totals over 365 days, with reporting availability and missing-label semantics"}
+    ],
+    "adaptation": "The public application examples choose explicit populations and horizons and use simplified field names. They do not present benchmark reproductions or results."
+  },
+  "evidence_boundary": "No benchmark scores, pretrained weights, zero-shot transfer, or architectural equivalence are inferred from these sources. RelFlow API examples are checked against contracts/relflow.json and the pinned upstream source."
+}

@@ -40,6 +40,7 @@ separate state. Tokenization pads and truncates at `max_length`.
 | `tokenizer_batch_size` | `4096` | Maximum strings materialized per tokenizer call. |
 | `encoder_batch_size` | `32` | Maximum flattened text values per frozen-encoder call. |
 | `encoder_pooling` | `"cls"` | `"cls"`, `"mean"`, or `"pooler"`; the last requires `pooler_output`. |
+| `cache` | `False` | Reuse pooled frozen-encoder outputs: `True` keeps every distinct input; a positive integer caps retained entries. |
 | `objective` | `"l2"` | Embedding reconstruction loss: `"l1"` or `"l2"`. |
 | `jitter` | `rf.Jitter()` | Training noise on the pooled frozen embedding before learned projection. |
 
@@ -47,6 +48,32 @@ separate state. Tokenization pads and truncates at `max_length`.
 reuse its frozen encoder within the process. Right-padded values are grouped
 by length and cropped per encoder batch; left-padded values retain their full
 width. `max_length` still controls truncation and tensor storage.
+
+## Repeated text
+
+Repeated descriptions can reuse frozen-encoder outputs across forward passes:
+
+```python
+memo = rf.Text(cache=10_000)
+```
+
+`cache=False` disables this reuse. `cache=True` retains every distinct tokenized
+input encountered; a positive integer retains at most that many entries.
+The bounded cache evicts the least frequently reused resident entry, breaking
+ties by least recent use. It favors frequent reuse rather than tracking a
+global ranking of every description ever seen. Texts that tokenize identically,
+including after truncation, can share an entry.
+
+Entries are pristine pooled embeddings stored in CPU memory, separately for
+each text field in each process. Encoder device and precision distinguish
+entries. Tokenization still runs, as do the trainable projection and training
+jitter on every forward pass. Caching therefore preserves their gradients and
+fresh noise while avoiding repeated frozen-encoder work.
+
+Checkpoints retain the `cache` setting but omit cached embeddings; a loaded
+model starts with an empty cache. Under DDP, each process builds its own cache.
+Use a finite cap when inputs contain many distinct descriptions: `cache=True`
+has no entry limit and can keep growing in host memory.
 
 ## Learning and output
 

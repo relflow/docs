@@ -61,14 +61,14 @@ import relflow as rf
 
 datamodule = rf.ArrowDataModule(
     model=model,
-    train=train_table,
-    validate=validation_table,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
 )
 finder = BatchSizeFinder(mode="binsearch", steps_per_trial=3, max_val=64)
 model.fit(datamodule, fused=None, devices=1, callbacks=[finder], max_epochs=20)
 ```
 
-`model`, `train_table`, and `validation_table` are application-supplied.
+The application supplies `model` and the training and validation Parquet files.
 `fused=None` delegates AdamW implementation selection to Torch, including on
 MPS. The finder restores its temporary checkpoint before the real fit;
 `finder.optimal_batch_size` reports its selected size.
@@ -120,8 +120,8 @@ measuring whether input preparation leaves the device idle:
 ```python
 datamodule = rf.ArrowDataModule(
     model=model,
-    train=train_table,
-    validate=validation_table,
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
     num_workers=4,
     persistent_workers=True,
     pin_memory=True,
