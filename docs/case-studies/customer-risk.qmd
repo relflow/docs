@@ -109,8 +109,9 @@ Inspect dispute ranking and calibration separately from account-loss errors.
 Their combined validation loss can hide a regression in one target. This
 example specifies a model design; it makes no claim about measured quality.
 
-The prediction addresses are `/recent_transactions/disputed_next_30_days` and
-`/loss_next_30_days`. Retain `account_id` and the application's transaction
-identifiers when joining outputs back to records. Account for the retained
+Results are under
+`predictions.recent_transactions[i].disputed_next_30_days` and
+`predictions.loss_next_30_days`. Retain `account_id` and the application's
+transaction identifiers when joining outputs back to records. Account for the retained
 history window: an attention summary is not a transaction identifier.
 See [Prediction Output](../guides/prediction-output.qmd).

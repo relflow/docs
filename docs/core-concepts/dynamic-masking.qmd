@@ -171,8 +171,9 @@ branch records must remain to establish output positions. Targets using an
 explicit value query or conditional reconstruction selector still need their
 source structure and selector to be bindable.
 
-Conditional predictions retain the schema's fixed shape. Use each coordinate's
-`inferred` flag to identify requested outputs. See
+Conditional predictions retain structural positions in variable record lists.
+Null collections, empty collections, and null items remain distinct. Use each
+coordinate's `inferred` flag to identify requested outputs. See
 [Prediction Output](../guides/prediction-output.qmd) for the Arrow contract.
 
 [Pretraining And Fine-Tuning](../guides/pretraining.qmd) shows how to change

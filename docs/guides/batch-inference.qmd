@@ -24,10 +24,12 @@ model.predict(
 )
 ```
 
-Each rank writes `payment-predictions/rank-{global_rank}.parquet`. The files contain
-the canonical `inputs` and `predictions` columns described in
-[Prediction Output](prediction-output.qmd). Retain a business key to join or
-sort distributed results downstream; relflow does not add row identity.
+Each rank writes `payment-predictions/rank-{global_rank}.parquet`. These files
+preserve the [prediction output](prediction-output.qmd), including the
+selected `predictions`, `representations`, and retained `inputs` columns and
+schema metadata. Repeated records are variable lists of sibling result structs,
+even with finite branch limits. Retain a business key to join or sort distributed
+results downstream; RelFlow does not add row identity.
 
 To collect bounded batched output in memory, use
 `model.predict(datamodule=data, batch_size=256, devices=1)`. This returns one Arrow table.
@@ -54,6 +56,30 @@ Open the resulting shards as one Arrow dataset for further batch processing:
 ```python
 result = ds.dataset("payment-predictions", format="parquet")
 ```
+
+## Fixed-size vectors and null containers
+
+`rf.Writer` rejects a fixed-size list beneath a null ancestor or a null vector
+value because PyArrow 24 cannot round-trip that shape through Parquet. A Vector
+field in a structurally null repeated record can trigger this guard, as can a
+retained source vector. Null components inside a nonnull fixed-size vector are
+different and remain supported. The guard runs after configured postprocessing.
+
+Use Arrow IPC for affected tables to preserve their exact types and nulls.
+For a job small enough to collect in memory:
+
+```python
+import pyarrow.ipc as ipc
+
+table = model.predict(datamodule=data, batch_size=256, devices=1)
+with ipc.new_stream("payment-predictions.arrow", table.schema) as writer:
+    writer.write_table(table)
+```
+
+For streaming IPC, consume written prediction batches in an application callback;
+`rf.Writer` itself writes Parquet. An alternative application postprocessor may
+project away unneeded vectors, but it must deliberately define the resulting
+output contract.
 
 For bounded in-memory requests, `model.predict(request_table, batch_size=256)`
 chunks processed rows before model execution and collects one Arrow table.

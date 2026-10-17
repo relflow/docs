@@ -4,9 +4,9 @@ The standalone documentation for [RelFlow](https://github.com/relflow/relflow).
 Examples start with payments, then add account history and larger workflows.
 Published at [relflow.github.io/docs](https://relflow.github.io/docs/).
 
-This edition describes **RelFlow 0.2.4**. Its saved
+This edition describes **RelFlow 0.3.1**. Its saved
 [API contract](contracts/relflow.json) records source revision
-`8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c`.
+`18d582cca2af3dafde65b756111b32aed5b3e580`.
 The site, assets, proof experiments, and recorded results live here and have
 their own release history. Building does not require the RelFlow package or
 another checkout.

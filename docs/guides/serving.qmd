@@ -48,10 +48,51 @@ with `Content-Type: application/vnd.apache.arrow.stream`; the response is also
 an IPC stream. `GET /health` supplies a health endpoint, and `/docs` exposes the
 API reference.
 
-Default responses contain `predictions` plus a `model` provenance field with
-`version` and `checkpoint`. They omit the interactive prediction table's
-`inputs` column. A postprocessor controls application response fields;
-provenance is appended afterward, so `model` is a reserved name.
+Successful [prediction responses](prediction-output.qmd)
+preserve the canonical selected columns: `predictions`, requested
+`representations`, and explicitly retained `inputs`. A postprocessor can define
+the same application response schema used by direct or batch prediction.
+There is no appended per-row `model` field or reserved application name.
+
+Arrow schema metadata records `relflow.prediction_format` and
+`relflow.model_version`. HTTP exposes the same values through
+`X-RelFlow-Prediction-Format` and `X-RelFlow-Model-Version` headers. The format
+header carries the serialized protocol number `2`; it is separate from the
+RelFlow package release. The model-version header
+is the model's recorded RelFlow package version, not a checkpoint fingerprint.
+Keep checkpoint identity in application metadata when it is needed.
+
+A failed JSON item carries an explicit error in its original request position;
+it is not an empty successful prediction. Successful-record parity does not
+make JSON error envelopes part of the canonical Arrow success schema.
+
+## Bound Public Requests
+
+::: {.callout-warning}
+## Inference-time DoS/DDoS attack vector
+
+An unbounded `Branch(length=None)` lets a client control nested collection sizes
+during inference. A single oversized request can exhaust CPU/GPU memory or
+compute and interrupt service. Requests from multiple sources can amplify this
+into a distributed denial-of-service (DDoS) attack. Automatic batch widths and
+sparse attention do not impose a resource limit.
+:::
+
+Set finite `Branch(length=...)` limits on every branch that reads untrusted
+collections. Use `overflow="error"` when excess items must raise an error rather
+than be truncated. These limits bound retained model input; they do not prevent
+resource exhaustion while receiving, parsing, or preprocessing a request.
+
+Enforce request-body size limits before parsing, for both JSON and Arrow, at the
+application ingress or reverse proxy. Also validate collection sizes and nesting
+depth, and apply rate and concurrency limits appropriate to the service.
+`max_batch_size` bounds observation rows, not items inside each row or request
+bytes. One row can contain an oversized nested collection.
+
+RelFlow logs one aggregate warning per model generation for active unbounded
+paths; serving startup checks the same guard after queued schema changes. The
+warning does not reject requests or impose a cap. See
+[branch limits](../data-types/branch.qmd#automatic-lengths-and-limits).
 
 ## Validate application inputs
 
@@ -90,7 +131,9 @@ app = (
 ```
 
 Retention exposes `payment_id` to the postprocessor. The final result must
-contain one row per valid request in request order. If the API accepts raw fields
+contain one row per valid request with unchanged identity and request order.
+Equal row counts cannot detect a permutation; both pre- and postprocessors
+must preserve that association. If the API accepts raw fields
 that require [preprocessing](preprocessors.qmd), attach that processor with
 `.preprocess(prepare)` and make the request signature match those raw fields.
 

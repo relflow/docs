@@ -2,8 +2,8 @@
   "schema": 1,
   "upstream": {
     "repository": "https://github.com/relflow/relflow",
-    "commit": "8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c",
-    "version": "0.2.4"
+    "commit": "18d582cca2af3dafde65b756111b32aed5b3e580",
+    "version": "0.3.1"
   },
   "fields": {
     "Boolean": [
@@ -52,6 +52,7 @@
       "threshold"
     ],
     "Text": [
+      "cache",
       "encoder_batch_size",
       "encoder_pooling",
       "jitter",

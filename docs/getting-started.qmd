@@ -84,9 +84,9 @@ new_payments = pq.read_table("payments/requests.parquet")
 predictions = model.predict(new_payments, batch_size=256)
 ```
 
-`predictions` is an Arrow table. Its `predictions` column contains the result
-for `/disputed`; [Prediction Output](guides/prediction-output.qmd) explains how
-to read its probability.
+`predictions` is an Arrow table. Read the target under
+`predictions.disputed`. [Prediction Output](guides/prediction-output.qmd) explains
+its probability and the difference from earlier address-keyed output.
 
 Next, [add transaction history](tutorials/transaction-history.qmd) to give
 each payment more context. For training options and saving your model, see

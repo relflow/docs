@@ -158,7 +158,7 @@ def test_datatype_references_cover_public_options_and_states() -> None:
     contract = json.loads((ROOT / "contracts/relflow.json").read_text())
     assert contract["schema"] == 1
     assert contract["upstream"]["repository"] == "https://github.com/relflow/relflow"
-    assert contract["upstream"]["version"] == "0.2.4"
+    assert contract["upstream"]["version"] == "0.3.1"
     for name, options in contract["fields"].items():
         reference = (DOCS / f"data-types/{name.lower()}.qmd").read_text()
         for option in options:

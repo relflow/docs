@@ -17,7 +17,9 @@ against the schema before changing model capacity or optimization settings.
 | An optimizer or scheduler refers to replaced parameters | Start an ordinary fit on the current model, or supply custom factories that bind its current parameters and optimizer. |
 | Training batches have no selected targets | Check masks, source presence, and target geometry; those batches are skipped. |
 | Expected decoded output is absent | Fractional reconstruction policies are inactive in ordinary prediction; use deterministic reconstruction to request outputs. |
-| Too many or too few embeddings | Check the selected node and its reduction, including retained outer branch axes. |
+| Too many or too few embeddings | Inspect representation paths, ancestor coordinates, and output indices; summary counts need not equal item counts. |
+| Prediction reports no public outputs | Select a field with decoded public output or set `embed=True`; reconstruction alone does not guarantee a writable value. |
+| Parquet rejects a fixed-size list beneath a null container | Preserve the structure using Arrow IPC; see [Batch Inference](batch-inference.qmd#fixed-size-vectors-and-null-containers). |
 | Mutation is rejected during a loop | Move the edit outside forward, predict, or Lightning execution. |
 | Compilation disappears after a change | Mutations and checkpoint rebuilds clear it; call `compile()` again. |
 

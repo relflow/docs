@@ -30,6 +30,8 @@ predictions = model.predict(request_table, batch_size=256)
 
 `mask=True` declares the prediction target. Fitting restores the best validation
 checkpoint by default. Predictions are returned as an Arrow table.
+[Prediction output](../guides/prediction-output.qmd) uses nested field
+names for decoded results and a separate column for requested representations.
 
 ## Build a model
 

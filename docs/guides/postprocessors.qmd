@@ -5,7 +5,7 @@ title: Postprocessors
 A postprocessor turns the [prediction table](prediction-output.qmd) into the
 shape an application needs. It receives and returns an eager Polars DataFrame.
 
-For a trained payment model with a Boolean `/disputed` target:
+For a trained payment model with a Boolean `disputed` target:
 
 ```python
 import polars as pl
@@ -13,7 +13,7 @@ import relflow as rf
 
 @rf.postprocess
 def decision(frame: pl.DataFrame, *, threshold: float) -> pl.DataFrame:
-    disputed = pl.col("predictions").struct.field("/disputed")
+    disputed = pl.col("predictions").struct.field("disputed")
     probability = disputed.struct.field("content").struct.field("probability")
     return frame.select(
         payment_id=pl.col("inputs").struct.field("payment_id"),
@@ -69,4 +69,7 @@ otherwise available in the written table. A `Writer` requires the same output
 schema across batches in its shard.
 
 HTTP serving has an additional requirement: preserve one final row per valid
-request in request order. relflow checks the count; the processor owns order.
+request with the same identity and order. RelFlow checks the count; processors
+own identity and order, including when row counts happen to be equal. No
+per-row `model` provenance field is appended; the format and recorded package
+version are carried in schema metadata and HTTP headers.

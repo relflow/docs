@@ -151,7 +151,7 @@ def build() -> rf.Model:
 
 def prediction(model: rf.Model, rows: list[dict]) -> np.ndarray:
     output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    return np.asarray([row["/target"]["content"] for row in output], dtype=np.float64)
+    return np.asarray([row["target"]["content"] for row in output], dtype=np.float64)
 
 
 def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:

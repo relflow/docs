@@ -54,9 +54,18 @@ through `model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, 
 omitted options use defaults. Each fit binds a fresh optimizer to the current
 parameters, with any scheduler supplied for that run. Full training continuation
 uses `ckpt_path`. Reserve `rf.adamw(...)` and explicit `model.optimizer` setup
-for custom optimization or native `lit.Trainer` examples. Prediction returns
-an Arrow table with a `predictions` column. Show observation and output
-examples as one YAML record, nesting repeated values under their field names.
+for custom optimization or native `lit.Trainer` examples. Prediction returns selected `predictions`, `representations`, and retained `inputs`
+columns, omitting unselected planes and rejecting an empty public output plan.
+Use ordinary child names in the prediction tree, never literal slash keys.
+Repeated records always use variable Arrow lists, including bounded branches;
+input caps do not add public padding. Fixed-width vectors retain their feature
+axis. Extension output list children must be named `element`.
+Embeddings live in representation records with `path`, `parents`, `output_index`,
+and `embedding`. The pinned contract targets RelFlow 0.3.1; recorded proofs
+retain their original provenance even when executable output readers are
+migrated. A reader migration does not establish fresh learning results. Show
+observation and output examples as one YAML record, nesting repeated values
+under their field names.
 Keep examples realistic without constructing or executing miniature datasets.
 Set batch size on the loop method in ordinary training examples. A positive
 `batch_size` on any loop updates the persistent model setting; Arrow data

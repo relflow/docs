@@ -71,14 +71,39 @@ values.
 
 A child branch requires a list of objects, including when `length=1`. Only
 the generated model root reads one object directly. Each branch adds a shape
-axis. `length` caps retained items,
-shorter collections are padded, and `overflow` chooses which excess items
-survive. Padding does not contribute to attention or reduction.
+axis. `length` caps retained items, and `overflow` chooses which excess items
+survive. Internal padding does not contribute to attention or reduction.
+[Prediction output](../guides/prediction-output.qmd#repeated-coordinates) writes
+every record collection as a variable Arrow list of sibling result structs,
+without public cap padding. Structural nulls and empty collections are preserved.
 
 Definitions are reusable: binding clones them without changing the original.
 Use `fields={"length": rf.Number}` for generated schemas or child names that
 collide with configuration. Use [Set](set.qmd) for membership alone and
 [Vector](vector.qmd) for one numeric vector.
+
+## Automatic lengths and limits {#automatic-lengths-and-limits}
+
+The default `length=None` follows the largest retained collection in each batch.
+Set a positive `length` to cap retained items; with a cap, omitted `overflow`
+becomes `"head"`. Choose `"tail"` for recency-ordered histories or `"error"` to
+reject excess items. Unbounded branches require `overflow=None`. The anonymous
+root remains a singleton.
+
+::: {.callout-warning}
+## Inference-time DoS/DDoS attack vector
+
+With `length=None`, untrusted requests control nested collection sizes during
+inference. Oversized collections can exhaust CPU/GPU memory or compute and deny
+service to other users. Requests from multiple sources can amplify this into a
+distributed denial-of-service (DDoS) attack.
+
+Set finite branch lengths and enforce request-size limits before
+[public serving](../guides/serving.qmd#bound-public-requests). A batch-size limit
+alone does not bound nested collections. RelFlow logs one aggregate warning per
+model generation for active unbounded branches; the warning enforces no limit.
+No hidden cap is applied to `length=None`.
+:::
 
 ## Options
 
@@ -90,8 +115,8 @@ These are the direct `rf.Branch` defaults. A
 | --- | --- | --- |
 | `fields` | `None` | Named child mapping, combinable with keyword children; names must be unique. |
 | `query` | `None` | Optional node-relative structural path. |
-| `length` | `1` | Positive maximum retained items per parent coordinate. |
-| `overflow` | `"head"` | Keep first items (`"head"`), keep last items (`"tail"`), or raise (`"error"`). Order comes from the processed source. |
+| `length` | `None` | Automatic batch width; a positive integer caps retained items per parent coordinate. |
+| `overflow` | `None` | Unbounded branches require `None`. With finite `length`, omission becomes `"head"`; choose `"head"`, `"tail"`, or `"error"`. Order comes from the processed source. |
 | `attention` | `"mha"` | Encoder mode; see below. |
 | `n_layers` | `1` | Positive sequence-encoder depth. |
 | `n_heads` | `4` | Positive, even encoder head count and fallback for Attention reduction. Active attention requires heads to divide `d_model` with at least two dimensions per head. |

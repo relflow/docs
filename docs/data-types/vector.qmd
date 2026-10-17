@@ -46,6 +46,11 @@ coordinate space; see [Jitter](../core-concepts/jitter.qmd).
 Reconstruction combines state cross entropy with content loss on valued
 targets. MAE and RMSE metrics use the supplied coordinate scale.
 
+In [prediction output](../guides/prediction-output.qmd), null
+ancestor records preserve their structural holes. `rf.Writer` rejects these
+fixed-width vectors when PyArrow cannot round-trip them through Parquet; use
+Arrow IPC for affected tables.
+
 Prediction `content` is `fixed_size_list<float32>[n_dim]`. When the most likely
 predicted state is non-valued, the writer emits a zero vector. Zeros therefore
 do not establish whether a vector was observed; read the shared `state` and

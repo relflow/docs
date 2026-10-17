@@ -2,11 +2,24 @@
 title: Prediction Output
 ---
 
-`model.predict(...)` returns a `pyarrow.Table`. Without postprocessing, each row
-corresponds to one processed observation. Output has two columns: retained
-`inputs` and model `predictions`.
+`model.predict(...)` returns a `pyarrow.Table`. Before application
+postprocessing, each row represents one processed observation. Named fields
+form Arrow structs; repeated records form
+`list<struct<...>>` collections. Read a dispute prediction as
+`predictions.disputed`, or a transaction prediction as
+`predictions.recent_transactions[i].disputed`.
 
-For a payment model with `disputed=rf.Boolean(mask=True)`, one request can omit
+::: {.callout-note}
+## Upgrading to RelFlow 0.3.1
+
+RelFlow 0.3.1 introduces a breaking prediction-output contract. Earlier
+versions used slash-prefixed fields and padded bounded collections. Update
+application readers when upgrading. Executable proof readers now use this
+format. Their recorded measurements retain their original package and source
+provenance; migrating a reader does not re-run or validate a learning experiment.
+:::
+
+For a trained model with `disputed=rf.Boolean(mask=True)`, the request can omit
 the target:
 
 ```yaml
@@ -20,54 +33,30 @@ merchant: grocery
 result = model.predict(request_table, retain=("payment_id",))
 ```
 
-Arrow tables and record batches are accepted directly. A nonempty sequence of
-mappings is also supported for small interactive requests. Use a typed Arrow
-object for empty input: relflow preserves the output schema and skips the
-forward pass.
-
-## Batch direct requests
-
-Pass a positive `batch_size` to limit the processed observations sent to each
-model call:
-
-```python
-result = model.predict(request_table, batch_size=256, retain=("payment_id",))
-```
-
-RelFlow preprocesses the full input once, chunks the resulting Arrow rows
-before encoding and model execution, joins their prediction tables, then
-postprocesses the combined table once. Retained inputs follow those processed
-rows. This preserves the scope of processors that filter, expand, or group data.
-
-The override updates `model.batch_size`. Direct `batch_size=None`, including
-omission, preserves whole-input execution even when that model setting is
-smaller. Direct input and the returned Arrow table remain in memory; for
-file-backed streaming output use [Batch Inference](batch-inference.qmd).
-Data-module prediction reads the current model size, with optional overrides
-on the method call; see [Batch size](lightning.qmd#batch-size).
+For large outputs, use a [Writer](batch-inference.qmd) to persist batches as
+they complete.
 
 ## Read a field
 
-Prediction keys are full, slash-prefixed schema addresses. A dispute target
-is the literal struct field `/disputed`; a model-level embedding uses `/`.
-See [Names And Addresses](../core-concepts/model-tree.qmd#names-and-addresses).
+Use ordinary child names in the output tree. Slash-prefixed schema addresses
+remain identifiers for model configuration and metrics; they are not literal
+prediction field names.
 
 ```python
 import pyarrow.compute as pc
 
-disputed = pc.struct_field(result["predictions"], "/disputed")
+disputed = pc.struct_field(result["predictions"], "disputed")
 content = pc.struct_field(disputed, "content")
 probability = pc.struct_field(content, "probability")
 ```
 
-One output record has this shape. Angle-bracket values describe the output;
-they are placeholders, not measured predictions.
+One output record looks like this. Angle-bracket values are placeholders:
 
 ```yaml
 inputs:
   payment_id: payment-42
 predictions:
-  /disputed:
+  disputed:
     state:
       valued: <probability>
       "null": <probability>
@@ -79,59 +68,149 @@ predictions:
     inferred: true
 ```
 
-`state` gives probabilities for the five value states. `content` holds the
-field's decoded value. Consider both if the application distinguishes a value
-from a missing or unavailable result. `inferred` records whether reconstruction
-was requested at that position; it is not a confidence score.
+`state` gives probabilities for the five value states. Each datatype owns its
+`content`. `inferred` marks requested reconstruction, not confidence. Boolean
+returns a probability; choosing a Boolean decision threshold belongs to the
+application.
 
 ## What appears in output
 
-Only configured prediction addresses appear: deterministic reconstructions
-with an extension output, requested embeddings, or both. Visible input fields
-are not automatically echoed. `embed=True` adds an L2-normalized `embedding`;
-branch embeddings contain no decoded value.
+Only selected output columns appear:
+
+| Column | Present when |
+| --- | --- |
+| `inputs` | `retain` selects processed source columns. |
+| `predictions` | At least one selected field has a decoded public payload. |
+| `representations` | At least one node has `embed=True`. |
+
+An embeddings-only model returns `representations` without an empty
+`predictions` struct. A model with no decoded public output and no requested
+embeddings raises an error when planning prediction. Visible input fields are
+not automatically echoed.
+
+Rich leaf payloads keep their datatype-specific structure:
 
 | Field type | Decoded output |
 | --- | --- |
 | `Boolean` | `content.probability`: probability of `True` |
 | `Number` | `content`: floating-point reconstruction |
-| `Quantile` | `content`: floating-point reconstruction in source units; null before learning a distribution |
-| `Vector` | `content`: fixed-width list |
-| `Category`, `Enum` | `content.value`, `content.probability`, `content.topk` candidates |
+| `Quantile` | `content`: reconstruction in source units; null before learning a distribution |
+| `Vector` | `content`: fixed-width float list |
+| `Category`, `Enum` | `content.value`, `content.probability`, `content.topk` |
 | `Set` | `content`: list of value/probability candidates |
 | `Cluster` | `cluster.value`, `cluster.probability`, plus content value/probability |
-| `Text`, `Hash`, `DateParts` | No decoded public value; embeddings are available |
+| `Text`, `Hash`, `DateParts` | No decoded public value; embeddings can be requested |
 
-Number and Quantile predict in the units supplied after preprocessing. Their
-internal transformations do not change the output units. Quantile clips the
-inverse transformation to its learned minimum and maximum. Vector predicts the supplied
-coordinates and writes zeros where the most likely state is not `valued`. If
-your preprocessor transforms units, reverse that application transform in a
-[postprocessor](postprocessors.qmd). Category, Enum, and Set labels are Arrow
-`large_string` values.
-Category and Enum always include `topk`, even when empty. A Set threshold can
-vary the number of returned candidates.
+Number and Quantile use the units supplied after preprocessing. Quantile clips
+its inverse transformation to its learned range. Vector writes zeros where
+the most likely state is not `valued`. Reverse application-specific unit
+transforms in a [postprocessor](postprocessors.qmd).
 
-The Arrow row dimension always means observations. A repeated branch appears
-as fixed-width lists inside each leaf's output, including length-one branches.
-Vectors and embeddings also keep their width axis. A branch embedding's shape
-follows its reduction output. The generated root singleton is omitted; a
-one-row request has the same nested schema as a larger batch.
+Category, Enum, and Set labels are Arrow `large_string` values. Top-k and Set
+candidates are lists of structs pairing each value with its probability.
+Category and Enum retain `topk` even when empty. A Set threshold can change
+candidate counts without changing the schema.
+
+## Repeated coordinates
+
+All repeated record collections use variable Arrow lists, including
+`Branch(length=1)` and other finite limits. `length` caps retained input;
+it does not pad public output to the cap. The root is a struct with no
+singleton observation list.
+
+For a model predicting a target on each recent transaction:
+
+```yaml
+predictions:
+  recent_transactions:
+    - disputed:
+        content: {probability: 0.12}
+    - null
+    - disputed:
+        content: {probability: 0.04}
+```
+
+This illustration shows only `content`; each nonnull leaf still includes
+`state` and `inferred`. Sibling predictions share one transaction record and
+one set of list offsets. A missing leaf does not remove its record.
+
+| Canonical collection | Output collection |
+| --- | --- |
+| `null` | `null` |
+| `[]` | `[]` |
+| `[null]` | `[null]` |
+| A valid record with missing fields | A valid result record at the same position |
+
+Record validity follows branch geometry, not predicted value-state
+probabilities. Positions follow preprocessing, structural queries, and
+configured overflow. They can differ from untouched source indices retained
+under `inputs`. Preserve application item identifiers when joining them back.
+Types, lengths, and structural validity remain stable across execution batch
+widths. Fixed-width vectors retain their feature-width axis.
+
+## Representations
+
+`embed=True` writes L2-normalized float32 vectors in a separate
+`representations` list. Each representation record has:
+
+| Field | Meaning |
+| --- | --- |
+| `path` | Field-name segments; `[]` identifies the anonymous root. |
+| `parents` | Item ordinals for repeated ancestors, outermost first. |
+| `output_index` | The representation's intrinsic output index at that site. |
+| `embedding` | A fixed-size float32 list of model width. |
+
+A history summary uses `path=[recent_transactions], parents=[]`. A leaf
+embedding on its third transaction uses
+`path=[recent_transactions, merchant], parents=[2]`. Branch summaries have their
+own output counts; they are not repeated once for each child record.
+Pass-through reductions preserve their routed output stream, including defined
+zero slots, rather than inventing source-token identities. See
+[Embeddings](../core-concepts/embeddings.qmd) for extraction and nested examples.
 
 ## Retain source columns
 
-`retain` selects **processed top-level columns** copied into `inputs`:
+`retain` selects processed top-level columns copied into an `inputs` struct:
 
 | Argument | Retained inputs |
 | --- | --- |
-| `retain=()` | None; `inputs` is an Arrow null column |
-| `retain=("payment_id",)` | Only that named column |
+| `retain=()` | No `inputs` column |
+| `retain=("payment_id",)` | That column only |
 | `retain="*"` | All processed source columns |
 
-Retention does not change model inputs. A missing retained column is an error.
-When no prediction address has writable output, `predictions` is also a null
-column, with the observation count preserved.
+Retention changes output selection, not model inputs. Missing retained columns
+raise an error. Retain a business key to identify rows across distributed shards;
+RelFlow does not invent an application identity or promise global shard order.
 
-Use [postprocessors](postprocessors.qmd) to reshape this table,
-[batch inference](batch-inference.qmd) to write it to Parquet, or
-[serving](serving.qmd) for an HTTP endpoint.
+## Batch direct requests
+
+The direct API accepts Arrow tables and record batches, plus a nonempty
+sequence of mappings for small interactive requests. Use a typed Arrow object
+for empty input: the planned output schema is preserved without a forward pass.
+Put file paths on a data module's `predict` split.
+
+A positive direct `batch_size` preprocesses the full input once, chunks processed
+Arrow rows before encoding, combines output tables, and postprocesses once.
+It also updates the model's current batch size. Omitting the override, or using
+`None`, preserves whole-input direct execution. File-backed data modules and
+[Batch Inference](batch-inference.qmd) provide streaming input/output.
+
+## Files and HTTP
+
+Direct prediction, batch writing, and successful HTTP results use the same
+selected columns. JSON renders their records; Arrow HTTP writes their schema
+through IPC. Postprocessors can deliberately define an application-specific
+response at the table boundary.
+
+Arrow schema metadata records `relflow.prediction_format=2` and the model's
+recorded package version under `relflow.model_version`. HTTP mirrors them in
+headers. These values do not uniquely identify a checkpoint. See
+[Serving](serving.qmd) for error responses and request-order requirements.
+
+`rf.Writer` requires an exact stable schema and metadata across batches.
+Its Parquet guard rejects fixed-size lists beneath null containers: PyArrow 24
+cannot restore these reliably. This includes Vector output beneath a null
+record, or retained source vectors with null parents. Use Arrow IPC for those
+tables; the writer does not silently erase structural nulls or change vectors
+to variable lists. Ordinary nullable vector components inside a nonnull vector
+remain supported. See [Batch Inference](batch-inference.qmd).
