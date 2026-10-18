@@ -117,7 +117,7 @@ Within that boundary, the public package should support these claims:
 | Text | A frozen text encoder can provide semantic features; relflow learns around those features but does not generate text. |
 | Masked reconstruction | Correlated visible context can reconstruct selected state and content without a separate learning path. |
 | Contextual embeddings | A reconstruction-trained root or branch can expose a useful normalized representation of the synthetic latent process. |
-| Cluster | Repeated high-cardinality labels can organize into latent groups when the cluster head receives an engaged objective. |
+| Group | Repeated high-cardinality labels can organize into latent groups when the group head receives an engaged objective. |
 
 The suite must also protect the limits of those claims. relflow should not be
 expected to:
@@ -137,7 +137,7 @@ expected to:
   vocabulary;
 - invert a `Hash`, treat its training representation as persistent identity, or
   preserve equality after the relevant tokens no longer share a context;
-- learn adaptive cluster capacity from a `Cluster` used only as a plain input;
+- learn adaptive group capacity from a `Group` used only as a plain input;
 - infer elapsed time or recency from calendar parts that intentionally omit
   absolute time;
 - obtain a semantic embedding merely because `embed=True` was set without a
@@ -267,7 +267,7 @@ Prefer metrics with interpretable baselines:
 | Number | Normalized RMSE: model RMSE divided by train-mean baseline RMSE |
 | Set | Macro F1 over populated labels plus exact-set accuracy when appropriate |
 | Value state | Balanced state accuracy, reported separately from content |
-| Cluster partition | Adjusted Rand index or another permutation-invariant partition score |
+| Group partition | Adjusted Rand index or another permutation-invariant partition score |
 | Embedding | Held-out nearest-centroid or k-nearest-neighbor accuracy using labels only in the evaluator |
 | Invariance | Maximum prediction delta and embedding cosine similarity over equivalent inputs |
 
@@ -316,6 +316,30 @@ uncertainty calibration, semantic meaning of label strings, or transfer across
 arbitrary domains. Learning a new head or classifier on a familiar latent
 process is distinguished from transfer to unseen classes. Only the reporting
 and static rendering infrastructure is shared across scripts.
+
+### Experimental predictive grouping
+
+P079–P081 preserve P078 and its recorded results, while evaluating a separate,
+proof-local predictive reassignment procedure. At updates 200, 400, and 600,
+the procedure pools each known identity's training prediction losses across
+candidate groups and retains the proposed mapping only if validation loss
+improves. The final event follows the last optimizer update. Group memberships
+and model choices never use test targets. This is an explicit experimental
+callback, not behavior provided by ordinary `Model.fit`.
+
+| ID | Question | Comparisons and checks |
+| --- | --- | --- |
+| P079 | Does predictive reassignment recover different numerical group structures? | Separated and crossing response curves, unequal group sizes, hidden counts three and six, no-regime and shuffled-ID controls; report ARI, nRMSE, exact occupied count, per-regime error, and frozen/OOV state. |
+| P080 | Does it also learn categorical behavior? | Context-dependent labels with equal expected label marginals per identity; compare native training, hardening existing assignments, predictive reassignment, and no-regime training. Score true-label NLL from the full public Category distribution. |
+| P081 | How much additional work does reassignment require? | Paired native/reassignment runs with the same data, architecture, update count and validation schedule; report wall-time increase, intervention time and forward-row counts. No hardware-independent speed or FLOP claim. |
+
+The new behavioral gates are fixed before execution and remain provisional
+until broader seed calibration. A strong prediction score does not excuse an
+incorrect partition or occupied-group count. Preserve every unmet check rather
+than reducing a threshold after observing results. These observations reuse
+training identities; they do not establish unseen-identity generalization.
+The timing proof measures correctness of the cost comparison rather than
+requiring an arbitrary maximum percentage overhead.
 
 ### Proof-harness calibration
 
@@ -557,7 +581,7 @@ Also verify that returned embeddings are finite and unit normalized. Do not
 compare coordinates across separately initialized models or checkpoints; the
 public contract does not align those spaces.
 
-### Adaptive cluster discovery
+### Adaptive group discovery
 
 **Claim:** repeated high-cardinality identities with shared behavior recover a
 latent partition and a committed count near the true K.
@@ -578,9 +602,9 @@ Require, across the final five epochs or the restored best checkpoint:
 - permutation-invariant assignment ARI of at least `0.80`; and
 - downstream predictive skill materially above a marginal baseline.
 
-Required controls are a plain-input Cluster whose head remains dormant, unique
+Required controls are a plain-input Group whose head remains dormant, unique
 IDs that cannot pool repeated evidence, and a no-regime generator. The current
-tests under [`cluster/cluster_convergence/`](cluster/cluster_convergence/)
+tests under [`group/`](group/)
 establish committed-count behavior and the dormant control with one seed;
 partition recovery, held-out predictions, and the seed panel remain to be
 added before this proof is complete.
@@ -1397,7 +1421,7 @@ evidence of a mutation boundary to resolve, not a reason to relax the gate.
 
 The public operations are `update`, `extend`, `delete`, `reset`, and `override`.
 `select` identifies their scope. The contracts come from the
-[mutation guide](https://relflow.github.io/docs/guides/schema-mutation.html),
+[mutation guide](https://relflow.ai/guides/schema-mutation.html),
 [schema editor](https://github.com/relflow/relflow/blob/stage/0.2.4/src/relflow/architecture/mutations.py), and
 [graph rebuild](https://github.com/relflow/relflow/blob/stage/0.2.4/src/relflow/architecture/graph.py). Rebuilding copies state
 entries with matching names and tensor shapes, or matching Python types for
@@ -1810,7 +1834,7 @@ proofs/
 ├── aggregation/
 │   └── raw_value_weight_sum.py
 ├── calibration/
-├── cluster/
+├── group/
 ├── identity/
 ├── relational/
 │   └── hash_recall.py
@@ -1937,7 +1961,7 @@ Build the suite in this order:
 6. Shared-context recall, then direct sibling entity transfer.
 7. Entity-keyed aggregation, retrieval, peer-relative inference, collection
    overlap, temporal alignment, and multi-hop candidates.
-8. Complete cluster partition and held-out gates.
+8. Complete group partition and held-out gates.
 9. Nested context, Set invariance, and hierarchical statistics.
 10. Contextual reconstruction and embedding utility.
 11. Calendar recurrence, cross-DatePart inference, Vector geometry, and field

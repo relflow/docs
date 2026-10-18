@@ -4,6 +4,7 @@ project:
   pre-render:
     - uv run --project .. python ../proofs/render.py
   resources:
+    - CNAME
     - assets/fonts/OFL.txt
     - proofs/_generated/results.yaml
     - proofs/_generated/*.py
@@ -13,7 +14,7 @@ project:
     - "proofs/*/*.py"
 
 website:
-  site-url: https://relflow.github.io/docs/
+  site-url: https://relflow.ai/
   title: relflow
   favicon: assets/branding/logos/logo.svg
   image: assets/branding/logos/logo.light.png
@@ -118,8 +119,8 @@ website:
                 text: Vector
               - href: data-types/quantile.qmd
                 text: Quantile
-              - href: data-types/cluster.qmd
-                text: Cluster
+              - href: data-types/group.qmd
+                text: Group
           - href: reference/model-presets.qmd
             text: Model Presets
           - href: reference/public-api.qmd

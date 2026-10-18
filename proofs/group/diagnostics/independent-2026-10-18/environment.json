@@ -1,0 +1,10 @@
+{
+  "python": "/Users/grantham/Desktop/relflow/.venv/bin/python",
+  "relflow_path": "/private/tmp/relflow-group-independent-20261018-v2/source/src/relflow/__init__.py",
+  "source_sha256": "f2c31b6fd12d0eecad3edee0a80079385ac5c7970d3e30c63deed5e543d24e9c",
+  "thread_environment": {
+    "OMP_NUM_THREADS": "1",
+    "MKL_NUM_THREADS": "1",
+    "OPENBLAS_NUM_THREADS": "1"
+  }
+}

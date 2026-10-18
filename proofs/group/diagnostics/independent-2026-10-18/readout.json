@@ -1,0 +1,130 @@
+{
+  "source_sha256": "f2c31b6fd12d0eecad3edee0a80079385ac5c7970d3e30c63deed5e543d24e9c",
+  "proof_invocations": 6,
+  "actual_model_fits": 9,
+  "original_gates_unchanged": true,
+  "results": [
+    {
+      "proof": "P065",
+      "seed": 7651,
+      "outcome": "not_met",
+      "metrics": {
+        "known_accuracy_1024": 0.76953125,
+        "known_accuracy_512": 0.7734375,
+        "known_accuracy_102": 0.7745097875595093
+      },
+      "failed_checks": [
+        "1024: known accuracy exceeds 0.95",
+        "512: known accuracy exceeds 0.95",
+        "102: known accuracy exceeds 0.95"
+      ]
+    },
+    {
+      "proof": "P065",
+      "seed": 7652,
+      "outcome": "not_met",
+      "metrics": {
+        "known_accuracy_1024": 0.7509765625,
+        "known_accuracy_512": 0.75,
+        "known_accuracy_102": 0.813725471496582
+      },
+      "failed_checks": [
+        "1024: known accuracy exceeds 0.95",
+        "512: known accuracy exceeds 0.95",
+        "102: known accuracy exceeds 0.95"
+      ]
+    },
+    {
+      "proof": "P065",
+      "seed": 7653,
+      "outcome": "not_met",
+      "metrics": {
+        "known_accuracy_1024": 0.63671875,
+        "known_accuracy_512": 0.63671875,
+        "known_accuracy_102": 0.5980392098426819
+      },
+      "failed_checks": [
+        "1024: known accuracy exceeds 0.95",
+        "512: known accuracy exceeds 0.95",
+        "102: known accuracy exceeds 0.95"
+      ]
+    },
+    {
+      "proof": "P078",
+      "seed": 7801,
+      "outcome": "not_met",
+      "metrics": {
+        "stable": {
+          "adjusted_rand": 0.6927251494126537,
+          "normalized_rmse": 0.24657386018781227,
+          "occupied_groups": 6,
+          "steps": 600
+        },
+        "no_regime": {
+          "adjusted_rand": 0.03470031545741325,
+          "normalized_rmse": 1.0021691976052975,
+          "occupied_groups": 8,
+          "steps": 600
+        }
+      },
+      "failed_checks": [
+        "Stable regimes recover ARI at least 0.80"
+      ]
+    },
+    {
+      "proof": "P078",
+      "seed": 7802,
+      "outcome": "met",
+      "metrics": {
+        "stable": {
+          "adjusted_rand": 0.890112916551914,
+          "normalized_rmse": 0.03130890784031043,
+          "occupied_groups": 6,
+          "steps": 600
+        },
+        "no_regime": {
+          "adjusted_rand": 0.005529561888558072,
+          "normalized_rmse": 1.0049958892854538,
+          "occupied_groups": 6,
+          "steps": 600
+        }
+      },
+      "failed_checks": []
+    },
+    {
+      "proof": "P078",
+      "seed": 7803,
+      "outcome": "not_met",
+      "metrics": {
+        "stable": {
+          "adjusted_rand": 0.708813838550247,
+          "normalized_rmse": 0.22787374492574974,
+          "occupied_groups": 7,
+          "steps": 600
+        },
+        "no_regime": {
+          "adjusted_rand": -0.011489173663278816,
+          "normalized_rmse": 1.0044669803524422,
+          "occupied_groups": 7,
+          "steps": 600
+        }
+      },
+      "failed_checks": [
+        "Stable regimes recover ARI at least 0.80"
+      ]
+    }
+  ],
+  "refinement_counts": {
+    "P065": {
+      "attempted": 9,
+      "accepted": 3
+    },
+    "P078": {
+      "attempted": 12,
+      "accepted": 0
+    }
+  },
+  "total_reported_duration_seconds": 102.342,
+  "claim_boundary": "Synthetic regression panel using original known proof streams. Single CPU thread; elapsed times are diagnostics, not matched performance benchmarks. No external target score APIs or supervised predictive reassignment.",
+  "execution_errors": 0
+}

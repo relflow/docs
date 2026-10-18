@@ -1,0 +1,104 @@
+[
+  {
+    "proof": "P065",
+    "seed": 7651,
+    "command": [
+      "/Users/grantham/Desktop/relflow/.venv/bin/python",
+      "/private/tmp/relflow-group-independent-20261018-v2/proofs/vocabulary/group_pretraining_coverage.py",
+      "--seed",
+      "7651",
+      "--accelerator",
+      "cpu",
+      "--threads",
+      "1",
+      "--output",
+      "/private/tmp/relflow-group-independent-20261018-v2/results.yaml"
+    ],
+    "returncode": 0
+  },
+  {
+    "proof": "P065",
+    "seed": 7652,
+    "command": [
+      "/Users/grantham/Desktop/relflow/.venv/bin/python",
+      "/private/tmp/relflow-group-independent-20261018-v2/proofs/vocabulary/group_pretraining_coverage.py",
+      "--seed",
+      "7652",
+      "--accelerator",
+      "cpu",
+      "--threads",
+      "1",
+      "--output",
+      "/private/tmp/relflow-group-independent-20261018-v2/results.yaml"
+    ],
+    "returncode": 0
+  },
+  {
+    "proof": "P065",
+    "seed": 7653,
+    "command": [
+      "/Users/grantham/Desktop/relflow/.venv/bin/python",
+      "/private/tmp/relflow-group-independent-20261018-v2/proofs/vocabulary/group_pretraining_coverage.py",
+      "--seed",
+      "7653",
+      "--accelerator",
+      "cpu",
+      "--threads",
+      "1",
+      "--output",
+      "/private/tmp/relflow-group-independent-20261018-v2/results.yaml"
+    ],
+    "returncode": 0
+  },
+  {
+    "proof": "P078",
+    "seed": 7801,
+    "command": [
+      "/Users/grantham/Desktop/relflow/.venv/bin/python",
+      "/private/tmp/relflow-group-independent-20261018-v2/proofs/group/regime_recovery.py",
+      "--seed",
+      "7801",
+      "--accelerator",
+      "cpu",
+      "--threads",
+      "1",
+      "--output",
+      "/private/tmp/relflow-group-independent-20261018-v2/results.yaml"
+    ],
+    "returncode": 0
+  },
+  {
+    "proof": "P078",
+    "seed": 7802,
+    "command": [
+      "/Users/grantham/Desktop/relflow/.venv/bin/python",
+      "/private/tmp/relflow-group-independent-20261018-v2/proofs/group/regime_recovery.py",
+      "--seed",
+      "7802",
+      "--accelerator",
+      "cpu",
+      "--threads",
+      "1",
+      "--output",
+      "/private/tmp/relflow-group-independent-20261018-v2/results.yaml"
+    ],
+    "returncode": 0
+  },
+  {
+    "proof": "P078",
+    "seed": 7803,
+    "command": [
+      "/Users/grantham/Desktop/relflow/.venv/bin/python",
+      "/private/tmp/relflow-group-independent-20261018-v2/proofs/group/regime_recovery.py",
+      "--seed",
+      "7803",
+      "--accelerator",
+      "cpu",
+      "--threads",
+      "1",
+      "--output",
+      "/private/tmp/relflow-group-independent-20261018-v2/results.yaml"
+    ],
+    "returncode": 0
+  }
+]

@@ -1,0 +1,101 @@
+{
+  "schema": 1,
+  "scope": "Frozen nine-fit normalized-mixture + balanced-small deterministic-ST + predictive reassignment add-on; no checkpoints or duplicate source snapshot",
+  "archive": {
+    "file": "experiments.tar.gz",
+    "sha256": "e304fd4b347db5ac5cef49ec761a45f05beccecf980386f9e1ea1e5bb13e7220",
+    "bytes": 40069
+  },
+  "source_tree_sha256": "4f900097c5f12eb6eef07e88b7abba5c61089f52696d52ee8c08d105894a5b58",
+  "source_snapshot_archive_sha256": "adab27f329b5909aa39a2390fd683b7b9d72b287ac871a87c99a3459a6f4c6fe",
+  "files": {
+    "group-combinations-mixture-20261017/README.md": {
+      "sha256": "c04de1e2ccdf75a3906d57e9c38a2ca33bb2c5bc2eeab57b6c3bbf6d591829f6",
+      "bytes": 5354
+    },
+    "group-combinations-mixture-20261017/check_mixture_math.py": {
+      "sha256": "8d0e87e2cc01e5fff9b919ec417ad76c202e37059029c83dddf88682761d8e89",
+      "bytes": 2738
+    },
+    "group-combinations-mixture-20261017/comparison.json": {
+      "sha256": "ae8cd1b85ef410479c9df885d296447301ccd7785c3e6c5b614aa8bef409ce41",
+      "bytes": 12338
+    },
+    "group-combinations-mixture-20261017/environment.json": {
+      "sha256": "4c244cc836757e4a1610954cd4a5a283a2644087bb9774732b963b840bcf9e69",
+      "bytes": 212
+    },
+    "group-combinations-mixture-20261017/freeze.json": {
+      "sha256": "37ec42e5100c7cacd5e36aee4430444363486bd84cc06f5cef51b6918626bf5a",
+      "bytes": 426
+    },
+    "group-combinations-mixture-20261017/fresh-audit.json": {
+      "sha256": "fe4c380a1a46d780b977d3cec6e2eaf156b672c1b49e9194483d8c58a4b317f9",
+      "bytes": 52709
+    },
+    "group-combinations-mixture-20261017/fresh-audit.log": {
+      "sha256": "83e0816198819c1f3d0279486779bdddb5c5f8e0c3a6842636c6486093441d1a",
+      "bytes": 12053
+    },
+    "group-combinations-mixture-20261017/mixture-path-check.json": {
+      "sha256": "67bb2ed5f898fe261f5c7e760a6e2ebae88a267527e6c65085ecf6135ce1b742",
+      "bytes": 1182
+    },
+    "group-combinations-mixture-20261017/mixture-path-check.log": {
+      "sha256": "67bb2ed5f898fe261f5c7e760a6e2ebae88a267527e6c65085ecf6135ce1b742",
+      "bytes": 1182
+    },
+    "group-combinations-mixture-20261017/p079.py": {
+      "sha256": "5ff3e67168303d668d1519421279d1fd8188f95dda740975d69ddad739d80501",
+      "bytes": 21261
+    },
+    "group-combinations-mixture-20261017/p080.py": {
+      "sha256": "820e7dd05b2516b43b3bc51f8fc592eeb43cb8a7b29d390360c115ec045b379b",
+      "bytes": 18645
+    },
+    "group-combinations-mixture-20261017/prior_functions.txt": {
+      "sha256": "40d89b14cbbdb2897e18f09110871be91ac7e0b2e6b57ef3e0d1efde250c1632",
+      "bytes": 685
+    },
+    "group-combinations-mixture-20261017/protocol.json": {
+      "sha256": "848ce03f2d28d4bc0ef4c0ce939996082c2dca9b8f6ef3f1f8c8042e3fdf0e9a",
+      "bytes": 3869
+    },
+    "group-combinations-mixture-20261017/regression.json": {
+      "sha256": "db4cf9478155d3a8db9eed6abbdfcf4af75f4ea7f5d2fdca604e5db13a7b45e4",
+      "bytes": 844
+    },
+    "group-combinations-mixture-20261017/regression.log": {
+      "sha256": "c2a7d3e172ce682c24564e8a2c98c47bf50febc4e31998d943e565ec621b5a9c",
+      "bytes": 573
+    },
+    "group-combinations-mixture-20261017/run.py": {
+      "sha256": "5ed4fb77dfe643a4a59cecaa8756ea4a3b8388e323e4d1c8bdd3099101499622",
+      "bytes": 14272
+    },
+    "group-combinations-mixture-20261017/run_balanced_original.py": {
+      "sha256": "119e82a1cc8b1bb3f14fbd0eab0103d47660db75ccfe5a43acc67b087dcffd7b",
+      "bytes": 6565
+    },
+    "group-combinations-mixture-20261017/shared/reporting.py": {
+      "sha256": "c423ea1b64b4cf4bca0076897bb2deb420da1028dac85ad16937b659a2fd62fe",
+      "bytes": 6900
+    },
+    "group-combinations-mixture-20261017/shared/source.py": {
+      "sha256": "3798dc178271e2c9f1ef43fc3f81987ba62904b1a54377a31219792f58bff2a2",
+      "bytes": 1994
+    },
+    "group-combinations-mixture-20261017/summary.json": {
+      "sha256": "2f627a924a652c23a40aac47e06edc0240b80963b6aa40de359430679b6674a0",
+      "bytes": 4089
+    },
+    "group-combinations-mixture-20261017/train.log": {
+      "sha256": "96f498b1425b831baa939a7e77a52cbe3a2aaccb2a32a8c22bcbde96f847e84b",
+      "bytes": 12002
+    },
+    "group-combinations-mixture-20261017/validation.json": {
+      "sha256": "5a46ed6ba8eb9428e0e148fe2b3a71e966f83e0fb98d20b9c1ac3e6c1a3eeb3f",
+      "bytes": 33144
+    }
+  }
+}

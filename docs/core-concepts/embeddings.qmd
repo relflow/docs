@@ -90,7 +90,7 @@ See [Branch](../data-types/branch.qmd) and the full
 [Prediction Output](../guides/prediction-output.qmd) contract.
 
 Evaluate an embedding on its intended downstream task. A useful dispute
-predictor does not by itself establish useful similarity or clustering.
+predictor does not by itself establish useful similarity or grouping.
 Preserve the schema and trained state with
 [the model artifact](../guides/lightning.qmd#save-and-load).
 

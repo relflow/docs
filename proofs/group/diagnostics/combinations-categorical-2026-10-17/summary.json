@@ -1,0 +1,125 @@
+{
+  "scope": "Frozen training-recipe comparison; all12 development fits completed before fresh offset503 scoring; canonical test streams never loaded. Native/hardening/no-regime historical controls are separate.",
+  "summary": [
+    {
+      "case": "native_predictive",
+      "seed": 8001,
+      "validation_accuracy": 0.982,
+      "fresh_accuracy": 0.9852,
+      "ARI": 1.0,
+      "occupied": 5,
+      "shuffled_accuracy": 0.1984,
+      "all_fresh_gates": true
+    },
+    {
+      "case": "native_predictive",
+      "seed": 8002,
+      "validation_accuracy": 0.7815,
+      "fresh_accuracy": 0.7832,
+      "ARI": 0.6986469864698647,
+      "occupied": 6,
+      "shuffled_accuracy": 0.2048,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "native_predictive",
+      "seed": 8003,
+      "validation_accuracy": 0.933,
+      "fresh_accuracy": 0.9328,
+      "ARI": 1.0,
+      "occupied": 5,
+      "shuffled_accuracy": 0.2076,
+      "all_fresh_gates": true
+    },
+    {
+      "case": "deterministic",
+      "seed": 8001,
+      "validation_accuracy": 0.7835,
+      "fresh_accuracy": 0.7848,
+      "ARI": 0.7677725118483412,
+      "occupied": 4,
+      "shuffled_accuracy": 0.1988,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic",
+      "seed": 8002,
+      "validation_accuracy": 0.5955,
+      "fresh_accuracy": 0.5964,
+      "ARI": 0.5950413223140496,
+      "occupied": 3,
+      "shuffled_accuracy": 0.196,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic",
+      "seed": 8003,
+      "validation_accuracy": 0.5985,
+      "fresh_accuracy": 0.5928,
+      "ARI": 0.5293489861259338,
+      "occupied": 4,
+      "shuffled_accuracy": 0.1984,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic_small",
+      "seed": 8001,
+      "validation_accuracy": 0.5955,
+      "fresh_accuracy": 0.5868,
+      "ARI": 0.5950413223140496,
+      "occupied": 3,
+      "shuffled_accuracy": 0.198,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic_small",
+      "seed": 8002,
+      "validation_accuracy": 0.6745,
+      "fresh_accuracy": 0.6676,
+      "ARI": 0.7677725118483412,
+      "occupied": 4,
+      "shuffled_accuracy": 0.196,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic_small",
+      "seed": 8003,
+      "validation_accuracy": 0.593,
+      "fresh_accuracy": 0.592,
+      "ARI": 0.5534930813364833,
+      "occupied": 4,
+      "shuffled_accuracy": 0.1992,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic_small_margin1",
+      "seed": 8001,
+      "validation_accuracy": 0.595,
+      "fresh_accuracy": 0.5872,
+      "ARI": 0.5950413223140496,
+      "occupied": 3,
+      "shuffled_accuracy": 0.2004,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic_small_margin1",
+      "seed": 8002,
+      "validation_accuracy": 0.786,
+      "fresh_accuracy": 0.786,
+      "ARI": 0.7677725118483412,
+      "occupied": 4,
+      "shuffled_accuracy": 0.1944,
+      "all_fresh_gates": false
+    },
+    {
+      "case": "deterministic_small_margin1",
+      "seed": 8003,
+      "validation_accuracy": 0.6355,
+      "fresh_accuracy": 0.6236,
+      "ARI": 0.7100591715976331,
+      "occupied": 5,
+      "shuffled_accuracy": 0.202,
+      "all_fresh_gates": false
+    }
+  ]
+}

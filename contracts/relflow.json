@@ -2,8 +2,11 @@
   "schema": 1,
   "upstream": {
     "repository": "https://github.com/relflow/relflow",
-    "commit": "18d582cca2af3dafde65b756111b32aed5b3e580",
-    "version": "0.3.1"
+    "version": "0.3.3",
+    "branch": "stage/0.3.3",
+    "status": "development",
+    "commit": "9aa632246e56d8c53ca57eae833b70f9ed45e15c",
+    "base_commit": "2bb35adb87b6fefe615864b170c196e7509f81fe"
   },
   "fields": {
     "Boolean": [
@@ -13,7 +16,7 @@
       "p_unavailable",
       "topk"
     ],
-    "Cluster": [
+    "Group": [
       "bounds",
       "ema_decay",
       "p_unavailable",

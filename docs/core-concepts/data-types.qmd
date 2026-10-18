@@ -18,7 +18,7 @@ A `Branch` groups repeated transactions. Leaf types are also called
 | Recurring calendar position of a payment timestamp | [DateParts](../data-types/dateparts.qmd) |
 | Account identifier equality without a learned vocabulary | [Hash](../data-types/hash.qmd) |
 | Amount represented by its learned distribution | [Quantile](../data-types/quantile.qmd) |
-| Merchant labels sharing learned latent groups | [Cluster](../data-types/cluster.qmd) |
+| Merchant labels sharing learned latent groups | [Group](../data-types/group.qmd) |
 | Supplied numeric representation | [Vector](../data-types/vector.qmd) |
 | Meaning of a payment description from a frozen text encoder | [Text](../data-types/text.qmd) |
 
@@ -26,7 +26,7 @@ Choose by meaning rather than storage format: a numeric merchant code is
 usually a Category. Unordered tags belong in a Set; transactions with amounts
 and dates belong in a Branch.
 
-Category, Set, and Cluster learn labels through an
+Category, Set, and Group learn labels through an
 [online vocabulary](vocabulary.qmd). Its capacity, admission timing, and unknown
 values affect both training and prediction.
 Enum uses the labels declared in its schema and rejects values outside that set.
@@ -108,7 +108,7 @@ its remaining payload:
 | Quantile | Scalar in source units; null before learning a distribution |
 | Boolean | Probability of true |
 | Category, Enum | Best label, probability, and optional candidates |
-| Cluster | Best cluster and best vocabulary label, each with probability |
+| Group | Best group and best vocabulary label, each with probability |
 | Set | Label/probability pairs |
 | Vector | Fixed-width reconstructed vector |
 | DateParts, Hash, Text | No decoded public payload |

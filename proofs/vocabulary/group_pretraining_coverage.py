@@ -1,10 +1,12 @@
 # %% [markdown]
 # ---
-# title: Can Cluster reconstruction hide missing coverage too?
+# title: Can Group reconstruction hide missing coverage too?
 # categories:
 # - Vocabulary
 # proof-id: P065
-# description: Reconstruct a Cluster answer from a categorical cue while reducing the share of test identities
+# aliases:
+# - /proofs/vocabulary/cluster-pretraining-coverage.html
+# description: Reconstruct a Group answer from a categorical cue while reducing the share of test identities
 #   seen in training.
 # execute:
 #   enabled: false
@@ -39,13 +41,15 @@
 #
 # code is hidden wherever hide is true. Unfamiliar answer identities are counted in coverage separately.
 #
+# <span id="fig-proof-cluster-pretraining-coverage"></span>
+#
 # ```{typst}
-# //| label: fig-proof-cluster-pretraining-coverage
+# //| label: fig-proof-group-pretraining-coverage
 # //| fig-cap: "Selector notes identify hidden values. hide chooses which code answers are hidden."
 # //| fig-alt: "Model tree with record, x, code. Selector notes identify hidden values. hide chooses which code answers are hidden."
 # #tree(node("record", kind: "root", children: (
 #   node("x", type: "Category", detail: "Familiar class cue"),
-#   node("code", type: "Cluster", detail: "Reconstruct where hide is true"),
+#   node("code", type: "Group", detail: "Reconstruct where hide is true"),
 # )))
 # ```
 #
@@ -57,7 +61,14 @@
 #
 # {{< proof P065 status >}}
 #
-# Coverage and recovery are different questions. The latest run also misses the required known-answer accuracy, so its reconstruction result remains incomplete.
+# Coverage and recovery are different questions. With the local unreleased
+# 0.3.3 raw-score candidate, seed 7652 passes every original gate and reaches 100%
+# known accuracy at all three coverage levels. Seeds 7651 and 7653 fail:
+# full-coverage known accuracy is 75.88% and 63.67%, respectively.
+# The fresh 0.3.2 baseline
+# fails at seed 7651 with 88.87%, 90.63%, and 84.31% known accuracy.
+# The candidate's one passing seed is provisional; reliable reconstruction is
+# still unresolved. Count, coverage, frozen-state, and all-OOV controls pass.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -114,7 +125,7 @@ def build() -> rf.Model:
         batch_size=64,
         dropout=0.0,
         x=rf.Category(p_unavailable=0.0),
-        code=rf.Cluster(n_clusters=8, p_unavailable=1.0, mask=rf.Mask(query="hide", reconstruct=True)),
+        code=rf.Group(bounds=8, p_unavailable=1.0, mask=rf.Mask(query="hide", reconstruct=True)),
     )
     model.optimizer = rf.adamw(learning_rate=0.002)
     return model
@@ -150,7 +161,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     )
     trainer.fit(model, datamodule=data)
     original = list(records(rows=2048, seed=seed + 3))
-    vocabulary = rf.Cluster.vocabulary(model, "/code")
+    vocabulary = rf.Group.vocabulary(model, "/code")
     counts = tuple(model.nodes["/code"].embedder.counters["content"].counts.tolist())
     metrics, checks = {}, {}
     for keep in (1024, 512, 102, 0):
@@ -202,7 +213,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             metrics["reported_content_loss_drift"] = abs(measured["loss.content"] - regrouped["loss.content"])
             checks["Rebatching preserves counts and scores"] = drift is not None and drift < 1e-5
     checks["Validation leaves mapping and exposures frozen"] = (
-        rf.Cluster.vocabulary(model, "/code") == vocabulary
+        rf.Group.vocabulary(model, "/code") == vocabulary
         and tuple(model.nodes["/code"].embedder.counters["content"].counts.tolist()) == counts
     )
     return metrics, checks

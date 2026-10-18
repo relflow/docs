@@ -2,9 +2,11 @@
 # ---
 # title: Can it discover hidden groups with different behaviors?
 # categories:
-# - Clustering
+# - Grouping
 # proof-id: P078
-# description: Repeated identities follow four hidden numerical rules. Ask the Cluster field to recover
+# aliases:
+# - /proofs/cluster/regime-recovery.html
+# description: Repeated identities follow four hidden numerical rules. Ask the Group field to recover
 #   the groups while predicting new observations.
 # execute:
 #   enabled: false
@@ -34,12 +36,14 @@
 #
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
+# <span id="fig-proof-cluster-regime-recovery"></span>
+#
 # ```{typst}
-# //| label: fig-proof-cluster-regime-recovery
+# //| label: fig-proof-group-regime-recovery
 # //| fig-cap: "Amber cards are hidden prediction targets. Identity is sometimes reconstructed; y is always hidden."
 # //| fig-alt: "Model tree with event, entity, x, y. Amber cards are hidden prediction targets. Identity is sometimes reconstructed; y is always hidden."
 # #tree(node("event", kind: "root", children: (
-#   node("entity", type: "Cluster", detail: "Repeated identity; 10% training mask"),
+#   node("entity", type: "Group", detail: "Repeated identity; 10% training mask"),
 #   node("x", type: "Number"),
 #   node("y", kind: "target", type: "Number"),
 # )))
@@ -53,7 +57,12 @@
 #
 # {{< proof P078 status >}}
 #
-# All three seeds fail the recovery checks at this budget. Some identity information helps prediction, but producing several clusters does not show the right groups were discovered.
+# All three local unreleased 0.3.3 candidate seeds fail the unchanged recovery
+# gates: stable-regime ARI ranges from 0.1653 to 0.1918, and normalized RMSE
+# from 0.5963 to 0.6278. The no-regime and shuffled-ID controls pass.
+# The fresh 0.3.2 baseline
+# also fails, with ARI 0.1854 and normalized RMSE 0.7012 at seed 7801.
+# Producing several groups does not show the right groups were discovered.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -72,7 +81,10 @@
 # `(-0.6, 0.6, -0.6, 0.6)`. The partition stays fixed across independent train,
 # validation, and test observations. Neither the group nor its parameters are
 # schema fields. Repeated IDs supply behavioral evidence through the hidden
-# numeric target, and a reconstructing identity mask engages Cluster's head.
+# numeric target, and a reconstructing identity mask engages Group's head.
+# Visible IDs can learn assignments from the numeric objective. A masked opaque
+# ID cannot be identified from independent `x`; hidden `y` is not an input cue.
+# This identifiability limit is part of the test, not a reason to relax its gates.
 #
 # The split unit is the observation of a known identity. This tests whether
 # repeated evidence reveals stable groups, not unseen-identity generalization.
@@ -105,23 +117,25 @@
 #
 # ### Remaining work
 #
-# The three-seed panel retained the original gates and 600-update budget. All
-# three runs failed both partition-recovery and prediction-quality gates; the
-# threshold is not redefined to make these outcomes pass. Diagnose optimization
+# Both the historical panel and the local 0.3.3 three-seed panel retained the
+# original gates and 600-update budget. All candidate runs fail partition-recovery
+# and prediction-quality gates. Fixing retirement, balancing, and
+# distributed statistics has not resolved the learning task. Diagnose optimization
 # and assignment behavior with training and validation data before proposing a
-# distinct follow-up experiment or a ten-seed promotion panel.
+# distinct follow-up experiment or a ten-seed promotion panel; do not redefine
+# the existing thresholds to make these outcomes pass.
 #
 # This task has strongly separated intercepts; crossing curves, unbalanced
 # groups, unseen identities, and a benefit over a parameter-matched Category
 # model remain separate questions. No-regime assignments occupied seven or
-# eight clusters. Their low ARI measures a lack of recovered meaning; Cluster
+# eight groups. Their low ARI measures a lack of recovered meaning; Group
 # did not automatically reject the spurious groups.
 #
 # ### Complete experiment code
 #
 
 # %%
-"""P078: require real partition recovery and held-out skill from Cluster."""
+"""P078: require real partition recovery and held-out skill from Group."""
 
 from collections.abc import Iterator
 from functools import partial
@@ -165,7 +179,7 @@ def records(*, rows: int, seed: int, partition_seed: int, no_regime: bool = Fals
 
 
 def adjusted_rand(actual: np.ndarray, predicted: np.ndarray) -> float:
-    """Adjusted Rand agreement, invariant to the arbitrary cluster labels."""
+    """Adjusted Rand agreement, invariant to the arbitrary group labels."""
     _, left = np.unique(actual, return_inverse=True)
     _, right = np.unique(predicted, return_inverse=True)
     cells = np.zeros((left.max() + 1, right.max() + 1), dtype=np.int64)
@@ -184,7 +198,7 @@ def adjusted_rand(actual: np.ndarray, predicted: np.ndarray) -> float:
 def build() -> rf.Model:
     model = rf.Model.xs(
         batch_size=BATCH_SIZE,
-        entity=rf.Cluster(bounds=(2, 8), p_unavailable=0.0, mask=rf.Mask(rate=0.1, reconstruct=True)),
+        entity=rf.Group(bounds=(2, 8), p_unavailable=0.0, mask=rf.Mask(rate=0.1, reconstruct=True)),
         x=rf.Number,
         y=rf.Number(mask=True, objective="mse"),
     )
@@ -203,12 +217,12 @@ def measure(model: rf.Model, rows: list[dict], training_mean: float, partition_s
     predicted = predict(model, rows)
     baseline = float(np.sqrt(np.mean((target - training_mean) ** 2)))
     rmse = float(np.sqrt(np.mean((target - predicted) ** 2)))
-    assignments = rf.Cluster.assignments(model, rf.Address("entity"))
+    assignments = rf.Group.assignments(model, rf.Address("entity"))
     groups = partition(partition_seed)
     # Partial-budget smoke runs may not yet encounter every ID; absence remains
     # an explicit failed coverage gate rather than silently dropping entities.
     assigned = np.asarray(
-        [assignments.get(f"entity-{index:04d}", {}).get("cluster", -1) for index in range(ENTITY_COUNT)]
+        [assignments.get(f"entity-{index:04d}", {}).get("group", -1) for index in range(ENTITY_COUNT)]
     )
     return {
         "rmse": rmse,
@@ -216,10 +230,10 @@ def measure(model: rf.Model, rows: list[dict], training_mean: float, partition_s
         "normalized_rmse": rmse / baseline,
         "adjusted_rand": adjusted_rand(groups, assigned),
         "assigned_entities": int((assigned >= 0).sum()),
-        "occupied_clusters": int(len(np.unique(assigned[assigned >= 0]))),
+        "occupied_groups": int(len(np.unique(assigned[assigned >= 0]))),
         "assignments": assigned.tolist(),
         "expected_partition": groups.tolist(),
-        "status": rf.Cluster.status(model, rf.Address("entity")),
+        "status": rf.Group.status(model, rf.Address("entity")),
     }
 
 
@@ -250,7 +264,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         )
         trainer.fit(model, datamodule=data)
         model.eval()
-        state = rf.Cluster.assignments(model, rf.Address("entity"))
+        state = rf.Group.assignments(model, rf.Address("entity"))
         training_mean = float(np.mean([row["y"] for row in records(rows=TRAIN_ROWS, seed=seed * 100 + 1, **options)]))
         test = list(records(rows=TEST_ROWS, seed=seed * 100 + 3, **options))
         measured = measure(model, test, training_mean, partition_seed)
@@ -263,7 +277,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             np.isfinite([measured["rmse"], measured["normalized_rmse"], measured["adjusted_rand"]]).all()
         )
         checks[f"{arm}: all 64 known identities have assignments"] = measured["assigned_entities"] == ENTITY_COUNT
-        checks[f"{arm}: evaluation preserves assignment state"] = state == rf.Cluster.assignments(
+        checks[f"{arm}: evaluation preserves assignment state"] = state == rf.Group.assignments(
             model, rf.Address("entity")
         )
     stable, control = metrics["stable"], metrics["no_regime"]

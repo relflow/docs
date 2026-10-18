@@ -1,5 +1,13 @@
 # Public API
 
+::: {.callout-note}
+## Unreleased 0.3.3 API
+
+This branch documents development on `stage/0.3.3`. The API contract has no
+release commit yet. Use `rf.Group(bounds=...)` for learned label groups and
+`group` in their prediction and assignment records.
+:::
+
 Import RelFlow as `import relflow as rf`. This page maps the public API to its
 reference pages. For a first payment model, start with
 [Getting Started](../getting-started.qmd).
@@ -42,7 +50,7 @@ names for decoded results and a separate column for requested representations.
 | `rf.Branch(...)` | Group repeated transaction records into a local context. |
 | `rf.Boolean`, `rf.Number`, `rf.Category` | Represent a dispute outcome, payment amount, or merchant label. |
 | `rf.Enum`, `rf.Set`, `rf.DateParts` | Represent declared currency codes, merchant tags, or booking calendar parts. |
-| `rf.Hash`, `rf.Quantile`, `rf.Text`, `rf.Vector`, `rf.Cluster` | Represent identifier equality, numeric percentiles, text, supplied vectors, or learned label groups. |
+| `rf.Hash`, `rf.Quantile`, `rf.Text`, `rf.Vector`, `rf.Group` | Represent identifier equality, numeric percentiles, text, supplied vectors, or learned label groups. |
 | `rf.Attention`, `rf.Mean` | Choose branch reduction; `reduction=None` preserves routed tokens. |
 | `rf.Mask`, `rf.Jitter` | Configure visibility/objectives and continuous input perturbation. |
 

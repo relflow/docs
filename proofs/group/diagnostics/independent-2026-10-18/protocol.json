@@ -1,0 +1,58 @@
+{
+  "purpose": "Unmodified P065 and P078 regression proofs against frozen Group-owned default refinement",
+  "proof_invocations": 6,
+  "actual_fits": 9,
+  "cases": {
+    "P065": [
+      7651,
+      7652,
+      7653
+    ],
+    "P078": [
+      7801,
+      7802,
+      7803
+    ]
+  },
+  "budgets": {
+    "P065": {
+      "steps": 800,
+      "learning_rate": 0.002,
+      "batch_size": 64,
+      "training_rows": 8192,
+      "heldout_rows": 2048
+    },
+    "P078": {
+      "steps_per_arm": 600,
+      "arms": [
+        "stable",
+        "no_regime"
+      ],
+      "learning_rate": 0.003,
+      "batch_size": 128,
+      "training_rows_per_arm": 4096,
+      "heldout_rows_per_arm": 2048
+    }
+  },
+  "execution": {
+    "accelerator": "cpu",
+    "devices": 1,
+    "threads": 1,
+    "num_workers": "Unmodified SyntheticDataModule default 0",
+    "persistent_workers": "Unmodified default False",
+    "pin_memory": "Unmodified default False",
+    "validation_cadence": "Unmodified native Trainer epoch cadence",
+    "sanity_validation_batches": 0
+  },
+  "source_sha256": "f2c31b6fd12d0eecad3edee0a80079385ac5c7970d3e30c63deed5e543d24e9c",
+  "changes_to_proofs": "None; exact source copies including original gates and budgets",
+  "interventions": "Only newly enabled Group-owned default Refinement; no legacy predictive reassignment or external tensorfield score API",
+  "selection": "No changes or tuning based on heldout results; preserve every completed run and all failure/error gates",
+  "result_destination": "/private/tmp/relflow-group-independent-20261018-v2/results.yaml",
+  "claim_boundary": "Known synthetic regression streams, not a fresh unbiased holdout and not RelArena benchmark evidence",
+  "runner_sha256": "39059301fffa09cd7442c4f0001373cbb860b1a9384da212ba3889297241ef1a",
+  "supersedes": {
+    "path": "/private/tmp/relflow-group-independent-20261018",
+    "reason": "Preserved lifecycle-failed attempt: old callback read nonexistent Trainer.fitting; all six invocations recorded execution error, no learning claim"
+  }
+}

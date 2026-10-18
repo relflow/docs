@@ -1,0 +1,745 @@
+{
+  "schema": 1,
+  "scope": "Measured P079-P081 sources/results only; later combination experiments excluded",
+  "source_tree_sha256": "4f900097c5f12eb6eef07e88b7abba5c61089f52696d52ee8c08d105894a5b58",
+  "archive": {
+    "file": "experiments.tar.gz",
+    "sha256": "adab27f329b5909aa39a2390fd683b7b9d72b287ac871a87c99a3459a6f4c6fe",
+    "bytes": 382010,
+    "member_files": 134,
+    "normalized_metadata": true
+  },
+  "proofs": {
+    "P079": {
+      "measured_runs": 3,
+      "seeds": [
+        7901,
+        7902,
+        7903
+      ],
+      "source_sha256": "4f900097c5f12eb6eef07e88b7abba5c61089f52696d52ee8c08d105894a5b58",
+      "script_sha256": "5ff3e67168303d668d1519421279d1fd8188f95dda740975d69ddad739d80501",
+      "outcomes": [
+        "not_met",
+        "not_met",
+        "not_met"
+      ]
+    },
+    "P080": {
+      "measured_runs": 3,
+      "seeds": [
+        8002,
+        8003,
+        8001
+      ],
+      "source_sha256": "4f900097c5f12eb6eef07e88b7abba5c61089f52696d52ee8c08d105894a5b58",
+      "script_sha256": "820e7dd05b2516b43b3bc51f8fc592eeb43cb8a7b29d390360c115ec045b379b",
+      "outcomes": [
+        "not_met",
+        "met",
+        "met"
+      ]
+    },
+    "P081": {
+      "measured_runs": 3,
+      "seeds": [
+        7801,
+        7802,
+        7803
+      ],
+      "source_sha256": "4f900097c5f12eb6eef07e88b7abba5c61089f52696d52ee8c08d105894a5b58",
+      "script_sha256": "219e053e5cf249e7cdb120469c901f58161bcbaefd5119f32f4d86616903e08b",
+      "outcomes": [
+        "met",
+        "met",
+        "met"
+      ]
+    }
+  },
+  "preserved_registry_prefix": {
+    "bytes": 1853580,
+    "sha256": "96920095081621e092c922e1a153b297f5a93b6a84c2622a8e76620fc21c455b"
+  },
+  "files": {
+    "group-expansion-20261017/COST_RESULTS.md": {
+      "sha256": "dd9c7fba0daac0bf3140baccfc401d38b9e3aa82e56051f66fdd8622171382bd",
+      "bytes": 3432,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/COST_RESULTS.md"
+    },
+    "group-expansion-20261017/FILE_SHA256.json": {
+      "sha256": "6c33f1601e1bb85cf8ab12e5a0b7d56e0edec67447872be4530d8220d7101c0a",
+      "bytes": 21095,
+      "recorded_origin": "generated deterministic archive payload manifest"
+    },
+    "group-expansion-20261017/README.md": {
+      "sha256": "cba7413fbe6c736d31c96c32f0565b649f6e97b2eef111027848291be3e2e93b",
+      "bytes": 5761,
+      "recorded_origin": "generated archive protocol summary"
+    },
+    "group-expansion-20261017/TIMING_PROTOCOL.md": {
+      "sha256": "225cf6e51afafaecf122b2b59c122bea0b90203b46697e80ee0f0c5582f87e28",
+      "bytes": 3877,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/TIMING_PROTOCOL.md"
+    },
+    "group-expansion-20261017/categorical/proofs/group/predictive_labels.py": {
+      "sha256": "820e7dd05b2516b43b3bc51f8fc592eeb43cb8a7b29d390360c115ec045b379b",
+      "bytes": 18645,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/proofs/group/predictive_labels.py"
+    },
+    "group-expansion-20261017/categorical/proofs/reporting.py": {
+      "sha256": "c423ea1b64b4cf4bca0076897bb2deb420da1028dac85ad16937b659a2fd62fe",
+      "bytes": 6900,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/proofs/reporting.py"
+    },
+    "group-expansion-20261017/categorical/proofs/results.yaml": {
+      "sha256": "29a404bc7b639bb95a5692229639f7997a97985720daf7a5d5bc8eb3bea39188",
+      "bytes": 367,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/proofs/results.yaml"
+    },
+    "group-expansion-20261017/categorical/proofs/source.py": {
+      "sha256": "3798dc178271e2c9f1ef43fc3f81987ba62904b1a54377a31219792f58bff2a2",
+      "bytes": 1994,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/proofs/source.py"
+    },
+    "group-expansion-20261017/categorical/results.json": {
+      "sha256": "bda6315c9ae0c495fd559f78e9bbaaa97ab0cabfe984ac4d703e1d888b11a0c8",
+      "bytes": 59417,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/results.json"
+    },
+    "group-expansion-20261017/categorical/results.yaml": {
+      "sha256": "61365dde765c3193916943fc39c12479048a2a5c98c7afb9571f905f7ca3d75e",
+      "bytes": 49813,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/results.yaml"
+    },
+    "group-expansion-20261017/categorical/seed-8001.log": {
+      "sha256": "f959d8669e84621c19b19a6f608c589f93c0018e706fce7ebd9d02fcf78ad9cf",
+      "bytes": 19584,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/seed-8001.log"
+    },
+    "group-expansion-20261017/categorical/seed-8002.log": {
+      "sha256": "41bd8cfb586ce29f7bdc5a0485e924a9eb02e6661d60e94698dee07f6635805b",
+      "bytes": 19591,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/seed-8002.log"
+    },
+    "group-expansion-20261017/categorical/seed-8003.log": {
+      "sha256": "34eeb086aa5e632e6d25678ee5f4ce5d99d82d52537ba0cc37f50d68e10a8148",
+      "bytes": 19564,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/seed-8003.log"
+    },
+    "group-expansion-20261017/categorical/smoke-results.yaml": {
+      "sha256": "121295f923dc5a0a5b358e9b860e8ed1cbae703889068cf85b79a3ac67e66959",
+      "bytes": 11781,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/smoke-results.yaml"
+    },
+    "group-expansion-20261017/categorical/smoke.log": {
+      "sha256": "79eb9642cd580229e270755f705cd6c3938420217cee7f060ca17f30735c5546",
+      "bytes": 14442,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/categorical/smoke.log"
+    },
+    "group-expansion-20261017/cost/proofs/group/reassignment_cost.py": {
+      "sha256": "219e053e5cf249e7cdb120469c901f58161bcbaefd5119f32f4d86616903e08b",
+      "bytes": 21919,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/cost/proofs/group/reassignment_cost.py"
+    },
+    "group-expansion-20261017/cost/proofs/reporting.py": {
+      "sha256": "c423ea1b64b4cf4bca0076897bb2deb420da1028dac85ad16937b659a2fd62fe",
+      "bytes": 6900,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/cost/proofs/reporting.py"
+    },
+    "group-expansion-20261017/cost/proofs/results.yaml": {
+      "sha256": "08c1adbc1dd74f704a326efb6d5baca8f8f6bec7afd0987abb1aca9ed831f832",
+      "bytes": 49248,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/cost/proofs/results.yaml"
+    },
+    "group-expansion-20261017/cost/proofs/source.py": {
+      "sha256": "3798dc178271e2c9f1ef43fc3f81987ba62904b1a54377a31219792f58bff2a2",
+      "bytes": 1994,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/cost/proofs/source.py"
+    },
+    "group-expansion-20261017/integration/SPEC.md": {
+      "sha256": "422fa79269d4d965b5161995d721377438f9a037f4713771e1afa8f0be1afafc",
+      "bytes": 105419,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/integration/SPEC.md"
+    },
+    "group-expansion-20261017/integration/group.qmd": {
+      "sha256": "b5a2f99a81bb63e26e02a118468a394f8f8d473ccf90db18569a0c9cb40573f8",
+      "bytes": 10846,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/integration/group.qmd"
+    },
+    "group-expansion-20261017/integration/install.py": {
+      "sha256": "621abd6cdb6827600a865589112afcd6c5bccaa057e31085f4bd7ba7c269bd84",
+      "bytes": 7409,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/integration/install.py"
+    },
+    "group-expansion-20261017/integration/preserved-registry-prefix.sha256": {
+      "sha256": "61ce6e94a146ee87c707d36fc2885c68dfe6b1a3da429776e52f9ef0ba145b1f",
+      "bytes": 65,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/integration/preserved-registry-prefix.sha256"
+    },
+    "group-expansion-20261017/integration/test_group_reassignment_proofs.py": {
+      "sha256": "3da6117a4dbcd1d53c2ef8024ce936f42548e36388d64ea12922d93e660b3678",
+      "bytes": 8915,
+      "recorded_origin": "/Users/grantham/Desktop/docs-0.3.3/tests/proofs/test_group_reassignment_proofs.py"
+    },
+    "group-expansion-20261017/manifest.json": {
+      "sha256": "54461f2459d447be8a9725eb66ee33d89a926ffa7c3867feb084bff4add4d3a7",
+      "bytes": 630,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/manifest.json"
+    },
+    "group-expansion-20261017/matched-cost.json": {
+      "sha256": "07e17ff80113d9ead7546e2a3e649580c447105959197a8cf205073ba1335ec1",
+      "bytes": 60107,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/matched-cost.json"
+    },
+    "group-expansion-20261017/matched-cost.log": {
+      "sha256": "fc99be48e03a015ae31bd05fa2029e448a64a24a98ddfe9d04bec6baeec87b26",
+      "bytes": 9252,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/matched-cost.log"
+    },
+    "group-expansion-20261017/numeric/manifest.json": {
+      "sha256": "919308f14d26d79f95774aae531c05e608909d0d5d5e41c05201d6852a36dd9a",
+      "bytes": 2100,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/manifest.json"
+    },
+    "group-expansion-20261017/numeric/p079-7901.json": {
+      "sha256": "98d6a7465d0f42cfa6fd996fc65ea570ec39ff98017088324fb1ef6436f48efd",
+      "bytes": 35055,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-7901.json"
+    },
+    "group-expansion-20261017/numeric/p079-7901.log": {
+      "sha256": "4f436099a5d973bd4c381b58eb20de493f16e9f0b0b99610c4b2f34f84133e41",
+      "bytes": 39607,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-7901.log"
+    },
+    "group-expansion-20261017/numeric/p079-7902.json": {
+      "sha256": "d8af8af0972d8b12b07757f709e7b0a5c6933cf490f21e3db37d92b633312164",
+      "bytes": 35035,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-7902.json"
+    },
+    "group-expansion-20261017/numeric/p079-7902.log": {
+      "sha256": "62d04a8f2b5060af98e0ccf8050fd437b259c14da68983006e746a6718d3b449",
+      "bytes": 39587,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-7902.log"
+    },
+    "group-expansion-20261017/numeric/p079-7903.json": {
+      "sha256": "2f2ff209ea091f95351f640883d9438b21969d5092bfbc871758370a76000998",
+      "bytes": 35018,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-7903.json"
+    },
+    "group-expansion-20261017/numeric/p079-7903.log": {
+      "sha256": "6e6974571161c918c1b5264e74b8b3e3e817724dbd316e5ab214c33b9c019bbf",
+      "bytes": 39570,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-7903.log"
+    },
+    "group-expansion-20261017/numeric/p079-results.yaml": {
+      "sha256": "465e0e5b1afe05bc4be57f26126e6a2f18865d440b098dbdf4424e92d96a5fbc",
+      "bytes": 106987,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/p079-results.yaml"
+    },
+    "group-expansion-20261017/numeric/proofs/group/predictive_regimes.py": {
+      "sha256": "5ff3e67168303d668d1519421279d1fd8188f95dda740975d69ddad739d80501",
+      "bytes": 21261,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/proofs/group/predictive_regimes.py"
+    },
+    "group-expansion-20261017/numeric/proofs/reporting.py": {
+      "sha256": "c423ea1b64b4cf4bca0076897bb2deb420da1028dac85ad16937b659a2fd62fe",
+      "bytes": 6900,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/proofs/reporting.py"
+    },
+    "group-expansion-20261017/numeric/proofs/results.yaml": {
+      "sha256": "7a3434710adeea72c9ec0e0ef072db31b4855f41a4a351a54cc8d0fb88e6e8a0",
+      "bytes": 636,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/proofs/results.yaml"
+    },
+    "group-expansion-20261017/numeric/proofs/source.py": {
+      "sha256": "3798dc178271e2c9f1ef43fc3f81987ba62904b1a54377a31219792f58bff2a2",
+      "bytes": 1994,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/proofs/source.py"
+    },
+    "group-expansion-20261017/numeric/summary.json": {
+      "sha256": "759492b29903c5ed26e533c757d4c1a2915e13c4f3c61fefa8dc1b46125f2502",
+      "bytes": 22689,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/summary.json"
+    },
+    "group-expansion-20261017/numeric/tests/proofs/test_predictive_regimes.py": {
+      "sha256": "2e9ae792afb726bbf622f216bbc56eac1301ce95e5c76000354d5d6d39dc5eeb",
+      "bytes": 4703,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/numeric/tests/proofs/test_predictive_regimes.py"
+    },
+    "group-expansion-20261017/predictive_em_v1_original.py": {
+      "sha256": "f7a25003f1b9c76a7c273055b3999725140ec4e4c1aedc916585a1a35703463a",
+      "bytes": 17024,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/predictive_em_v1_original.py"
+    },
+    "group-expansion-20261017/proofs/reporting.py": {
+      "sha256": "c423ea1b64b4cf4bca0076897bb2deb420da1028dac85ad16937b659a2fd62fe",
+      "bytes": 6900,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/proofs/reporting.py"
+    },
+    "group-expansion-20261017/proofs/results.yaml": {
+      "sha256": "7fc924ddac12e024eb70a9a2c8d44299bed28f8408bfa8154a3b30a1fa7d5c4e",
+      "bytes": 39,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/proofs/results.yaml"
+    },
+    "group-expansion-20261017/proofs/source.py": {
+      "sha256": "3798dc178271e2c9f1ef43fc3f81987ba62904b1a54377a31219792f58bff2a2",
+      "bytes": 1994,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/proofs/source.py"
+    },
+    "group-expansion-20261017/regime_recovery_source.py": {
+      "sha256": "b409af256892b369c42cf516f41e1fca12648917985239c1d1008c4da394d87a",
+      "bytes": 12943,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/regime_recovery_source.py"
+    },
+    "group-expansion-20261017/run_cost_panel.py": {
+      "sha256": "73dc72d8739c03489251688fa41780383244b894fbd728186256dbacbe4c1d1f",
+      "bytes": 4684,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/run_cost_panel.py"
+    },
+    "group-expansion-20261017/snapshot/LICENSE": {
+      "sha256": "0f233edb0a154af1c0ff7bce9784e03c4ea2f0f9217ecc63a7941383ba91726e",
+      "bytes": 10208,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/LICENSE"
+    },
+    "group-expansion-20261017/snapshot/README.md": {
+      "sha256": "682e4d63481c93c5bc9ba1a5eb8d09649ffdb5995ffd21fb2687556b370971ab",
+      "bytes": 5383,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/README.md"
+    },
+    "group-expansion-20261017/snapshot/pyproject.toml": {
+      "sha256": "6d7f32ad84e8652c5ac69d83d8efe6b6a092758be53992138bb393362010db4d",
+      "bytes": 2432,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/pyproject.toml"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/__init__.py": {
+      "sha256": "4a4d7f79834edde7e3361e6d28b32450589e82f0354720f81941bfbdfc7a4bd4",
+      "bytes": 5546,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/_version.py": {
+      "sha256": "30585155355e31f4d11f3a7de2ece78f909f17e48c2c3e6b03d0bbfb22002a44",
+      "bytes": 375,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/_version.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/attention.py": {
+      "sha256": "ccf1ca7e909c5d867c5ab12744caf4817133cbab8c5974371480b808fbcc2856",
+      "bytes": 4480,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/attention.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/binding.py": {
+      "sha256": "f72c186a63f2933744ed6d32ae278804acd4ba68726ba5746fea4ebebcb7b28b",
+      "bytes": 5729,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/binding.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/blocks.py": {
+      "sha256": "8eff2228073c86b478121724c1026ab0b2a539dae7e885613d6a2bad635d65d6",
+      "bytes": 773,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/blocks.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/checkpoint.py": {
+      "sha256": "b2a375deaeb2ecba9deac984cee6c71b3c0f540071760d18adad0a35225251e7",
+      "bytes": 6251,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/checkpoint.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/compiler.py": {
+      "sha256": "bc4cd735a34ebdc4c8aa7b2efe1b6ad4e712891f956584a9ef4cd4c4a4efda6d",
+      "bytes": 5256,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/compiler.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/contracts.py": {
+      "sha256": "ae1c9882011d36c3d838758a9f5f00ba113c7b2eee1db750ad8f90628c88045a",
+      "bytes": 25256,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/contracts.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/encoder.py": {
+      "sha256": "1a854c41f1999609294c62c762fe596b534b062becc9f6aefe32ae0890faf13e",
+      "bytes": 20574,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/encoder.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/graph.py": {
+      "sha256": "e39331ca6479a6d0a2d51f6526e0dd4a1e59fb6c61b063e7b8a8603241cad6ae",
+      "bytes": 4772,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/graph.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/mutations.py": {
+      "sha256": "50d47970fec65533496151c8da1c681730fc87589712cf2350a06a64573bbe8c",
+      "bytes": 9488,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/mutations.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/node.py": {
+      "sha256": "27498ad6868d8dfe49b2c3bc207f8c963964430256d029138313b66459f6825f",
+      "bytes": 1489,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/node.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/output.py": {
+      "sha256": "47d62513548ec928eace5d671f8b775e1524ea630ec651de5f66af1b070ab909",
+      "bytes": 10949,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/output.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/packed.py": {
+      "sha256": "99c5ccf8a50c6f56bc4e56e4983dbbcbd77910e61239f5aa1bb46e7db105ddb1",
+      "bytes": 7558,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/packed.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/pool.py": {
+      "sha256": "89bdc213cfee752fb3f29451d966cbdfa90f284c960ad5a812d712448c147424",
+      "bytes": 9754,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/pool.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/root.py": {
+      "sha256": "09c36fbc4e8e0fc0facc8f4ff4ee228716b74e949726be159c7d8a13af223888",
+      "bytes": 40825,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/root.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/rotary.py": {
+      "sha256": "a67c827ca6685a42b81e7907c6f486a7442c1337c1d17765a2bae1fd799642c4",
+      "bytes": 4245,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/rotary.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/runtime.py": {
+      "sha256": "b3dd419ac2f40bfc38e9c151fd9722c5917676886039add1c145217345cc679e",
+      "bytes": 39827,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/runtime.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/template.py": {
+      "sha256": "29126818292e9bc0c3125314b6d48ddeaadc97348efb449ab5583e4beddaa00a",
+      "bytes": 6312,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/template.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/architecture/training.py": {
+      "sha256": "108cf6a3157e8757e351a44750d9916fca9d1488bcf239a85931af6ba164586b",
+      "bytes": 9385,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/architecture/training.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/__init__.py": {
+      "sha256": "322f60a876cae173914e515358153fa01958112309f9ba5747d79d8dd96fadd6",
+      "bytes": 582,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/arrow.py": {
+      "sha256": "65fb4b4029659c1bd869899781460ef07f10fc457bada10259da094e2a0a726a",
+      "bytes": 6243,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/arrow.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/__init__.py": {
+      "sha256": "8c79c2b7ab74e13fc4a85e459a865324f0bc0db652585b0148061b6191ba0864",
+      "bytes": 772,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/arrow.py": {
+      "sha256": "c8eb94ab495376e3fb1c776c6b55b2139b9e8d879ae91109def17cde05417b26",
+      "bytes": 32639,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/arrow.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/base.py": {
+      "sha256": "cde98a47691b8712a840ff4edd11b44346c5ff2ee39dd1bda49794fa4169f4cd",
+      "bytes": 509,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/base.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/custom.py": {
+      "sha256": "e0589af634ca15f6981243408cdba754c902c0eb77c6e5a217e86439c0189f06",
+      "bytes": 7366,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/custom.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/duckdb.py": {
+      "sha256": "e1cd32826a4570e7d97b3c775d8848af8e7f32e53783ac97669a5ae5ceef635e",
+      "bytes": 7589,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/duckdb.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/polars.py": {
+      "sha256": "d563d5a9d3ad92a69267ca437d48586c8a89908fa7a3321b6030430e0f7fc8ae",
+      "bytes": 2939,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/polars.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/datasets/synthetic.py": {
+      "sha256": "0467162a4913de6ae084241cf47c522891e525076064df019dffda1575b5529a",
+      "bytes": 3885,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/datasets/synthetic.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/iterables.py": {
+      "sha256": "abafa4fcd801e3799cd22d9baf70b6c1c26fc3334d7dbb83e09fb0a8d4abdf40",
+      "bytes": 7376,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/iterables.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/processors.py": {
+      "sha256": "a7145fb586288f0c8f8a5b4db3d04a0c874894994106b10ba7a2369f5618152a",
+      "bytes": 15636,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/processors.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/query.py": {
+      "sha256": "cafc5fdf997f157a554083ea33641124c295e10f3ace36a8cf82b5c7172eb665",
+      "bytes": 23196,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/query.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/ragged.py": {
+      "sha256": "e3dd83e4a82f004065699373e6f714c5c9a898b598aaa4c2eb69c88a109bdf70",
+      "bytes": 29027,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/ragged.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/data/sources.py": {
+      "sha256": "380dba7c3039945a53bfee55138aeb21728cf1290d0416fb0377414dc030953d",
+      "bytes": 14723,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/data/sources.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/distributed.py": {
+      "sha256": "5fcc6a9b5bf5ae969b092865cea0215eaf18320d35a0d5754dc706cc0834f319",
+      "bytes": 1861,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/distributed.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/helpers/__init__.py": {
+      "sha256": "e541564ceb50b6ee62f8b11b2d0b3e48eb5737bdea875e39c0300948275a6907",
+      "bytes": 97,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/helpers/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/helpers/digest.py": {
+      "sha256": "740d326795f4cb566347e7069bf21ee774280da00bfa27e2a4a24111eb5ff84a",
+      "bytes": 10376,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/helpers/digest.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/helpers/jitter.py": {
+      "sha256": "8443f288816f822898ebc391986794779b8b236989d064dcca82f3a0f45614bd",
+      "bytes": 2080,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/helpers/jitter.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/helpers/optimizers.py": {
+      "sha256": "7342bbe05e6df112a8350e76d3633034b514cf7fede8601d829ca2ef3b21d6c4",
+      "bytes": 3186,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/helpers/optimizers.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/helpers/resize.py": {
+      "sha256": "c182a6c1d79de34e5c226e3f122682be3146eb4384460b4636360bcaf22876a3",
+      "bytes": 11942,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/helpers/resize.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/helpers/state.py": {
+      "sha256": "5bcbe0eb7f08809313fba46e6e6ff2953c8fe783687a3470aa79ccc74a216034",
+      "bytes": 1256,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/helpers/state.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/inference/__init__.py": {
+      "sha256": "279ef0a74c04f36338f1c097232ff88b345b37140d7f8ec7e5da0887b9f8b7be",
+      "bytes": 1405,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/inference/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/inference/asgi.py": {
+      "sha256": "cb380bc0839f4770cb90852b60dad03746f961b1ef26de9ab1a2b58fbfed4e64",
+      "bytes": 151,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/inference/asgi.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/inference/callback.py": {
+      "sha256": "4479cd569ff645e5bafa9b3ccba906ed7a49cb3b925e6b7f0031793ed212c9f5",
+      "bytes": 5273,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/inference/callback.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/inference/deployment.py": {
+      "sha256": "4d845f9d957a70b68e64ed53a63db2d0f906c9d1241ecdb3e83839512e60a3e9",
+      "bytes": 31518,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/inference/deployment.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/logging/__init__.py": {
+      "sha256": "f90dd0fa64bd055be1af86a9f26066dd42759dd17011fbbeff184abdb6217120",
+      "bytes": 201,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/logging/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/logging/config.py": {
+      "sha256": "cd62777d2743977af2200ca0f61862cb8a00848aecd0f782a626d6b692a8c4b5",
+      "bytes": 2957,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/logging/config.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/logging/throughput.py": {
+      "sha256": "d464a9e847136394296af82d7324c5aea2a485491c7b69d31c96d193d2240339",
+      "bytes": 2939,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/logging/throughput.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/presets/__init__.py": {
+      "sha256": "43f38ccd964d79d7f1c386161420c61c8b22dd0c003ea2d3d129bccb757226d2",
+      "bytes": 379,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/presets/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/presets/base.py": {
+      "sha256": "1c746eeefc7f0be7b22de446a05598793ea4106299b6cb918d45bfa09688f6cc",
+      "bytes": 3718,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/presets/base.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/presets/builtins.py": {
+      "sha256": "cc6af3919ae947a180b012cba16ae11503d0512c3d37f37c83b69af4c1050ca3",
+      "bytes": 1463,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/presets/builtins.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/presets/construction.py": {
+      "sha256": "643906e420af204f5a3139ef6bc59fa45664c213a186f618b244698520638592",
+      "bytes": 2873,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/presets/construction.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/py.typed": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/py.typed"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/__init__.py": {
+      "sha256": "e3b0c44298fc1c149afbf4c8996fb92427ae41e4649b934ca495991b7852b855",
+      "bytes": 0,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/enums.py": {
+      "sha256": "920bcdcb381a72becd2087766348ece1f91a52fece42ecec54cff40f1bab776c",
+      "bytes": 2664,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/enums.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/experiment.py": {
+      "sha256": "e0039d5e9eee06aee248e4004bb55bf7664e9d07945d83f601ac2bb0b0bba88b",
+      "bytes": 26687,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/experiment.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/packages.py": {
+      "sha256": "282983029610dc381caf2270a4aac78accf89fb3608f2b7f6b5e621db492cb21",
+      "bytes": 622,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/packages.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/reduction.py": {
+      "sha256": "3d453abfd1d4393189e95cf862a59507ab5c4d3c5619f4478725a6bb5d7e2049",
+      "bytes": 1831,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/reduction.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/selectors.py": {
+      "sha256": "f2245fcb05cc3522c08fd315768dde2953ca75c9b4f0a6d62c104a51fe9ca7d5",
+      "bytes": 5918,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/selectors.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/structure.py": {
+      "sha256": "078dc6422ff78aaf719c90b09018e1934f673af3aa248893c91bc01550eb846c",
+      "bytes": 7682,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/structure.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/structs/tree.py": {
+      "sha256": "d22ceabb5038970050a8bb5646b90618c37dc0b0f108d97f1565b87f1e28d66e",
+      "bytes": 11201,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/structs/tree.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/__init__.py": {
+      "sha256": "f8282ca99d5044b72291d20e47ad4356c64f2f7246742d90c9c134e48de96b65",
+      "bytes": 928,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/base.py": {
+      "sha256": "08f05f11e1cb11decc10ec931d81bf3be373cbf03a2ac6acaafbe17adade0176",
+      "bytes": 45550,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/base.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/__init__.py": {
+      "sha256": "bde49d288a95bbc2082d4af987abcc8c8ecba2fb7980e9e05f5111e2b43c6ae6",
+      "bytes": 846,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/boolean.py": {
+      "sha256": "3493a9bffa8b3b02963f1e5ca3e920325bed3756e8890359a66c41f9d7222138",
+      "bytes": 14284,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/boolean.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/category.py": {
+      "sha256": "5c911834682a43b43fe7a4e661303850b3a822307973a4ada691fb7d8489d03e",
+      "bytes": 21682,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/category.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/dateparts.py": {
+      "sha256": "c93d7787ed0b38a36a9e9884569be06e3c4a8df129ff03014007755da86d83d9",
+      "bytes": 18670,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/dateparts.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/enum.py": {
+      "sha256": "f20f761ba62654239b70e8d2926c891a09e7749d9ff7095e86450694574447e2",
+      "bytes": 19768,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/enum.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/group.py": {
+      "sha256": "80429258fbc252530c049d1b02f31c5270b04dbcb723f60b790a8c57e7a5ae7c",
+      "bytes": 49419,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/group.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/hashable.py": {
+      "sha256": "e6c6d2b46f4033cb511808f7721eeb2466f190e488a7d7e3ddd20d2a77bea763",
+      "bytes": 12834,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/hashable.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/number.py": {
+      "sha256": "ee22ba55eeaa09c3f5b5e065f4b74730393b3059ef14952ad9126310baae75a9",
+      "bytes": 20429,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/number.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/quantile.py": {
+      "sha256": "96d7a66504b7ef20568633666adab1faa9c883cccf222872ecdb5e83f9664b23",
+      "bytes": 18030,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/quantile.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/set.py": {
+      "sha256": "92eef30707884f34d59368796f71ee7263f9d712b11eaa502b9e2ae33fd0a72b",
+      "bytes": 22252,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/set.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/text.py": {
+      "sha256": "b549c656c778a13add04642f620432698267ff1fbe38f1b61dacb6219f368deb",
+      "bytes": 24430,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/text.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/vector.py": {
+      "sha256": "6ceab7bc6a5979fe041864891101cb710e08b330f75bbdf288426311a9e45119",
+      "bytes": 10916,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/extensions/vector.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/output.py": {
+      "sha256": "261c70b2c7bf77c4c2b2e25908929b0fc861c43092eb2bf04641cf4cd31b4397",
+      "bytes": 7046,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/output.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/__init__.py": {
+      "sha256": "3b1f59390cc283c89b2ac3049e33c92f93c3c2e9278dff19d6895f2f71029cd3",
+      "bytes": 3734,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/__init__.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/counter.py": {
+      "sha256": "242453e5cf57cb7690c2cae93f1eab91ef3747c0ac3abb74130afd009f67fbae",
+      "bytes": 8206,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/counter.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/reconstruction.py": {
+      "sha256": "f7308531e937b3cf7f8e6b59ba0b610c6517594101289f5fe794f5e67e1a80c7",
+      "bytes": 4906,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/reconstruction.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/rows.py": {
+      "sha256": "afafe621339efbc7f4d5c223d2867182c5c2c923a31e368f2a7305935b78b03b",
+      "bytes": 3412,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/rows.py"
+    },
+    "group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/vocabulary.py": {
+      "sha256": "c8a36d0fa274b5161ee0519f7f57429c438946fd9da6b481c0ab49089848360c",
+      "bytes": 18707,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/snapshot/src/relflow/tensorfields/shared/vocabulary.py"
+    },
+    "group-expansion-20261017/timing_manifest.json": {
+      "sha256": "e06148f1144db593e197951d93d34f3847828e3ee80b23bc60a109cf6967383f",
+      "bytes": 1075,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/timing_manifest.json"
+    },
+    "group-expansion-20261017/v1_numerical_functions.txt": {
+      "sha256": "9c095992c23c5499830bb9d45485e2b26891f6f39d12c370abff6fb90c4ee1ac",
+      "bytes": 3876,
+      "recorded_origin": "/private/tmp/group-expansion-20261017/v1_numerical_functions.txt"
+    }
+  },
+  "excluded": [
+    "checkpoints",
+    "__pycache__",
+    ".pytest_cache",
+    "*.lock",
+    "duplicate package snapshots",
+    "ongoing combination experiments",
+    "verification scratch"
+  ],
+  "verification": "All member bytes read from completed archive and compared with manifest payload; package source aggregate and nine canonical reporter records match original measured rows."
+}

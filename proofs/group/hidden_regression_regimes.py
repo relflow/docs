@@ -1,10 +1,12 @@
 # %% [markdown]
 # ---
-# title: Do five clusters mean five behaviors were found?
+# title: Do five groups mean five behaviors were found?
 # categories:
-# - Clustering
+# - Grouping
 # proof-id: P018
-# description: Repeated identities follow five hidden numerical rules. Watch how the Cluster field groups
+# aliases:
+# - /proofs/cluster/hidden-regression-regimes.html
+# description: Repeated identities follow five hidden numerical rules. Watch how the Group field groups
 #   them during training.
 # execute:
 #   enabled: false
@@ -29,12 +31,14 @@
 #
 # The numeric answer is hidden. Identity reconstruction activates grouping; the generating rule is not a model input.
 #
+# <span id="fig-proof-cluster-hidden-regression-regimes"></span>
+#
 # ```{typst}
-# //| label: fig-proof-cluster-hidden-regression-regimes
+# //| label: fig-proof-group-hidden-regression-regimes
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with obs, id, x, y. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("obs", kind: "root", children: (
-#   node("id", type: "Cluster", width: 150pt,),
+#   node("id", type: "Group", width: 150pt,),
 #   node("x", type: "Number"),
 #   node("y", kind: "target", type: "Number",),
 # )))
@@ -48,7 +52,11 @@
 #
 # {{< proof P018 status >}}
 #
-# The number settles near five, but that does not show the correct identities share a group. Training and validation reuse the same records; independent prediction and grouping quality remain untested.
+# The local unreleased 0.3.3 candidate fails the original gates at seed 0:
+# all five terminal committed counts are 3, and usage perplexity is 1.84–1.85.
+# Earlier runs near five remain recorded, but capacity counts never established
+# that the correct identities shared a group. Training and validation reuse the
+# same records; independent prediction and partition quality remain untested.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -66,14 +74,21 @@
 # with small additive noise. The repeated identity lets the model associate
 # behavior across changing `x` values.
 #
-# The ID field uses `rf.Mask(rate=0.5, reconstruct=True)` to engage the Cluster
+# The ID field uses `rf.Mask(rate=0.5, reconstruct=True)` to engage the Group
 # reconstruction loss. The numeric objective adds pressure to explain `y`.
-# Cluster assignments belong to identities; row-varying `x` does not directly
+# Group assignments belong to identities; row-varying `x` does not directly
 # condition the query that reconstructs the identity itself.
+# The numeric objective can train assignments when the ID is visible. When the
+# ID is masked, independent `x` cannot identify it and hidden `y` is not an input.
+# Reconstruction therefore cannot guarantee recovery of the generating regimes.
 #
 # The model trains for 30 deterministic epochs. Training and validation
 # currently use the same 3,000 observations. An internal-state callback measures
 # the final five epochs.
+#
+# The current adaptive update separates prediction uncertainty from variation
+# between observations. That correction does not satisfy this proof's unchanged
+# count gates. It also does not make an opaque masked ID identifiable from `x`.
 #
 # ### Remaining work
 #
@@ -89,7 +104,7 @@
 #
 
 # %%
-"""P018: track adaptive clusters across five hidden regression regimes.
+"""P018: track adaptive groups across five hidden regression regimes.
 
 Training and validation deliberately reuse observations. Count and usage
 perplexity diagnose the mechanism; they do not prove partition recovery or
@@ -105,7 +120,7 @@ import torch
 from reporting import report
 
 import relflow as rf
-from relflow.tensorfields.extensions.cluster import Embedder
+from relflow.tensorfields.extensions.group import Embedder
 
 PROOF_ID = "P018"
 
@@ -120,20 +135,20 @@ def records(seed: int) -> Iterator[dict]:
         lambda x: 0.5 * x - 8.0,
         lambda x: -0.3 * x - 14.0,
     )
-    id_to_cluster = rng.integers(0, 5, size=100)
+    id_to_group = rng.integers(0, 5, size=100)
     identities = np.repeat(np.arange(100), 30)
-    clusters = id_to_cluster[identities]
+    groups = id_to_group[identities]
     x = rng.uniform(0.0, 10.0, size=3000) + rng.normal(0.0, 0.05, size=3000)
     y = np.empty(3000)
-    for cluster, function in enumerate(functions):
-        selected = clusters == cluster
+    for group, function in enumerate(functions):
+        selected = groups == group
         y[selected] = function(x[selected]) + rng.normal(0.0, 0.05, size=int(selected.sum()))
     for index in rng.permutation(3000):
         yield {"id": f"id-{identities[index]:04d}", "x": float(x[index]), "y": float(y[index])}
 
 
 class Trajectory(lit.Callback):
-    """Inspect Cluster internals; these diagnostics do not establish partition accuracy."""
+    """Inspect Group internals; these diagnostics do not establish partition accuracy."""
 
     def __init__(self, address: rf.Address) -> None:
         self.address = address
@@ -142,7 +157,7 @@ class Trajectory(lit.Callback):
     def on_train_epoch_end(self, trainer: lit.Trainer, pl_module: lit.LightningModule) -> None:
         embedder = pl_module.nodes[self.address].embedder
         if not isinstance(embedder, Embedder):
-            raise TypeError(f"{self.address} requires a Cluster embedder, got {type(embedder).__name__}")
+            raise TypeError(f"{self.address} requires a Group embedder, got {type(embedder).__name__}")
         usage = embedder.usage_ema.detach()
         probabilities = usage / usage.sum().clamp_min(1e-12)
         bounded = probabilities.clamp_min(1e-12)
@@ -164,7 +179,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=1,
         n_heads=4,
         batch_size=128,
-        id=rf.Cluster(n_clusters=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
+        id=rf.Group(bounds=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
         x=rf.Number,
         y=rf.Number(mask=True),
     )

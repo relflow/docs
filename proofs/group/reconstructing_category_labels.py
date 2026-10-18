@@ -2,9 +2,11 @@
 # ---
 # title: Do stable labels produce the right groups?
 # categories:
-# - Clustering
+# - Grouping
 # proof-id: P020
-# description: Repeated identities carry stable labels. Ask the Cluster field to reconstruct identities
+# aliases:
+# - /proofs/cluster/reconstructing-category-labels.html
+# description: Repeated identities carry stable labels. Ask the Group field to reconstruct identities
 #   while predicting their labels.
 # execute:
 #   enabled: false
@@ -28,12 +30,14 @@
 #
 # The label is hidden; identities are sometimes hidden for reconstruction during training.
 #
+# <span id="fig-proof-cluster-reconstructing-category-labels"></span>
+#
 # ```{typst}
-# //| label: fig-proof-cluster-reconstructing-category-labels
+# //| label: fig-proof-group-reconstructing-category-labels
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with event, merchant_id, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("event", kind: "root", children: (
-#   node("merchant_id", type: "Cluster", width: 150pt,),
+#   node("merchant_id", type: "Group", width: 150pt,),
 #   node("label", kind: "target", type: "Category",),
 # )))
 # ```
@@ -46,7 +50,12 @@
 #
 # {{< proof P020 status >}}
 #
-# The model reaches roughly five groups, but count and usage do not measure whether grouping is correct. Reused validation records also leave independent predictive quality untested.
+# The local unreleased 0.3.3 candidate fails the original gates at seed 0:
+# all five terminal committed counts are 3, and usage perplexity is 3.06–3.08.
+# The fresh 0.3.2 baseline reached five and passed these gates. That count-only
+# success did not establish partition recovery. Reused validation records also
+# leave independent predictive quality untested; the current failure remains
+# recorded without changing the thresholds or training budget.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -60,18 +69,21 @@
 # ### How it works
 #
 # The merchant field uses
-# `rf.Cluster(mask=rf.Mask(rate=0.5, reconstruct=True), ...)`. Its reconstruction
-# loss updates adaptive usage and commitment state. Repetition lets evidence
-# accumulate for an identity. `label=rf.Category(mask=True, ...)` supplies the
-# supervised task without exposing its answer as an input.
+# `rf.Group(mask=rf.Mask(rate=0.5, reconstruct=True), ...)`. Its reconstruction
+# loss supplies evidence for a batch-end adaptive update. The sibling
+# `label=rf.Category(mask=True, ...)` task can train visible identity assignments
+# without exposing its answer as an input. Repetition lets that evidence
+# accumulate for an identity; a masked identity still needs informative visible
+# context to be reconstructed.
 #
 # Assignments belong to stable identities. Row-varying sibling context does not
-# directly condition the Cluster reconstruction query. The
+# directly condition the Group reconstruction query. The
 # [plain-input control](plain-input-is-dormant.html) shows what happens when the
-# Cluster reconstruction objective is absent.
+# Group reconstruction objective is absent: its adaptive state stays dormant,
+# although downstream supervision can still train visible identity assignments.
 #
 # The model trains for 30 deterministic epochs. A callback inspects internal
-# Cluster state at each epoch; the gates examine its final five entries.
+# Group state at each epoch; the gates examine its final five entries.
 #
 # ### Remaining work
 #
@@ -87,7 +99,7 @@
 #
 
 # %%
-"""P020: track adaptive clusters across five repeated-identity labels.
+"""P020: track adaptive groups across five repeated-identity labels.
 
 Training and validation deliberately reuse observations. Count and usage
 perplexity diagnose the mechanism; they do not prove partition recovery or
@@ -102,7 +114,7 @@ import torch
 from reporting import report
 
 import relflow as rf
-from relflow.tensorfields.extensions.cluster import Embedder
+from relflow.tensorfields.extensions.group import Embedder
 
 PROOF_ID = "P020"
 
@@ -110,8 +122,8 @@ PROOF_ID = "P020"
 def records(seed: int) -> Iterator[dict]:
     """Repeat each of 50 identities twenty times with one stable regime label."""
     rows = [
-        {"merchant_id": f"c{cluster}-id{identity}", "label": f"L{cluster}"}
-        for cluster in range(5)
+        {"merchant_id": f"c{group}-id{identity}", "label": f"L{group}"}
+        for group in range(5)
         for identity in range(10)
         for _ in range(20)
     ]
@@ -121,7 +133,7 @@ def records(seed: int) -> Iterator[dict]:
 
 
 class Trajectory(lit.Callback):
-    """Inspect Cluster internals; these diagnostics do not establish partition accuracy."""
+    """Inspect Group internals; these diagnostics do not establish partition accuracy."""
 
     def __init__(self, address: rf.Address) -> None:
         self.address = address
@@ -130,7 +142,7 @@ class Trajectory(lit.Callback):
     def on_train_epoch_end(self, trainer: lit.Trainer, pl_module: lit.LightningModule) -> None:
         embedder = pl_module.nodes[self.address].embedder
         if not isinstance(embedder, Embedder):
-            raise TypeError(f"{self.address} requires a Cluster embedder, got {type(embedder).__name__}")
+            raise TypeError(f"{self.address} requires a Group embedder, got {type(embedder).__name__}")
         usage = embedder.usage_ema.detach()
         probabilities = usage / usage.sum().clamp_min(1e-12)
         bounded = probabilities.clamp_min(1e-12)
@@ -152,7 +164,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=1,
         n_heads=4,
         batch_size=64,
-        merchant_id=rf.Cluster(n_clusters=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
+        merchant_id=rf.Group(bounds=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
         label=rf.Category(mask=True, p_unavailable=0.0),
     )
     model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3)
