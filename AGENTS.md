@@ -2,6 +2,7 @@
 
 This repository owns the static RelFlow documentation, its assets, and its
 canonical proof experiments. It must build from this checkout alone.
+The published website is [relflow.ai](https://relflow.ai/).
 
 ## Scope and build
 
@@ -61,7 +62,9 @@ Repeated records always use variable Arrow lists, including bounded branches;
 input caps do not add public padding. Fixed-width vectors retain their feature
 axis. Extension output list children must be named `element`.
 Embeddings live in representation records with `path`, `parents`, `output_index`,
-and `embedding`. The pinned contract targets RelFlow 0.3.1; recorded proofs
+and `embedding`. The contract targets unreleased RelFlow 0.3.3 on `stage/0.3.3`, pinned to SDK
+development commit `3f70b589daf224cf625cc62da3a1c672b5769304`. This is not a published release. Use `rf.Group(n_groups=...)`
+and the `group` prediction/assignment key. Recorded proofs
 retain their original provenance even when executable output readers are
 migrated. A reader migration does not establish fresh learning results. Show
 observation and output examples as one YAML record, nesting repeated values

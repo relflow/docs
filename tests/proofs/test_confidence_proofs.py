@@ -28,7 +28,7 @@ def load(family, name):
         ("vocabulary", "pretraining_coverage"),
         ("vocabulary", "set_reconstruction_coverage"),
         ("vocabulary", "set_unavailable_fallback"),
-        ("vocabulary", "cluster_pretraining_coverage"),
+        ("vocabulary", "group_pretraining_coverage"),
         ("vocabulary", "rolling_input_admission"),
     ],
 )
@@ -82,7 +82,7 @@ def test_rolling_admission_keeps_future_identities_unknown_and_masks_fixed():
     assert set(training[0]) == {"entity", "context", "label", "hide"}
 
 
-@pytest.mark.parametrize("name", ["pretraining_coverage", "cluster_pretraining_coverage"])
+@pytest.mark.parametrize("name", ["pretraining_coverage", "group_pretraining_coverage"])
 def test_pretraining_queries_fix_selected_targets_across_validation_calls(name):
     proof = load("vocabulary", name)
     module = proof.build()

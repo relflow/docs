@@ -1,10 +1,12 @@
 # %% [markdown]
 # ---
-# title: Does a Cluster input group itself automatically?
+# title: Does a Group input group itself automatically?
 # categories:
-# - Clustering
+# - Grouping
 # proof-id: P019
-# description: Use a Cluster field only as an input beside a hidden prediction target.
+# aliases:
+# - /proofs/cluster/plain-input-is-dormant.html
+# description: Use a Group field only as an input beside a hidden prediction target.
 # execute:
 #   enabled: false
 #   eval: false
@@ -32,19 +34,21 @@
 #
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
+# <span id="fig-proof-cluster-plain-input-is-dormant"></span>
+#
 # ```{typst}
-# //| label: fig-proof-cluster-plain-input-is-dormant
+# //| label: fig-proof-group-plain-input-is-dormant
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with event, merchant_id, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("event", kind: "root", children: (
-#   node("merchant_id", type: "Cluster", width: 150pt,),
+#   node("merchant_id", type: "Group", width: 150pt,),
 #   node("label", kind: "target", type: "Category",),
 # )))
 # ```
 #
 # ## Comparison
 #
-# Observe its adaptive grouping state before and after training, without asking the Cluster field to reconstruct itself.
+# Observe its adaptive grouping state before and after training, without asking the Group field to reconstruct itself.
 #
 # ## Result
 #
@@ -63,10 +67,12 @@
 #
 # ### How it works
 #
-# Cluster's reconstruction loss updates its adaptive usage and commitment state.
-# Training only the sibling label objective does not invoke that loss. The
-# absence of a Cluster reconstruction objective therefore leaves the measured
-# commitment mechanism inactive even though the identity recurs.
+# Group's reconstruction loss supplies evidence for a batch-end callback to
+# update its adaptive usage and commitment state. Training only the sibling
+# label objective does not invoke that loss. It can still train visible identity
+# assignments and content embeddings through the input path. This control
+# measures the inactive commitment mechanism, not an inability to learn from
+# downstream supervision.
 #
 # This model uses 1,000 observations: five label groups, ten identities per group,
 # and 20 observations per identity. It trains for five deterministic epochs,
@@ -75,7 +81,7 @@
 #
 # To engage the mechanism, the paired
 # [reconstructing-label experiment](reconstructing-category-labels.html) adds
-# `rf.Mask(rate=0.5, reconstruct=True)` to the Cluster field.
+# `rf.Mask(rate=0.5, reconstruct=True)` to the Group field.
 #
 # ### Remaining work
 #
@@ -88,10 +94,11 @@
 #
 
 # %%
-"""P019: show that a plain-input Cluster keeps its adaptive state dormant.
+"""P019: show that a plain-input Group keeps its adaptive state dormant.
 
-The supervised label objective does not invoke the Cluster reconstruction
-loss. Repeated identities alone should leave commitment and adherence frozen.
+The supervised label objective can train visible identity assignments but does
+not invoke the Group reconstruction loss. Its adaptive commitment and adherence
+statistics should remain frozen.
 """
 
 from collections.abc import Iterator
@@ -102,7 +109,7 @@ import torch
 from reporting import report
 
 import relflow as rf
-from relflow.tensorfields.extensions.cluster import Embedder
+from relflow.tensorfields.extensions.group import Embedder
 
 PROOF_ID = "P019"
 
@@ -110,8 +117,8 @@ PROOF_ID = "P019"
 def records(seed: int) -> Iterator[dict]:
     """Repeat each of 50 identities twenty times with one stable regime label."""
     rows = [
-        {"merchant_id": f"c{cluster}-id{identity}", "label": f"L{cluster}"}
-        for cluster in range(5)
+        {"merchant_id": f"c{group}-id{identity}", "label": f"L{group}"}
+        for group in range(5)
         for identity in range(10)
         for _ in range(20)
     ]
@@ -121,7 +128,7 @@ def records(seed: int) -> Iterator[dict]:
 
 
 class Trajectory(lit.Callback):
-    """Inspect Cluster internals; these diagnostics do not establish partition accuracy."""
+    """Inspect Group internals; these diagnostics do not establish partition accuracy."""
 
     def __init__(self, address: rf.Address) -> None:
         self.address = address
@@ -130,7 +137,7 @@ class Trajectory(lit.Callback):
     def on_train_epoch_end(self, trainer: lit.Trainer, pl_module: lit.LightningModule) -> None:
         embedder = pl_module.nodes[self.address].embedder
         if not isinstance(embedder, Embedder):
-            raise TypeError(f"{self.address} requires a Cluster embedder, got {type(embedder).__name__}")
+            raise TypeError(f"{self.address} requires a Group embedder, got {type(embedder).__name__}")
         usage = embedder.usage_ema.detach()
         probabilities = usage / usage.sum().clamp_min(1e-12)
         bounded = probabilities.clamp_min(1e-12)
@@ -152,7 +159,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=1,
         n_heads=4,
         batch_size=64,
-        merchant_id=rf.Cluster(n_clusters=(3, 15)),
+        merchant_id=rf.Group(n_groups=(3, 15)),
         label=rf.Category(mask=True, p_unavailable=0.0),
     )
     model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3)

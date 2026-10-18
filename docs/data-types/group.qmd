@@ -1,0 +1,270 @@
+---
+aliases:
+  - /data-types/cluster.html
+---
+
+# Group
+
+<span id="cluster"></span>
+
+::: {.callout-note}
+## Unreleased 0.3.3 API
+
+This page describes `rf.Group` on `stage/0.3.3`. Configure its capacity with
+`n_groups`; predictions and assignment records use `group`.
+
+The default combines normalized identity likelihood, balanced initialization,
+deterministic routing, and refinement using Group's own reconstruction
+objective. Other fields can still train visible Group assignments through
+ordinary backpropagation. Meaningful partition recovery, the correct group
+count, and reliable reconstruction remain experimental; earlier downstream
+reassignment proof scores do not establish this integrated recipe's quality.
+:::
+
+`Group` represents labels, such as merchants, using shared learned group slots
+and a persistent vocabulary. Evaluate the resulting assignments against the
+behavior your application needs.
+[Category](category.qmd) is the simpler choice for independent label embeddings;
+[Hash](hash.qmd) compares IDs without keeping a vocabulary.
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    amount=rf.Number,
+    merchant=rf.Group(
+        n_groups=64,
+        mask=rf.Mask(rate=0.15, reconstruct=True),
+    ),
+    disputed=rf.Boolean(mask=True),
+)
+```
+
+One labeled payment:
+
+```yaml
+amount: 42.75
+merchant: grocery
+disputed: false
+```
+
+The reconstructing mask hides some merchant labels during training and asks
+the model to recover them. Dispute supervision can train assignments for visible
+merchants through their input embeddings. Reconstruction also trains the group
+decoder and its adaptive balancing mechanism. Neither objective guarantees that
+the groups match human categories.
+
+A masked merchant must be identifiable from visible context to be reconstructed.
+An unrelated payment amount cannot reveal an opaque merchant ID, and the hidden
+dispute answer supplies no input cue. Repeated IDs and a downstream target alone
+do not guarantee recovery of a meaningful partition.
+
+## Input and options
+
+Accepts scalar Boolean, integer, floating-point, string, or binary labels, with
+one compatible Arrow family per field. Training grows the vocabulary;
+validation, test, and prediction reuse it. Unknown labels remain `valued` and
+use a shared unavailable assignment. Nulls have a separate state.
+
+See [Online Vocabulary](../core-concepts/vocabulary.qmd) for automatic growth,
+admission timing with workers/DDP, supported training strategies, and changes
+during fine-tuning.
+
+| Option | Default | Meaning |
+| --- | --- | --- |
+| `n_groups` | required | Integer `K` fixes group width; `(lower, upper)` enables an adaptive balancing subset with `0 < lower <= upper`. |
+| `p_unavailable` | `0.01` | Training probability of replacing known input labels with unavailable content. Reconstruction answers remain intact. |
+| `ema_decay` | `0.99` | Smoothing for usage, assignment information, and range-adherence statistics, in `[0, 1]`. |
+| `revive_temperature` | `10.0` | Nonnegative revival schedule control; zero disables inactive-group revival. |
+
+An integer `n_groups=K` normalizes to `(K, K)`. The former `bounds` keyword
+is rejected.
+
+The upper bound fixes physical group width. A ranged `n_groups` allows callbacks to
+revive unoccupied columns or merge similar active columns. Revival preserves
+columns already assigned to a known identity, even when they are outside the
+committed balancing subset. These operations do not guarantee equal use or
+human-interpretable groups. Vocabulary growth expands label rows without
+changing `n_groups`.
+
+## Learning and inspection
+
+The training process binds batch-local label dictionaries before forward.
+Growth preserves existing IDs, learned assignment rows, exposure counters, and
+supported optimizer state, including the shared unavailable assignment.
+New identity rows cycle through available groups by index: one group starts
+with assignment score `0.1`, and the others start at zero. The unavailable row
+starts neutral. Vocabulary growth initializes new rows the same way.
+
+Training and evaluation route an identity to its highest-scoring available
+group. Training uses a straight-through softmax gradient to learn assignment
+scores without drawing Gumbel noise. Repeated occurrences share a group while
+the model state is unchanged.
+
+A reconstructing mask is required to train the group head, refine memberships,
+and update adaptive balancing. A plain visible Group can learn assignments and
+content embeddings from other targets through ordinary backpropagation, but
+creates no Group reconstruction objective and does not run refinement. See
+[shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options).
+
+Reconstruction combines unweighted state classification with unweighted label
+cross entropy through groups. Each available group's learned identity scores
+normalize across the populated vocabulary, giving a label distribution for
+that group. Predicted group probabilities mix these distributions into the
+final label probabilities. Training and prediction share this scoring rule.
+Labels sharing a group can retain different learned frequency priors;
+normalization does not force equal probabilities. Unallocated identity rows,
+retired groups, and the unavailable input assignment are not output candidates.
+The decoder uses ancestor memory but opts out of direct sibling query
+conditioning.
+
+Unknown target identities contribute neither label reconstruction nor
+balancing updates. Usage EMA, committed-group selection, and adherence use
+known reconstruction targets only. After each training batch, an extension
+callback sums probability evidence and known-target counts across DDP ranks,
+including ranks with no selected Group objective. The update weights observations
+equally even when ranks have different target counts. Empty global batches leave
+this state unchanged.
+
+Adaptive selection measures variation between predictions: the entropy of their
+mean distribution minus their mean individual entropy. Identical uncertain
+predictions therefore provide no evidence for extra groups. Smoothed information
+selects the size of the committed balancing subset, and usage selects its columns.
+Uncommitted candidate columns can still route identities and receive gradients;
+the committed count is not a count of all occupied groups.
+
+Merging redirects affected identities to the surviving group and retires the
+redundant column. Retired columns have zero probability in embedding, decoding,
+and public assignment output until revival. Merge and revival clear obsolete
+optimizer history for replaced slices while preserving unaffected history.
+Both operations skip parameter replacement when an affected parameter is frozen.
+An epoch with no known targets also skips them. Known-input augmentation does
+not remove that target's supervision. The auxiliary `loss.group` encourages
+balanced use of the committed subset; it does not calibrate label probabilities.
+
+Metrics separate vocabulary coverage from reconstruction quality:
+
+| Metric | Meaning |
+| --- | --- |
+| `targets.known`, `targets.unavailable` | Known and unknown selected valued target counts. |
+| `coverage.content` | Known / all selected valued targets. |
+| `accuracy.content`, `nll.content`, `loss.content` | Known-label accuracy and unweighted cross entropy over populated labels. |
+| `accuracy.all` | Correct known predictions / all selected valued targets, counting unknown answers as incorrect. |
+
+Training scores describe the latest batch; validation and test aggregate counts
+and sums across batches and DDP ranks. With no known targets,
+conditional reconstruction metrics are `NaN`; state supervision remains valid.
+See
+[pretraining evaluation](../guides/pretraining.qmd#evaluate-vocabulary-coverage).
+
+For an application-supplied trained `model`:
+
+```python
+labels = rf.Group.vocabulary(model, rf.Address("merchant"))
+assignments = rf.Group.assignments(model, rf.Address("merchant"))
+status = rf.Group.status(model, rf.Address("merchant"))
+```
+
+`labels` is an index-ordered tuple. Each assignment contains a group ID and
+probabilities across all configured columns, with zero probability on retired
+columns. Status exposes `committed` balancing-column IDs, `retired` column IDs,
+and `usage` EMA. These inspection calls read local model state under DDP;
+the training callback synchronizes adaptive updates at every batch end.
+
+An idle model also supports `rf.Group.assign(model, address, label, assignment)`
+for persistent changes and `rf.Group.override(model, address, assignments)`
+as a temporary context manager. An assignment is a group ID or a nonnegative
+probability vector of upper-bound width summing to one. These imperative APIs
+reject retired group IDs or nonzero probability on retired columns. They
+grow per-label storage before writing when necessary, preserving earlier rows,
+the unavailable assignment, and group width. They cannot run while the model
+is active or vocabulary state is shared with workers. Overrides restore labels
+and assignments on exit; any expanded allocation remains available. Saving or
+rebuilding during an open override is rejected.
+
+## Prediction
+
+`group` contains the best group's integer `value` and `probability`;
+`content` contains the best populated vocabulary label and its probability.
+Label probabilities are normalized over populated labels, excluding unused
+capacity and the unavailable row. Labels use `large_string`; an empty
+vocabulary yields a null label and zero probability.
+
+Group confidence and vocabulary-label confidence answer different questions.
+Labels can retain different learned scores even when they share one group.
+Neither estimates the probability that an input belongs to the known
+vocabulary. Evaluate cold-input populations separately.
+
+See the [prediction envelope](../guides/prediction-output.qmd) for shared
+state probabilities, `inferred`, and repeated shapes.
+
+The [reconstructing Group proof](../proofs/group/reconstructing-category-labels.html)
+reports internal convergence for repeated identities. Its page distinguishes
+that evidence from partition recovery and held-out prediction. The
+[plain-input control](../proofs/group/plain-input-is-dormant.html) shows why
+downstream supervision alone leaves the reconstruction-driven adaptive state
+dormant; it does not show that visible identity assignments cannot learn.
+The [regime recovery proof](../proofs/group/regime-recovery.html) tests the
+stronger claim directly: assignment agreement with hidden generating groups
+and prediction quality on independent observations, against a no-regime control.
+
+
+## Refining memberships
+
+Fitting automatically refines a Group that has its own reconstructing mask.
+The objective is to predict that Group's known identities from context, measured
+by identity negative log likelihood (NLL). Refinement reads no other field's
+targets or losses and needs no additional extension API or dependency. Other
+objectives can still shape the same Group through ordinary backpropagation.
+
+First, refinement records Group's contextual group probabilities on training
+observations. Holding these predictions fixed, it tests each identity's
+membership while holding every other identity row fixed in the normalized
+likelihood. It proposes the uniquely best-supported rows together, then reruns
+Group on separate validation observations. The complete proposal is accepted
+only if Group's actual validation identity NLL strictly improves. The validation
+pass recomputes context predictions; it does not assume they stay fixed after
+assignments change.
+
+Refinement runs at the next fitting validation start after at least 200 optimizer
+updates since its previous evaluation. Ordinary validation and checkpoint
+selection then measure the accepted mapping. Standalone `validate`, `test`,
+and prediction do not refine assignments; test observations never choose them.
+
+Calibration retains canonical Arrow observations after data preprocessing:
+at most 4,096 training rows / 64 MiB and 1,024 rows / 16 MiB from the first
+validation loader across ranks. The byte limits can retain fewer rows.
+Re-encoding neither reruns preprocessors nor admits new vocabulary labels.
+Only selected, known, valued Group targets supply evidence. Each coordinate
+counts separately, including multiple identities in one root row and repeated
+or nested branches; the retained geometry determines their positions.
+
+Missing validation, no own reconstruction objective, frozen or overridden
+assignments, and absent known targets cause refinement to skip with a reason.
+Unknown identities provide no membership evidence. Unobserved identity rows
+and tied candidate minima keep their existing rows. An accepted proposal
+preserves each replaced row's total log-mass and the unavailable row, clearing
+stale optimizer history only for
+overwritten rows. Rejection or failed evaluation restores the previous mapping.
+
+## Historical reassignment proofs {#experimental-predictive-reassignment}
+
+The earlier experimental proofs select memberships using downstream numeric
+or categorical prediction errors. That is a different objective from the
+integrated Group identity NLL. Their improvements are historical evidence for
+those recorded methods, not learning results for the current default.
+
+The [numeric proof](../proofs/group/predictive-regimes.html) tests crossing
+response curves, unequal group sizes, and different hidden group counts. It
+checks prediction error, partition agreement, and the exact number of occupied
+groups separately. The [categorical proof](../proofs/group/predictive-labels.html)
+asks whether the approach also learns context-dependent label rules. Both
+include controls that remove the persistent identity signal.
+
+The [cost comparison](../proofs/group/reassignment-cost.html) reports matched
+wall time and additional forward work for the original proof-local method.
+Its CPU timings do not establish the integrated recipe's cost, GPU performance,
+or total FLOPs. These experiments concern new observations of known identities;
+they do not establish how an unfamiliar identity should be grouped or solve
+Group-label reconstruction. Prediction quality, partition agreement, and exact
+group-count recovery remain separate checks.

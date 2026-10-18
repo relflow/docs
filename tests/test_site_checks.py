@@ -14,7 +14,7 @@ def project(tmp_path: Path) -> Path:
     docs.mkdir()
     (docs / "_quarto.yml").write_text(
         "engine: markdown\nexecute: {enabled: false, eval: false}\n"
-        "website:\n  site-url: https://relflow.github.io/docs/\n"
+        "website:\n  site-url: https://example.test/docs/\n"
         "  sidebar:\n    contents:\n      - href: index.qmd\n"
     )
     (root / "README.md").write_text("# Documentation\n\n[Start](docs/index.qmd)\n")

@@ -1,0 +1,154 @@
+{
+  "schema": 1,
+  "archive": {
+    "filename": "experiments.tar.gz",
+    "sha256": "359754bb176257155d6a1fd7095ca3601b500f0e490799d373d62e28401c68fe",
+    "bytes": 107252
+  },
+  "source_dependency": {
+    "docs_path": "proofs/group/diagnostics/expansion-2026-10-17/experiments.tar.gz",
+    "archive_sha256": "adab27f329b5909aa39a2390fd683b7b9d72b287ac871a87c99a3459a6f4c6fe",
+    "source_tree_sha256": "4f900097c5f12eb6eef07e88b7abba5c61089f52696d52ee8c08d105894a5b58",
+    "package_member_prefix": "group-expansion-20261017/snapshot"
+  },
+  "protocol": {
+    "fits": 48,
+    "seeds": [
+      7901,
+      7902,
+      7903
+    ],
+    "steps_per_fit": 600,
+    "original_test_stream_used": false,
+    "no_regime_included": false,
+    "production_changed": false
+  },
+  "verification": "Every compressed member was read back and compared byte-for-byte with payload; every input checkpoint and validation hash verified before packaging.",
+  "members": {
+    "group-combinations-numeric-20261017/FILE_SHA256.json": {
+      "sha256": "c63f5a38d0ba1cc91e3cf272436636eb7c3e38119c57123574cb09f54dcc355d",
+      "bytes": 3098,
+      "recorded_origin": "Generated internal payload manifest"
+    },
+    "group-combinations-numeric-20261017/README.md": {
+      "sha256": "75ac47b493e6087395765cb0d5fad7242c252b5e99ca72268ea07fd949beee23",
+      "bytes": 6275,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/publication-artifacts/README.md"
+    },
+    "group-combinations-numeric-20261017/README.txt": {
+      "sha256": "6875d7b46b1ba791ce9b1b8cb8868516daa85cc7cee256270bc2e09df7ac29c1",
+      "bytes": 2984,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/README.txt"
+    },
+    "group-combinations-numeric-20261017/audit.log": {
+      "sha256": "f2f45081f098565815e41b08854d85b524f5fb453a82609e9e6859b2703b31d3",
+      "bytes": 84099,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/audit.log"
+    },
+    "group-combinations-numeric-20261017/baseline-reproduction.json": {
+      "sha256": "d203033159477f0a8dfaf4ad2f6d070d72ff7fe9f96f4e8a9f7ef7d3076bfa71",
+      "bytes": 1870,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/baseline-reproduction.json"
+    },
+    "group-combinations-numeric-20261017/build_publication.py": {
+      "sha256": "8bd52cf7dd2a4c6ff4a9be74d588071ff6d353a1ba48d3eebc89817a2a9584ad",
+      "bytes": 12405,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/build_publication.py"
+    },
+    "group-combinations-numeric-20261017/checkpoint-sha256.json": {
+      "sha256": "918e74da035cb4c497c246efb7bfa06da100858ba387e81181a454e9e47509c8",
+      "bytes": 6147,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/checkpoint-sha256.json"
+    },
+    "group-combinations-numeric-20261017/environment.json": {
+      "sha256": "03dae667c3cb9a9d3c93e902fa598730e046d825bc6344b3cd1ee08a7b27e907",
+      "bytes": 664,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/environment.json"
+    },
+    "group-combinations-numeric-20261017/fresh-holdout-audit.json": {
+      "sha256": "542f26449ac1b26cc4f0774b0a7fe5c5d7ab1d6ac4dcb22e37ed12e6559cf9e6",
+      "bytes": 111552,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/fresh-holdout-audit.json"
+    },
+    "group-combinations-numeric-20261017/frozen-source.json": {
+      "sha256": "5748d3cf1b3773bd0a6475f423fcbfa754155bf0638ae5b1d75ab00e62cf2fd3",
+      "bytes": 691,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/frozen-source.json"
+    },
+    "group-combinations-numeric-20261017/p079.py": {
+      "sha256": "5ff3e67168303d668d1519421279d1fd8188f95dda740975d69ddad739d80501",
+      "bytes": 21261,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/p079.py"
+    },
+    "group-combinations-numeric-20261017/proofs/reporting.py": {
+      "sha256": "c423ea1b64b4cf4bca0076897bb2deb420da1028dac85ad16937b659a2fd62fe",
+      "bytes": 6900,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/proofs/reporting.py"
+    },
+    "group-combinations-numeric-20261017/proofs/source.py": {
+      "sha256": "3798dc178271e2c9f1ef43fc3f81987ba62904b1a54377a31219792f58bff2a2",
+      "bytes": 1994,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/proofs/source.py"
+    },
+    "group-combinations-numeric-20261017/protocol.json": {
+      "sha256": "0553bcd18884252393752e1870c67e60402178b8f37ee7381cb159ea9e9dbe3c",
+      "bytes": 2788,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/protocol.json"
+    },
+    "group-combinations-numeric-20261017/reference/group.py": {
+      "sha256": "80429258fbc252530c049d1b02f31c5270b04dbcb723f60b790a8c57e7a5ae7c",
+      "bytes": 49419,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/snapshot/src/relflow/tensorfields/extensions/group.py"
+    },
+    "group-combinations-numeric-20261017/run.py": {
+      "sha256": "a29423b1843513a361c2b2032e6e9316243c652012ffc95f2480804f04122415",
+      "bytes": 13282,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/run.py"
+    },
+    "group-combinations-numeric-20261017/summarize.py": {
+      "sha256": "c78163217a59d2843ba29256ef8c0bbc6560b0a527520b7798f13785e2f7de4e",
+      "bytes": 5956,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/summarize.py"
+    },
+    "group-combinations-numeric-20261017/summary.json": {
+      "sha256": "c4fc24d44a7e19c1251e8abfa878d58621e02c7db9275fdab935a368abd0a92f",
+      "bytes": 63929,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/summary.json"
+    },
+    "group-combinations-numeric-20261017/summary.log": {
+      "sha256": "c0255efbf07004e0d43e574f9f74c3c36139fdd1795c3df414dec57977062abe",
+      "bytes": 23788,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/summary.log"
+    },
+    "group-combinations-numeric-20261017/train-7901.log": {
+      "sha256": "8f52c39a0acdc80deb9068e54c2736ebe912f54e5e925a21f9dc43c5bd47e997",
+      "bytes": 22224,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/train-7901.log"
+    },
+    "group-combinations-numeric-20261017/train-7902.log": {
+      "sha256": "011f7cc15293cfd6eb9874da26eac2abc0d7a57d2eea80e9a4928cbb0d0bcf2a",
+      "bytes": 22219,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/train-7902.log"
+    },
+    "group-combinations-numeric-20261017/train-7903.log": {
+      "sha256": "3717cc3e1ddeafc09660ac9fabc34084fc6c97914ffeb7808b532dcebe37dbb4",
+      "bytes": 22177,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/train-7903.log"
+    },
+    "group-combinations-numeric-20261017/validation-7901.json": {
+      "sha256": "d424702cef58ee1f92406350b8f5a7ec9832700445f96ec10487cb2ae1dd4bb5",
+      "bytes": 65120,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/validation-7901.json"
+    },
+    "group-combinations-numeric-20261017/validation-7902.json": {
+      "sha256": "5463c62dd43906ca792ff7b3cbc1a5503acb42e08f5f92a15c1d46d720c2dca2",
+      "bytes": 65099,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/validation-7902.json"
+    },
+    "group-combinations-numeric-20261017/validation-7903.json": {
+      "sha256": "46631e15994d4a3094fd8ee83f30321793e2e7114fbe3253f8af37354fdf79af",
+      "bytes": 65039,
+      "recorded_origin": "/private/tmp/group-combinations-numeric-20261017/validation-7903.json"
+    }
+  }
+}

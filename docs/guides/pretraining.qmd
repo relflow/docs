@@ -215,15 +215,15 @@ model can express as well as how well it predicts them. For example, monitor
 `.recent_transactions.merchant/validate.nll.content` and
 `.recent_transactions.merchant/validate.accuracy.all`.
 The [Category metrics](../data-types/category.qmd#vocabulary-and-learning) and
-[Cluster metrics](../data-types/cluster.qmd#learning-and-inspection)
+[Group metrics](../data-types/group.qmd#learning-and-inspection)
 define these denominators and count unavailable targets explicitly.
 
-An unknown Category or Cluster target contributes no label gradient. Forcing its
+An unknown Category or Group target contributes no label gradient. Forcing its
 prediction to be uniform over known labels would teach a different task, not
 recover the missing answer. With no known targets, conditional reconstruction
 quality is `NaN`; zero coverage means the validation objective is unmeasurable,
-not that the model reconstructed everything perfectly. Cluster balancing and
-adaptive-cluster updates also exclude unknown answers. Do not select a
+not that the model reconstructed everything perfectly. Group balancing and
+adaptive-group updates also exclude unknown answers. Do not select a
 checkpoint from such a conditional score without checking coverage.
 
 Vocabulary growth can change the evaluated known-target population between
@@ -244,7 +244,7 @@ downstream confidence separately for familiar and unseen input identities.
 [P062](../proofs/vocabulary/pretraining-coverage.py) isolates vocabulary
 coverage with fixed query-selected masks and checks that rebatching the same
 targets cannot change the reported counts or conditional scores.
-[P065](../proofs/vocabulary/cluster-pretraining-coverage.py) tests Cluster coverage.
+[P065](../proofs/vocabulary/group-pretraining-coverage.py) tests Group coverage.
 
 [P066](../proofs/vocabulary/rolling-input-admission.py) separately checks cold
 Category inputs across successive training cohorts. It currently exposes a
