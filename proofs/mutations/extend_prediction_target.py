@@ -135,7 +135,7 @@ def prediction(model: rf.Model, rows: list[dict], targets: tuple[str, ...], *, c
         for row in inputs:
             row.update({name: 1000.0 for name in TARGETS})
     output = model.predict(inputs)["predictions"].to_pylist()
-    return {name: np.asarray([row[f"/{name}"]["content"] for row in output], dtype=np.float64) for name in targets}
+    return {name: np.asarray([row[name]["content"] for row in output], dtype=np.float64) for name in targets}
 
 
 def scores(rows: list[dict], predicted: dict, means: dict) -> dict:

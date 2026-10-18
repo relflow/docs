@@ -173,7 +173,7 @@ compiles it once, then passes that exact type to
 coordinate per decoded position, with exactly the declared types and order.
 It must not infer types from values, filter rows, or wrap repeated axes.
 
-In [development output format 2](prediction-output.qmd), the runtime adds
+The [prediction runtime](prediction-output.qmd) adds
 `state` and `inferred` to rich leaf results and writes normalized embeddings in
 a separate `representations` column. Only `state` and `inferred` are reserved
 within a leaf result; an extension may own an `embedding` payload member without

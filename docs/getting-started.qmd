@@ -93,8 +93,8 @@ predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
 `devices=1` collects the predictions on one device. `predictions` is an Arrow
-table. In [development output format 2](guides/prediction-output.qmd), read the
-target under `predictions.disputed`. That guide explains its probability and
+table. Read the target under `predictions.disputed`.
+[Prediction Output](guides/prediction-output.qmd) explains its probability and
 the difference from earlier address-keyed output.
 
 Next, [add transaction history](tutorials/transaction-history.qmd) to move the

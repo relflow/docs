@@ -127,3 +127,28 @@ def test_rollout_uses_generated_values_never_true_suffix(monkeypatch):
     generated = proof.rollout(None, rows)
     assert calls == [2, 3, 4]
     np.testing.assert_array_equal(generated[:, 2:], np.tile([102.0, 103.0, 104.0], (len(rows), 1)))
+
+
+def test_query_reader_keeps_scoring_alignment_when_public_collections_have_different_lengths():
+    proof = load("query_reconstruction")
+    rows = [
+        {"items": []},
+        {"items": [{"x": 0.1, "value": 0.5, "selected": True}]},
+        {
+            "items": [
+                {"x": 0.2, "value": 0.7, "selected": False},
+                {"x": 0.3, "value": 0.9, "selected": True},
+            ]
+        },
+    ]
+    model = proof.build()
+    public = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
+    assert [len(row["items"]) for row in public] == [0, 1, 2]
+    content, inferred = proof.prediction(model, rows)
+    assert content.shape == inferred.shape == (len(rows), proof.LENGTH)
+    np.testing.assert_array_equal(inferred[:, :2], [[False, False], [True, False], [False, True]])
+    for index, row in enumerate(public):
+        count = len(row["items"])
+        np.testing.assert_allclose(content[index, :count], [item["value"]["content"] for item in row["items"]])
+        np.testing.assert_array_equal(content[index, count:], 0.0)
+        assert not inferred[index, count:].any()

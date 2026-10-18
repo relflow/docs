@@ -79,13 +79,16 @@ the generated model root reads one object directly. Each child branch adds a
 repeated axis. Its execution width follows the selected collections in each
 batch; an explicit `length` caps retained items. Padding does not contribute to
 attention or reduction, but it still has storage and processing costs.
+[Prediction output](../guides/prediction-output.qmd#repeated-coordinates) writes
+every record collection as a variable Arrow list of sibling result structs,
+without public cap padding. Structural nulls and empty collections are preserved.
 
 Definitions are reusable: binding clones them without changing the original.
 Use `fields={"length": rf.Number}` for generated schemas or child names that
 collide with configuration. Use [Set](set.qmd) for membership alone and
 [Vector](vector.qmd) for one numeric vector.
 
-## Automatic Lengths And Limits
+## Automatic Lengths And Limits {#automatic-lengths-and-limits}
 
 Omitting `length`, or setting `length=None`, retains every collection slot:
 
@@ -110,11 +113,8 @@ an error. The generated root always remains a singleton with `length=1` and
 internal `overflow="error"`.
 
 Bounded branches also pad only to the largest retained length in each batch,
-up to their cap. In
-[prediction output](../guides/prediction-output.qmd#repeated-coordinates),
-all repeated record outputs are variable lists of structs with their retained
-lengths, including bounded branches. Input caps do not add public padding;
-null collections, empty collections, and interior null records stay distinct.
+up to their cap. This internal execution width does not add padding to public
+record collections.
 
 ::: {.callout-warning}
 ## Inference-time DoS/DDoS attack vector
@@ -131,11 +131,6 @@ model generation for active unbounded branches; the warning enforces no limit.
 No hidden cap is applied to `length=None`.
 :::
 
-Existing Python or YAML definitions that omit `length` now retain all items;
-use `length=1` to retain the previous singleton limit. Existing checkpoints
-with numeric lengths keep those explicit limits. Unbounded branches serialize
-and restore with null length and overflow; batch widths are never saved as limits.
-
 ## Options
 
 These are the direct `rf.Branch` defaults. A
@@ -146,8 +141,8 @@ These are the direct `rf.Branch` defaults. A
 | --- | --- | --- |
 | `fields` | `None` | Named child mapping, combinable with keyword children; names must be unique. |
 | `query` | `None` | Optional node-relative structural path. |
-| `length` | `None` | Retain all items, or set a positive integer maximum per parent coordinate. |
-| `overflow` | `None` | For finite lengths: keep first items (`"head"`, the bounded default), last items (`"tail"`), or raise (`"error"`). Unbounded branches keep `None`. Order comes from the processed source. |
+| `length` | `None` | Automatic batch width; a positive integer caps retained items per parent coordinate. |
+| `overflow` | `None` | Unbounded branches require `None`. With finite `length`, omission becomes `"head"`; choose `"head"`, `"tail"`, or `"error"`. Order comes from the processed source. |
 | `attention` | `"mha"` | Encoder mode; see below. |
 | `n_layers` | `1` | Positive sequence-encoder depth. |
 | `n_heads` | `4` | Positive, even encoder head count and fallback for Attention reduction. Active attention requires heads to divide `d_model` with at least two dimensions per head. |

@@ -184,8 +184,8 @@ Inspect dispute ranking and calibration separately from account-loss errors.
 Their combined validation loss can hide a regression in one target. This
 example specifies a model design; it makes no claim about measured quality.
 
-In development output format 2, every transaction's dispute result is inside
-`predictions.trxns`, and the account loss is `predictions.loss_next_30_days`.
+Every transaction's dispute result is at `predictions.trxns[i].disputed`,
+and the account loss is `predictions.loss_next_30_days`.
 All retained dispute positions have `inferred: true`. Retain `account_id` and the
 application's transaction identifiers when joining outputs back to records.
 Account for the retained history window: an attention summary is not a

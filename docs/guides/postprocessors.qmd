@@ -10,7 +10,7 @@ for its transactions. Keep the model and input history from the earlier
 guides; this step converts the nested results into application columns.
 
 For the trained sequence model with a `/trxns/disputed` target on every transaction, using
-[development output format 2](prediction-output.qmd):
+[RelFlow 0.3.1 prediction output](prediction-output.qmd):
 
 ```python
 import polars as pl

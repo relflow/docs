@@ -175,7 +175,7 @@ def build() -> rf.Model:
 def predict(model: rf.Model, rows: list[dict]) -> np.ndarray:
     visible = [{key: value for key, value in row.items() if key != "answer"} for row in rows]
     output = model.predict(pa.Table.from_pylist(visible))["predictions"].to_pylist()
-    return np.asarray([row["/answer"]["content"] for row in output])
+    return np.asarray([row["answer"]["content"] for row in output])
 
 
 def corrupt(rows: list[dict], field: str) -> list[dict]:

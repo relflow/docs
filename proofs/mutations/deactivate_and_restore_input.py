@@ -106,7 +106,7 @@ def prediction(model: rf.Model, rows: list[dict], *, include_b: bool = True, cor
         for row in inputs:
             row["y"] = 1000.0
     output = model.predict(inputs)["predictions"].to_pylist()
-    return np.asarray([row["/y"]["content"] for row in output], dtype=np.float64)
+    return np.asarray([row["y"]["content"] for row in output], dtype=np.float64)
 
 
 def errors(actual: np.ndarray, predicted: np.ndarray, baseline: float) -> dict:

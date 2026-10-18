@@ -224,7 +224,7 @@ fit a separate predictor without updating the exporting model. This lets you
 test the learned context for another outcome before choosing to fine-tune it.
 
 At inference, omit `disputed` from every transaction and keep the transaction
-records. The schema address is `/trxns/disputed`; development output format 2
+records. The schema address is `/trxns/disputed`; output format 2
 returns each retained transaction's result inside `predictions.trxns`, with
 `inferred: true` at every position. See [Prediction Output](prediction-output.qmd).
 

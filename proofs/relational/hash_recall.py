@@ -136,10 +136,10 @@ def normalized_rmse(model: rf.Model, records: list[dict]) -> float:
     output = model.predict(records).to_pylist()
     actual, predicted = [], []
     for row, result in zip(records, output, strict=True):
-        for item, coordinate in zip(row["memory"], result["predictions"]["/memory/value"], strict=True):
+        for item, prediction in zip(row["memory"], result["predictions"]["memory"], strict=True):
             if item["is_query"]:
                 actual.append(item["value"])
-                predicted.append(coordinate["content"])
+                predicted.append(prediction["value"]["content"])
     actual = np.asarray(actual)
     return float(np.sqrt(np.mean(np.square(np.asarray(predicted) - actual)) / np.mean(np.square(actual))))
 

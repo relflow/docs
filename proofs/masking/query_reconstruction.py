@@ -132,9 +132,15 @@ def build() -> rf.Model:
 
 def prediction(model: rf.Model, rows: list[dict]) -> tuple[np.ndarray, np.ndarray]:
     output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    content = np.asarray([[item["content"] for item in row["/items/value"]] for row in output], dtype=np.float64)
-    inferred = np.asarray([[item["inferred"] for item in row["/items/value"]] for row in output], dtype=bool)
-    return content.reshape(len(rows), LENGTH), inferred.reshape(len(rows), LENGTH)
+    # Evaluation compares real coordinates against fixed-width selector matrices.
+    # Public output has no cap padding; absent coordinates receive no score.
+    content = np.zeros((len(rows), LENGTH), dtype=np.float64)
+    inferred = np.zeros((len(rows), LENGTH), dtype=bool)
+    for index, row in enumerate(output):
+        values = [item["value"] for item in row["items"]]
+        content[index, : len(values)] = [value["content"] for value in values]
+        inferred[index, : len(values)] = [value["inferred"] for value in values]
+    return content, inferred
 
 
 def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:

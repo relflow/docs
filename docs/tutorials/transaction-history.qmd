@@ -117,7 +117,7 @@ requests = rf.ArrowDataModule(
 predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
-In development output format 2, `predictions.trxns[i].disputed` contains the
+In output format 2, `predictions.trxns[i].disputed` contains the
 answer for each transaction, with `inferred: true` on every record.
 
 If your source uses different names or shapes, continue with

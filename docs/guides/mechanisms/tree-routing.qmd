@@ -11,7 +11,7 @@ Its fields build transaction context, and `disputed=rf.Boolean(mask=True)`
 requests a dispute prediction at every retained transaction coordinate.
 
 This routing explanation was checked
-against the [pinned 0.2.4 execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py).
+against the [0.2.4 execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py).
 
 ## Context Moves Toward The Root
 
@@ -56,7 +56,7 @@ Query pooling uses learned queries shaped for the target's coordinates. Where
 sibling representations align with those coordinates, the decoder can also
 condition those queries on sibling context. The field's decoder then produces
 the datatype-specific answer, such as the Boolean output for `disputed`. See
-the [pinned decoder implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/base.py).
+the [reviewed decoder implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/base.py).
 
 The tutorial's `disputed=rf.Boolean(mask=True)` keeps every dispute label out
 of the input and requests predictions at all retained positions. Training
@@ -76,7 +76,7 @@ not from each transaction's original booking time.
 
 ## Read The Result
 
-Development output format 2 returns decoded fields in a `predictions` tree
+Output format 2 returns decoded fields in a `predictions` tree
 and requested embeddings in a separate `representations` column. Only selected
 columns appear. Repeated decoded siblings share one record collection; branch
 representations retain their own output indices and ancestor coordinates. Follow

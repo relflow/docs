@@ -224,9 +224,10 @@ explicit source column. Prediction must keep `was_disputed` in every source
 transaction, with null for an unknown answer; the direct-binding omission
 shortcut does not apply to that query.
 
-Conditional predictions retain their structural positions. In development
-output format 2, finite and automatic branch lengths both write variable lists
-of sibling result structs; a finite cap does not add public padding. See
+Conditional predictions retain their structural positions. Finite and automatic
+branch lengths both write variable lists of sibling result structs; a finite
+cap does not add public padding. Null collections, empty collections, and null
+items remain distinct. See
 [repeated coordinates](../guides/prediction-output.qmd#repeated-coordinates).
 Use each coordinate's `inferred` flag to identify requested outputs. See
 [Prediction Output](../guides/prediction-output.qmd) for the Arrow contract.

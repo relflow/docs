@@ -118,7 +118,7 @@ predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
 [Prediction Output](../guides/prediction-output.qmd) explains how to read the
-result under `predictions.inactive_next_7_days` in development output format 2.
+result under `predictions.inactive_next_7_days` in output format 2.
 The schema address remains `/inactive_next_7_days`.
 
 ## Engagement: Will An Active Reviewer Stop Posting?

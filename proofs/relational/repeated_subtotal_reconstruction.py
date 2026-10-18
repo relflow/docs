@@ -46,13 +46,13 @@
 #
 # ## Comparison
 #
-# Shuffle the expected subtotals between items while keeping visible inputs fixed. Also check empty orders and padded positions.
+# Shuffle the expected subtotals between items while keeping visible inputs fixed. Also check empty orders and retained item positions.
 #
 # ## Result
 #
 # {{< proof P030 status >}}
 #
-# Predictions follow the correct items, and padding is handled separately. The arithmetic is approximate and should not replace exact billing calculations.
+# Predictions follow the correct items, and empty orders stay empty. The arithmetic is approximate and should not replace exact billing calculations.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -70,9 +70,8 @@
 # subtotals between items. Predictions are therefore identical, while comparison
 # against the corrupted targets should become substantially worse.
 #
-# Lengths cycle from zero through five. The output uses five coordinates per
-# row; real items must be marked `inferred=True`, with every padded coordinate
-# marked `inferred=False`.
+# Lengths cycle from zero through five. Each output retains exactly the input's
+# item count without padding; every real item must be marked `inferred=True`.
 #
 # ### Remaining work
 #
@@ -88,8 +87,7 @@
 """Reconstruct quantity times unit price at each original item coordinate.
 
 Rows range from empty to five items. Permuting only target subtotals tests local
-alignment; fixed output lengths and inferred flags distinguish real coordinates
-from padding.
+alignment; output lengths and inferred flags identify the retained coordinates.
 
 Run this file with --help for seed, training-budget, and reporting options.
 """
@@ -139,6 +137,11 @@ def targets(rows: list[dict]) -> np.ndarray:
     return np.asarray([item["subtotal"] for row in rows for item in row["items"]])
 
 
+def prediction(model: rf.Model, rows: list[dict]) -> list[list[dict]]:
+    output = model.predict(inputs(rows)).to_pylist()
+    return [[item["subtotal"] for item in row["predictions"]["items"]] for row in output]
+
+
 def rmse(actual: np.ndarray, predicted: np.ndarray | float) -> float:
     return float(np.sqrt(np.mean(np.square(actual - predicted))))
 
@@ -177,23 +180,20 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     train = list(records(rows=4096, seed=seed + 1))
     test = list(records(rows=2048, seed=seed + 3))
     broken = list(records(rows=2048, seed=seed + 3, permute_targets=True))
-    output = model.predict(inputs(test)).to_pylist()
-    coordinates = [row["predictions"]["/items/subtotal"] for row in output]
+    coordinates = prediction(model, test)
     lengths = [len(row["items"]) for row in test]
-    predicted = np.asarray(
-        [value["content"] for row, length in zip(coordinates, lengths, strict=True) for value in row[:length]]
-    )
+    predicted = np.asarray([value["content"] for row in coordinates for value in row])
     actual = targets(test)
     baseline = rmse(actual, float(targets(train).mean()))
     aligned = rmse(actual, predicted) / baseline
     broken_error = rmse(targets(broken), predicted) / baseline
     inferred = [[bool(value["inferred"]) for value in row] for row in coordinates]
-    expected = [[True] * length + [False] * (LENGTH - length) for length in lengths]
+    expected = [[True] * length for length in lengths]
     metrics = {"aligned_nrmse": aligned, "permuted_target_nrmse": broken_error, "baseline_rmse": baseline}
     checks = {
         "Target permutation preserves visible inputs": inputs(test) == inputs(broken),
-        "Output retains the fixed branch length": all(len(row) == LENGTH for row in coordinates),
-        "Inferred flags match real and padded coordinates": inferred == expected,
+        "Output retains each real item without padding": [len(row) for row in coordinates] == lengths,
+        "Inferred flags identify every real coordinate": inferred == expected,
         "Aligned subtotal nRMSE <= 0.25": aligned <= 0.25,
         "Permuting targets increases nRMSE by >= 0.50": broken_error >= aligned + 0.50,
     }

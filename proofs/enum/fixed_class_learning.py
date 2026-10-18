@@ -159,7 +159,7 @@ def storage(model: rf.Model) -> dict:
 
 def prediction(model: rf.Model, rows: list[dict]) -> list[dict]:
     output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    return [row["/label"]["content"] for row in output]
+    return [row["label"]["content"] for row in output]
 
 
 def accuracy(output: list[dict], rows: list[dict]) -> float:

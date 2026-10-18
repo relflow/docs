@@ -269,11 +269,11 @@ without improving the task. See [Evaluation](../guides/evaluation.qmd) and
 ::: {.callout-note collapse="true"}
 ## Implementation reference
 
-This reference describes the `0.2.4` API, reviewed against source commit
-`8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c`. The
-[bundled policies](https://github.com/relflow/relflow/blob/stage/0.2.4/src/relflow/presets/builtins.py),
-[resolution rules](https://github.com/relflow/relflow/blob/stage/0.2.4/src/relflow/presets/base.py),
-and [checkpoint handling](https://github.com/relflow/relflow/blob/stage/0.2.4/src/relflow/architecture/checkpoint.py)
-show the implementation on the version branch. Encoders and decoders consume the
+This reference describes the `0.3.1` API, reviewed against source commit
+`18d582cca2af3dafde65b756111b32aed5b3e580`. The
+[bundled policies](https://github.com/relflow/relflow/blob/18d582cca2af3dafde65b756111b32aed5b3e580/src/relflow/presets/builtins.py),
+[resolution rules](https://github.com/relflow/relflow/blob/18d582cca2af3dafde65b756111b32aed5b3e580/src/relflow/presets/base.py),
+and [checkpoint handling](https://github.com/relflow/relflow/blob/18d582cca2af3dafde65b756111b32aed5b3e580/src/relflow/architecture/checkpoint.py)
+show the implementation at that pinned revision. Encoders and decoders consume the
 resolved schema; the policy supplies construction defaults and future additions.
 :::

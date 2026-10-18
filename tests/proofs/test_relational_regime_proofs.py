@@ -7,6 +7,7 @@ from pathlib import Path
 
 import numpy as np
 import pytest
+import relflow as rf
 
 ROOT = Path(__file__).resolve().parents[2]
 sys.path.insert(0, str(ROOT / "proofs"))
@@ -96,3 +97,115 @@ def test_adjusted_rand_ignores_label_names_and_penalizes_wrong_partitions():
     assert proof.adjusted_rand(actual, np.zeros(64)) == 0.0
     assert proof.adjusted_rand(actual, np.arange(64)) == 0.0
     assert abs(proof.adjusted_rand(actual, np.tile(np.arange(4), 16))) < 0.1
+
+
+@pytest.mark.parametrize(
+    "name,target,arguments",
+    (
+        ("aligned_pair_covariance", "covariance", ()),
+        ("attention_sum_in_range", "total", ()),
+        ("attention_sum_unseen_lengths", "total", ()),
+        ("mean_duplicate_invariance", "mean_amount", ()),
+        ("mean_erases_contribution_count", "total", ("total",)),
+        ("raw_value_variance", "variance", ()),
+        ("raw_value_weight_sum", "weighted_sum", ()),
+        ("requested_rank_values", "answer", ()),
+        ("selected_group_raw_weighted_sum", "answer", ()),
+        ("selected_group_supplied_contribution_sum", "answer", ()),
+        ("supplied_contribution_sum", "weighted_sum", ()),
+        ("supplied_cross_deviations", "covariance", ()),
+        ("supplied_squared_deviations", "variance", ()),
+        ("variable_cardinality_weighted_mean", "weighted_mean", ()),
+        ("visible_count_sum", "total", ()),
+        ("visible_count_unseen_lengths", "total", ()),
+    ),
+)
+def test_aggregation_readers_accept_named_scalar_outputs(name, target, arguments):
+    proof = load("aggregation", name)
+    model = rf.Model(
+        d_model=8,
+        n_layers=1,
+        n_heads=2,
+        attention=None,
+        fields={"items": rf.Branch(length=5, value=rf.Number), target: rf.Number(mask=True)},
+    )
+    rows = [
+        {"items": [], "item_count": 0, "rank": "first", "selected_group": "A"},
+        {"items": [{"value": 2.0}], "item_count": 1, "rank": "first", "selected_group": "A"},
+    ]
+    predicted = proof.prediction(model, rows, *arguments)
+    assert predicted.shape == (2,)
+    assert np.isfinite(predicted).all()
+
+
+@pytest.mark.parametrize(
+    "name",
+    ("attention_learns_fixed_width_sum", "attention_preserves_nested_cardinality", "mean_erases_cardinality"),
+)
+def test_structure_readers_accept_named_scalar_outputs(name):
+    proof = load("structure", name)
+    model = rf.Model(
+        d_model=8,
+        n_layers=1,
+        n_heads=2,
+        attention=None,
+        items=rf.Branch(length=5, value=rf.Number),
+        total=rf.Number(mask=True),
+    )
+    predicted = proof.prediction(model, [{"items": []}, {"items": [{"value": 2.0}]}], "items", "total")
+    assert predicted.shape == (2,)
+    assert np.isfinite(predicted).all()
+
+
+@pytest.mark.parametrize(
+    "name",
+    (
+        "ungrouped_peer_deviation",
+        "grouped_peer_deviation",
+        "single_query_preserves_group_membership",
+        "supplied_peer_mean_control",
+    ),
+)
+def test_peer_readers_score_real_items_without_cap_padding(name):
+    proof = load("relational", name)
+    model = rf.Model(
+        d_model=8,
+        n_layers=1,
+        n_heads=2,
+        attention=None,
+        items=rf.Branch(length=5, value=rf.Number, deviation=rf.Number(mask=True)),
+    )
+    rows = [{"items": []}, {"items": [{"value": 2.0, "deviation": 0.0}, {"value": 3.0, "deviation": 0.0}]}]
+    predicted = proof.predict(model, rows)
+    assert predicted.shape == (2,)
+    assert np.isfinite(predicted).all()
+
+
+@pytest.mark.parametrize("hops", (1, 2))
+def test_retrieval_reader_preserves_target_collection_width(hops):
+    proof = load("relational", "retrieval_capacity")
+    rows = list(proof.records(rows=4, seed=31, namespace="test", hops=hops))
+    predicted = proof.predict(proof.build(hops), rows)
+    assert predicted.shape == (4, 2)
+    assert np.isfinite(predicted).all()
+
+
+def test_subtotal_reader_preserves_each_observed_length_and_inferred_flag():
+    proof = load("relational", "repeated_subtotal_reconstruction")
+    model = rf.Model(
+        d_model=8,
+        n_layers=1,
+        n_heads=2,
+        attention=None,
+        items=rf.Branch(
+            length=proof.LENGTH,
+            quantity=rf.Number,
+            unit_price=rf.Number,
+            subtotal=rf.Number(mask=True),
+        ),
+    )
+    rows = list(proof.records(rows=proof.LENGTH + 1, seed=31))
+    coordinates = proof.prediction(model, rows)
+    assert [len(row) for row in coordinates] == list(range(proof.LENGTH + 1))
+    assert all(value["inferred"] for row in coordinates for value in row)
+    assert all(np.isfinite(value["content"]) for row in coordinates for value in row)

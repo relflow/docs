@@ -9,11 +9,13 @@ form Arrow structs; repeated records form
 transaction dispute predictions under `predictions.trxns[i].disputed`.
 
 ::: {.callout-note}
-## Development change for 0.3.1
+## Upgrading to RelFlow 0.3.1
 
-Predictions follow schema field names and nested record collections. Requested
-embeddings appear separately in `representations`. Recorded proof results retain
-their original version and source provenance.
+RelFlow 0.3.1 introduces a breaking prediction-output contract. Earlier
+versions used slash-prefixed fields and padded bounded collections. Update
+application readers when upgrading. Executable proof readers now use this
+format. Their recorded measurements retain their original package and source
+provenance; migrating a reader does not re-run or validate a learning experiment.
 :::
 
 Continue with the trained [transaction-history model](../tutorials/transaction-history.qmd).

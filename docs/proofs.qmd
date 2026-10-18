@@ -28,10 +28,11 @@ These are small learning experiments, each asking one question. Open a page
 for an example, a comparison, and the recorded result. Details and runnable
 code are available in a foldout.
 
-Recorded experiments retain their original package provenance and output
-readers. They have not been migrated or re-run for
-[development prediction format 2](guides/prediction-output.qmd); do not interpret
-their recorded results as validation of that new writer.
+Executable proof readers now use
+[RelFlow 0.3.1 prediction output](guides/prediction-output.qmd). Recorded
+measurements retain their original package and source provenance. The reader
+migration does not re-run the learning experiments or establish that their
+recorded quality gates pass on this release.
 
 Start with [adding six numbers](proofs/structure/attention-learns-fixed-width-sum.html),
 [matching unfamiliar IDs](proofs/identity/unseen-identity-equality.html), or

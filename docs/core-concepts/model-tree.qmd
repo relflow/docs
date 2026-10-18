@@ -105,11 +105,10 @@ selected = model.select(rf.where("address") == trxn_amount)
 ```
 
 The second address is `/trxns/amount`. The target is `/trxns/disputed`.
-Addresses identify schema
-locations in configuration, metrics, and mutations, even when a
-[query](querypaths.qmd) reads another source path. `rf.Address` is a string
+Addresses identify schema locations in configuration, metrics, and mutations,
+even when a [query](querypaths.qmd) reads another source path. `rf.Address` is a string
 subclass and serializes as a plain string in schema configuration.
-[Development prediction format 2](../guides/prediction-output.qmd) uses ordinary
+[Prediction output](../guides/prediction-output.qmd) uses ordinary
 child names in its result tree and path segments in representation records.
 
 The root is anonymous, has address `/`, and represents one observation.

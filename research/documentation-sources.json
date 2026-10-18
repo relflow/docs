@@ -6,7 +6,8 @@
     "time": "booked_at uses explicit DateParts calendar components; it is not an elapsed-duration encoding.",
     "supervision": "Every retained transaction has disputed=rf.Boolean(mask=True), with all Boolean labels excluded from input and supervised. Each label describes a new dispute in the 30 days after the observation's common review cutoff.",
     "prediction": "Omit disputed from transaction inputs; return one dispute result for each retained transaction.",
-    "pinned_source": [
+    "source_version": "0.2.4",
+    "reviewed_source": [
       "https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/data/ragged.py",
       "https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/extensions/dateparts.py"
     ]
@@ -62,5 +63,5 @@
     ],
     "adaptation": "The public application examples choose explicit populations and horizons and use simplified field names. They do not present benchmark reproductions or results."
   },
-  "evidence_boundary": "No benchmark scores, pretrained weights, zero-shot transfer, or architectural equivalence are inferred from these sources. Baseline RelFlow API claims are checked against contracts/relflow.json and the pinned upstream source. Development prediction format 2 is documented separately and is not validated by that contract or the recorded proof results."
+  "evidence_boundary": "No benchmark scores, pretrained weights, zero-shot transfer, or architectural equivalence are inferred from these sources. The current API contract targets RelFlow 0.3.1. Transaction-example source links preserve the original 0.2.4 review revision. Executable proof readers use the 0.3.1 output format, while recorded measurements retain their original package and source provenance; reader migration does not establish fresh learning results."
 }

@@ -33,7 +33,7 @@ predictions = model.predict(datamodule=prediction_data, batch_size=256, devices=
 
 `mask=True` declares the prediction target. Fitting restores the best validation
 checkpoint by default. Predictions are returned as an Arrow table.
-[Development output format 2](../guides/prediction-output.qmd) uses nested field
+[Prediction output](../guides/prediction-output.qmd) uses nested field
 names for decoded results and a separate column for requested representations.
 
 ## Build a model

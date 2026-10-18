@@ -115,7 +115,7 @@ Boolean labels. Their schema addresses are `/trxns/disputed` and
 `/trxns/repeats_next_30_days`.
 
 Prediction files omit both outcome fields from every transaction while keeping
-the transaction records. Development output format 2 returns results inside
+the transaction records. Output format 2 returns results inside
 `predictions.trxns`, with `inferred: true` for both targets at every retained
 transaction position. See [Prediction Output](prediction-output.qmd).
 

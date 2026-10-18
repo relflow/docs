@@ -145,11 +145,11 @@ def build() -> rf.Model:
 def prediction(model: rf.Model, rows: list[dict]) -> tuple[np.ndarray, np.ndarray]:
     output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
     content = np.asarray(
-        [[item["content"] for item in row["/events/value"]] for row in output], dtype=np.float64
+        [[item["value"]["content"] for item in row["events"]] for row in output], dtype=np.float64
     ).reshape(len(rows), LENGTH)
-    inferred = np.asarray([[item["inferred"] for item in row["/events/value"]] for row in output], dtype=bool).reshape(
-        len(rows), LENGTH
-    )
+    inferred = np.asarray(
+        [[item["value"]["inferred"] for item in row["events"]] for row in output], dtype=bool
+    ).reshape(len(rows), LENGTH)
     return content, inferred
 
 

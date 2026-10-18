@@ -66,8 +66,10 @@ There is no appended per-row `model` field or reserved application name.
 
 Arrow schema metadata records `relflow.prediction_format` and
 `relflow.model_version`. HTTP exposes the same values through
-`X-RelFlow-Prediction-Format` and `X-RelFlow-Model-Version` headers. The latter
-is the model's recorded RelFlow package version, not a checkpoint fingerprint.
+`X-RelFlow-Prediction-Format` and `X-RelFlow-Model-Version` headers. The format
+header carries the serialized protocol number `2`; it is separate from the
+RelFlow package release. The model-version header is the model's recorded
+RelFlow package version, not a checkpoint fingerprint.
 Keep checkpoint identity in application metadata when it is needed.
 
 A failed JSON item carries an explicit error in its original request position;

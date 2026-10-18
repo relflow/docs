@@ -10,7 +10,7 @@ reaches the parent. It follows the
 [field interactions](field-interactions.qmd) within the branch.
 
 This explanation follows the
-[pinned 0.2.4 reduction implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/pool.py).
+[0.2.4 reduction implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/pool.py).
 
 ## Choose What Reaches The Parent
 

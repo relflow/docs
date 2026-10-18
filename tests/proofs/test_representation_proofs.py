@@ -5,6 +5,8 @@ import sys
 from pathlib import Path
 
 import numpy as np
+import pyarrow as pa
+import pytest
 import relflow as rf
 
 ROOT = Path(__file__).resolve().parents[2]
@@ -111,3 +113,24 @@ def test_sensor_schema_hides_target_and_respects_each_explicit_selector():
     selected = proof.select(rows, proof.UNSEEN)
     assert all(tuple(row[f"hide_{name}"] for name in proof.SENSORS) == proof.UNSEEN for row in selected)
     assert all(a["target"] == b["target"] for a, b in zip(rows, selected, strict=True))
+
+
+@pytest.mark.parametrize("outputs", (1, 3))
+def test_frozen_probe_reads_every_root_representation_and_excludes_leaf_embeddings(outputs):
+    proof = load("reconstruction_transfer")
+    model = rf.Model(
+        d_model=16,
+        n_layers=1,
+        n_heads=4,
+        embed=True,
+        reduction=rf.Attention(n_outputs=outputs),
+        amount=rf.Number(embed=True),
+    )
+    rows = [{"amount": 1.0}, {"amount": 2.0}]
+    records = model.predict(pa.Table.from_pylist(rows))["representations"].to_pylist()
+    assert any(record["path"] == ["amount"] for record in records[0])
+    root = [[record["embedding"] for record in row if record["path"] == []] for row in records]
+    actual = proof.embedding(model, rows)
+    assert actual.shape == (len(rows), outputs * 16)
+    np.testing.assert_allclose(actual, np.asarray(root).reshape(len(rows), -1))
+    np.testing.assert_allclose(np.linalg.norm(actual.reshape(len(rows), outputs, 16), axis=-1), 1.0, atol=1e-6)

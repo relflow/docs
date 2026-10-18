@@ -167,8 +167,17 @@ def build() -> rf.Model:
 
 
 def embedding(model: rf.Model, rows: list[dict]) -> np.ndarray:
-    output = model.predict(pa.Table.from_pylist(rows))["predictions"].to_pylist()
-    return np.asarray([row["/"]["embedding"] for row in output], dtype=np.float64).reshape(len(rows), -1)
+    output = model.predict(pa.Table.from_pylist(rows))["representations"].to_pylist()
+    roots = [
+        sorted(
+            (record for record in row if record["path"] == [] and record["parents"] == []),
+            key=lambda record: record["output_index"],
+        )
+        for row in output
+    ]
+    return np.asarray([[record["embedding"] for record in root] for root in roots], dtype=np.float64).reshape(
+        len(rows), -1
+    )
 
 
 def raw_features(rows: list[dict]) -> np.ndarray:
