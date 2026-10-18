@@ -4,10 +4,16 @@ title: Your First Model
 description: Predict whether a payment will be disputed, from its amount and merchant.
 ---
 
-Start with one payment and one outcome: will this payment later be disputed?
+Start with one payment and one outcome: will this payment receive a dispute
+within the next 30 days?
 A risk team needs this estimate while the payment is still being processed,
 so it can decide which payments deserve review. Historical outcomes teach the
 model; new payments supply only the evidence available at that decision.
+
+Begin with the relationship between amount, merchant, and the later outcome
+across past payments. This first model has no account history. The next
+tutorial puts this payment and its predecessors in one transaction branch,
+with a dispute target on every item.
 
 You need Python 3.12 or newer. Install relflow in your project:
 
@@ -56,7 +62,7 @@ an input. `Model.xs` supplies a small model configuration.
 
 ## Train The Model
 
-Use your application's Parquet files (`.parquet`), with one payment per row and the three
+Use your application's Parquet files, with one payment per row and the three
 columns above. Train on earlier payments and validate on a later period;
 both splits include the observed `disputed` labels.
 
@@ -87,10 +93,11 @@ predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
 `devices=1` collects the predictions on one device. `predictions` is an Arrow
-table. Its `predictions` column contains the result
-for `/disputed`; [Prediction Output](guides/prediction-output.qmd) explains how
-to read its probability.
+table. In [development output format 2](guides/prediction-output.qmd), read the
+target under `predictions.disputed`. That guide explains its probability and
+the difference from earlier address-keyed output.
 
-Next, [add transaction history](tutorials/transaction-history.qmd) to give
-each payment more context. For training options and saving your model, see
+Next, [add transaction history](tutorials/transaction-history.qmd) to move the
+payment fields into `trxns` and score each transaction using the shared
+account context. For training options and saving your model, see
 [Training And Checkpoints](guides/lightning.qmd).

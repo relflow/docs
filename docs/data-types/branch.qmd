@@ -4,67 +4,72 @@ engine: markdown
 
 # Branch
 
-A `Branch` adds a collection of related records to a model. For a payment,
-recent transactions can provide context about the account's usual activity.
-Fields within each transaction stay together.
+A payment of `84.50` at North Market may be easier to assess alongside the
+account's earlier activity. A `Branch` keeps the earlier events and latest
+payment in one sequence, with each timestamp, amount, and merchant together.
+The model can learn relationships within an event and across the sequence.
 
 ```python
 import relflow as rf
 
 model = rf.Model.xs(
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
-        days_ago=rf.Number,
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number,
         merchant=rf.Category,
+        disputed=rf.Boolean(mask=True),
     ),
-    disputed=rf.Boolean(mask=True),
 )
 ```
 
-One labeled payment, with its earlier transactions ordered oldest to newest:
+One account review observation, ordered oldest to latest:
 
 ```yaml
-amount: 42.75
-merchant: grocery
-recent_transactions:
-  - days_ago: 3
-    amount: 18.20
-    merchant: grocery
-  - days_ago: 1
-    amount: 65.00
-    merchant: fuel
-disputed: false
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    disputed: false
 ```
 
 `length=32` keeps at most 32 transactions. `overflow="tail"` keeps the most
-recent ones when the application supplies this order. A
-[preprocessor](../guides/preprocessors.qmd) owns sorting and calculating
-`days_ago`.
+recent ones, including the latest payment, when the application supplies this
+order. A [preprocessor](../guides/preprocessors.qmd) owns sorting.
+`mask=True` hides and predicts the dispute label for every transaction. Each
+label covers new dispute reports in the 30 days after one shared review cutoff;
+all listed transactions are available at that time. Prediction records can omit
+`disputed`. DateParts supplies recurring calendar context, not exact elapsed time.
 
 ```{typst}
 //| label: fig-branch-context
-//| fig-alt: "A payment contains amount, merchant, and repeated recent_transactions. Each transaction contains days_ago, amount, and merchant. Disputed is the payment's prediction target."
-//| fig-cap: "Earlier transactions provide context for predicting whether the current payment will be disputed."
+//| fig-alt: "An account review observation owns one repeated trxns branch with booked_at DateParts, amount Number, merchant Category, and disputed Boolean. Every transaction's dispute label is hidden and supervised."
+//| fig-cap: "The branch holds the complete review-time sequence and a target for each transaction."
 #tree(node("payment", kind: "root", children: (
-  node("amount", type: "Number"),
-  node("merchant", type: "Category"),
-  node("recent_transactions", kind: "branch", repeated: true, children: (
-    node("days_ago", type: "Number"),
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
     node("amount", type: "Number"),
     node("merchant", type: "Category"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction"),
   )),
-  node("disputed", kind: "target", type: "Boolean"),
 )))
 ```
 
 ## Binding and shape
 
 The parent keyword supplies the collection name. With `query=None`,
-`recent_transactions` reads the same-named child collection, and its leaves read
+`trxns` reads the same-named child collection, and its leaves read
 keys within each transaction. Use a [query](../core-concepts/querypaths.qmd) for
 a different structural path and a preprocessor for sorting, filtering, or derived
 values.
@@ -105,9 +110,11 @@ an error. The generated root always remains a singleton with `length=1` and
 internal `overflow="error"`.
 
 Bounded branches also pad only to the largest retained length in each batch,
-up to their cap. [Prediction output](../guides/prediction-output.qmd#repeated-coordinates)
-keeps a fixed-size Arrow axis for a finite limit and uses a variable-size list
-for `length=None`.
+up to their cap. In
+[prediction output](../guides/prediction-output.qmd#repeated-coordinates),
+all repeated record outputs are variable lists of structs with their retained
+lengths, including bounded branches. Input caps do not add public padding;
+null collections, empty collections, and interior null records stay distinct.
 
 ::: {.callout-warning}
 ## Inference-time DoS/DDoS attack vector
@@ -147,7 +154,7 @@ These are the direct `rf.Branch` defaults. A
 | `ffnx` | `8` | Positive integer feed-forward multiplier for this branch's encoders and learned reduction. See [model-tree configuration](../core-concepts/model-tree.qmd#configure-the-context). |
 | `reduction` | `rf.Attention()` | What encoded memory reaches the parent. |
 | `dropout` | `None` | Optional encoder dropout in `[0, 1)` and reduction fallback. |
-| `mask` | `False` | [Masking policy](../core-concepts/dynamic-masking.qmd) applied atomically to active descendants. |
+| `mask` | `False` | Visibility and reconstruction policy applied atomically to active descendants. |
 | `embed` | `False` | Export this branch's contextual embedding. |
 | `description` | `None` | Human-readable notes. |
 
@@ -198,10 +205,10 @@ is lost when identical repeated values become one normalized summary.
 
 ## Masks and output
 
-A branch mask makes one decision per retained branch coordinate and applies it
-to the whole descendant subtree. A reconstructing policy creates leaf
-objectives; the branch has no typed decoder of its own. Structural skipping
-omits selected inputs from tensorization and attention.
+`disputed=rf.Boolean(mask=True)` keeps the answer out of the inputs and
+produces a dispute prediction for every transaction. The predictions retain
+their transaction positions; the branch groups those results and has no typed
+prediction value of its own.
 
 `embed=True` exports branch context at its address. See
 [Embeddings](../core-concepts/embeddings.qmd) for output roles and

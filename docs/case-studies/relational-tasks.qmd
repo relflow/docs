@@ -4,13 +4,15 @@ title: Retention, Engagement, And Trial Reporting
 description: Define useful predictions from customer, review, and clinical-study histories, with precise outcome windows.
 ---
 
-A retention team needs to decide which customers deserve attention. A feedback
-team wants to keep reviewers contributing. A trial operations team wants to
-anticipate larger reported totals. Each question combines information about one
-customer or study with a history of related activity.
+The [payment-history workflow](../guides/learning-from-event-data.qmd) combines
+account context, repeated transactions, and later outcomes. The
+[account model](customer-risk.qmd) adds several levels of context and targets.
+Once that pattern is familiar, apply it to a retailer's purchase histories and
+customer retention decisions.
 
-RelFlow can represent that context in one observation: attributes at the root,
-repeated records in a branch, and a target describing a later outcome.
+The review and study-reporting examples later on this page are optional
+applications to other event domains. Each keeps attributes at the root,
+related records in a branch, and a target describing a later outcome.
 
 ## Retail: Who Will Make No Purchase Next Week?
 
@@ -24,25 +26,28 @@ purchase after the decision time through seven days later. This gives the team
 a specific measure of short-term inactivity.
 
 Customer attributes describe the person. Their purchase history describes
-interactions: which articles they bought, through which channels, and how long
-ago. Your application joins those records and keeps only information available
+interactions: which articles they bought, through which channels, and when
+they were booked. Your application joins those records and keeps only information available
 at the decision time before supplying the observation to RelFlow.
 
 ### One Illustrative Observation
 
-A training observation contains customer attributes and earlier purchases.
-The final Boolean records what happened during the following seven days and
-is attached once that window has completed:
+At the May 28, 2026 decision, a training observation contains customer
+attributes and purchases booked by that date. The root Boolean records customer
+inactivity during the seven days after that common snapshot cutoff and is
+attached once that window has completed:
 
 ```yaml
 customer_age: 34
 club_member_status: ACTIVE
 recent_purchases:
-  - days_ago: 6
+  - booked_at: "2026-05-22T10:00:00"
     article_id: article-17
+    amount: 32.00
     sales_channel: online
-  - days_ago: 2
+  - booked_at: "2026-05-26T17:30:00"
     article_id: article-03
+    amount: 56.20
     sales_channel: store
 inactive_next_7_days: true
 ```
@@ -58,8 +63,11 @@ model = rf.Model.sm(
     recent_purchases=rf.Branch(
         length=32,
         overflow="tail",
-        days_ago=rf.Number,
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         article_id=rf.Category,
+        amount=rf.Number,
         sales_channel=rf.Category,
     ),
     inactive_next_7_days=rf.Boolean(mask=True),
@@ -67,17 +75,19 @@ model = rf.Model.sm(
 ```
 
 The customer is the subject of the prediction; each purchase keeps its own
-article, channel, and age together. Supply purchases oldest to newest so the
-branch retains the most recent 32. Choose that capacity for the history your
+article, amount, channel, and booking date together. Supply purchases oldest to newest
+so the branch retains the most recent 32. Choose that capacity for the history your
 application needs. `mask=True` keeps the later outcome out of the inputs while
-using it as supervision. Omit that field when requesting a new prediction.
+using it as supervision. This customer target is always masked, so omit
+it when requesting a new prediction. `DateParts` represents recurring calendar
+patterns; it does not supply elapsed time since a purchase.
 Retain customer identifiers and decision times in your application to associate
 the result with the right customer snapshot.
 
-A table containing days since the last purchase, purchase counts, and channel
-counts is a sensible baseline. Keeping individual purchases gives the model
-access to combinations of article, channel, and timing that those summaries
-may omit. Compare both approaches on later decision windows with the same
+A table containing days since the last purchase, purchase counts, spending
+totals, and channel counts is a sensible baseline. Keeping individual purchases
+gives the model access to combinations of article, amount, channel, and timing
+that those summaries may omit. Compare both approaches on later decision windows with the same
 eligible customers and available evidence. Use relational context when that
 comparison justifies its preparation and processing cost.
 
@@ -108,7 +118,8 @@ predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
 [Prediction Output](../guides/prediction-output.qmd) explains how to read the
-result for `/inactive_next_7_days`.
+result under `predictions.inactive_next_7_days` in development output format 2.
+The schema address remains `/inactive_next_7_days`.
 
 ## Engagement: Will An Active Reviewer Stop Posting?
 
@@ -117,7 +128,7 @@ review inactivity. Choose customers who posted a review in the preceding 91
 days, and define the target as no review during the following 91 days.
 
 Customer attributes stay at the root. Earlier reviews form the history, keeping
-each product, rating, and review age together. This outcome measures
+each product, rating, and review date together. This outcome measures
 participation in a feedback channel: a customer can keep buying without posting
 a review. Compare a richer review history with review recency and frequency
 summaries before using it to prioritize invitations for feedback.
@@ -131,7 +142,7 @@ marked `serious` or `deaths` that arrive after the decision time through
 365 days later.
 
 Study attributes provide the root context. Earlier reports form a branch,
-keeping report type, affected-subject count, and report age together. The later
+keeping report type, affected-subject count, and report date together. The later
 total is a masked numeric target. This sum can count a person in more than one
 report, so it does not measure unique affected people or an individual's risk.
 Define how incomplete reporting affects label availability; a missing report
@@ -149,3 +160,9 @@ The same entity can appear at several decision times. Keep later evaluation
 windows separate and control overlap between their label periods and training
 examples. [Evaluation](../guides/evaluation.qmd) explains the comparison;
 [Preprocessing](../guides/preprocessors.qmd) covers preparing the nested inputs.
+
+After defining the observations, you can test
+[reconstruction pretraining](../guides/pretraining.qmd) on the available
+histories or evaluate [frozen representations](../core-concepts/embeddings.qmd)
+for several outcomes from the same evidence. Each application needs its own
+schema, completed labels, and held-out comparison.

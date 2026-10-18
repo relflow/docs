@@ -3,8 +3,10 @@ title: Serving
 ---
 
 `rf.Deployment` serves a checkpoint or an in-memory model through FastAPI.
-The examples deploy the trained payment model from
-[Your First Model](../getting-started.qmd); requests omit its dispute label.
+The examples deploy the trained sequence model from
+[Add Transaction History](../tutorials/transaction-history.qmd). Requests
+supply its `trxns` inputs and omit the dispute labels. Every transaction
+receives a prediction.
 Install the optional dependency:
 
 ```bash
@@ -32,8 +34,16 @@ JSON representation over HTTP:
 
 ```yaml
 payment_id: payment-42
-amount: 86.50
-merchant: grocery
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
 ```
 
 ```bash
@@ -48,10 +58,21 @@ with `Content-Type: application/vnd.apache.arrow.stream`; the response is also
 an IPC stream. `GET /health` supplies a health endpoint, and `/docs` exposes the
 API reference.
 
-Default responses contain `predictions` plus a `model` provenance field with
-`version` and `checkpoint`. They omit the interactive prediction table's
-`inputs` column. A postprocessor controls application response fields;
-provenance is appended afterward, so `model` is a reserved name.
+In [prediction output](prediction-output.qmd), successful responses
+preserve the canonical selected columns: `predictions`, requested
+`representations`, and explicitly retained `inputs`. A postprocessor can define
+the same application response schema used by direct or batch prediction.
+There is no appended per-row `model` field or reserved application name.
+
+Arrow schema metadata records `relflow.prediction_format` and
+`relflow.model_version`. HTTP exposes the same values through
+`X-RelFlow-Prediction-Format` and `X-RelFlow-Model-Version` headers. The latter
+is the model's recorded RelFlow package version, not a checkpoint fingerprint.
+Keep checkpoint identity in application metadata when it is needed.
+
+A failed JSON item carries an explicit error in its original request position;
+it is not an empty successful prediction. Successful-record parity does not
+make JSON error envelopes part of the canonical Arrow success schema.
 
 ## Bound Public Requests
 
@@ -87,12 +108,17 @@ Optional Pydantic signatures validate JSON requests before prediction and
 responses after postprocessing. For the request above:
 
 ```python
+from datetime import datetime
 from pydantic import BaseModel
+
+class Transaction(BaseModel):
+    booked_at: datetime
+    amount: float
+    merchant: str
 
 class PaymentRequest(BaseModel):
     payment_id: str
-    amount: float
-    merchant: str
+    trxns: list[Transaction]
 
 app = (
     rf.Deployment(checkpoint="artifacts/payment.rf")
@@ -104,10 +130,13 @@ app = (
 These signatures apply to JSON. Arrow requests are validated through the
 preprocessing and model-binding contracts.
 
+The application also validates a nonempty, oldest-to-newest sequence whose
+input records are available at the account-review cutoff.
+
 ## Reuse processing
 
 Reuse the `decision` processor from [Postprocessors](postprocessors.qmd) to
-return a payment identifier, dispute probability, and review flag:
+return a payment identifier and aligned lists of dispute probabilities and review flags:
 
 ```python
 app = (
@@ -118,7 +147,9 @@ app = (
 ```
 
 Retention exposes `payment_id` to the postprocessor. The final result must
-contain one row per valid request in request order. If the API accepts raw fields
+contain one row per valid request with unchanged identity and request order.
+Equal row counts cannot detect a permutation; both pre- and postprocessors
+must preserve that association. If the API accepts raw fields
 that require [preprocessing](preprocessors.qmd), attach that processor with
 `.preprocess(prepare)` and make the request signature match those raw fields.
 

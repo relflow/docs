@@ -1,7 +1,9 @@
 # Set
 
-`Set` represents several unordered labels, such as the tags attached to a
-merchant. Use [Category](category.qmd) for one label and
+North Market can have several merchant tags, such as `grocery` and `essential`.
+`Set` represents their membership without giving the tag order meaning. These
+descriptors enrich the payment alongside its amount and merchant identity.
+Use [Category](category.qmd) for one label and
 [Branch](branch.qmd) when each item has its own fields or position.
 
 ```python
@@ -9,6 +11,7 @@ import relflow as rf
 
 model = rf.Model.xs(
     amount=rf.Number,
+    merchant=rf.Category,
     merchant_tags=rf.Set,
     disputed=rf.Boolean(mask=True),
 )
@@ -17,7 +20,8 @@ model = rf.Model.xs(
 One labeled payment:
 
 ```yaml
-amount: 42.75
+amount: 84.50
+merchant: North Market
 merchant_tags:
   - grocery
   - essential

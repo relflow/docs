@@ -5,9 +5,10 @@ engine: markdown
 # Tree Routing And Decoding
 
 The model builds context from the leaves toward the root, then each requested
-field decoder reads the context available along its schema path. For the
-payment example, earlier transactions contribute history context, which the
-root combines with the current amount and merchant to predict `disputed`.
+field decoder reads the context available along its schema path. The tutorial
+has one `trxns` branch containing earlier payments and the latest payment.
+Its fields build transaction context, and `disputed=rf.Boolean(mask=True)`
+requests a dispute prediction at every retained transaction coordinate.
 
 This routing explanation was checked
 against the [pinned 0.2.4 execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py).
@@ -16,17 +17,15 @@ against the [pinned 0.2.4 execution plan](https://github.com/relflow/relflow/blo
 
 ```{typst}
 //| label: fig-mechanism-tree-routing
-//| fig-alt: "A payment root contains amount, merchant, a repeated recent_transactions branch with days_ago, amount, and merchant, and the disputed prediction target. Transactions build local history context before the root combines it with the current payment."
-//| fig-cap: "Connections show schema ownership. History builds context before the root combines it with the current payment; the disputed decoder reads that context."
-#tree(node("payment", kind: "root", body: [Combines current payment and history.], children: (
-  node("amount", type: "Number"),
-  node("merchant", type: "Category"),
-  node("recent_transactions", kind: "branch", repeated: true, body: [Builds history context.], children: (
-    node("days_ago", type: "Number"),
+//| fig-alt: "An account snapshot has one repeated trxns branch containing earlier and latest payments. Each transaction has DateParts booked_at, Number amount, Category merchant, and Boolean disputed. Every dispute label is hidden and supervised for the same 30-day window after the common review cutoff."
+//| fig-cap: "Connections show schema ownership. The transaction collection builds context, and the dispute decoder reads its path at every retained position."
+#tree(node("account", kind: "root", body: [One decision snapshot.], children: (
+  node("trxns", kind: "branch", repeated: true, body: [Earlier and latest payments.], children: (
+    node("booked_at", type: "DateParts", body: [Selected calendar cycles.]),
     node("amount", type: "Number"),
     node("merchant", type: "Category"),
+    node("disputed", kind: "target", type: "Boolean", body: [Hidden and supervised for every transaction.]),
   )),
-  node("disputed", kind: "target", type: "Boolean", body: [Supervised value hidden from input.]),
 )))
 ```
 
@@ -35,13 +34,13 @@ information. The runtime sends it to its owning branch. Branches execute from
 the deepest level upward, so a parent receives representations from its nested
 branches after those branches have encoded and reduced their own children.
 
-For this payment model, the history branch processes its transaction fields
-first. The root then processes the current payment fields and the history's
-output. With more nesting, the same rule repeats at each level. Branches at one
-depth form a group in the execution plan; this grouping describes dependencies,
-without promising parallel execution.
+For this model, `trxns` processes the fields at its transaction positions first.
+The root then receives the branch's output, without duplicate root amount or
+merchant fields. With more nesting, the same rule repeats at each level.
+Branches at one depth form a group in the execution plan; this grouping
+describes dependencies, without promising parallel execution.
 
-The root is anonymous at `rf.Address()`. `payment` in the figure describes the
+The root is anonymous at `rf.Address()`. `account` in the figure describes the
 observation; it does not add an address prefix. For schema construction and
 addresses, see [Model Tree](../../core-concepts/model-tree.qmd).
 
@@ -59,17 +58,28 @@ condition those queries on sibling context. The field's decoder then produces
 the datatype-specific answer, such as the Boolean output for `disputed`. See
 the [pinned decoder implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/base.py).
 
-`mask=True` keeps the supervised value out of the input while retaining its
-coordinate for reconstruction. `embed=True` requests an exported contextual
-representation and adds no reconstruction objective. These roles have their
-own explanations in [Masking And Objectives](../../core-concepts/dynamic-masking.qmd)
-and [Embeddings](../../core-concepts/embeddings.qmd).
+The tutorial's `disputed=rf.Boolean(mask=True)` keeps every dispute label out
+of the input and requests predictions at all retained positions. Training
+supplies Boolean labels for all of them. Prediction can omit this directly
+bound target from every transaction while retaining the input records that
+establish those positions.
+
+`embed=True` requests an exported contextual representation and adds no
+reconstruction objective. These roles have their own explanations in
+[Masking And Objectives](../../core-concepts/dynamic-masking.qmd) and
+[Embeddings](../../core-concepts/embeddings.qmd).
+
+The branch can use the full collection through the latest transaction's
+booking time, the common review cutoff. Every target concerns a new dispute
+during the following 30 days. These are forecasts from that shared cutoff,
+not from each transaction's original booking time.
 
 ## Read The Result
 
-Prediction returns an Arrow table with a `predictions` column. The output
-follows schema names and repeated field coordinates; it is not the runtime's
-internal list of routed representations. Follow
+Development output format 2 returns decoded fields in a `predictions` tree
+and requested embeddings in a separate `representations` column. Only selected
+columns appear. Repeated decoded siblings share one record collection; branch
+representations retain their own output indices and ancestor coordinates. Follow
 [Read Predictions](../prediction-output.qmd) for one payment's output and its
 state, content, and inference flag.
 

@@ -5,8 +5,8 @@ toc: false
 ---
 
 relflow learns predictions and representations from structured business data.
-Describe the fields you have and the outcome you want to predict; the schema
-defines a trainable PyTorch model.
+Describe a transaction, the history available around it, and the outcome you
+want to predict. The schema defines a trainable PyTorch model.
 
 For example, learn whether a payment will later be disputed:
 
@@ -20,26 +20,35 @@ The model reads `amount` and `merchant`, and learns to predict `disputed`.
 A risk team can use that prediction to prioritize payments for review.
 The later dispute outcome supplies the training answer.
 
-As the question grows, add the account's earlier transactions as an **event
-history**. Each transaction keeps its amount, merchant, and timing together.
-The model can learn patterns within a transaction and across the history,
-giving the current payment context about the account's behavior.
+As the question grows, place that payment last in a **transaction sequence**
+called `trxns`, after the account's earlier activity. Each transaction keeps
+its booking time, amount, and merchant together. One merchant field serves
+every position, and each transaction has its own dispute target.
 
 [Build your first model →](getting-started.qmd){.btn .btn-primary}
 
 ## Start Small
 
 1. [Your first model](getting-started.qmd): define fields, train, and predict.
-2. [Add transaction history](tutorials/transaction-history.qmd): give each payment a collection of earlier transactions.
-3. [Work with your data](guides/data-modules.qmd): use Arrow, Polars, or Parquet datasets.
+2. [Add transaction history](tutorials/transaction-history.qmd): put transactions in one `trxns` branch and predict a dispute for each one.
+3. [Prepare your observations](core-concepts/binding-data.qmd): keep the same payment and history in [application-supplied Parquet files](guides/data-modules.qmd).
+4. [Train and evaluate](guides/lightning.qmd): compare dispute predictions with the existing review process before adding more context.
 
 ## Go Further When You Need To
 
-- [Training and checkpoints](guides/lightning.qmd): control fitting, validation, and saved models.
-- [Model structure](core-concepts/model-tree.qmd): understand nested contexts and configure the architecture.
-- [Account risk example](case-studies/customer-risk.qmd): combine several histories and prediction targets.
-- [Learning from event histories](guides/learning-from-event-data.qmd): predict repeat payments and learn several outcomes from shared context.
-- [Business prediction examples](case-studies/relational-tasks.qmd): model customer retention, reviewer engagement, and study reporting.
+The later examples extend the transaction model in order:
+
+| Business question | What the example adds |
+| --- | --- |
+| [Will this merchant be paid again?](guides/learning-from-event-data.qmd) | Payment channels, account profile context, and a second outcome learned from the same history. |
+| [Which transactions and accounts need attention?](case-studies/customer-risk.qmd) | Line items inside transactions, a separate withdrawal history, and a future account-loss target alongside transaction disputes. |
+| [Can unlabeled activity help?](guides/pretraining.qmd) | Reconstruction of hidden historical fields before adapting to an outcome. |
+| [Can other predictors reuse the context?](core-concepts/embeddings.qmd) | Frozen transaction-history representations evaluated on separate tasks. |
+| [Where else does this pattern apply?](case-studies/relational-tasks.qmd) | Purchase histories for retention, followed by other related-record applications. |
+
+Follow [Model Structure](core-concepts/model-tree.qmd) and
+[Field Interactions](guides/mechanisms/field-interactions.qmd) when you want to
+understand how the model combines the evidence.
 
 The examples use payments and accounts. The same field and branch definitions
 work with other kinds of tabular and nested records.

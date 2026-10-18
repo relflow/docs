@@ -1,7 +1,10 @@
 # Category
 
-`Category` represents one label from a vocabulary learned during training.
-For example, the model can learn how different merchants relate to disputes.
+The merchant name identifies where a payment was made. `Category` learns a
+representation for each label seen during training, so the model can learn
+merchant-specific patterns alongside the amount and other evidence.
+It treats `North Market` as one label; the words in the name are not a text
+description.
 
 ```python
 import relflow as rf
@@ -16,8 +19,8 @@ model = rf.Model.xs(
 One labeled payment:
 
 ```yaml
-amount: 42.75
-merchant: grocery
+amount: 84.50
+merchant: North Market
 disputed: false
 ```
 

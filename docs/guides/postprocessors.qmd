@@ -5,7 +5,12 @@ title: Postprocessors
 A postprocessor turns the [prediction table](prediction-output.qmd) into the
 shape an application needs. It receives and returns an eager Polars DataFrame.
 
-For a trained payment model with a Boolean `/disputed` target:
+The payment review workflow needs dispute probabilities and review decisions
+for its transactions. Keep the model and input history from the earlier
+guides; this step converts the nested results into application columns.
+
+For the trained sequence model with a `/trxns/disputed` target on every transaction, using
+[development output format 2](prediction-output.qmd):
 
 ```python
 import polars as pl
@@ -13,12 +18,17 @@ import relflow as rf
 
 @rf.postprocess
 def decision(frame: pl.DataFrame, *, threshold: float) -> pl.DataFrame:
-    disputed = pl.col("predictions").struct.field("/disputed")
-    probability = disputed.struct.field("content").struct.field("probability")
+    transactions = pl.col("predictions").struct.field("trxns")
+    probability = (
+        pl.element()
+        .struct.field("disputed")
+        .struct.field("content")
+        .struct.field("probability")
+    )
     return frame.select(
         payment_id=pl.col("inputs").struct.field("payment_id"),
-        dispute_probability=probability,
-        review=probability >= threshold,
+        dispute_probabilities=transactions.list.eval(probability),
+        review=transactions.list.eval(probability >= threshold),
     )
 
 # The request file is supplied by the application.
@@ -40,13 +50,19 @@ model.predict(
 ```
 
 The Writer applies the processor to each prediction batch and writes Parquet
-files under `payment-decisions`. One output record has this shape; the
-probability is a placeholder:
+files under `payment-decisions`. Each output list follows the retained
+transaction order. One output record has this shape; values are placeholders:
 
 ```yaml
 payment_id: payment-42
-dispute_probability: <probability of true>
-review: <true or false>
+dispute_probabilities:
+  - <probability of true>
+  - <probability of true>
+  - <probability of true>
+review:
+  - <true or false>
+  - <true or false>
+  - <true or false>
 ```
 
 The direct in-memory prediction API accepts `postprocess=` on the prediction
@@ -55,7 +71,8 @@ batches have completed. A Writer applies it to each output batch.
 
 The threshold is an application decision rule. The example uses the content
 probability; incorporate the predicted value state when your application needs
-to treat missingness separately.
+to treat missingness separately. Select the threshold on validation data for
+the team's review capacity and error costs; `0.8` here illustrates configuration.
 
 ## Compose and reuse
 
@@ -81,4 +98,7 @@ otherwise available in the written table. A `Writer` requires the same output
 schema across batches in its shard.
 
 HTTP serving has an additional requirement: preserve one final row per valid
-request in request order. relflow checks the count; the processor owns order.
+request with the same identity and order. RelFlow checks the count; processors
+own identity and order, including when row counts happen to be equal. No
+per-row `model` provenance field is appended; the format and recorded package
+version are carried in schema metadata and HTTP headers.

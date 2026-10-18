@@ -16,26 +16,36 @@ This explanation was checked against the [pinned 0.2.4 branch encoder](https://g
 
 ## Within One Transaction
 
-Consider one payment whose earlier transactions are known before it occurs:
+Follow the tutorial's collection. The current payment is the final transaction;
+the earlier transactions were known at its decision time:
 
 ```yaml
-amount: 86.50
-merchant: grocery
-recent_transactions:
-  - days_ago: 3
-    amount: 42.75
-    merchant: grocery
-  - days_ago: 1
-    amount: 18.50
-    merchant: cafe
-disputed: false
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    disputed: false
 ```
 
 Each field first supplies an embedding at each transaction coordinate.
 Coordinate attention groups the direct sibling fields at the same coordinate:
-`days_ago`, `amount`, and `merchant` from the first transaction interact with one
-another. The second transaction has its own group. This step allows an amount's
+`booked_at`, `amount`, and `merchant` from the first transaction interact with one
+another. The other transactions have their own groups. This step allows an amount's
 representation to depend on the merchant attached to that amount.
+
+`disputed=rf.Boolean(mask=True)` keeps every dispute label out of the inputs
+and supervises every retained transaction. Each label means a new dispute
+during the 30 days after the common review cutoff,
+`2026-05-28T14:30:00`. The application attaches these Boolean answers after
+that window is complete; they are not facts available to the model at review.
 
 Two histories can have the same total spend and merchant counts while pairing
 the larger purchase with different merchants. Keeping each transaction's
@@ -62,13 +72,14 @@ These two stages answer different questions:
 | --- | --- | --- |
 | Coordinate attention | Direct fields of one transaction | Which merchant received this amount? |
 | Sequence attention | Present child tokens across the branch | How does this transaction compare with earlier ones? |
-| Branch reduction | The branch's encoded history | Which context should reach the current payment? |
+| Branch reduction | The branch's encoded transactions | Which context should reach the observation root? |
 
 Reduction is a separate step, described in [Branch Summaries](branch-reduction.qmd).
-With the default reduction, the branch passes a learned summary to its parent,
-which combines that history context with the current payment. The summary is
-trained for the model's objectives; it is not a readable transaction ledger
-or a guaranteed calculation of a business statistic.
+With the default reduction, `trxns` passes a learned summary to its parent.
+That summary includes the earlier and latest transactions; the root has no
+duplicate amount or merchant fields. The summary is trained for the model's
+objectives; it is not a readable transaction ledger or a guaranteed calculation
+of a business statistic.
 
 ## Presence And Position
 
@@ -78,12 +89,17 @@ coordinate has its own field state; replacing it with zero changes what the
 model observes. See [field states](../../core-concepts/data-types.qmd).
 
 Rotary position information gives attention a signal about token positions.
-Order says which event came first; `days_ago` supplies its age relative to the
-current payment. Adjacent events can be days or months apart, so position and
-elapsed time supply different evidence. Input ordering still belongs to the
-application: sort history oldest to newest and keep only records known before
-the payment. Position information does not repair an incorrectly ordered
-history or prevent future information from entering the inputs.
+`booked_at=rf.DateParts(dateparts=["day_of_month", "day_of_week", "hour_of_day"])`
+supplies calendar cycles. Those cycles do not compute elapsed time or preserve
+every distinction in the original timestamp. Input ordering still belongs to
+the application: sort by the full booking timestamp, oldest to newest, and
+keep only transactions available through the latest payment's decision time.
+Position information does not repair an incorrectly ordered collection or
+prevent future information from entering the inputs.
+
+Sequence attention can use the complete retained collection. All predictions
+in this example share the same review cutoff and future outcome window. They
+are not forecasts made separately at each transaction's original booking time.
 
 Encoder updates use residual attention and feed-forward blocks with RMSNorm and
 tanh GELU, as defined in the [pinned neural blocks](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/blocks.py).

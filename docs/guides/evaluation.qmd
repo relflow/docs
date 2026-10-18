@@ -1,8 +1,10 @@
 # Evaluation
 
-For the payment example, inspect dispute prediction quality alongside validation
-loss. When a model has several targets, an improving combined loss can hide a
-regression in the outcome the application cares about.
+The payment review team can investigate only a limited number of payments.
+Evaluate whether the model finds more later disputes at that review capacity,
+alongside validation loss. Start with the payment-and-history model before
+adding profile fields or another task. When a model has several targets, an
+improving combined loss can hide a regression in an individual outcome.
 
 ## Read The Metrics
 
@@ -13,7 +15,7 @@ import relflow as rf
 
 metrics = model.validate(datamodule, batch_size=256)
 validation_loss = metrics[0]["loss/validate"]
-dispute_auc = metrics[0][".disputed/validate.auc.content"]
+dispute_auc = metrics[0][".trxns.disputed/validate.auc.content"]
 ```
 
 Set the evaluation batch size on the method call; see
@@ -32,15 +34,15 @@ explains how logging, validation, and checkpoint schedules are configured.
 | `loss/train` | Training loss from the latest batch: the sum of active leaf losses after each leaf's `weight` is applied. |
 | `loss/train_epoch` | Internal training loss average for callbacks; not sent to attached loggers. |
 | `loss/validate`, `loss/test` | Aggregate reconstruction loss for each evaluation pass. |
-| `.disputed/validate.loss.state` | Reconstruction loss for value state at `/disputed`. |
-| `.disputed/validate.loss.content` | Datatype-specific content loss at that address. |
-| `.disputed/validate.auc.content` | Example Boolean content metric; availability depends on datatype. |
+| `.trxns.disputed/validate.loss.state` | Reconstruction loss for dispute value states at `/trxns/disputed`. |
+| `.trxns.disputed/validate.loss.content` | Datatype-specific content loss across transaction dispute labels. |
+| `.trxns.disputed/validate.auc.content` | Example Boolean content metric over the retained transactions. |
 | `throughput/train` | Estimated observations per second per rank for the latest training batch, reported at the configured step logging cadence. |
 | `throughput/validate`, `throughput/test`, `throughput/predict` | Estimated observations per second per rank for each evaluation or prediction batch. |
 
 Metric names join schema-address components with periods, preserve case,
 and prefix the address group with a period before appending `/stage.metric.component`.
-For example, `/recent_transactions/merchant` becomes `.recent_transactions.merchant/validate.accuracy.content`.
+For example, `/trxns/disputed` becomes `.trxns.disputed/validate.auc.content`.
 The leading period distinguishes address groups from aggregate groups
 such as `loss` and `throughput`. The root uses `.`, as in `./validate.loss.state`.
 A leaf can contribute both state and content loss. State metrics describe valued, null, padded,
@@ -66,14 +68,17 @@ coordinates differ. A state-accuracy improvement alone does not establish
 better content predictions. Use validation data to choose thresholds and
 checkpoints, leaving the test split for a final assessment.
 
-Separate the modeling choices you want to test:
+Evaluate the additions in the same order as the examples. Change one modeling
+choice at a time:
 
 | Question | Comparison |
 | --- | --- |
-| Does the history help? | Compare the payment-only model with the same task using earlier transactions. |
-| Does learning from records help? | Compare with a tuned tabular baseline using application-designed counts, totals, recency, and other relevant features. |
-| Is the representation reusable? | Fit a simple downstream predictor on exported, frozen embeddings and evaluate the intended task. |
+| Does the history help? | Compare the payment-only model, the history model, and a tuned tabular baseline with spending counts, totals, and recency. |
+| Do richer transaction and profile fields help? | Add payment channel and account tenure to the same history model. |
+| Do shared outcomes help? | Compare the joint dispute/repeat model with a separate model for each task, inspecting each outcome's metric. |
+| Does deeper account context help? | Add purchase line items, then the separate withdrawal history in the [account example](../case-studies/customer-risk.qmd), keeping the same transaction-level targets. |
 | Does pretraining help? | Compare fine-tuning with the same supervised architecture trained from scratch. |
+| Is the representation reusable? | Keep the exporting model fixed and compare downstream predictors using existing features, exported vectors, and both together. |
 
 Keep the prediction time and future outcome window identical across these
 comparisons. A payment without a recorded dispute yet may still be awaiting
@@ -81,10 +86,19 @@ its outcome; define when a negative label is ready before building the splits.
 See [Business Prediction Examples](../case-studies/relational-tasks.qmd) for concrete
 entity, history, and outcome-window definitions.
 
-Boolean fields accept one threshold or a list of thresholds for metrics:
+Preserving individual events has a cost: more preparation, retained records,
+and model computation. Choose that representation when its task improvement
+justifies those costs. A good aggregate-feature model remains a useful option
+and a necessary comparison.
+
+Boolean fields accept one threshold or a list of thresholds for metrics.
+Configure them on the `/trxns/disputed` target:
 
 ```python
-disputed = rf.Boolean(mask=True, threshold=[0.5, 0.7, 0.9])
+disputed = rf.Boolean(
+    mask=True,
+    threshold=[0.5, 0.7, 0.9],
+)
 ```
 
 This changes threshold-qualified accuracy, precision, recall, and specificity
@@ -97,7 +111,7 @@ see the relevant [datatype reference](../core-concepts/data-types.qmd).
 An ablation temporarily removes an input and reevaluates the trained model:
 
 ```python
-amount = rf.where("address") == rf.Address("amount")
+amount = rf.where("address") == rf.Address("trxns", "amount")
 baseline = model.validate(validation_data)[0]
 with model.override(amount, active=False):
     ablated = model.validate(validation_data)[0]
@@ -105,7 +119,8 @@ loss_change = ablated["loss/validate"] - baseline["loss/validate"]
 ```
 
 Here `validation_data` is a data module with a held-out `validate` split and the same
-model. Compare the target's task metric as well as total loss. Missing-input
+model. Removing `/trxns/amount` removes amount evidence at every transaction
+position, including the latest. Compare the target's task metric as well as total loss. Missing-input
 behavior can be out of distribution for a model that never saw such absence;
 training with suitable structural dropout can make the comparison more useful.
 An ablation shows dependence under this experiment, not causation.

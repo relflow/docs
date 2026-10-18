@@ -6,10 +6,11 @@ validation checkpoint restored.
 
 ## Fit A Model
 
-Start with a constructed model and independent, application-supplied Parquet
-files at `payments/train.parquet` and `payments/validation.parquet`. The model needs
-at least one reconstruction objective, such as `disputed=rf.Boolean(mask=True)`
-on the payment label.
+Continue with the [transaction-history model](../tutorials/transaction-history.qmd)
+and independent, application-supplied Parquet files at `payments/train.parquet`
+and `payments/validation.parquet`. Each row keeps the latest payment and its
+predecessors together in `trxns`. Every transaction has a supervised
+`disputed` label, kept out of the input by `mask=True`.
 
 ```python
 import relflow as rf
@@ -54,7 +55,7 @@ predictions = loaded.predict(datamodule=prediction_data, batch_size=256, devices
 ```
 
 The application supplies `payments/requests.parquet` as a Parquet file.
-Prediction records can omit the `disputed` target.
+Prediction records omit `disputed` from every transaction.
 
 The artifact contains the state dictionary, schema, batch size, and producing
 relflow version. State includes field-owned buffers such as vocabularies and
@@ -76,7 +77,7 @@ logging follows optimizer updates. Set `log_every_n_steps=0` to disable step
 emission while retaining internal loss averages and validation/test metrics.
 
 Training metrics keep their names, such as `loss/train` and
-`.disputed/train.loss.content`. The training loss average is available to
+`.trxns.disputed/train.loss.content`. The training loss average is available to
 callbacks as `loss/train_epoch` and is not sent to attached loggers. Validation
 and test retain pass aggregates; `loss/validate` remains the default checkpoint
 and early-stopping monitor. `Model.track(..., on_epoch=True)` explicitly opts

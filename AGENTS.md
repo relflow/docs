@@ -28,12 +28,35 @@ Keep architecture internals, self-supervision, extension protocols, and
 operational details on their own later pages. Give each concept one home and
 link to it.
 
+Keep a progressive transaction-modeling path: one payment and a dispute target;
+then a transaction sequence including that payment as its latest item; then
+event attributes and account profile context with a merchant-repeat outcome;
+then nested purchases, separate withdrawal history, and targets at transaction
+and account levels. Introduce reconstruction and
+representation reuse after the supervised workflow. Explain the business
+decision and what each addition contributes before its implementation. Adapt
+research use cases and terminology into native examples; keep paper-specific
+attribution and adaptation boundaries in `research/documentation-sources.json`.
+
 Use coherent financial examples without implying that RelFlow is restricted to
-finance. The common payment fields are `amount`, `merchant`, and
-`disputed=rf.Boolean(mask=True)`. History is a `recent_transactions` branch
-with `days_ago`, `amount`, and `merchant`; oldest-to-newest order plus
-`overflow="tail"` keeps recent transactions. Histories contain only records
-known before the current payment.
+finance. The first flat payment has `amount`, `merchant`, and
+`disputed=rf.Boolean(mask=True)`. Sequence examples use one `trxns` branch
+containing earlier transactions and the latest payment exactly once. Put
+`booked_at`, `amount`, `merchant`, and `disputed` inside it; do not duplicate
+current-payment fields at the root. Use
+`rf.DateParts(dateparts=["day_of_month", "day_of_week", "hour_of_day"])`
+for booking-time calendar features. Calendar cycles do not encode exact
+elapsed durations. Oldest-to-newest order plus `overflow="tail"` keeps the
+latest transactions, with no events after the scoring cutoff.
+
+Use `disputed=rf.Boolean(mask=True)` inside `trxns`: every retained transaction
+is a supervised target and all dispute labels are excluded from input.
+Training observations have settled Boolean labels for every transaction.
+At a common account-review cutoff, each label describes a new dispute during
+the following 30 days; every input record is known by that cutoff. Prediction
+requests omit `disputed` from the transaction records. Keep selectors,
+`rf.Mask` policies, and dynamic-masking discussion out of introductory pages;
+teach them only on their later dedicated pages.
 
 ## Public examples
 
@@ -42,7 +65,7 @@ Use `import relflow as rf`, `rf.Model(...)` or a size factory, and
 positional arguments. Use bare field classes for defaults. The model root is
 anonymous at `rf.Address()`; diagrams may label it `payment` or `account`.
 Use one argument per address component, such as
-`rf.Address("recent_transactions", "amount")`.
+`rf.Address("trxns", "amount")`.
 
 `mask=True` defines a supervised target kept out of the input. `embed=True`
 exports context and creates no objective. `ffnx` defaults independently to 8
@@ -51,8 +74,10 @@ on each node; tanh GELU and RMSNorm are fixed.
 Child branches default to `length=None, overflow=None`, retaining all selected
 slots with batch-dependent widths. A positive integer length sets a hard cap;
 only bounded branches accept `head`, `tail`, or `error`, with omitted overflow
-resolving to `head`. Finite output axes remain fixed-size Arrow lists, while
-unbounded axes use variable-size lists. Explain memory costs and the warning
+resolving to `head`. Development prediction format 2 writes every repeated
+record collection as a variable Arrow list of structs, including bounded
+branches; input caps do not add public padding. Fixed-width vectors retain
+their feature axis. Explain memory costs and the warning
 for public serving; automatic widths do not make padding free.
 
 Prefer application-supplied Parquet file paths (`.parquet`) for ordinary
@@ -67,8 +92,13 @@ through `model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, 
 omitted options use defaults. Each fit binds a fresh optimizer to the current
 parameters, with any scheduler supplied for that run. Full training continuation
 uses `ckpt_path`. Reserve `rf.adamw(...)` and explicit `model.optimizer` setup
-for custom optimization or native `lit.Trainer` examples. Prediction returns
-an Arrow table with a `predictions` column. Show observation and output
+for custom optimization or native `lit.Trainer` examples. Development output
+format 2 returns selected `predictions`, `representations`, and retained `inputs`
+columns, omitting unselected planes and rejecting an empty public output plan.
+Use ordinary child names in the prediction tree, never literal slash keys.
+Embeddings live in representation records with `path`, `parents`, `output_index`,
+and `embedding`. Keep current development behavior distinct from the unchanged
+pinned contract and recorded proofs. Show observation and output
 examples as one YAML record, nesting repeated values under their field names.
 Keep examples realistic without constructing or executing miniature datasets.
 Set batch size on the loop method in ordinary training examples. A positive

@@ -1,17 +1,21 @@
 # Data Types
 
-Choose a type for each value in the record. For payments, start with `Number`
-for amounts, `Category` for merchants, and `Boolean` for dispute labels.
-A `Branch` groups repeated transactions. Leaf types are also called
-**tensorfields**.
+Choose a type by what a value means in the payment decision. Start with
+`Number` for the amount, `Category` for the merchant, and `Boolean` for the
+later dispute label. Add a `Branch` when earlier transactions provide useful
+context. Leaf types are also called **tensorfields**.
+
+Other types enrich that same record: a declared currency, calendar timing,
+merchant tags, or a payment description. Choose them when the distinction
+matters to the task; the first model does not need every available type.
 
 ## Available Types
 
 | Value | Type |
 | --- | --- |
-| Payment amount, balance, or days since a transaction | [Number](../data-types/number.qmd) |
+| Payment amount, balance, or item quantity | [Number](../data-types/number.qmd) |
 | Whether a payment was disputed | [Boolean](../data-types/boolean.qmd) |
-| Merchant category learned from training labels | [Category](../data-types/category.qmd) |
+| Merchant name or another label learned from training observations | [Category](../data-types/category.qmd) |
 | Recent transactions, each with its own fields | [Branch](../data-types/branch.qmd) |
 | Payment channel from a declared fixed set | [Enum](../data-types/enum.qmd) |
 | Unordered transaction tags | [Set](../data-types/set.qmd) |
@@ -19,7 +23,7 @@ A `Branch` groups repeated transactions. Leaf types are also called
 | Account identifier equality without a learned vocabulary | [Hash](../data-types/hash.qmd) |
 | Amount represented by its learned distribution | [Quantile](../data-types/quantile.qmd) |
 | Merchant labels sharing learned latent groups | [Cluster](../data-types/cluster.qmd) |
-| Supplied numeric representation | [Vector](../data-types/vector.qmd) |
+| Merchant representation supplied by another system | [Vector](../data-types/vector.qmd) |
 | Meaning of a payment description from a frozen text encoder | [Text](../data-types/text.qmd) |
 
 Choose by meaning rather than storage format: a numeric merchant code is
@@ -40,23 +44,36 @@ inputs, so zero content does not have to mean null or padding.
 | --- | --- |
 | `valued` | A source value exists, including zero, false, empty strings, and empty sets. |
 | `null` | The source explicitly contains null. |
-| `padded` | The fixed schema geometry has no source position. |
+| `padded` | The batch's execution geometry has no source position. |
 | `masked` | An input has been replaced by a learned mask representation. |
 | `other` | Reserved for extension-defined states; ordinary built-in inputs do not produce it. |
 
 One record can contain both empty and null sets:
 
 ```yaml
-recent_transactions:
-  - merchant: grocery
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
     tags: []
-  - merchant: cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
     tags: null
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    tags: []
+    disputed: false
 ```
 
-With a branch length greater than two, unused transaction positions are padded.
-The first `tags` value is valued; the second is null. Structurally skipped
-inputs use separate presence information rather than a sixth state token.
+If another observation in the batch has a longer retained history, this
+sequence's unused execution positions are padded. A cap alone does not force
+every history to that width. The first `tags` value is valued: the application
+recorded an empty tag list. The second explicitly records null. Structurally
+skipped inputs use separate presence information rather than a sixth state token.
 
 An unknown Category is still valued; its categorical content is unavailable.
 Unknown Set members simply have no active vocabulary bit. Neither case is
@@ -78,7 +95,7 @@ are rejected.
 | `description` | `None` | Human-readable meaning or units. |
 | `active` | `True` | Inactive leaves remain in the schema but do not encode, train, or predict. |
 | `nullable` | `True` | Whether explicit nulls are allowed in the projected input. |
-| `mask` | `False` | Visibility and reconstruction policies; see [Masking](dynamic-masking.qmd). |
+| `mask` | `False` | Use `True` to keep a supervised answer out of the input. |
 | `weight` | `1.0` | Positive multiplier on this field's total loss. |
 | `embed` | `False` | Export a normalized contextual embedding during prediction. |
 | `pooling` | `"query"` | Decoder context pooling: `"query"` or `"mean"`. |
@@ -92,9 +109,12 @@ These are the ordinary constructor defaults. Model
 [size factories](model-tree.qmd#choose-a-size) supply omitted decoder settings
 from their preset; explicit field options take precedence.
 
-`mask=True` makes a supervised target. [Masking](dynamic-masking.qmd) owns the
-other policies, including sampled reconstruction and branch selection.
+`mask=True` makes a supervised target.
 `embed=True` exports a representation; it does not create an objective.
+
+The transaction tutorial uses `disputed=rf.Boolean(mask=True)` on every
+transaction. Its training records contain settled Boolean labels for all
+retained transactions. A null label is not a general instruction to ignore it.
 
 ## What predictions contain
 
@@ -113,7 +133,9 @@ its remaining payload:
 | Vector | Fixed-width reconstructed vector |
 | DateParts, Hash, Text | No decoded public payload |
 
-All types can export an embedding when configured. Branches export context
-embeddings but never decode a typed branch value. See
+All types can export an embedding when configured. In development output
+format 2 these vectors live in the separate `representations` column, with paths
+and ancestor coordinates. Branches export context embeddings but never decode a
+typed branch value. See
 [Embeddings](embeddings.qmd) for representation roles and
 [Prediction output](../guides/prediction-output.qmd) for Arrow shapes and access.

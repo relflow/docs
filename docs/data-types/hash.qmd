@@ -1,8 +1,9 @@
 # Hash
 
-`Hash` lets the model compare identifiers without learning a lasting vocabulary
-for them. In this example, matching merchant IDs tell the model that two
-payments used the same merchant.
+An account's current payment and an earlier payment may share a merchant ID,
+even when that ID was not seen during training. `Hash` supplies an equality
+signal without learning a lasting vocabulary for the IDs. Here, the application
+provides the previous payment's merchant ID alongside the current payment.
 
 ```python
 import relflow as rf
@@ -11,6 +12,7 @@ model = rf.Model.xs(
     merchant_id=rf.Hash,
     previous_merchant_id=rf.Hash,
     amount=rf.Number,
+    merchant=rf.Category,
     disputed=rf.Boolean(mask=True),
 )
 ```
@@ -20,12 +22,14 @@ One labeled payment:
 ```yaml
 merchant_id: merchant-8042
 previous_merchant_id: merchant-8042
-amount: 42.75
+amount: 84.50
+merchant: North Market
 disputed: false
 ```
 
-Use [Category](category.qmd) when the model should learn the meaning of each
-merchant label across payments.
+Both IDs identify North Market in this example; the earlier payment must be
+known before the current one. The [Category](category.qmd) field separately
+lets the model learn persistent patterns for merchant labels seen in training.
 
 ## Input and options
 

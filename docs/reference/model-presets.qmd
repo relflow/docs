@@ -60,17 +60,17 @@ import relflow as rf
 
 model = rf.Model.sm(
     n_layers=3,
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
         ffnx=4,
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number,
         merchant=rf.Category,
-        days_ago=rf.Number,
+        disputed=rf.Boolean(mask=True, n_heads=2),
     ),
-    disputed=rf.Boolean(mask=True, n_heads=2),
 )
 ```
 
@@ -79,19 +79,22 @@ own `ffnx=8` defaults. Changing the history's multiplier does not change them.
 Each `ffnx` must be a positive integer; its hidden feed-forward width is
 `ffnx * d_model`.
 
+The prepared sequence follows
+[Add Transaction History](../tutorials/transaction-history.qmd). Every
+transaction's dispute label is hidden and supervised over the same 30-day
+window after the account review cutoff. Prediction records can omit `disputed`.
+
 ```{typst}
 //| label: fig-preset-ownership
 //| fig-cap: "The payment root, transaction branch, and field decoders have separate settings. Their ownership follows the schema."
-//| fig-alt: "A payment root contains amount, merchant, repeated recent_transactions with amount, merchant, and days_ago, and a disputed target. The root and history own separate contexts; the dispute target owns its decoder."
+//| fig-alt: "A payment root contains one repeated trxns branch with booked_at DateParts, amount Number, merchant Category, and a hidden disputed Boolean target for every transaction. Root and branch own separate contexts; the nested dispute target owns its decoder."
 #tree(node("payment", kind: "root", detail: "Root context", children: (
-  node("amount", type: "Number"),
-  node("merchant", type: "Category"),
-  node("recent_transactions", kind: "branch", repeated: true, detail: "Local context", children: (
+  node("trxns", kind: "branch", repeated: true, detail: "Local context", children: (
+    node("booked_at", type: "DateParts"),
     node("amount", type: "Number"),
     node("merchant", type: "Category"),
-    node("days_ago", type: "Number"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction; own decoder"),
   )),
-  node("disputed", kind: "target", type: "Boolean", detail: "Own decoder"),
 )))
 ```
 
@@ -196,9 +199,16 @@ class PaymentModel(rf.Model):
     compact = rf.presets.factory(compact)
 
 payment_model = PaymentModel.compact(
-    amount=rf.Number,
-    merchant=rf.Category,
-    disputed=rf.Boolean(mask=True),
+    trxns=rf.Branch(
+        length=32,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        merchant=rf.Category,
+        disputed=rf.Boolean(mask=True),
+    ),
 )
 ```
 

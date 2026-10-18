@@ -4,26 +4,30 @@ engine: markdown
 
 # Model Tree
 
-The schema describes one observation. For dispute review, it identifies the
-current payment, the earlier activity available as context, and the later
-outcome to learn. Fields describe values; a branch groups related values; the
+The schema describes one observation. For account review, it identifies the
+transaction sequence available at a cutoff and the later outcome for each
+record. Fields describe values; a branch groups related values; the
 model root combines them to predict a target.
 
 ## Follow One Observation
 
-Here is one payment with its account's recent transactions:
+Follow the same payment and earlier transactions from
+[Add Transaction History](../tutorials/transaction-history.qmd):
 
 ```yaml
-amount: 86.50
-merchant: grocery
-recent_transactions:
-  - amount: 42.75
-    merchant: grocery
-    days_ago: 3
-  - amount: 18.50
-    merchant: cafe
-    days_ago: 1
-disputed: false
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    disputed: false
 ```
 
 The model follows the same structure:
@@ -32,39 +36,39 @@ The model follows the same structure:
 import relflow as rf
 
 model = rf.Model.xs(
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number,
         merchant=rf.Category,
-        days_ago=rf.Number,
+        disputed=rf.Boolean(mask=True),
     ),
-    disputed=rf.Boolean(mask=True),
 )
 ```
 
 ```{typst}
 //| label: fig-model-tree
-//| fig-alt: A payment combines amount and merchant with a repeated recent_transactions branch containing amount, merchant, and days_ago, then predicts disputed.
-//| fig-cap: Each transaction keeps its fields together. The history contributes context for predicting a dispute on the current payment.
+//| fig-alt: The payment root owns a repeated trxns branch containing booked_at DateParts, amount Number, merchant Category, and disputed Boolean. Every transaction's dispute value is hidden and supervised.
+//| fig-cap: One sequence contains the evidence and a target for every transaction.
 #tree(node("payment", kind: "root", children: (
-  node("amount", type: "Number"),
-  node("merchant", type: "Category"),
-  node("recent_transactions", kind: "branch", repeated: true, children: (
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
     node("amount", type: "Number"),
     node("merchant", type: "Category"),
-    node("days_ago", type: "Number"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction"),
   )),
-  node("disputed", kind: "target", type: "Boolean"),
 )))
 ```
 
-The amount, merchant, and age at one history position belong to the same
-transaction. The branch builds context from those transactions, and the root
-combines it with the current payment. `mask=True` makes `disputed` the answer
-to learn while keeping it out of the inputs.
+The timestamp, amount, and merchant at one list position belong to the same
+transaction. The latest payment appears once at the end of `trxns`; the root
+contains no second amount or merchant. `mask=True` hides and supervises every
+transaction's dispute value. The labels concern new dispute reports in the
+30 days after the shared account review cutoff, so the entire listed sequence
+is available context. Prediction can omit `disputed` from every record.
 
 This structure lets the model learn both which fields occur together in an
 event and how behavior varies across the history. With the default reduction,
@@ -80,7 +84,8 @@ they describe.
 `length=32` limits the history to 32 transactions. With oldest-to-newest input,
 `overflow="tail"` keeps the latest ones. Sorting and excluding future records
 belong in application data preparation. Order and time are separate: the list
-says which event came first, while `days_ago` supplies its age. Omitting
+says which event came first, while `booked_at` supplies calendar context through
+DateParts. Selected calendar cycles do not measure exact elapsed time. Omitting
 `length` retains all history items and lets each batch determine its width; see
 [automatic lengths and limits](../data-types/branch.qmd#automatic-lengths-and-limits).
 
@@ -88,21 +93,24 @@ says which event came first, while `days_ago` supplies its age. Omitting
 
 The parent names each child: `amount=rf.Number` creates an `amount` field.
 Use the bare class for defaults; call it for options, as in
-`disputed=rf.Boolean(mask=True)`.
+`disputed=rf.Boolean(mask=True)` in the transaction branch.
 
 An address identifies a location in the schema. Use one argument per child
 name; RelFlow adds the leading slash and separators:
 
 ```python
 root = rf.Address()                                      # /
-history_amount = rf.Address("recent_transactions", "amount")
-selected = model.select(rf.where("address") == history_amount)
+trxn_amount = rf.Address("trxns", "amount")
+selected = model.select(rf.where("address") == trxn_amount)
 ```
 
-The second address is `/recent_transactions/amount`. Addresses are used in
-prediction fields, metrics, and schema mutations. They identify the schema
-location even when a [query](querypaths.qmd) reads another source path.
-`rf.Address` is a string subclass; serialized output uses plain string keys.
+The second address is `/trxns/amount`. The target is `/trxns/disputed`.
+Addresses identify schema
+locations in configuration, metrics, and mutations, even when a
+[query](querypaths.qmd) reads another source path. `rf.Address` is a string
+subclass and serializes as a plain string in schema configuration.
+[Development prediction format 2](../guides/prediction-output.qmd) uses ordinary
+child names in its result tree and path segments in representation records.
 
 The root is anonymous, has address `/`, and represents one observation.
 The diagram label `payment` is illustrative, not a model option or address
@@ -166,17 +174,17 @@ model = rf.Model(
     n_layers=2,
     n_heads=4,
     ffnx=8,
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
         ffnx=4,
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number,
         merchant=rf.Category,
-        days_ago=rf.Number,
+        disputed=rf.Boolean(mask=True, ffnx=6),
     ),
-    disputed=rf.Boolean(mask=True, ffnx=6),
 )
 ```
 

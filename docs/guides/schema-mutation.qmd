@@ -14,12 +14,13 @@ its vocabulary; changing embedding dimensions likewise resets incompatible weigh
 ## Select And Update
 
 Predicates combine with logical AND. Inspect selected addresses before making
-a broad change:
+a broad change. This example continues the model whose `trxns` collection
+includes earlier payments and the latest payment:
 
 ```python
 import relflow as rf
 
-amounts = rf.where("address") == rf.Address("recent_transactions", "amount")
+amounts = rf.where("address") == rf.Address("trxns", "amount")
 selected = model.select(amounts)
 model.update(amounts, mask=0.10)
 ```
@@ -33,15 +34,18 @@ option. Narrow the predicate rather than mixing unrelated
 node types. `strict=False` permits partial application to supporting nodes;
 an option supported by none of the selected nodes still raises.
 
-`mask=False` removes the selected node's policies; `mask=True` makes it an
-always-hidden reconstruction target. Use `description` for notes and declared
-field options for configuration.
+`mask=False` removes the selected node's policies; `mask=True` makes every
+retained occurrence an always-hidden reconstruction target. This is the
+transaction-history model's policy for `/trxns/disputed`. Optional sampled or
+conditional reconstruction belongs in the later
+[masking guide](../core-concepts/dynamic-masking.qmd). Use `description` for
+notes and declared field options for configuration.
 
 Batch-dependent widths need no schema mutation. To deliberately remove an
 existing branch limit, clear its overflow policy in the same update:
 
 ```python
-history = rf.where("address") == rf.Address("recent_transactions")
+history = rf.where("address") == rf.Address("trxns")
 model.update(history, length=None, overflow=None)
 ```
 
@@ -63,12 +67,13 @@ with model.override(amounts, active=False):
 ordinary = model.predict(datamodule=prediction_data, batch_size=256, devices=1)
 ```
 
-`payments/requests.parquet` is an application-supplied Parquet file. The data
-module reads the model's current schema for each prediction loop. The context
-manager restores the previous schema attributes, even on exit through an exception. It does
-not snapshot all weights, vocabularies, or normalizers: compatible learned-state
-changes inside the context remain. See [Evaluation](evaluation.qmd) for an
-ablation example.
+`payments/requests.parquet` is an application-supplied Parquet file. Its `trxns`
+records retain the inputs; the directly bound `disputed` target can be omitted
+from every transaction. The data module reads the model's current schema for
+each prediction loop. The context manager restores the previous schema
+attributes, even on exit through an exception. It does not snapshot all
+weights, vocabularies, or normalizers: compatible learned-state changes inside
+the context remain. See [Evaluation](evaluation.qmd) for an ablation example.
 
 ## Change The Tree Or Reinitialize State
 
@@ -79,14 +84,15 @@ ablation example.
 | `reset(...)` | Keep the schema and reinitialize selected runtime modules. |
 
 ```python
-root = rf.where("address") == rf.Address()
-model.extend(root, card_present=rf.Boolean, country=rf.Category)
-model.reset(rf.where("address") == rf.Address("country"))
-model.delete(rf.where("address") == rf.Address("card_present"))
+transactions = rf.where("address") == rf.Address("trxns")
+model.extend(transactions, card_present=rf.Boolean, country=rf.Category)
+model.reset(rf.where("address") == rf.Address("trxns", "country"))
+model.delete(rf.where("address") == rf.Address("trxns", "card_present"))
 ```
 
 An extension accepts keyword children or a `fields` mapping, following the same
 parent-owned naming rules as construction. Names must remain unique.
+Prepare the added fields inside each transaction before the next data loop.
 Deletion cannot remove the generated root or leave an invalid empty tree.
 `reset(..., descendants=True)` includes a selected branch's subtree; resetting
 a field discards its learned runtime state, including any owned vocabulary.

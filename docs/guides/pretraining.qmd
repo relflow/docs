@@ -4,10 +4,16 @@ engine: markdown
 
 # Pretraining And Fine-Tuning
 
-Your application may have years of payment histories but far fewer settled
-dispute labels. Pretraining uses observed fields as answers: hide selected
-amounts or merchants and learn to recover them from context. Labeled payments
-then teach the business outcome.
+The [event-history model](learning-from-event-data.qmd) combines account context
+with an ordered transaction sequence to predict disputes and merchant repeats
+for every transaction at a shared snapshot cutoff. The [account example](../case-studies/customer-risk.qmd)
+adds outcomes at different
+levels. Both need settled labels. Your application may have years of payment
+histories but far fewer completed outcome windows.
+
+Give those histories a learning role by hiding selected amounts or merchants
+and recovering them from the remaining context. Then use labeled payments to
+adapt the learned context to the operational outcome.
 
 Pretraining learns from relationships in a broad collection of records.
 Fine-tuning starts from those learned weights and adapts the model to a specific
@@ -17,20 +23,19 @@ objectives determine what the model learns.
 | Stage | Data | Objectives |
 | --- | --- | --- |
 | Self-supervised pretraining | Records without task labels | Reconstruct sampled observed values with `rf.Mask(rate=..., reconstruct=True)`. |
-| Supervised fine-tuning | Labeled task records | Predict always-hidden labels with `mask=True`, optionally retaining some reconstruction objectives. |
+| Supervised fine-tuning | Labeled task records | Predict always-hidden transaction labels with `mask=True`, optionally retaining reconstruction objectives. |
 | Resume a run | The same training task | Restore the model, optimizer, scheduler, and loop progress from a full Lightning checkpoint. |
 
 Pretraining is optional. A supervised model can also start from newly
 initialized weights. An ordinary float mask, such as `mask=0.15`, only supplies
 input dropout; pretraining needs `reconstruct=True` to create an objective.
 
-Reconstruction uses an amount or merchant that was already present in the
-saved history. A dispute label describes an outcome that became known after
-the current payment. Keep that distinction when preparing records: the
-available history supplies context, and the later dispute supplies the
-supervised answer. For a recurring-payment task, define a future period in
-which another payment is expected and label whether it occurred. Its input
-history still ends at the decision cutoff.
+Reconstruction recovers amounts and merchants already present in the saved
+sequence. For the supervised task, the final booking time defines one common
+snapshot cutoff: each transaction's `disputed` label records a new dispute
+reported during the following 30 days, and `repeats_next_30_days` records another
+payment to its merchant during that same window. Every transaction uses the
+complete sequence known at the cutoff as context.
 
 Once the model has learned from your histories, you can adapt it with labeled
 examples or keep it fixed and test exported
@@ -42,35 +47,48 @@ observations, decision cutoffs, and future outcome windows.
 
 ## Pretrain On Histories
 
-This payment record has no dispute label. Past amounts and merchant types
-provide their own supervision when selected values are hidden:
+Keep the account profile and full transaction sequence from the
+event-history example. Omit the two future outcomes for this stage. Observed
+amounts and merchants provide their own supervision when selected values are
+hidden:
 
 ```yaml
-amount: 86.50
-merchant: grocery
-recent_transactions:
-  - days_ago: 12
-    amount: 42.75
-    merchant: grocery
-  - days_ago: 3
-    amount: 18.50
-    merchant: cafe
+account_age_days: 420
+trxns:
+  - booked_at: "2026-03-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+  - booked_at: "2026-04-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+  - booked_at: "2026-05-27T08:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    channel: card
+  - booked_at: "2026-05-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
 ```
 
 ```python
 import relflow as rf
 
 model = rf.Model.xs(
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    account_age_days=rf.Number,
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
-        days_ago=rf.Number,
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number(mask=rf.Mask(rate=0.15, reconstruct=True)),
         merchant=rf.Category(
             mask=rf.Mask(rate=0.15, reconstruct=True),
         ),
+        channel=rf.Enum(values=("card", "direct_debit", "bank_transfer")),
     ),
 )
 pretraining_data = rf.ArrowDataModule(
@@ -88,10 +106,12 @@ model.save("artifacts/payment-pretrained.rf")
 ```
 
 The two paths identify independent, application-supplied Parquet files with
-this record structure. Histories are sorted oldest to newest for `overflow="tail"`.
-Use `rf.PolarsDataModule` with eager frames when the application prepares its
-splits in Polars. Keep preparation consistent through the
-[preprocessing pipeline](preprocessors.qmd).
+this richer record structure. Histories are sorted oldest to newest for
+`overflow="tail"`. The profile, booking calendar, and channels remain visible
+while selected transaction amounts and merchants are hidden. Keep preparation
+consistent through the
+[preprocessing pipeline](preprocessors.qmd). `DateParts` encodes calendar cycles,
+not elapsed time.
 
 Each sampled value is predicted from the remaining context; unselected values
 remain inputs. These fractional reconstruction policies also sample during
@@ -103,12 +123,13 @@ See [Training](lightning.qmd) for checkpoint selection.
 
 ## Adapt To A Labeled Task
 
-For fine-tuning, each payment record gains `disputed: false` or `disputed: true`,
-defined over a future outcome window. Its transaction history ends before that
-payment.
+For this adaptation, add a settled Boolean `disputed` label to every
+transaction. Each answers the common-cutoff question above. All labeled
+transaction positions contribute to the supervised objective.
+
 Pretraining and fine-tuning splits must respect the same evaluation boundaries;
-pretraining on held-out accounts or future observations changes
-what the downstream evaluation measures.
+pretraining on held-out accounts or future observations changes what the
+downstream evaluation measures.
 
 Load the pretrained artifact, remove its sampled reconstruction policies, and
 add a supervised label:
@@ -117,35 +138,40 @@ add a supervised label:
 finetuned = rf.Model.load("artifacts/payment-pretrained.rf")
 reconstructed_inputs = rf.where("address").is_in(
     [
-        rf.Address("recent_transactions", "amount"),
-        rf.Address("recent_transactions", "merchant"),
+        rf.Address("trxns", "amount"),
+        rf.Address("trxns", "merchant"),
     ]
 )
 finetuned.update(reconstructed_inputs, mask=False)
 finetuned.extend(
-    rf.where("address") == rf.Address(),
+    rf.where("address") == rf.Address("trxns"),
     disputed=rf.Boolean(mask=True),
 )
 ```
 
-Amount and merchant remain visible inputs. Dispute is always excluded from
-input embedding, while its observed label supplies the training loss. If the
-target already exists in the schema, use `finetuned.update(target, mask=True)`
-instead of adding it again.
+Amount and merchant remain visible inputs. `mask=True` keeps every dispute
+label out of the input and uses it as supervision. If the target already
+exists, update its mask to `True` instead of adding it again.
+
+The profile, booking dates, and channel fields stay in place. To adapt to the
+merchant-repeat outcome instead, add `repeats_next_30_days=rf.Boolean(mask=True)`
+to `trxns` and supply every transaction's label for the same future window.
+The [event-history guide](learning-from-event-data.qmd) shows both supervised
+outcomes together.
 
 ```{typst}
 //| label: fig-pretraining-transfer
-//| fig-alt: "Payment context combines amount, merchant, and repeated recent transactions containing age, amount, and merchant. Fine-tuning adds a dispute prediction at the payment root."
-//| fig-cap: "Pretraining reconstructs selected historical amounts and merchants. Fine-tuning reuses that context and adds a payment dispute target."
-#tree(node("payment", kind: "root", children: (
-  node("amount", type: "Number"),
-  node("merchant", type: "Category"),
-  node("recent_transactions", kind: "branch", repeated: true, children: (
-    node("days_ago", type: "Number"),
+//| fig-alt: "Account context contains account age and a trxns branch. Each transaction has booking date, amount, merchant, and channel. Pretraining reconstructs sampled amounts and merchants; fine-tuning predicts disputed for every transaction."
+//| fig-cap: "The same transaction sequence supplies reconstruction context and each transaction's dispute prediction."
+#tree(node("account", kind: "root", children: (
+  node("account_age_days", width: 150pt, type: "Number"),
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
     node("amount", type: "Number", detail: "Pretraining objective"),
     node("merchant", type: "Category", detail: "Pretraining objective"),
+    node("channel", type: "Enum"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Each transaction"),
   )),
-  node("disputed", kind: "target", type: "Boolean", detail: "Added for fine-tuning"),
 )))
 ```
 
@@ -192,12 +218,15 @@ existing encoders. Loaded [vocabularies](../core-concepts/vocabulary.qmd) and
 Number normalization statistics also
 continue learning from training observations; loading does not freeze them.
 Validation, test, and prediction reuse that state. For a fixed feature extractor,
-set `embed=True` on the desired root or branch, export
-[embeddings](../core-concepts/embeddings.qmd) in prediction mode, and fit a
-separate downstream model on those vectors.
+continue with [embeddings](../core-concepts/embeddings.qmd): add `embed=True`
+to this saved model's root or `trxns` branch, export in prediction mode, and
+fit a separate predictor without updating the exporting model. This lets you
+test the learned context for another outcome before choosing to fine-tune it.
 
-At inference, omit `disputed` from the input and read the prediction at
-`/disputed`. See [Prediction Output](prediction-output.qmd).
+At inference, omit `disputed` from every transaction and keep the transaction
+records. The schema address is `/trxns/disputed`; development output format 2
+returns each retained transaction's result inside `predictions.trxns`, with
+`inferred: true` at every position. See [Prediction Output](prediction-output.qmd).
 
 ## Keep Auxiliary Objectives Deliberately
 
@@ -207,11 +236,11 @@ adapting the pretrained artifact. Replace the earlier
 
 ```python
 finetuned.update(
-    rf.where("address") == rf.Address("recent_transactions", "merchant"),
+    rf.where("address") == rf.Address("trxns", "merchant"),
     mask=False,
 )
 finetuned.update(
-    rf.where("address") == rf.Address("recent_transactions", "amount"),
+    rf.where("address") == rf.Address("trxns", "amount"),
     weight=0.1,
 )
 ```
@@ -232,9 +261,9 @@ than assuming pretraining guarantees a better model. See [Evaluation](evaluation
 
 For large-vocabulary reconstruction, report how many selected answers the
 model can express as well as how well it predicts them. For example, monitor
-`.recent_transactions.merchant/validate.coverage.content` alongside
-`.recent_transactions.merchant/validate.nll.content` and
-`.recent_transactions.merchant/validate.accuracy.all`.
+`.trxns.merchant/validate.coverage.content` alongside
+`.trxns.merchant/validate.nll.content` and
+`.trxns.merchant/validate.accuracy.all`.
 The [Category metrics](../data-types/category.qmd#vocabulary-and-learning) and
 [Cluster metrics](../data-types/cluster.qmd#learning-and-inspection)
 define these denominators and count unavailable targets explicitly.

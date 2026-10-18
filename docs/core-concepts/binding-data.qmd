@@ -3,65 +3,72 @@ title: Binding Data
 engine: markdown
 ---
 
-A model reads the field names and nesting declared in its schema. Start by
-making the schema match your records; use queries or preprocessing when the
-source has a different shape.
+An account review uses the transaction sequence available at one cutoff.
+Binding connects those source values to the
+fields declared in the model. Start by matching the schema to your prepared
+records; use queries or preprocessing when the source has a different shape.
 
-Here is one payment with its account's recent transactions:
+Continue the payment from [Add Transaction History](../tutorials/transaction-history.qmd),
+with a payment identifier for joining the result back to the application:
 
 ```yaml
 payment_id: payment-42
-amount: 86.50
-merchant: grocery
-recent_transactions:
-  - amount: 42.75
-    merchant: grocery
-    days_ago: 3
-  - amount: 18.50
-    merchant: cafe
-    days_ago: 1
-disputed: false
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    disputed: false
 ```
 
 ```python
 import relflow as rf
 
 model = rf.Model.xs(
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number,
         merchant=rf.Category,
-        days_ago=rf.Number,
+        disputed=rf.Boolean(mask=True),
     ),
-    disputed=rf.Boolean(mask=True),
 )
 ```
 
-`amount` and `merchant` read the current payment. `recent_transactions` reads
-the list, and its children read each transaction. The parent keywords supply
-the names. `disputed` supplies the answer during training; `mask=True` keeps
-that answer out of the inputs.
+`trxns` reads the list, and its children read each transaction's fields.
+The parent keywords supply the names. The latest payment is the final list
+record, not a second set of root-level amount and merchant fields. `mask=True`
+hides and predicts the dispute label on every transaction. Each label covers
+new dispute reports in the 30 days after the common account review cutoff,
+as defined in the tutorial.
 
 The history is ordered from oldest to newest, so `overflow="tail"` keeps the
-last 32 records when it is longer. The application must supply only history
-available before the current payment.
+last 32 records when it is longer. The application includes the latest payment
+and earlier available events, with no later records. Binding keeps each amount,
+merchant, and timestamp attached to its transaction; it does not sort events
+or assemble the sequence from separate source tables.
 
 ```{typst}
 //| label: fig-binding-order
-//| fig-cap: "The current payment and its recent history supply context for predicting a dispute."
-//| fig-alt: "Payment root with amount and merchant inputs, a repeated recent_transactions branch containing amount, merchant, and days_ago, and a disputed prediction target."
+//| fig-cap: "One transaction sequence supplies context for every transaction's dispute prediction."
+//| fig-alt: "The payment root owns only a repeated trxns branch containing booked_at DateParts, amount Number, merchant Category, and disputed Boolean. Every transaction's dispute label is hidden and supervised."
 #tree(node("payment", kind: "root", children: (
-  node("amount", type: "Number"),
-  node("merchant", type: "Category"),
-  node("recent_transactions", kind: "branch", repeated: true, children: (
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
     node("amount", type: "Number"),
     node("merchant", type: "Category"),
-    node("days_ago", type: "Number"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction"),
   )),
-  node("disputed", kind: "target", type: "Boolean"),
 )))
 ```
 
@@ -69,8 +76,9 @@ Extra columns such as `payment_id` do not become model inputs. They can still
 be used by a preprocessor or [retained with predictions](../guides/prediction-output.qmd).
 
 Missing required fields are binding errors. Explicit nulls follow the field's
-`nullable` contract. A directly bound target such as `disputed` can be omitted
-when predicting. See [Query Paths](querypaths.qmd) when names or nesting differ.
+`nullable` contract. For prediction, omit `disputed` from each transaction;
+the retained list still defines where the answers belong. See
+[Query Paths](querypaths.qmd) when names or nesting differ.
 
 Use a [preprocessor](../guides/preprocessors.qmd) when the source needs renaming,
 derived values, filtering, joins, or reshaping before binding. Its output defines

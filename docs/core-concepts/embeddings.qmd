@@ -1,39 +1,38 @@
 # Learning Modes And Embeddings
 
-Transaction histories can inform several business decisions, from payment
-review to account retention. A learned history vector can be tested as a
-common input to separate predictors for these tasks, alongside existing
-spending summaries. This lets you evaluate reuse of the context learned from
-your records. Each predictor still needs its own task labels and held-out
-assessment.
+After learning from payment histories, you may need another prediction from
+the same evidence: whether a merchant will be paid again, or which payments
+deserve review. Export the learned context and test it as input to separate
+predictors, alongside existing spending summaries. This lets you evaluate reuse
+without fitting the history model again for each task. Each predictor still
+needs its own labels and held-out assessment.
 
 An embedding is a numeric representation of the context the model has learned.
-Set `embed=True` where you want to export one. The model still needs a learning
-objective, such as a supervised dispute target.
+Set `embed=True` where you want to export one. Exporting adds no learning
+objective; use a model already trained with supervision or reconstruction.
 
 ## Choose Where To Export
 
-This model learns to predict payment disputes and exports the payment context
-and a summary of the account's recent transactions:
+Continue with the saved payment model from
+[Pretraining And Fine-Tuning](../guides/pretraining.qmd). It already includes
+the account profile and transactions, including the latest payment once. Turn
+on exports at its root and `trxns` branch:
 
 ```python
 import relflow as rf
 
-model = rf.Model.xs(
-    embed=True,
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
-        length=32,
-        overflow="tail",
-        embed=True,
-        amount=rf.Number,
-        merchant=rf.Category,
-        days_ago=rf.Number,
+model = rf.Model.load("artifacts/payment-disputes.rf")
+model.update(
+    rf.where("address").is_in(
+        [rf.Address(), rf.Address("trxns")]
     ),
-    disputed=rf.Boolean(mask=True),
+    embed=True,
 )
 ```
+
+The transaction dispute targets remain in place. The same prediction
+pass can now return their estimates and the context vectors used for a separate
+task predictor.
 
 | `embed=True` location | Exported representation |
 | --- | --- |
@@ -41,10 +40,15 @@ model = rf.Model.xs(
 | Branch | The branch's reduced context. |
 | Leaf | The decoder's pooled context before its datatype output head. |
 
-The `xs` preset uses one-output reductions. This example therefore exports one
-payment vector and one history-summary vector per payment. It does not export
-one vector per transaction. A nested branch inside the history would retain
-those outer transaction positions when exporting its own summary.
+The pretraining example uses the `xs` preset with one-output reductions. This
+therefore exports one vector for the account snapshot and one summary of its
+transactions per observation. It does not export one vector per transaction.
+A nested branch inside `trxns` would retain those outer transaction positions
+when exporting its own summary.
+
+For a separate predictor of transaction outcomes, pair the summary with the
+corresponding transaction's fields and label. A leaf embedding can instead
+provide a contextual vector at each transaction position.
 
 A leaf embedding is different from its raw input embedding: it can include
 ancestor context and visible, aligned sibling fields. A branch embedding
@@ -52,39 +56,55 @@ summarizes the inputs controlled by that branch's reduction.
 
 ## Read The Output
 
-After [training](../guides/lightning.qmd), read prediction inputs from your
-application's Parquet file:
+This example uses [prediction output](../guides/prediction-output.qmd),
+which keeps representations separate from decoded field results.
+
+Use the same account profile and `trxns` records in your application's request
+file, omitting `disputed` from every transaction. The snapshot cutoff remains
+the final booking time; all vectors describe the evidence available then.
+Export the vectors in prediction mode:
 
 ```python
+import pyarrow as pa
 import pyarrow.compute as pc
 
 requests = rf.ArrowDataModule(
     model=model,
-    predict="payments/requests.parquet",
+    predict="payments/finetuning/requests.parquet",
 )
-predictions = model.predict(
-    datamodule=requests, batch_size=256, devices=1,
-)["predictions"]
-payment_embedding = pc.struct_field(
-    pc.struct_field(predictions, "/"),
-    "embedding",
-)
-history_embedding = pc.struct_field(
-    pc.struct_field(predictions, "/recent_transactions"),
-    "embedding",
-)
+result = model.predict(datamodule=requests, batch_size=256, devices=1)
+representations = result["representations"].combine_chunks()
+observation_rows = pc.list_parent_indices(representations)
+records = pc.list_flatten(representations)
+path_lists = pc.struct_field(records, "path")
+# Arrow's string-join kernel expects nullable string elements.
+paths = pc.binary_join(path_lists.cast(pa.list_(pa.field("element", pa.string()))), "/")
+snapshot_records = pc.filter(records, pc.equal(paths, ""))
+transaction_records = pc.filter(records, pc.equal(paths, "trxns"))
+snapshot_embedding = pc.struct_field(snapshot_records, "embedding")
+transaction_embedding = pc.struct_field(transaction_records, "embedding")
 ```
 
-Exported vectors are float32 and L2-normalized along their `d_model` axis;
-zero vectors remain zero. Repeated outer coordinates use fixed-size Arrow
-lists for finite branch limits and variable-size lists for `length=None`.
-Multiple learned reduction outputs retain a fixed-size list axis. See
-[Prediction Output](../guides/prediction-output.qmd) for the full Arrow contract.
+`observation_rows` associates each flattened representation with its table row;
+keep or filter these indices alongside the records when joining to retained
+identifiers. The empty joined path selects the anonymous root. Field names
+cannot contain `/`, so joining segments here does not merge distinct paths.
 
-`rf.Attention(n_outputs=...)` exports multiple reduction outputs.
-`reduction=None` retains routed child slots, whose count depends on branch
-length and child outputs. These choices change the shape of the representation;
-see [Branch](../data-types/branch.qmd).
+Exported vectors are float32 and L2-normalized along their fixed `d_model`
+axis; zero vectors remain zero. Each representation record also carries
+`parents` and `output_index`. For an account-level `/accounts/trxns`
+summary, `parents=[a]` selects account `a`. For the merchant leaf inside it,
+`parents=[a,t]` selects transaction `t` of account `a`. These are retained
+coordinates after queries and overflow, including structural holes.
+
+`rf.Attention(n_outputs=3)` produces records with `output_index` 0, 1, and 2 at
+each summary site. `reduction=None` preserves the routed output stream,
+including its defined zero slots; its output indices do not claim an inferred
+source-record identity. A branch summary can exist for an empty collection
+when its reduction defines that output. A leaf embedding requires a valid
+item coordinate. Representation counts therefore need not match item counts.
+See [Branch](../data-types/branch.qmd) and the full
+[Prediction Output](../guides/prediction-output.qmd) contract.
 
 Evaluate an embedding on its intended downstream task. A useful dispute
 predictor does not by itself establish useful similarity or clustering.
@@ -105,8 +125,8 @@ period. Keep records after that cutoff out of the input snapshot.
 
 Compare existing features alone, vectors alone, and their combination on the
 same observations. Choose predictor settings on the same validation split and
-assess the fixed choices on test data. For account-closure prediction,
-evaluate precision and recall at a fixed contact capacity. For payment review,
+assess the fixed choices on test data. For merchant-repeat prediction, measure
+precision and recall for the defined 30-day outcome window. For payment review,
 measure dispute recall at a fixed review capacity. These task metrics help
 decide whether the reusable representation earns a place in the workflow.
 [Learning From Event Histories](../guides/learning-from-event-data.qmd) explains
@@ -114,25 +134,24 @@ how to prepare the observations and outcome windows for these experiments.
 
 ## Learn Without A Label
 
-A model can also learn by reconstructing values hidden from otherwise
-unlabeled records. For example, replace the supervised target with sampled
-reconstruction of transaction amounts and merchant categories:
+You can export context before adapting to a supervised outcome. Load the
+reconstruction-trained artifact from the same payment workflow and request
+the root and transaction summaries:
 
 ```python
-model = rf.Model.xs(
-    embed=True,
-    recent_transactions=rf.Branch(
-        length=32,
-        overflow="tail",
-        days_ago=rf.Number,
-        amount=rf.Number(mask=rf.Mask(rate=0.15, reconstruct=True)),
-        merchant=rf.Category(mask=rf.Mask(rate=0.10, reconstruct=True)),
+reconstructed = rf.Model.load("artifacts/payment-pretrained.rf")
+reconstructed.update(
+    rf.where("address").is_in(
+        [rf.Address(), rf.Address("trxns")]
     ),
+    embed=True,
 )
 ```
 
-`embed=True` alone creates no objective. Sampled reconstruction supplies the
-learning signal in this example; it does not request ordinary decoded
+This model learned by reconstructing sampled transaction amounts and merchants;
+it has not learned from dispute labels. Run prediction with this model to
+generate vectors for a separately labeled task. `embed=True` alone creates no
+objective, and sampled reconstruction does not request ordinary decoded
 prediction output. [Masking](dynamic-masking.qmd) explains that distinction.
 Supervised and sampled reconstruction objectives can coexist, with each leaf's
 `weight` scaling its contribution.
@@ -142,3 +161,8 @@ reconstruction training to a labeled task. The
 [reconstruction transfer proof](../proofs/representation/reconstruction-transfer.html)
 compares frozen root embeddings with raw features, an untrained encoder, and
 training on independently permuted views.
+
+Once the payment workflow is established, the
+[application examples](../case-studies/relational-tasks.qmd) show how to organize
+purchase, review, and report histories around their own outcomes. Define and
+evaluate the representation for each schema and task before relying on it.

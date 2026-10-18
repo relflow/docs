@@ -3,35 +3,72 @@ title: Account Risk
 engine: markdown
 ---
 
-An account model can answer questions at different levels: which recent payments
-will be disputed, and how much the account will lose over the next month.
-This advanced example combines repeated targets with an account-level target.
-Start with [Add Transaction History](../tutorials/transaction-history.qmd)
-for a single payment prediction.
+The [repeat-payment example](../guides/learning-from-event-data.qmd) predicts
+two outcomes for each transaction in an account history. An account review team
+also needs to know how much loss to expect across the account over the next month.
+
+Keep the transaction sequence, including the latest payment once, and add
+more account context. Purchases now have their own line items; cash withdrawals
+form another event history with different fields. This advanced example
+combines nested context, transaction predictions, and an account-level
+target.
 
 ## One Observation
 
 ```yaml
 account_id: account-42
 account_age_days: 420
-recent_transactions:
-  - days_ago: 3
-    amount: 86.50
-    merchant: grocery
+trxns:
+  - booked_at: "2026-03-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
     line_items:
-      - sku: basket-17
-        quantity: 2
-      - sku: basket-03
+      - sku: internet-plan
         quantity: 1
-    disputed_next_30_days: false
+    disputed: false
+  - booked_at: "2026-04-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+    line_items:
+      - sku: internet-plan
+        quantity: 1
+    disputed: false
+  - booked_at: "2026-05-27T08:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    channel: card
+    line_items:
+      - sku: lunch
+        quantity: 2
+    disputed: true
+  - booked_at: "2026-05-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+    line_items:
+      - sku: internet-plan
+        quantity: 1
+    disputed: false
+recent_cash_withdrawals:
+  - booked_at: "2026-05-26T16:00:00"
+    amount: 100.00
+    atm_region: home_region
 loss_next_30_days: 0.0
 ```
 
-One record describes an account at a decision time. Transactions and line items
-contain only information available then. Both labels describe the following
-30 days: a dispute for each listed transaction, and total account loss in the
-application's common currency. Define the outcome window and loss attribution
-before creating training and held-out records.
+One record describes an account at a decision time. Profile attributes,
+transactions, line items, and withdrawals contain only information available
+then. Purchase baskets can distinguish activity at the same merchant; cash
+withdrawals provide another view of account behavior without inventing a
+merchant or line items for an ATM event.
+
+The final booking time, May 28, 2026 at 09:00, is the common snapshot cutoff.
+Each `disputed` label records a new dispute reported against that transaction
+during the following 30 days. `loss_next_30_days` records total account loss
+in the application's common currency over the same window. All predictions
+use the transaction and withdrawal records known at this cutoff.
 
 ## Place Each Target With Its Subject
 
@@ -40,18 +77,30 @@ import relflow as rf
 
 model = rf.Model.md(
     account_age_days=rf.Number,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=64,
         overflow="tail",
-        days_ago=rf.Number,
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
         amount=rf.Number,
         merchant=rf.Category,
+        channel=rf.Enum(values=("card", "direct_debit", "bank_transfer")),
         line_items=rf.Branch(
             length=16,
             sku=rf.Category,
             quantity=rf.Number,
         ),
-        disputed_next_30_days=rf.Boolean(mask=True),
+        disputed=rf.Boolean(mask=True),
+    ),
+    recent_cash_withdrawals=rf.Branch(
+        length=16,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        atm_region=rf.Category,
     ),
     loss_next_30_days=rf.Number(mask=True),
 )
@@ -59,33 +108,42 @@ model = rf.Model.md(
 
 ```{typst}
 //| label: fig-customer-risk
-//| fig-alt: "Account context contains account age and repeated recent transactions. Each transaction has age, amount, merchant, repeated line items, and a future dispute target. The account root has a future loss target."
-//| fig-cap: "Dispute predictions keep transaction coordinates; the loss prediction belongs to the account."
+//| fig-alt: "Account context contains account age, a trxns branch, and a separate cash-withdrawal history. Transactions contain booking date, amount, merchant, channel, line items, and a dispute target on every transaction. Withdrawals contain booking date, amount, and ATM region. The root has a future account-loss target."
+//| fig-cap: "Each transaction receives a dispute prediction; the account receives a loss prediction informed by purchases and withdrawals."
 #tree(node("account", kind: "root", children: (
   node("account_age_days", width: 150pt, type: "Number"),
-  node("recent_transactions", width: 160pt, kind: "branch", repeated: true, children: (
-    node("days_ago", type: "Number"),
+  node("trxns", width: 160pt, kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
     node("amount", type: "Number"),
     node("merchant", type: "Category"),
+    node("channel", type: "Enum"),
     node("line_items", kind: "branch", repeated: true, children: (
       node("sku", type: "Category"),
       node("quantity", type: "Number"),
     )),
-    node("disputed_next_30_days", width: 175pt, kind: "target", type: "Boolean", detail: "per transaction"),
+    node("disputed", width: 175pt, kind: "target", type: "Boolean", detail: "Each transaction"),
+  )),
+  node("recent_cash_withdrawals", width: 185pt, kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
+    node("amount", type: "Number"),
+    node("atm_region", type: "Category"),
   )),
   node("loss_next_30_days", width: 160pt, kind: "target", type: "Number"),
 )))
 ```
 
-Line items form context within each transaction. The transaction history then
-sends its reduced representation to the account root. Each dispute decoder
-uses its ancestor context and aligned visible siblings; its output retains the
+Line items form context within each transaction. The transaction sequence then
+sends its reduced representation to the account root, alongside the withdrawal
+history. The dispute decoder uses its ancestor context and aligned visible
+siblings; its output retains the
 transaction coordinates. See [Model Tree](../core-concepts/model-tree.qmd).
 
-Both targets use `mask=True`. Their labels supply supervision and are excluded
-from input embedding. At prediction time, omit `loss_next_30_days` and omit
-`disputed_next_30_days` from each transaction. Keep the transaction records:
-they define the repeated positions to predict.
+Both targets use `mask=True`. Every transaction's dispute label and the
+account-loss label supply supervision while staying out of the inputs.
+
+At prediction time, omit `loss_next_30_days` and omit `disputed` from every
+transaction. Keep the transaction, line-item, and withdrawal records known
+at the decision time; they define the positions and context to predict.
 
 ## Preserve The Context The Task Needs
 
@@ -96,8 +154,23 @@ represent the shared relationship through aligned input or preprocessing.
 Nesting does not join database tables.
 
 `overflow="tail"` assumes transactions are sorted oldest to newest. The line
-items keep the default first-items policy. Choose both capacities from the
-records the application needs to model.
+items keep the default first-items policy. Withdrawals are also oldest to
+newest and retain their own last 16 records. The two histories have independent
+lengths; matching list positions do not imply related events. Choose each
+capacity from the records the application needs to model. Booking dates supply
+calendar features, not elapsed time between events.
+
+Fit the same way as earlier examples, using files prepared for this richer
+account schema:
+
+```python
+data = rf.ArrowDataModule(
+    model=model,
+    train="accounts/risk/train.parquet",
+    validate="accounts/risk/validation.parquet",
+)
+model.fit(data, batch_size=128, max_epochs=30)
+```
 
 ## Evaluate The Two Outcomes
 
@@ -105,12 +178,20 @@ Fit using [data modules](../guides/data-modules.qmd) and
 [Training And Checkpoints](../guides/lightning.qmd). Hold out later decision
 windows and control overlap between related account snapshots.
 
+Compare the transaction-only model, the addition of line items, and the
+addition of withdrawals before attributing value to the complete schema.
 Inspect dispute ranking and calibration separately from account-loss errors.
 Their combined validation loss can hide a regression in one target. This
 example specifies a model design; it makes no claim about measured quality.
 
-The prediction addresses are `/recent_transactions/disputed_next_30_days` and
-`/loss_next_30_days`. Retain `account_id` and the application's transaction
-identifiers when joining outputs back to records. Account for the retained
-history window: an attention summary is not a transaction identifier.
+In development output format 2, every transaction's dispute result is inside
+`predictions.trxns`, and the account loss is `predictions.loss_next_30_days`.
+All retained dispute positions have `inferred: true`. Retain `account_id` and the
+application's transaction identifiers when joining outputs back to records.
+Account for the retained history window: an attention summary is not a
+transaction identifier.
 See [Prediction Output](../guides/prediction-output.qmd).
+
+If labels are scarce, continue with [Pretraining](../guides/pretraining.qmd)
+to learn from observed transaction fields first. That guide changes the
+learning objective while keeping the payment-history modeling pattern.

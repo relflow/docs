@@ -173,9 +173,16 @@ compiles it once, then passes that exact type to
 coordinate per decoded position, with exactly the declared types and order.
 It must not infer types from values, filter rows, or wrap repeated axes.
 
-The runtime adds `state`, `inferred`, and optional normalized `embedding`;
-extensions must not declare these reserved members. Omit both output hooks
-when only embeddings are public. See [Prediction output](prediction-output.qmd).
+In [development output format 2](prediction-output.qmd), the runtime adds
+`state` and `inferred` to rich leaf results and writes normalized embeddings in
+a separate `representations` column. Only `state` and `inferred` are reserved
+within a leaf result; an extension may own an `embedding` payload member without
+colliding with the generic representation column. Omit both output hooks when
+only generic embeddings are public.
+Every List, LargeList, or FixedSizeList child in a declared output must be named
+`element`; declare it explicitly with `pa.field("element", child_type, ...)`.
+The planner validates this recursively before writing so compliant Parquet
+preserves nested field names and the declared type.
 
 ## Packaging and validation
 

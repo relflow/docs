@@ -4,22 +4,40 @@ title: Data Modules
 
 A data module connects named datasets to a model and prepares Lightning batches.
 Each row is one observation; nested lists and structs stay inside that row.
-A payment observation can be as small as:
+Continue with the model from [Add Transaction History](../tutorials/transaction-history.qmd).
+Each row contains a prepared transaction sequence at one account-review cutoff:
 
 ```yaml
 payment_id: payment-42
-amount: 86.50
-merchant: grocery
-disputed: false
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    disputed: false
 ```
 
-The model consumes `amount` and `merchant`; `disputed` is the supervised target
-from [Your First Model](../getting-started.qmd). `payment_id` can remain a
-source column without becoming a model field. Repeated transaction histories
-stay nested in their observation; see [Add Transaction History](../tutorials/transaction-history.qmd).
+The model reads `booked_at`, `amount`, and `merchant` from every `trxns` record.
+Every record's `disputed` label is supervised and excluded from input.
+`payment_id` can remain a source
+column without becoming a model field.
 
 Your application supplies the Parquet files and chooses the train/validation
-splits.
+splits. It also assembles each history, orders it oldest to newest, and excludes
+events after the review cutoff. The data module reads that
+nested observation; it does not automatically join transaction tables into a
+history.
+
+Training files contain settled Boolean labels for every transaction: whether
+a new dispute was reported during the 30 days after that common cutoff.
+Prediction files keep the same transaction inputs and omit `disputed`.
 
 ## Arrow
 
@@ -28,7 +46,7 @@ Pass Parquet file paths to `ArrowDataModule`:
 ```python
 import relflow as rf
 
-# model matches the records in these application-supplied files.
+# Reuse the history model; each file row has the nested structure above.
 data = rf.ArrowDataModule(
     model=model,
     train="payments/train.parquet",
@@ -38,12 +56,6 @@ data = rf.ArrowDataModule(
 
 Nested structs and lists remain part of each observation. Existing in-memory
 `pyarrow.Table` objects are also supported.
-
-On the unreleased `dev/schema-inference` branch, omit `model=` to configure sources
-and preprocessing first. Then call `rf.infer(data, ...)` to draft fields from
-the module's processed training observations. Build the model and call
-`model.fit(data, ...)` to bind the module. See
-[Draft A Schema From Data](schema-inference.qmd).
 
 ## Splits and preparation
 
@@ -107,7 +119,7 @@ Suppose your application maintains `warehouse/payments.duckdb` with a
 
 ```python
 observations = """
-    SELECT payment_id, amount, merchant, disputed
+    SELECT payment_id, trxns
     FROM payment_observations
     WHERE dataset_split = $split
     ORDER BY payment_id
@@ -137,7 +149,7 @@ useful for queries that read files directly:
 data = rf.DuckDBDataModule(
     model=model,
     predict="""
-        SELECT payment_id, amount, merchant
+        SELECT payment_id, trxns
         FROM read_parquet('warehouse/scoring/*.parquet')
         ORDER BY payment_id
     """,

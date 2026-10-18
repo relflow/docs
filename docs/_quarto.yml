@@ -42,8 +42,6 @@ website:
             text: Choose Field Types
           - href: guides/data-modules.qmd
             text: Data Sources And Splits
-          - href: guides/schema-inference.qmd
-            text: Draft A Schema From Data
           - href: guides/preprocessors.qmd
             text: Preprocessing
       - section: Train And Predict
@@ -58,22 +56,26 @@ website:
             text: Postprocessing
           - href: guides/batch-inference.qmd
             text: Batch Inference
+      - section: Extend The Transaction Model
+        contents:
+          - href: guides/learning-from-event-data.qmd
+            text: Profile Context And Repeat Payments
+          - href: case-studies/customer-risk.qmd
+            text: Transaction And Account Outcomes
       - section: Advanced
         contents:
           - section: Model Behavior
             contents:
-              - href: guides/learning-from-event-data.qmd
-                text: Learning From Event Histories
               - href: core-concepts/dynamic-masking.qmd
                 text: Masking And Objectives
               - href: core-concepts/vocabulary.qmd
                 text: Online Vocabulary
               - href: core-concepts/jitter.qmd
                 text: Jitter
-              - href: core-concepts/embeddings.qmd
-                text: Embeddings
               - href: guides/pretraining.qmd
                 text: Pretraining
+              - href: core-concepts/embeddings.qmd
+                text: Reusable Representations
           - section: Model Design
             contents:
               - href: core-concepts/model-tree.qmd
@@ -98,10 +100,8 @@ website:
                 text: Performance
               - href: guides/serving.qmd
                 text: Serving
-              - href: case-studies/customer-risk.qmd
-                text: Account Risk Example
               - href: case-studies/relational-tasks.qmd
-                text: Business Prediction Examples
+                text: Other Transaction And Event Tasks
       - section: Reference
         contents:
           - section: Common Fields

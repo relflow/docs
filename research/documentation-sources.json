@@ -1,17 +1,37 @@
 {
   "purpose": "Maintainer provenance for independently written teaching examples. Research informs the explanations; the public guides teach RelFlow workflows rather than compare papers.",
-  "reviewed_on": "2026-10-17",
+  "reviewed_on": "2026-10-18",
+  "transaction_example": {
+    "branch": "trxns",
+    "time": "booked_at uses explicit DateParts calendar components; it is not an elapsed-duration encoding.",
+    "supervision": "Every retained transaction has disputed=rf.Boolean(mask=True), with all Boolean labels excluded from input and supervised. Each label describes a new dispute in the 30 days after the observation's common review cutoff.",
+    "prediction": "Omit disputed from transaction inputs; return one dispute result for each retained transaction.",
+    "pinned_source": [
+      "https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/data/ragged.py",
+      "https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/extensions/dateparts.py"
+    ]
+  },
+  "curriculum": [
+    {"page": "docs/getting-started.qmd", "addition": "One payment, its amount and merchant, and a later dispute label."},
+    {"page": "docs/tutorials/transaction-history.qmd", "addition": "One trxns branch contains the transaction sequence. Shared merchant representation and explicit booking-time calendar features accompany dispute supervision for every transaction."},
+    {"page": "docs/guides/learning-from-event-data.qmd", "addition": "Payment channels and account profile context, with an application-defined merchant-repeat target alongside each transaction's dispute target."},
+    {"page": "docs/case-studies/customer-risk.qmd", "addition": "Account observations with nested purchase line items, a separate cash-withdrawal history, transaction-level dispute targets, and a future account-loss target."},
+    {"page": "docs/guides/pretraining.qmd", "addition": "Reconstruct observed historical fields before adapting to a later outcome."},
+    {"page": "docs/core-concepts/embeddings.qmd", "addition": "Export trained context and evaluate frozen representations in separate downstream predictors."},
+    {"page": "docs/case-studies/relational-tasks.qmd", "addition": "Transfer the observation/history/outcome pattern to purchase inactivity and other related-record applications."}
+  ],
   "research": [
     {
       "work": "PRAGMA",
       "source": "https://arxiv.org/html/2604.08649v2",
       "ideas": ["Profile context alongside event history", "Recurring payments", "Representations used for several supervised outcomes"],
-      "adaptation": "The guide defines a merchant-repeat prediction over an application-chosen 30-day window. It does not reproduce the paper's subscription task or claim equivalent training or performance."
+      "adaptation": "The guide defines a merchant-repeat prediction over an application-chosen 30-day window. It does not reproduce the paper's subscription task or claim equivalent training or performance. The RelFlow joint-target example is an application experiment; the paper's shared backbone and separately adapted tasks do not establish joint-objective results."
     },
     {
       "work": "FATA-Trans",
       "source": "https://arxiv.org/html/2310.13818v1",
-      "ideas": ["Shared record attributes and event-varying fields", "Sequence order and elapsed time convey different information"]
+      "ideas": ["Event-varying amount, payment mode, merchant category, location, and timestamp", "Per-window summaries such as mean amount and dominant payment mode", "Sequence order and elapsed time convey different information"],
+      "adaptation": "The examples compare cutoff-safe summaries with event histories and add a payment channel. Their explicit DateParts calendar features and sequence order do not claim to encode exact elapsed durations or reproduce the paper's temporal encoding. Neither the paper's anomaly label nor another paper's fraud label is treated as interchangeable with a payment dispute."
     },
     {
       "work": "TabBERT",
@@ -21,7 +41,8 @@
     {
       "work": "UniTTab",
       "source": "https://link.springer.com/article/10.1007/s10994-025-06778-1",
-      "ideas": ["Numerical and categorical values in one event history", "Historical reconstruction followed by supervised adaptation", "Future account outcomes"]
+      "ideas": ["Numerical and categorical values in one event history", "Historical reconstruction followed by supervised adaptation", "Future account outcomes", "Distinct generic, point-of-sale, and ATM event families with different fields"],
+      "adaptation": "The account example uses separate purchase and withdrawal branches with application-chosen fields. Its nested line items and joint loss/dispute tasks are teaching extensions, not a reproduction of the paper's schemas, objectives, or results."
     },
     {
       "work": "Kronos",
@@ -41,5 +62,5 @@
     ],
     "adaptation": "The public application examples choose explicit populations and horizons and use simplified field names. They do not present benchmark reproductions or results."
   },
-  "evidence_boundary": "No benchmark scores, pretrained weights, zero-shot transfer, or architectural equivalence are inferred from these sources. RelFlow API examples are checked against contracts/relflow.json and the pinned upstream source."
+  "evidence_boundary": "No benchmark scores, pretrained weights, zero-shot transfer, or architectural equivalence are inferred from these sources. Baseline RelFlow API claims are checked against contracts/relflow.json and the pinned upstream source. Development prediction format 2 is documented separately and is not validated by that contract or the recorded proof results."
 }

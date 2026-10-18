@@ -4,8 +4,9 @@ engine: markdown
 
 # Branch Summaries
 
-A history branch can contain many field vectors. Reduction determines how much
-of that encoded history reaches the parent. It follows the
+A `trxns` branch can contain many field vectors from earlier payments and the
+latest payment. Reduction determines how much of that encoded collection
+reaches the parent. It follows the
 [field interactions](field-interactions.qmd) within the branch.
 
 This explanation follows the
@@ -42,10 +43,10 @@ This is a statement about that normalized combination of identical values.
 Other parts of a network, including positional signals and earlier encoder
 updates, can supply information about sequence length.
 
-For a payment model, multiplicity may matter: several earlier payments can
-carry different evidence from one payment even when their merchants and amounts
-are identical. RelFlow's learned branch reduction includes additive evidence
-alongside attention.
+At a common account-review cutoff, multiplicity may matter: several retained
+payments can carry different evidence from one payment even when their
+merchants and amounts are identical. RelFlow's learned branch reduction
+includes additive evidence alongside attention.
 
 ## Additive Evidence
 
@@ -62,10 +63,11 @@ The branch provides the additive evidence from its tokens before the sequence
 encoder; these tokens already include any coordinate attention. Absent tokens
 contribute neither values nor counts.
 
-The count here is a **token count**. A transaction with three present fields
-contributes three tokens; nested branch outputs can add further tokens. It is
-not directly a count of payments or a sum of payment amounts. The model must
-learn how those vector and count signals relate to the target.
+The count here is a **token count**. Fields can supply several tokens, and
+nested branch outputs can add further tokens. It is not directly a count of
+transactions or a sum of payment amounts. The model must learn how those
+vector and count signals relate to each transaction's dispute target for the
+30 days after the common review cutoff.
 
 This mechanism supplies information that a normalized average can discard. It
 does not make the model an exact calculator or guarantee extrapolation to

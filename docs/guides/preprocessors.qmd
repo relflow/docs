@@ -8,39 +8,91 @@ call. Use it for derived values, renaming, filters, joins, and nested reshaping.
 
 ## Derive a value
 
-Suppose payment amounts arrive in minor units. Convert them before the model
-reads the `amount` field:
+Reuse the model from [Add Transaction History](../tutorials/transaction-history.qmd).
+Add the elapsed time since each transaction's predecessor. Calendar features
+describe recurring patterns; this gap gives the model information about the
+pace of account activity. A burst of purchases minutes apart carries a different
+signal from the same purchases spread across a week.
+
+The application's Parquet files contain oldest-to-newest `trxns` records with
+`booked_at` stored as ISO timestamp strings. Calculate the difference within
+each observation's list:
 
 ```python
 import polars as pl
 import relflow as rf
 
 @rf.preprocess
-def prepare(frame: pl.DataFrame, *, scale: float = 100.0) -> pl.DataFrame:
+def prepare(
+    frame: pl.DataFrame,
+    *,
+    timestamp_format: str | None = None,
+) -> pl.DataFrame:
+    booked_at = (
+        pl.element().struct.field("booked_at")
+        .str.to_datetime(format=timestamp_format)
+    )
     return frame.with_columns(
-        amount=pl.col("amount_minor") / scale,
-    ).drop("amount_minor")
-
-model = rf.Model.xs(
-    amount=rf.Number,
-    merchant=rf.Category,
-    disputed=rf.Boolean(mask=True),
-)
+        trxns=pl.col("trxns").list.eval(
+            pl.element().struct.with_fields(
+                hours_since_previous=(
+                    booked_at.diff().dt.total_milliseconds() / 3_600_000.0
+                ),
+            )
+        ),
+    )
 ```
 
-An input payment becomes this processed record:
+The processor adds a numeric duration in hours to each transaction:
 
 ```yaml
 payment_id: payment-42
-amount: 86.50
-merchant: grocery
-disputed: false
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    hours_since_previous: null
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    hours_since_previous: 152.25
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    hours_since_previous: 20.25
+    disputed: false
 ```
 
-The application supplies `amount_minor: 8650`; the processor adds `amount: 86.50`.
-Keep currencies consistent or derive the intended common units in the application.
-The processor leaves the target intact when present and does not require it on
-prediction requests.
+The first supplied transaction has no predecessor in this observation, so its
+gap is null. Equal timestamps yield a zero gap. The calculation restarts for
+each list and preserves transaction order and the existing fields. Supply
+timestamps in a consistent timezone and sort before this processor runs.
+
+Add the derived value to the transaction model:
+
+```python
+model = rf.Model.xs(
+    trxns=rf.Branch(
+        length=32,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        hours_since_previous=rf.Number,
+        amount=rf.Number,
+        merchant=rf.Category,
+        disputed=rf.Boolean(mask=True),
+    ),
+)
+```
+
+`Number` reads the duration in hours; `DateParts` keeps the booking calendar
+features. If the source already stores Arrow timestamps, use the `booked_at`
+field directly in the calculation without the string-parsing step.
+Training labels remain intact. Prediction files omit `disputed`; the processor
+does not require that field.
 
 ## Configure and compose
 
@@ -48,18 +100,18 @@ The first parameter must be named `frame`; all others are keyword-only.
 `.partial(...)` returns a configured processor without changing the original:
 
 ```python
-processor = prepare.partial(scale=100.0)
+processor = prepare.partial(timestamp_format="%Y-%m-%dT%H:%M:%S")
 ```
 
 A list or tuple runs left to right. Each stage receives the frames emitted by
-the previous stage. For an application that excludes nonpositive payments:
+the previous stage. For an application that excludes empty transaction sequences:
 
 ```python
 @rf.preprocess
-def positive(frame: pl.DataFrame) -> pl.DataFrame:
-    return frame.filter(pl.col("amount") > 0)
+def nonempty(frame: pl.DataFrame) -> pl.DataFrame:
+    return frame.filter(pl.col("trxns").list.len() > 0)
 
-pipeline = (processor, positive)
+pipeline = (processor, nonempty)
 ```
 
 Bind required application arguments before attaching the processor. Fit lookups
@@ -112,14 +164,15 @@ relflow does not restore the original rows or order.
 
 ## Reshape nested input
 
-Suppose a transfer arrives with named accounts and an amount in minor units:
+For a separate transfer model, suppose the source has named payer and payee
+accounts. This example illustrates a different record shape:
 
 ```yaml
 payment_id: transfer-42
 accounts:
   payer: account-17
   payee: account-83
-amount_minor: 12000
+amount: 120.00
 disputed: false
 ```
 
@@ -127,15 +180,14 @@ Build a repeated `parties` collection so both roles can share one account field:
 
 ```python
 @rf.preprocess
-def reshape(frame: pl.DataFrame, *, scale: float = 100.0) -> pl.DataFrame:
+def reshape(frame: pl.DataFrame) -> pl.DataFrame:
     accounts = pl.col("accounts")
     return frame.with_columns(
-        amount=pl.col("amount_minor") / scale,
         parties=pl.concat_list(
             pl.struct(account=accounts.struct.field("payer"), role=pl.lit("payer")),
             pl.struct(account=accounts.struct.field("payee"), role=pl.lit("payee")),
         ),
-    ).drop("accounts", "amount_minor")
+    ).drop("accounts")
 ```
 
 The processed record becomes:
@@ -180,7 +232,9 @@ runs before sampling, shuffling, and model batching.
 
 `@rf.preprocess(scope="dataset")` gathers the entire split at that stage into
 one eager frame. Use it for transforms that require a global sort or grouping;
-the split must fit in memory. Callable Arrow sources do not support this scope.
+the split must fit in memory. File paths, globs, `rf.source(...)`, restartable
+factories, and DuckDB sources support partition scope only. Prepare a
+dataset-wide result upstream before supplying those sources.
 For direct prediction, the available dataset is only that call's input.
 
 The pipeline supplies these keyword-only arguments when the signature requests

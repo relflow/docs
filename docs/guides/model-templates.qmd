@@ -14,13 +14,21 @@ For example, `payment-model.yaml` defines the same payment task as
 ```yaml
 preset: xs
 fields:
-  amount:
-    type: number
-  merchant:
-    type: category
-  disputed:
-    type: boolean
-    mask: true
+  trxns:
+    type: branch
+    length: 32
+    overflow: tail
+    fields:
+      booked_at:
+        type: dateparts
+        dateparts: [day_of_month, day_of_week, hour_of_day]
+      amount:
+        type: number
+      merchant:
+        type: category
+      disputed:
+        type: boolean
+        mask: true
 ```
 
 Load the file from Python:
@@ -35,10 +43,12 @@ model = rf.Model.from_yaml(Path("payment-model.yaml"))
 
 Each `fields` mapping assigns names to its children, just as Python keyword
 arguments do. Every child has an explicit lowercase `type`. Field options use
-the same names as their Python counterparts. Here, `mask: true` excludes the
-dispute label from input and makes it the supervised target.
+the same names as their Python counterparts. Here, `mask: true` hides and
+predicts the dispute label on every transaction. Each label concerns new
+dispute reports in the 30 days after one common account review cutoff.
+Prediction records can omit `disputed` from every transaction.
 The root remains anonymous at `rf.Address()`; the target has address
-`rf.Address("disputed")`.
+`rf.Address("trxns", "disputed")`.
 
 ## Defaults And Overrides
 
@@ -82,24 +92,18 @@ routed child slots. These retain the same meaning as Python `None`; see
 
 ## Structured Options
 
-A repeated history uses `type: branch` and its own child mapping. For example,
-add this entry under the template's `fields`:
+The `trxns` entry uses `type: branch` and its own child mapping. Its `booked_at`
+field explicitly chooses recurring calendar parts:
 
 ```yaml
-recent_transactions:
-  type: branch
-  length: 32
-  overflow: tail
-  fields:
-    days_ago:
-      type: number
-    amount:
-      type: number
-    merchant:
-      type: category
+booked_at:
+  type: dateparts
+  dateparts: [day_of_month, day_of_week, hour_of_day]
 ```
 
-This reads the same structure as [Add Transaction History](../tutorials/transaction-history.qmd).
+The template reads the same structure as [Add Transaction History](../tutorials/transaction-history.qmd):
+earlier events and the latest payment appear once in the same list. DateParts
+encodes the selected calendar cycles, not exact elapsed-time gaps.
 `overflow: tail` assumes records are ordered oldest to newest; the template does
 not sort them or join database tables.
 

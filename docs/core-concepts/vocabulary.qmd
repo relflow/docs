@@ -6,45 +6,65 @@ Each field keeps its own vocabulary, saved with the model.
 
 ## A Vocabulary Belongs To A Field
 
-Here is one payment with merchant categories and transaction tags:
+Extend the [transaction history](../tutorials/transaction-history.qmd) with
+transaction tags. Earlier payments and the latest payment use the same field
+definitions inside `trxns`:
 
 ```yaml
-amount: 86.50
-merchant: grocery
-recent_transactions:
-  - merchant: grocery
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
     tags:
       - food
-      - in_store
-  - merchant: bookstore
+      - cafe
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
     tags:
-      - gift
-      - online
-disputed: false
+      - grocery
+      - in_store
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    tags:
+      - grocery
+      - in_store
+    disputed: false
 ```
 
 ```python
 import relflow as rf
 
 model = rf.Model.xs(
-    amount=rf.Number,
-    merchant=rf.Category,
-    recent_transactions=rf.Branch(
+    trxns=rf.Branch(
         length=32,
         overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
         merchant=rf.Category,
         tags=rf.Set,
+        disputed=rf.Boolean(mask=True),
     ),
-    disputed=rf.Boolean(mask=True),
 )
 ```
 
-Every history position uses `/recent_transactions/merchant`, so that field
-learns one merchant vocabulary across payments and history positions. The
-root `/merchant` field has a separate mapping, even when the same labels occur
-in both. Tags also have their own mapping. Use one repeated field when roles
-should share a vocabulary; [Preprocessing](../guides/preprocessors.qmd) shows
-that reshaping.
+Every transaction position uses `/trxns/merchant`. That field learns one
+merchant vocabulary shared by the earlier and latest payments; both North
+Market values use the same mapping. `/trxns/tags` owns a separate mapping,
+shared across its transaction positions. There is no duplicate root merchant
+field. [Preprocessing](../guides/preprocessors.qmd) covers preparing this
+collection from application records.
+
+Each dispute label means a new dispute for that transaction during the 30 days
+after the same review cutoff: the latest booking time in this observation.
+Labels are attached once that window is complete. `mask=True` hides every
+transaction's dispute label and supervises all of them. Prediction records can
+omit `disputed` from every transaction while retaining the other fields.
 
 Keep labels in one compatible Arrow type family and normalize spelling, case,
 and label types upstream. A null is a separate value state and consumes no
@@ -74,10 +94,10 @@ artifact to reuse its mappings.
 After training the example model:
 
 ```python
-merchant_address = rf.Address("recent_transactions", "merchant")
+merchant_address = rf.Address("trxns", "merchant")
 merchant_labels = rf.Category.vocabulary(model, merchant_address)
 merchant_counts = rf.Category.counts(model, merchant_address)
-tag_labels = rf.Set.vocabulary(model, rf.Address("recent_transactions", "tags"))
+tag_labels = rf.Set.vocabulary(model, rf.Address("trxns", "tags"))
 merchant_label_count = len(merchant_labels)
 ```
 

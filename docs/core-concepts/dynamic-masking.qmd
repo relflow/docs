@@ -1,28 +1,31 @@
 # Masking And Reconstruction
 
 A mask controls which values the model can see and which values it learns to
-predict. For a supervised payment model, `disputed=rf.Boolean(mask=True)`
-hides the dispute label and uses it as the answer during training.
+predict. The [transaction-history tutorial](../tutorials/transaction-history.qmd)
+uses `disputed=rf.Boolean(mask=True)`: every retained transaction's label is
+hidden and supervised. That simple policy needs no selector.
 
-Use the other policies when you want to hide ordinary inputs or reconstruct
-part of a record. Those choices are independent of
-[exporting embeddings](embeddings.qmd).
+This later guide introduces optional policies for hiding ordinary inputs or
+reconstructing selected parts of a record. These advanced choices are
+independent of [exporting embeddings](embeddings.qmd).
 
 ## Choose The Intended Effect
 
 | Goal | Field configuration |
 | --- | --- |
+| Supervise every retained occurrence, never embedded | `mask=True` |
 | Ordinary input | `mask=False` |
 | Train-only learned-mask dropout | `mask=0.15` |
 | Train-only structural dropout | `mask=rf.Mask(rate=0.15, skip=True)` |
 | Reconstruct sampled values | `mask=rf.Mask(rate=0.15, reconstruct=True)` |
-| Supervised target, never embedded | `mask=True` |
+| Reconstruct amounts selected by the application | `mask=rf.Mask(query="routing.hide_amount", reconstruct=True)` |
 | Remove an input in every stage without a target | `mask=rf.Mask(skip=True, dropout=False)` |
 
 `mask=True` is shorthand for
-`rf.Mask(skip=True, dropout=False, reconstruct=True)`. It differs from
-`mask=1.0`, which hides every input using learned-mask dropout during training
-and creates no reconstruction objective.
+`rf.Mask(skip=True, dropout=False, reconstruct=True)`. Under a repeated branch,
+this selects every retained transaction. It differs from `mask=1.0`, which
+hides every input using learned-mask dropout during training and creates no
+reconstruction objective.
 
 Without `skip`, a selected value remains a present coordinate represented by a
 learned mask. With `skip=True`, its input content is not tensorized or embedded and
@@ -60,19 +63,29 @@ batching preserves exactly the same selections.
 
 ## Select Within Nested Data
 
-A selector is an ordinary Boolean value. It can arrive in the input or be
-created by a [preprocessor](../guides/preprocessors.qmd). This is one record:
+A selector is an ordinary Boolean value prepared by the application. For an
+optional amount-reconstruction objective, attach `routing.hide_amount` to each
+transaction. Here it selects only the middle amount to hide and reconstruct;
+the ordinary dispute objective still supervises all three transactions:
 
 ```yaml
-amount: 86.50
-merchant: grocery
-recent_transactions:
-  - amount: 42.75
-    days_ago: 3
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    disputed: false
+    routing:
+      hide_amount: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    disputed: true
     routing:
       hide_amount: true
-  - amount: 18.50
-    days_ago: 1
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    disputed: false
     routing:
       hide_amount: false
 ```
@@ -82,43 +95,68 @@ The leaf's mask query starts from its containing transaction:
 ```python
 import relflow as rf
 
-recent_transactions = rf.Branch(
-    length=32,
-    overflow="tail",
-    amount=rf.Number(
-        mask=rf.Mask(query="routing.hide_amount", reconstruct=True),
+model = rf.Model.xs(
+    trxns=rf.Branch(
+        length=32,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number(
+            mask=rf.Mask(query="routing.hide_amount", reconstruct=True),
+        ),
+        merchant=rf.Category,
+        disputed=rf.Boolean(mask=True),
     ),
-    days_ago=rf.Number,
 )
 ```
 
-Selected amounts are hidden and reconstructed. `routing` need not be a model
-field. The selector must provide exactly one non-null Boolean per retained
-owner record; integers, lists, missing paths, and null selectors are rejected.
-A node's value `query` selects its source value; `Mask.query` independently
-selects which owner occurrences receive the policy.
+`routing` is not declared as a model field. The selected amount is represented
+by a learned mask and reconstructed from the remaining context. The other
+amounts remain ordinary inputs and receive no amount-reconstruction loss.
+All dispute labels remain hidden and supervised independently of this choice.
+
+As in the tutorial, every dispute label means a new dispute during the 30 days
+after one common review cutoff, `2026-05-28T14:30:00`. Labels are attached after
+that window is complete. Full-sequence context is valid for this shared
+cutoff; it is not a forecast made at each earlier transaction's booking time.
+
+For conditional amount prediction, keep every amount field and selector in
+the source schema, using `amount: null` where the requested amount is unknown.
+Only selected amount positions have `inferred: true`. The directly bound,
+unconditional `disputed` field can be omitted from all prediction transactions.
+
+The selector must provide exactly one non-null Boolean per retained owner
+record; integers, lists, missing paths, and null selectors are rejected. A
+node's value `query` selects its source value; `Mask.query` independently
+selects which owner occurrences receive the policy. `booked_at` supplies the
+chosen calendar cycles, not elapsed time or an automatic sort.
 
 Place a policy on the branch when all descendants should share a decision:
 
 ```python
-recent_transactions = rf.Branch(
+trxns = rf.Branch(
     length=32,
     overflow="tail",
     mask=rf.Mask(rate=0.10, skip=True),
     amount=rf.Number,
-    days_ago=rf.Number,
+    booked_at=rf.DateParts(
+        dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+    ),
+    merchant=rf.Category,
 )
 ```
 
-Each selected transaction hides both fields and any nested descendants. A
+Each selected transaction hides all three fields and any nested descendants. A
 root mask similarly broadcasts through an observation. Reconstructing branch
 or root policies create objectives on active descendant leaves, whose
 extensions must support reconstruction.
 
 ## Derive A Selector
 
-For a root-level amount field, a processor can derive a selector from an
-application verification flag. Keep this Boolean derivation outside the model:
+For a separate amount-reconstruction task, a processor can derive a selector
+from each transaction's application verification flag. Keep this Boolean
+derivation outside the model:
 
 ```python
 import polars as pl
@@ -126,7 +164,14 @@ import polars as pl
 @rf.preprocess
 def select_unverified(frame: pl.DataFrame) -> pl.DataFrame:
     return frame.with_columns(
-        pl.col("amount_verified").fill_null(False).not_().alias("predict_amount")
+        trxns=pl.col("trxns").list.eval(
+            pl.element().struct.with_fields(
+                predict_amount=pl.element()
+                .struct.field("amount_verified")
+                .fill_null(False)
+                .not_(),
+            )
+        )
     )
 
 amount = rf.Number(
@@ -134,10 +179,11 @@ amount = rf.Number(
 )
 ```
 
-Include `amount` in the model and pass `preprocessor=select_unverified` to its
+Include `amount` inside `trxns` and pass `preprocessor=select_unverified` to its
 data module. For direct prediction pass `preprocess=select_unverified` to
-`model.predict(...)`. The source retains the amount field and verification
-flag; the processor adds a non-null Boolean selector before mask resolution.
+`model.predict(...)`. Each source transaction retains the amount field and
+verification flag; the processor adds a non-null Boolean selector inside that
+transaction before mask resolution.
 
 ## Combine Policies
 
@@ -160,8 +206,10 @@ away.
 ## Targets During Training And Prediction
 
 Fitting needs observed target values. Explicit nulls can contribute value-state
-objectives for nullable fields; structurally absent positions do not invent
-labels. A fractional reconstruction policy trains its decoder but does not
+objectives for selected nullable fields; structurally absent positions do not
+invent labels. Use Boolean dispute labels for all retained transactions in
+the basic supervised example, rather than nulls standing in for unknown
+outcomes. A fractional reconstruction policy trains its decoder but does not
 request ordinary prediction output. To request deterministic reconstruction
 later, [update the policy](../guides/schema-mutation.qmd).
 
@@ -171,9 +219,15 @@ branch records must remain to establish output positions. Targets using an
 explicit value query or conditional reconstruction selector still need their
 source structure and selector to be bindable.
 
-Conditional predictions retain their structural positions, using fixed-size
-axes for finite branch limits and variable-size lists for automatic lengths;
-see [repeated coordinates](../guides/prediction-output.qmd#repeated-coordinates).
+For example, `disputed=rf.Boolean(query="was_disputed", mask=True)` reads an
+explicit source column. Prediction must keep `was_disputed` in every source
+transaction, with null for an unknown answer; the direct-binding omission
+shortcut does not apply to that query.
+
+Conditional predictions retain their structural positions. In development
+output format 2, finite and automatic branch lengths both write variable lists
+of sibling result structs; a finite cap does not add public padding. See
+[repeated coordinates](../guides/prediction-output.qmd#repeated-coordinates).
 Use each coordinate's `inferred` flag to identify requested outputs. See
 [Prediction Output](../guides/prediction-output.qmd) for the Arrow contract.
 
