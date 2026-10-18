@@ -175,7 +175,7 @@ Category, Set, and Group manage vocabulary storage automatically. Neither
 `size` nor `capacity` is a field option, and there is no configured maximum.
 When a training batch introduces more labels than fit, storage grows
 geometrically until it can hold them. Users do not need to estimate the number
-of labels before training. Group's `bounds` controls latent groups, not
+of labels before training. Group's `n_groups` controls latent groups, not
 vocabulary storage.
 
 Growth preserves existing label IDs, learned embedding and decoder rows,

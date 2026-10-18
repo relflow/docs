@@ -125,7 +125,7 @@ def build() -> rf.Model:
         batch_size=64,
         dropout=0.0,
         x=rf.Category(p_unavailable=0.0),
-        code=rf.Group(bounds=8, p_unavailable=1.0, mask=rf.Mask(query="hide", reconstruct=True)),
+        code=rf.Group(n_groups=8, p_unavailable=1.0, mask=rf.Mask(query="hide", reconstruct=True)),
     )
     model.optimizer = rf.adamw(learning_rate=0.002)
     return model

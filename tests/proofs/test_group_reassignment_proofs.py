@@ -50,7 +50,7 @@ def test_numeric_control_preserves_targets_and_identity_frequencies(case):
 @pytest.mark.parametrize("accept", [True, False])
 def test_numeric_reassignment_uses_training_error_and_validation_acceptance(monkeypatch, accept):
     proof = load("predictive_regimes")
-    model = rf.Model.xs(d_model=8, entity=rf.Group(bounds=(2, 3), mask=True), y=rf.Number(mask=True))
+    model = rf.Model.xs(d_model=8, entity=rf.Group(n_groups=(2, 3), mask=True), y=rf.Number(mask=True))
     for token in ("a", "b"):
         rf.Group.assign(model, "/entity", token, 0)
     embedder = model.nodes["/entity"].embedder
@@ -95,7 +95,7 @@ def test_numeric_reassignment_uses_training_error_and_validation_acceptance(monk
 
 def test_numeric_reassignment_distinguishes_opposite_slopes_with_equal_means(monkeypatch):
     proof = load("predictive_regimes")
-    model = rf.Model.xs(d_model=8, entity=rf.Group(bounds=(2, 2), mask=True), y=rf.Number(mask=True))
+    model = rf.Model.xs(d_model=8, entity=rf.Group(n_groups=(2, 2), mask=True), y=rf.Number(mask=True))
     for token in ("a", "b"):
         rf.Group.assign(model, "/entity", token, 0)
     weight = model.nodes["/entity"].embedder.embeddings["group"].weight

@@ -11,7 +11,7 @@ aliases:
 ## Unreleased 0.3.3 API
 
 This page describes `rf.Group` on `stage/0.3.3`. Configure its capacity with
-`bounds`; predictions and assignment records use `group`.
+`n_groups`; predictions and assignment records use `group`.
 
 The default combines normalized identity likelihood, balanced initialization,
 deterministic routing, and refinement using Group's own reconstruction
@@ -33,7 +33,7 @@ import relflow as rf
 model = rf.Model.xs(
     amount=rf.Number,
     merchant=rf.Group(
-        bounds=64,
+        n_groups=64,
         mask=rf.Mask(rate=0.15, reconstruct=True),
     ),
     disputed=rf.Boolean(mask=True),
@@ -72,17 +72,20 @@ during fine-tuning.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
-| `bounds` | required | Integer `K` fixes group width; `(lower, upper)` enables an adaptive balancing subset with `0 < lower <= upper`. |
+| `n_groups` | required | Integer `K` fixes group width; `(lower, upper)` enables an adaptive balancing subset with `0 < lower <= upper`. |
 | `p_unavailable` | `0.01` | Training probability of replacing known input labels with unavailable content. Reconstruction answers remain intact. |
 | `ema_decay` | `0.99` | Smoothing for usage, assignment information, and range-adherence statistics, in `[0, 1]`. |
 | `revive_temperature` | `10.0` | Nonnegative revival schedule control; zero disables inactive-group revival. |
 
-The upper bound fixes physical group width. Ranged bounds allow callbacks to
+An integer `n_groups=K` normalizes to `(K, K)`. The former `bounds` keyword
+is rejected.
+
+The upper bound fixes physical group width. A ranged `n_groups` allows callbacks to
 revive unoccupied columns or merge similar active columns. Revival preserves
 columns already assigned to a known identity, even when they are outside the
 committed balancing subset. These operations do not guarantee equal use or
 human-interpretable groups. Vocabulary growth expands label rows without
-changing these group bounds.
+changing `n_groups`.
 
 ## Learning and inspection
 

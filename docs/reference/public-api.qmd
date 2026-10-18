@@ -3,8 +3,10 @@
 ::: {.callout-note}
 ## Unreleased 0.3.3 API
 
-This branch documents development on `stage/0.3.3`. The API contract has no
-release commit yet. Use `rf.Group(bounds=...)` for learned label groups and
+This branch documents unreleased development on `stage/0.3.3`. The
+[API contract](https://github.com/relflow/docs/blob/stage/0.3.3/contracts/relflow.json)
+pins an exact SDK development commit, not a published release. Use
+`rf.Group(n_groups=...)` for learned label groups and
 `group` in their prediction and assignment records.
 :::
 

@@ -5,7 +5,7 @@
     "version": "0.3.3",
     "branch": "stage/0.3.3",
     "status": "development",
-    "commit": "9aa632246e56d8c53ca57eae833b70f9ed45e15c",
+    "commit": "3f70b589daf224cf625cc62da3a1c672b5769304",
     "base_commit": "2bb35adb87b6fefe615864b170c196e7509f81fe"
   },
   "fields": {
@@ -17,8 +17,8 @@
       "topk"
     ],
     "Group": [
-      "bounds",
       "ema_decay",
+      "n_groups",
       "p_unavailable",
       "revive_temperature"
     ],

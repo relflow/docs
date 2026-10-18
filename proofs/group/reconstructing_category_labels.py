@@ -164,7 +164,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=1,
         n_heads=4,
         batch_size=64,
-        merchant_id=rf.Group(bounds=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
+        merchant_id=rf.Group(n_groups=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
         label=rf.Category(mask=True, p_unavailable=0.0),
     )
     model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3)

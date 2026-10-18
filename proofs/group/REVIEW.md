@@ -2,6 +2,15 @@
 
 ## Current Group-owned implementation, 2026-10-18
 
+The current public count option is `n_groups`: an integer fixes group width,
+and a `(lower, upper)` pair keeps the existing adaptive range semantics.
+`bounds` is no longer accepted and has no compatibility alias. Current
+examples and executable proof constructors use `rf.Group(n_groups=...)`. This
+API-only rename changes neither training computation nor the learning recipe;
+no learning run or compute comparison was repeated for it. Historical examples
+below, recorded results, diagnostics, frozen proof sources, and source
+fingerprints retain the spelling and provenance of their original runs.
+
 The local SDK now enables normalized identity likelihood, balanced
 initialization, deterministic straight-through routing, and automatic
 membership refinement using **Group's own identity reconstruction objective**.

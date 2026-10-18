@@ -144,7 +144,7 @@ def records(*, rows: int, seed: int, partition_seed: int) -> Iterator[dict]:
 def build() -> rf.Model:
     model = rf.Model.xs(
         batch_size=BATCH_SIZE,
-        entity=rf.Group(bounds=(2, 8), p_unavailable=0.0, mask=rf.Mask(rate=0.1, reconstruct=True)),
+        entity=rf.Group(n_groups=(2, 8), p_unavailable=0.0, mask=rf.Mask(rate=0.1, reconstruct=True)),
         x=rf.Number,
         y=rf.Number(mask=True, objective="mse"),
     )

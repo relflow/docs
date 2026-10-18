@@ -63,7 +63,7 @@ input caps do not add public padding. Fixed-width vectors retain their feature
 axis. Extension output list children must be named `element`.
 Embeddings live in representation records with `path`, `parents`, `output_index`,
 and `embedding`. The contract targets unreleased RelFlow 0.3.3 on `stage/0.3.3`, pinned to SDK
-development commit `9aa632246e56d8c53ca57eae833b70f9ed45e15c`. This is not a published release. Use `rf.Group(bounds=...)`
+development commit `3f70b589daf224cf625cc62da3a1c672b5769304`. This is not a published release. Use `rf.Group(n_groups=...)`
 and the `group` prediction/assignment key. Recorded proofs
 retain their original provenance even when executable output readers are
 migrated. A reader migration does not establish fresh learning results. Show

@@ -6,7 +6,7 @@ Published at [relflow.ai](https://relflow.ai/).
 
 This branch describes the **unreleased RelFlow 0.3.3 API** on `stage/0.3.3`.
 Its saved [API contract](contracts/relflow.json) pins SDK development commit
-`9aa632246e56d8c53ca57eae833b70f9ed45e15c`. This commit is available for review
+`3f70b589daf224cf625cc62da3a1c672b5769304`. This commit is available for review
 and does not identify a published 0.3.3 release.
 The site, assets, proof experiments, and recorded results live here and have
 their own release history. Building does not require the RelFlow package or
