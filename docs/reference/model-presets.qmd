@@ -265,15 +265,3 @@ count, peak memory, and throughput for the schema and hardware used. Increase
 one capacity axis at a time. A larger preset can underfit, overfit, or cost more
 without improving the task. See [Evaluation](../guides/evaluation.qmd) and
 [Performance](../guides/performance.qmd).
-
-::: {.callout-note collapse="true"}
-## Implementation reference
-
-This reference describes the `0.3.1` API, reviewed against source commit
-`18d582cca2af3dafde65b756111b32aed5b3e580`. The
-[bundled policies](https://github.com/relflow/relflow/blob/18d582cca2af3dafde65b756111b32aed5b3e580/src/relflow/presets/builtins.py),
-[resolution rules](https://github.com/relflow/relflow/blob/18d582cca2af3dafde65b756111b32aed5b3e580/src/relflow/presets/base.py),
-and [checkpoint handling](https://github.com/relflow/relflow/blob/18d582cca2af3dafde65b756111b32aed5b3e580/src/relflow/architecture/checkpoint.py)
-show the implementation at that pinned revision. Encoders and decoders consume the
-resolved schema; the policy supplies construction defaults and future additions.
-:::

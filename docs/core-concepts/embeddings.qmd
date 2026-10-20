@@ -69,7 +69,6 @@ import pyarrow as pa
 import pyarrow.compute as pc
 
 requests = rf.ArrowDataModule(
-    model=model,
     predict="payments/finetuning/requests.parquet",
 )
 result = model.predict(datamodule=requests, batch_size=256, devices=1)

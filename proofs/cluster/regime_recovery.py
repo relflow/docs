@@ -129,9 +129,8 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P078"
 BUDGET = 600
@@ -183,12 +182,10 @@ def adjusted_rand(actual: np.ndarray, predicted: np.ndarray) -> float:
 
 def build() -> rf.Model:
     model = rf.Model.xs(
-        batch_size=BATCH_SIZE,
         entity=rf.Cluster(bounds=(2, 8), p_unavailable=0.0, mask=rf.Mask(rate=0.1, reconstruct=True)),
         x=rf.Number,
         y=rf.Number(mask=True, objective="mse"),
     )
-    model.optimizer = rf.adamw(learning_rate=0.003)
     return model
 
 
@@ -231,12 +228,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         model = build()
         options = {"partition_seed": partition_seed, "no_regime": no_regime}
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=TRAIN_ROWS, seed=seed * 100 + 1, **options),
             validate=partial(records, rows=1024, seed=seed * 100 + 2, **options),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=BATCH_SIZE,
+            learning_rate=0.003,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_steps=BUDGET if steps is None else min(steps, BUDGET),
@@ -248,7 +251,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             deterministic=True,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         model.eval()
         state = rf.Cluster.assignments(model, rf.Address("entity"))
         training_mean = float(np.mean([row["y"] for row in records(rows=TRAIN_ROWS, seed=seed * 100 + 1, **options)]))

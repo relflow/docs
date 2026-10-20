@@ -86,10 +86,9 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
 from relflow.helpers.resize import Resize
+from reporting import report
 
 PROOF_ID = "P063"
 BUDGET = 400
@@ -106,7 +105,6 @@ def build(size: int) -> rf.Model:
         d_model=16,
         n_layers=1,
         n_heads=2,
-        batch_size=128,
         dropout=0.0,
         x=rf.Number,
         labels=rf.Set(p_unavailable=1.0, mask=True),
@@ -119,7 +117,6 @@ def build(size: int) -> rf.Model:
     node.embedder.counters["content"].resize(size, resize)
     resize.attribute(node.embedder.vocab, "size", size)
     resize.commit()
-    model.optimizer = rf.adamw(learning_rate=0.002)
     return model
 
 
@@ -132,12 +129,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         lit.seed_everything(seed, workers=True)
         model = build(size)
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=32768, seed=seed + 1),
             validate=partial(records, rows=1024, seed=seed + 2),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=128,
+            learning_rate=0.002,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_epochs=-1,
@@ -149,7 +152,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             enable_model_summary=False,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         vocabulary = rf.Set.vocabulary(model, "/labels")
         written = model.predict(pa.table({"x": [0.0]}))["predictions"].to_pylist()[0]["labels"]["content"]
         probabilities = {item["value"]: item["probability"] for item in written}
@@ -171,7 +174,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         for order in (np.arange(len(rows)), np.random.default_rng(seed + 3).permutation(len(rows))):
             table = pa.Table.from_pylist([rows[index] for index in order])
             measured = trainer.validate(
-                model, datamodule=rf.ArrowDataModule(model=model, validate=table, num_workers=0), verbose=False
+                model, datamodule=rf.ArrowDataModule(validate=table, num_workers=0), verbose=False
             )[0]
             prefix = ".labels/validate."
             results.append(

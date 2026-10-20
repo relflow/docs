@@ -115,10 +115,9 @@ from collections.abc import Iterator
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P013"
 ITEMS = 6
@@ -166,19 +165,23 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         d_model=24,
         n_layers=1,
         n_heads=4,
-        batch_size=64,
-        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
         items=rf.Branch(length=ITEMS, attention=None, reduction=rf.Mean(), contribution=rf.Number),
         mean_contribution=rf.Number(mask=True, objective="mse"),
         weighted_sum=rf.Number(mask=True, objective="mse"),
     )
     datamodule = rf.SyntheticDataModule(
-        model=model,
         train=lambda: repeated_contribution_records(rows=1024, seed=seed + 1),
         validate=lambda: repeated_contribution_records(rows=256, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        datamodule,
+        batch_size=64,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -190,7 +193,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=datamodule)
+    trainer = model.trainer
 
     # Evaluate held-out answers and retain their original labels in corruption controls.
     mean_score = score(train=train, test=test, predicted=prediction(model, test, "mean_contribution"))

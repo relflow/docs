@@ -4,16 +4,16 @@ The standalone documentation for [RelFlow](https://github.com/relflow/relflow).
 Examples start with payments, then add account history and larger workflows.
 Published at [relflow.github.io/docs](https://relflow.github.io/docs/).
 
-This edition describes **RelFlow 0.3.1**. Its saved
-[API contract](contracts/relflow.json) records source revision
-`18d582cca2af3dafde65b756111b32aed5b3e580`.
+The saved [API contract](contracts/relflow.json) records the source used to
+review the public API.
 The site, assets, proof experiments, and recorded results live here and have
 their own release history. Building does not require the RelFlow package or
 another checkout.
 
 ## Work locally
 
-Install Python 3.12 or newer and uv, then run:
+Install Python 3.12 or newer and uv for this documentation build, then run
+(the RelFlow runtime itself supports Python 3.11 or newer):
 
 ```bash
 uv sync --locked

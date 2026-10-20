@@ -109,10 +109,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P041"
 
@@ -151,14 +150,19 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         d_model=24,
         n_layers=1,
         n_heads=4,
-        batch_size=64,
         transactions=rf.Branch(length=6, attention=None, reduction=rf.Mean(), amount=rf.Number),
         mean_amount=rf.Number(mask=True, objective="mse"),
         global_total=rf.Number(mask=True, objective="mse"),
     )
-    model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3)
-    data = rf.SyntheticDataModule(model=model, train=train, validate=validate, seed=seed)
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(train=train, validate=validate, seed=seed)
+    model.fit(
+        data,
+        batch_size=64,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_epochs=-1,
         max_steps=steps if steps is not None else 300,
@@ -168,7 +172,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         enable_checkpointing=False,
         deterministic=True,
     )
-    trainer.fit(model=model, datamodule=data)
+    trainer = model.trainer
 
     test_mean = np.asarray([row["mean_amount"] for row in test])
     train_mean = np.mean([row["mean_amount"] for row in train()])

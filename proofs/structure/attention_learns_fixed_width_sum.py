@@ -100,10 +100,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P039"
 
@@ -141,7 +140,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=2,
         n_heads=4,
         reduction=rf.Attention(n_layers=2),
-        batch_size=64,
         transactions=rf.Branch(
             length=6,
             n_layers=2,
@@ -150,9 +148,15 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         ),
         global_total=rf.Number(mask=True, objective="mse"),
     )
-    model.optimizer = lambda module: torch.optim.Adam(module.parameters(), lr=1e-3)
-    data = rf.SyntheticDataModule(model=model, train=train, validate=validate, seed=seed)
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(train=train, validate=validate, seed=seed)
+    model.fit(
+        data,
+        batch_size=64,
+        optimizer=lambda module: torch.optim.Adam(module.parameters(), lr=0.001),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_epochs=-1,
         max_steps=steps if steps is not None else 400,
@@ -162,7 +166,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         enable_checkpointing=False,
         deterministic=True,
     )
-    trainer.fit(model=model, datamodule=data)
+    trainer = model.trainer
 
     train_target = np.asarray([row["global_total"] for row in train()])
     validate_rows = list(validate())

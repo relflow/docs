@@ -96,10 +96,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P038"
 
@@ -119,34 +118,42 @@ def records(*, rows: int, seed: int, signal: bool, fill_nulls: bool = False) -> 
 
 def score(model: rf.Model, records: Callable[[], Iterator[dict]], accelerator: str) -> tuple[float, float]:
     """Measure held-out AUC and accuracy at the fixed 0.5 threshold."""
-    data = rf.SyntheticDataModule(model=model, test=records)
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(test=records)
+    metrics = model.test(
+        data,
         accelerator=accelerator,
         logger=False,
         enable_progress_bar=False,
         enable_model_summary=False,
         enable_checkpointing=False,
         deterministic=True,
-    )
-    metrics = trainer.test(model=model, datamodule=data, verbose=False)[0]
+        verbose=False,
+        batch_size=128,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
+    )[0]
     return float(metrics[".target/test.auc.content"]), float(metrics[".target/test.accuracy@0.5.content"])
 
 
 def fit(*, signal: bool, seed: int, steps: int | None, accelerator: str) -> rf.Model:
     lit.seed_everything(seed, workers=True)
     model = rf.Model.xs(
-        batch_size=128,
         measurement=rf.Number,
         target=rf.Boolean(mask=True),
     )
-    model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=5e-3)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=1024, seed=seed + 1, signal=signal),
         validate=partial(records, rows=512, seed=seed + 2, signal=signal),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.005),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_epochs=8,
         max_steps=steps if steps is not None else -1,
@@ -156,7 +163,6 @@ def fit(*, signal: bool, seed: int, steps: int | None, accelerator: str) -> rf.M
         enable_checkpointing=False,
         deterministic=True,
     )
-    trainer.fit(model=model, datamodule=data)
     return model
 
 

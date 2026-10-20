@@ -98,10 +98,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P029"
 MIN_LENGTH = 2
@@ -143,8 +142,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         d_model=48,
         n_layers=2,
         n_heads=4,
-        batch_size=128,
-        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
         left_id=rf.Hash(n_hashes=4, n_bands=8),
         right_id=rf.Hash(n_hashes=4, n_bands=8),
         equal=rf.Boolean(mask=True),
@@ -152,12 +149,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     # Restart the training RNG independently of parameter initialization.
     lit.seed_everything(seed, workers=True)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=3072, seed=seed + 1, namespace="train"),
         validate=partial(records, rows=768, seed=seed + 2, namespace="validate"),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_steps=600 if steps is None else min(steps, 600),
         max_epochs=-1,
@@ -168,7 +171,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         check_val_every_n_epoch=5,
     )
-    trainer.fit(model, datamodule=data)
     test = list(records(rows=1024, seed=seed + 3, namespace="test"))
     target = np.asarray([row["equal"] for row in test], dtype=np.bool_)
     intact = probabilities(model, test)

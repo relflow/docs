@@ -2,8 +2,12 @@
   "schema": 1,
   "upstream": {
     "repository": "https://github.com/relflow/relflow",
-    "commit": "18d582cca2af3dafde65b756111b32aed5b3e580",
-    "version": "0.3.1"
+    "commit": "65fec85a1193c4e8a44c59e16ba05046e3c00d0b",
+    "version": "0.3.5",
+    "branch": "stage/0.3.5",
+    "reviewed_on": "2026-10-20",
+    "baseline_commit": "18d582cca2af3dafde65b756111b32aed5b3e580",
+    "baseline_version": "0.3.1"
   },
   "fields": {
     "Boolean": [
@@ -74,6 +78,24 @@
     "masked",
     "other"
   ],
+  "callbacks": {
+    "EMA": {
+      "decay": 0.99,
+      "parameters_only": true,
+      "requires_full_checkpoints": true
+    }
+  },
+  "data_module_binding": {
+    "model_optional": true,
+    "single_owner": true,
+    "modules": [
+      "ArrowDataModule",
+      "PolarsDataModule",
+      "DuckDBDataModule",
+      "CustomDataModule",
+      "SyntheticDataModule"
+    ]
+  },
   "attention_modes": [
     "mha",
     "gqa",

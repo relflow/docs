@@ -100,10 +100,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P017"
 
@@ -132,22 +131,26 @@ def fit(*, signal: bool, seed: int, steps: int | None, accelerator: str) -> floa
     """Fit one relationship and measure its held-out Boolean AUC."""
     lit.seed_everything(seed, workers=True)
     model = rf.Model.xs(
-        batch_size=128,
         x=rf.Number,
         segment=rf.Category(p_unavailable=0.0),
         tags=rf.Set(p_unavailable=0.0),
         leak=rf.Boolean,
         target=rf.Boolean(mask=True),
     )
-    model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=5e-3)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=1024, seed=seed + 1, signal=signal),
         validate=partial(records, rows=512, seed=seed + 2, signal=signal),
         test=partial(records, rows=2048, seed=seed + 3, signal=signal),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.005),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_epochs=12,
         max_steps=steps if steps is not None else -1,
@@ -157,7 +160,7 @@ def fit(*, signal: bool, seed: int, steps: int | None, accelerator: str) -> floa
         enable_checkpointing=False,
         deterministic=True,
     )
-    trainer.fit(model=model, datamodule=data)
+    trainer = model.trainer
     metrics = trainer.test(model=model, datamodule=data, verbose=False)[0]
     return float(metrics[".target/test.auc.content"])
 

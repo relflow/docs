@@ -114,10 +114,9 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P073"
 BUDGET = 600
@@ -158,7 +157,6 @@ def records(*, rows: int, seed: int, permuted: bool = False) -> Iterator[dict]:
 def build() -> rf.Model:
     mask = rf.Mask(rate=0.35, reconstruct=True)
     return rf.Model.xs(
-        batch_size=64,
         embed=True,
         first=rf.Enum(values=CODES, p_unavailable=0.0, mask=mask),
         second=rf.Enum(values=CODES, p_unavailable=0.0, mask=mask),
@@ -216,14 +214,19 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         model = build()
         trained_steps = 0
         if name != "untrained":
-            model.optimizer = rf.adamw(learning_rate=0.002)
             data = rf.SyntheticDataModule(
-                model=model,
                 train=partial(records, rows=TRAIN_ROWS, seed=seed * 100 + 1, permuted=name == "permuted_views"),
                 validate=partial(records, rows=512, seed=seed * 100 + 2, permuted=name == "permuted_views"),
                 seed=seed,
             )
-            trainer = lit.Trainer(
+            model.fit(
+                data,
+                batch_size=64,
+                learning_rate=0.002,
+                early_stopping=False,
+                rollback=False,
+                precision="32-true",
+                strategy="auto",
                 accelerator=accelerator,
                 devices=1,
                 max_epochs=-1,
@@ -235,7 +238,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
                 enable_model_summary=False,
                 num_sanity_val_steps=0,
             )
-            trainer.fit(model, datamodule=data)
+            trainer = model.trainer
             trained_steps = trainer.global_step
         model.eval().requires_grad_(False)
         parameters = {key: value.detach().cpu().clone() for key, value in model.named_parameters()}

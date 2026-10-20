@@ -101,11 +101,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
-from relflow.tensorfields.extensions.cluster import Embedder
 
 PROOF_ID = "P018"
 
@@ -141,7 +139,7 @@ class Trajectory(lit.Callback):
 
     def on_train_epoch_end(self, trainer: lit.Trainer, pl_module: lit.LightningModule) -> None:
         embedder = pl_module.nodes[self.address].embedder
-        if not isinstance(embedder, Embedder):
+        if not isinstance(embedder, rf.TENSORFIELDS["cluster"].Embedder):
             raise TypeError(f"{self.address} requires a Cluster embedder, got {type(embedder).__name__}")
         usage = embedder.usage_ema.detach()
         probabilities = usage / usage.sum().clamp_min(1e-12)
@@ -163,16 +161,21 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         d_model=32,
         n_layers=1,
         n_heads=4,
-        batch_size=128,
-        id=rf.Cluster(n_clusters=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
+        id=rf.Cluster(bounds=(3, 15), mask=rf.Mask(rate=0.5, reconstruct=True)),
         x=rf.Number,
         y=rf.Number(mask=True),
     )
-    model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3)
     source = partial(records, seed=seed + 42)
-    data = rf.SyntheticDataModule(model=model, train=source, validate=source, seed=seed)
-    trajectory = Trajectory(rf.Address("/", "id"))
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(train=source, validate=source, seed=seed)
+    trajectory = Trajectory(rf.Address("id"))
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_epochs=30,
         max_steps=steps if steps is not None else -1,
@@ -183,7 +186,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         enable_checkpointing=False,
         deterministic=True,
     )
-    trainer.fit(model=model, datamodule=data)
 
     tail = trajectory.rows[-5:]
     committed = [row["n_committed"] for row in tail]

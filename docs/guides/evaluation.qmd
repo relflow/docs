@@ -37,8 +37,8 @@ explains how logging, validation, and checkpoint schedules are configured.
 | `.trxns.disputed/validate.loss.state` | Reconstruction loss for dispute value states at `/trxns/disputed`. |
 | `.trxns.disputed/validate.loss.content` | Datatype-specific content loss across transaction dispute labels. |
 | `.trxns.disputed/validate.auc.content` | Example Boolean content metric over the retained transactions. |
-| `throughput/train` | Estimated observations per second per rank for the latest training batch, reported at the configured step logging cadence. |
-| `throughput/validate`, `throughput/test`, `throughput/predict` | Estimated observations per second per rank for each evaluation or prediction batch. |
+| `throughput/train` | Observations processed per second per rank for the latest batch, using its actual row count and reported at the configured step logging cadence. |
+| `throughput/validate`, `throughput/test`, `throughput/predict` | Observations processed per second per rank for each evaluation or prediction batch, using its actual row count. |
 
 Metric names join schema-address components with periods, preserve case,
 and prefix the address group with a period before appending `/stage.metric.component`.
@@ -55,6 +55,21 @@ the training batch is skipped. Validation/test return zero loss for that
 batch. Repeated empty-objective warnings suggest a mismatch among masks,
 source geometry, and split contents; they do not demonstrate learning.
 
+## Numeric Targets And Missing Values
+
+For a numeric target such as refund amount, Number content loss and error
+metrics include selected reconstruction coordinates only when the true value
+is `valued`. Null outcomes still teach the state objective, but do not act as
+numeric zero targets. Validation/test MAE and RMSE accumulate error totals and
+valued-target counts across the full pass and distributed ranks. For example,
+one eligible target in a batch has one tenth the weight of ten targets in
+another batch. RMSE takes its square root after the squared errors have been
+combined; it is not an average of batch RMSEs. See [Number](../data-types/number.qmd).
+
+Compare candidate models on the same source and eligible coordinates before
+setting early-stopping thresholds.
+Loss aggregation remains separate from the target-counted content metrics.
+
 ## Compare Models Fairly
 
 Use the same held-out observations, target definitions, preprocessing, and
@@ -67,6 +82,13 @@ categorical accuracy measure different things; their scale and eligible
 coordinates differ. A state-accuracy improvement alone does not establish
 better content predictions. Use validation data to choose thresholds and
 checkpoints, leaving the test split for a final assessment.
+
+Hash validation uses fixed salt zero, matching test and prediction; training
+still resalts each batch. Keep this encoding policy consistent when comparing
+validation scores. If using
+[EMA](lightning.qmd#average-learned-parameters-with-ema), validation and checkpoint
+selection during fit use the averaged parameters. Record that choice alongside
+the architecture and dataset split.
 
 Evaluate the additions in the same order as the examples. Change one modeling
 choice at a time:

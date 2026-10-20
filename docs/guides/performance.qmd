@@ -60,7 +60,6 @@ from lightning.pytorch.callbacks import BatchSizeFinder
 import relflow as rf
 
 datamodule = rf.ArrowDataModule(
-    model=model,
     train="payments/train.parquet",
     validate="payments/validation.parquet",
 )
@@ -119,7 +118,6 @@ measuring whether input preparation leaves the device idle:
 
 ```python
 datamodule = rf.ArrowDataModule(
-    model=model,
     train="payments/train.parquet",
     validate="payments/validation.parquet",
     num_workers=4,
@@ -136,15 +134,19 @@ adding workers does not guarantee less source I/O. Keep Arrow/Polars
 transformations columnar instead of repeatedly converting observations to
 Python rows.
 
-The throughput callback estimates each batch's processing rate using configured
-batch size divided by elapsed time between Lightning's batch start and end hooks.
+Throughput uses the actual number of observations in each Arrow or TensorDict
+batch, including a partial final batch. Other custom batch types fall back to
+the configured model batch size. It measures elapsed host time around batch
+processing.
 It logs with `on_step=True, on_epoch=False`. `throughput/train` reaches attached
 loggers every `log_every_n_steps` optimizer updates; validation, test, and
 prediction throughput are reported per batch. With gradient accumulation, the
 training rate describes the latest microbatch. Timing excludes input loading
-and encoding before the batch start hook. Rates are per rank and are estimates
-rather than exact row accounting for partial batches. Compare runs with the
-same batch geometry. Prediction throughput is retained by the callback and
+and encoding before the batch start hook. Rates remain per rank and do not wait for CUDA work
+to complete; they are not an end-to-end or synchronized GPU benchmark.
+Compare runs with the same batch geometry and measure application loading,
+encoding, device completion, and writing separately when reporting throughput.
+Prediction throughput is retained by the callback and
 sent directly to attached loggers; it is not a `trainer.callback_metrics` result.
 
 ## Configure AdamW {#use-the-adamw-factory}

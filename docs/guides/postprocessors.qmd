@@ -10,7 +10,7 @@ for its transactions. Keep the model and input history from the earlier
 guides; this step converts the nested results into application columns.
 
 For the trained sequence model with a `/trxns/disputed` target on every transaction, using
-[RelFlow 0.3.1 prediction output](prediction-output.qmd):
+[nested prediction output](prediction-output.qmd):
 
 ```python
 import polars as pl
@@ -33,7 +33,6 @@ def decision(frame: pl.DataFrame, *, threshold: float) -> pl.DataFrame:
 
 # The request file is supplied by the application.
 requests = rf.ArrowDataModule(
-    model=model,
     predict="payments/requests.parquet",
     retain=("payment_id",),
 )
@@ -99,6 +98,4 @@ schema across batches in its shard.
 
 HTTP serving has an additional requirement: preserve one final row per valid
 request with the same identity and order. RelFlow checks the count; processors
-own identity and order, including when row counts happen to be equal. No
-per-row `model` provenance field is appended; the format and recorded package
-version are carried in schema metadata and HTTP headers.
+own identity and order, including when row counts happen to be equal.

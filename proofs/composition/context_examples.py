@@ -133,10 +133,9 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P072"
 BUDGET = 600
@@ -170,10 +169,8 @@ def build(*, context: bool = True) -> rf.Model:
     if context:
         fields["examples"] = rf.Branch(length=4, reduction=None, x=rf.Number, y=rf.Number)
     model = rf.Model.xs(
-        batch_size=128,
         fields=fields,
     )
-    model.optimizer = rf.adamw(learning_rate=0.002)
     return model
 
 
@@ -218,12 +215,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         lit.seed_everything(seed, workers=True)
         model = build(context=context)
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=TRAIN_ROWS, seed=seed * 100 + 1),
             validate=partial(records, rows=512, seed=seed * 100 + 2),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=128,
+            learning_rate=0.002,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_epochs=-1,
@@ -235,7 +238,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             enable_model_summary=False,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         model.eval()
         snapshot = [parameter.detach().clone() for parameter in model.parameters()]
         arm = "context" if context else "query_only"

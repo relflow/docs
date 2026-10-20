@@ -55,8 +55,7 @@ one parent prediction at a time.
 Query pooling uses learned queries shaped for the target's coordinates. Where
 sibling representations align with those coordinates, the decoder can also
 condition those queries on sibling context. The field's decoder then produces
-the datatype-specific answer, such as the Boolean output for `disputed`. See
-the [reviewed decoder implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/tensorfields/base.py).
+the datatype-specific answer, such as the Boolean output for `disputed`.
 
 The tutorial's `disputed=rf.Boolean(mask=True)` keeps every dispute label out
 of the input and requests predictions at all retained positions. Training

@@ -15,7 +15,6 @@ import relflow as rf
 
 # model is trained; request files are supplied by the application.
 data = rf.ArrowDataModule(
-    model=model,
     predict="payments/scoring/*.parquet",
     retain=("payment_id",),
 )

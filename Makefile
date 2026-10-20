@@ -21,8 +21,8 @@ render: ## Render static HTML and Typst diagrams into docs/site/.
 	$(QUARTO) render docs --no-execute
 
 check: prepare ## Check static authoring, API references, and proof reporting.
-	uv run ruff format --check scripts tests proofs/render.py proofs/source.py
-	uv run ruff check scripts tests proofs/render.py proofs/source.py
+	uv run ruff format --check scripts tests proofs
+	uv run ruff check scripts tests proofs
 	uv run pytest
 	uv run python -m scripts.check
 

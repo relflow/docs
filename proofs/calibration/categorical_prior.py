@@ -97,10 +97,9 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
 from relflow.helpers.resize import Resize
+from reporting import report
 
 PROOF_ID = "P060"
 BUDGET = 400
@@ -114,7 +113,6 @@ def records(*, rows: int, seed: int, novel: bool = False) -> Iterator[dict]:
 
 def build(size: int) -> rf.Model:
     model = rf.Model.xs(
-        batch_size=128,
         x=rf.Number,
         entity=rf.Category(),
         label=rf.Category(mask=True),
@@ -127,7 +125,6 @@ def build(size: int) -> rf.Model:
     node.embedder.counters["content"].resize(size, resize)
     resize.attribute(node.embedder.vocab, "size", size)
     resize.commit()
-    model.optimizer = rf.adamw(learning_rate=0.002)
     return model
 
 
@@ -139,12 +136,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         lit.seed_everything(seed, workers=True)
         model = build(size)
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=32768, seed=seed + 1),
             validate=partial(records, rows=1024, seed=seed + 2),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=128,
+            learning_rate=0.002,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_epochs=-1,
@@ -156,7 +159,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             deterministic=True,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
         model.eval()
         counts = rf.Category.counts(model, "/label")
         vocabulary = rf.Category.vocabulary(model, "/entity")

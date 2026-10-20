@@ -110,9 +110,8 @@ from tempfile import TemporaryDirectory
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P069"
 BUDGET = 300
@@ -135,7 +134,6 @@ def records(*, rows: int, seed: int, shuffled: bool = False) -> Iterator[dict]:
 
 def build() -> rf.Model:
     return rf.Model.xs(
-        batch_size=64,
         route=rf.Enum(values=ROUTES, p_unavailable=0.0),
         channel=rf.Enum(values=CHANNELS, p_unavailable=0.0),
         label=rf.Enum(values=LABELS, p_unavailable=0.0, topk=[4], mask=True),
@@ -175,14 +173,19 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         lit.seed_everything(seed, workers=True)
         model = build()
         initial = storage(model)
-        model.optimizer = rf.adamw(learning_rate=0.002)
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=4096, seed=seed + 1, shuffled=shuffled),
             validate=partial(records, rows=512, seed=seed + 2, shuffled=shuffled),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=64,
+            learning_rate=0.002,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_epochs=-1,
@@ -194,7 +197,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             enable_model_summary=False,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         model.eval()
         key = "shuffled_control" if shuffled else "informative"
         counts = {name: rf.Enum.counts(model, rf.Address(name)) for name in ("route", "channel", "label")}

@@ -99,7 +99,6 @@ training and later windows for validation:
 
 ```python
 data = rf.ArrowDataModule(
-    model=model,
     train="retention/train.parquet",
     validate="retention/validation.parquet",
 )
@@ -111,7 +110,6 @@ in a request file, omitting `inactive_next_7_days`:
 
 ```python
 requests = rf.ArrowDataModule(
-    model=model,
     predict="retention/requests.parquet",
 )
 predictions = model.predict(datamodule=requests, batch_size=256, devices=1)

@@ -87,10 +87,9 @@ from tempfile import TemporaryDirectory
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P046"
 OFFSETS = (-0.75, -0.25, 0.25, 0.75)
@@ -142,19 +141,24 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     baseline = float(np.sqrt(np.mean((actual - np.mean([row["y"] for row in train])) ** 2)))
     scale = float(np.std([row["y"] for row in train]))
     model = rf.Model.xs(
-        batch_size=128,
         x=rf.Number,
         code=rf.Category(p_unavailable=0.0),
         y=rf.Number(mask=True, objective="mse"),
     )
-    model.optimizer = rf.adamw(learning_rate=3e-3, fused=False)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=2048, seed=seed + 1),
         validate=partial(records, rows=512, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        learning_rate=0.003,
+        fused=False,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -166,11 +170,11 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     reference = prediction(model, test)
     state = deepcopy(model.state_dict())
-    vocabulary = model.nodes["/code"].embedder.vocab.snapshot()
+    vocabulary = list(rf.Category.vocabulary(model, rf.Address("code")))
     root = rf.where("address") == "/"
     source = rf.where("address") == "/x"
     measured = errors(actual, reference, baseline)
@@ -182,7 +186,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         current = model.state_dict()
         missing = [name for name, value in state.items() if name not in current or not equal(value, current[name])]
         preserved = bool(np.allclose(reference, result, rtol=1e-5, atol=1e-6 * scale))
-        same_vocabulary = model.nodes["/code"].embedder.vocab.snapshot() == vocabulary
+        same_vocabulary = list(rf.Category.vocabulary(model, rf.Address("code"))) == vocabulary
         edits.append(
             {
                 "edit": label,

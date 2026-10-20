@@ -12,8 +12,6 @@ compares transactions.
 Start with [transaction history](../../tutorials/transaction-history.qmd) for
 the application example.
 
-This explanation was checked against the [0.2.4 branch encoder](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/encoder.py).
-
 ## Within One Transaction
 
 Follow the tutorial's collection. The current payment is the final transaction;
@@ -102,6 +100,6 @@ in this example share the same review cutoff and future outcome window. They
 are not forecasts made separately at each transaction's original booking time.
 
 Encoder updates use residual attention and feed-forward blocks with RMSNorm and
-tanh GELU, as defined in the [reviewed neural blocks](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/blocks.py).
+tanh GELU.
 Architecture options and collection limits belong in the
 [model tree](../../core-concepts/model-tree.qmd) and [Branch reference](../../data-types/branch.qmd).

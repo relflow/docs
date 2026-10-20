@@ -153,6 +153,9 @@ website:
       - text: LinkedIn
         icon: linkedin
         href: https://www.linkedin.com/in/granthamtaylor
+      - text: YouTube
+        icon: youtube
+        href: https://www.youtube.com/@relflow-ai
   search: true
 
 format:

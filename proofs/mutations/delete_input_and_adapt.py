@@ -94,10 +94,9 @@ from tempfile import TemporaryDirectory
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P050"
 
@@ -115,7 +114,6 @@ def build(*, restricted: bool = False) -> rf.Model:
         n_layers=1,
         n_heads=4,
         dropout=0.0,
-        batch_size=128,
         fields={"a": rf.Number, **({} if restricted else {"b": rf.Number}), "y": rf.Number(mask=True, objective="mse")},
     )
 
@@ -184,14 +182,20 @@ def fit(model: rf.Model, *, seed: int, split: int, rows: int, budget: int, accel
     lit.seed_everything(seed, workers=True)
     mean = float(np.mean([row["y"] for row in records(rows=rows, seed=split)]))
     curve = Curve(list(records(rows=512, seed=split + 1)), mean, budget)
-    model.optimizer = rf.adamw(learning_rate=3e-3, fused=False)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=rows, seed=split),
         validate=partial(records, rows=512, seed=split + 1),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        learning_rate=0.003,
+        fused=False,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -204,7 +208,7 @@ def fit(model: rf.Model, *, seed: int, split: int, rows: int, budget: int, accel
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     optimized = {id(p) for group in trainer.optimizers[0].param_groups for p in group["params"]}
     current = {id(p) for p in model.parameters() if p.requires_grad}

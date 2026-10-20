@@ -99,7 +99,6 @@ supplies Parquet files with the nested structure shown above:
 
 ```python
 data = rf.ArrowDataModule(
-    model=model,
     train="payments/train.parquet",
     validate="payments/validation.parquet",
 )
@@ -111,7 +110,6 @@ record:
 
 ```python
 requests = rf.ArrowDataModule(
-    model=model,
     predict="payments/requests.parquet",
 )
 predictions = model.predict(datamodule=requests, batch_size=256, devices=1)

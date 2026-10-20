@@ -165,7 +165,6 @@ account schema:
 
 ```python
 data = rf.ArrowDataModule(
-    model=model,
     train="accounts/risk/train.parquet",
     validate="accounts/risk/validation.parquet",
 )

@@ -94,6 +94,14 @@ def test_static_python_examples_have_valid_syntax_and_address_components() -> No
             padding = "\n" * text[: snippet.start(2)].count("\n")
             tree = ast.parse(padding + snippet[2], filename=str(source))
             for node in ast.walk(tree):
+                if (
+                    isinstance(node, ast.Call)
+                    and ast.unparse(node.func).startswith("rf.")
+                    and ast.unparse(node.func).endswith("DataModule")
+                ):
+                    assert not node.args and all(keyword.arg != "model" for keyword in node.keywords), (
+                        f"{source}:{node.lineno}: let the model loop bind the data module automatically"
+                    )
                 if not isinstance(node, ast.Call) or ast.unparse(node.func) != "rf.Address":
                     continue
                 for part in node.args:
@@ -158,7 +166,9 @@ def test_datatype_references_cover_public_options_and_states() -> None:
     contract = json.loads((ROOT / "contracts/relflow.json").read_text())
     assert contract["schema"] == 1
     assert contract["upstream"]["repository"] == "https://github.com/relflow/relflow"
-    assert contract["upstream"]["version"] == "0.3.1"
+    assert contract["upstream"]["version"] == "0.3.5"
+    assert contract["upstream"]["branch"] == "stage/0.3.5"
+    assert contract["upstream"]["commit"] == "65fec85a1193c4e8a44c59e16ba05046e3c00d0b"
     for name, options in contract["fields"].items():
         reference = (DOCS / f"data-types/{name.lower()}.qmd").read_text()
         for option in options:

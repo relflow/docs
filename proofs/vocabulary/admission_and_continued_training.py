@@ -99,10 +99,9 @@ from tempfile import TemporaryDirectory
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P059"
 BUDGET = 300
@@ -123,21 +122,25 @@ def records(*, rows: int, seed: int, phase: str = "initial") -> Iterator[dict]:
 
 def build() -> rf.Model:
     return rf.Model.xs(
-        batch_size=64,
         x=rf.Number,
         label=rf.Category(p_unavailable=0.0, topk=[3], mask=True),
     )
 
 
 def fit(model: rf.Model, phase: str, seed: int, budget: int, accelerator: str) -> int:
-    model.optimizer = rf.adamw(learning_rate=0.002)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=4096, seed=seed + 1, phase=phase),
         validate=partial(records, rows=512, seed=seed + 2, phase=phase),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=64,
+        learning_rate=0.002,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -149,7 +152,7 @@ def fit(model: rf.Model, phase: str, seed: int, budget: int, accelerator: str) -
         enable_model_summary=False,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     return trainer.global_step
 

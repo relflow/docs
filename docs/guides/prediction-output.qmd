@@ -8,16 +8,6 @@ form Arrow structs; repeated records form
 `list<struct<...>>` collections. For the transaction tutorial, read the
 transaction dispute predictions under `predictions.trxns[i].disputed`.
 
-::: {.callout-note}
-## Upgrading to RelFlow 0.3.1
-
-RelFlow 0.3.1 introduces a breaking prediction-output contract. Earlier
-versions used slash-prefixed fields and padded bounded collections. Update
-application readers when upgrading. Executable proof readers now use this
-format. Their recorded measurements retain their original package and source
-provenance; migrating a reader does not re-run or validate a learning experiment.
-:::
-
 Continue with the trained [transaction-history model](../tutorials/transaction-history.qmd).
 The request keeps the transaction inputs and omits `disputed` from every record:
 
@@ -40,7 +30,6 @@ import relflow as rf
 
 # The model is trained; the application supplies the request file.
 requests = rf.ArrowDataModule(
-    model=model,
     predict="payments/requests.parquet",
     retain=("payment_id",),
 )

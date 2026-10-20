@@ -183,7 +183,7 @@ Only reporting and command-line handling are shared between experiments.
 
 ### Prediction format compatibility
 
-Executable readers target RelFlow 0.3.1 prediction output: decoded fields use
+Prediction readers use nested output: decoded fields use
 ordinary child names under `predictions`, repeated branch records are variable
 lists, and requested embeddings use `representations` records with `path`,
 `parents`, `output_index`, and `embedding`. Read structural positions from those
@@ -221,17 +221,25 @@ it tests optimization state rather than generalization.
 ### Training
 
 - Exercise `rf.Model`, built-in public tensorfield constructors, and
-  `rf.SyntheticDataModule` through a normal Lightning training loop.
+  `rf.SyntheticDataModule` through `model.fit(...)`. Let the loop bind the data
+  module automatically. Set `batch_size` and optimization on the fit call;
+  preserve custom optimizer factories when their algorithms or defaults are
+  experimental controls.
 - Prefer `rf.Model.xs(...)` for small behavioral proofs whose architecture is
   incidental. Keep explicit configurations when attention, reduction geometry,
   or model capacity is an experimental control. Presets also fill omitted
   branch and decoder options, so adopting one requires a new full run with
   the existing data, budget, and gates; retain earlier evidence as history.
 - Use `lit.seed_everything(seed, workers=True)` and
-  `Trainer(deterministic=True)`.
+  `model.fit(..., deterministic=True)`.
 - Prefer fixed optimizer steps. Fixed epochs are acceptable when complete data
   passes are part of the protocol; report the data size and epoch count so the
   effective update budget cannot change silently.
+- Fixed-budget fits set `early_stopping=False`, `rollback=False`, and
+  `precision="32-true"`. Single-device runs use `strategy="auto"`; runs that
+  select multiple CUDA devices explicitly use `strategy="ddp"` to preserve
+  their original distributed setup. Different precision or selection policies require an
+  explicit experimental comparison rather than an incidental API cleanup.
 - Disable loggers, progress bars, summaries, and checkpointing unless they are
   part of the claim.
 - Run on CPU by default. An accelerator-specific proof must record its device and environment
@@ -1439,8 +1447,8 @@ train source -> save source checkpoint -> fork experiment and controls
   Preserved state values alone do not demonstrate preserved behavior. Equally,
   retaining weights does not require identical predictions when the edit
   changes visible context, target meaning, or reduction.
-- Mutate between completed loops. Set `model.optimizer = rf.adamw(...)` and use
-  a new Trainer for each fitting phase. Check that the optimizer covers the
+- Mutate between completed loops. Configure optimization on a fresh
+  `model.fit(...)` call for each fitting phase. Check that the optimizer covers the
   current trainable parameters, including newly added nodes. Never continue
   through an optimizer instance attached to replaced parameters.
 - At evaluation, omit supervised target values from input and disable dropout.

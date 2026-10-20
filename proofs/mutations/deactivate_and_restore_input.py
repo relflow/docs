@@ -85,10 +85,9 @@ from tempfile import TemporaryDirectory
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P049"
 
@@ -151,19 +150,24 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=1,
         n_heads=4,
         dropout=0.0,
-        batch_size=128,
         a=rf.Number,
         b=rf.Number,
         y=rf.Number(mask=True, objective="mse"),
     )
-    model.optimizer = rf.adamw(learning_rate=3e-3, fused=False)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=2048, seed=seed + 1),
         validate=partial(records, rows=512, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        learning_rate=0.003,
+        fused=False,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -175,7 +179,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     reference = prediction(model, test)
     source = errors(actual, reference, baseline)

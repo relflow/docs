@@ -92,7 +92,6 @@ model = rf.Model.xs(
     ),
 )
 pretraining_data = rf.ArrowDataModule(
-    model=model,
     train="payments/pretraining/train.parquet",
     validate="payments/pretraining/validation.parquet",
 )
@@ -191,7 +190,6 @@ A smaller learning rate is a starting point to evaluate:
 
 ```python
 finetuning_data = rf.ArrowDataModule(
-    model=finetuned,
     train="payments/finetuning/train.parquet",
     validate="payments/finetuning/validation.parquet",
 )

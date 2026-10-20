@@ -57,7 +57,6 @@ is invalid and restores the previous schema and graph. See
 
 ```python
 prediction_data = rf.ArrowDataModule(
-    model=model,
     predict="payments/requests.parquet",
 )
 

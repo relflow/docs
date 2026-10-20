@@ -140,9 +140,8 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P075"
 BUDGET = 600
@@ -213,8 +212,7 @@ def build(hops: int) -> rf.Model:
             entity_id=rf.Hash(n_hashes=4, n_bands=8),
             source_id=rf.Hash(n_hashes=4, n_bands=8),
         )
-    model = rf.Model.xs(n_layers=2, n_heads=4, reduction=None, batch_size=BATCH_SIZE, fields=fields)
-    model.optimizer = rf.adamw(learning_rate=0.003)
+    model = rf.Model.xs(n_layers=2, n_heads=4, reduction=None, fields=fields)
     return model
 
 
@@ -243,12 +241,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         lit.seed_everything(seed, workers=True)
         model = build(hops)
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=TRAIN_ROWS, seed=seed * 100 + 1, namespace="train", hops=hops),
             validate=partial(records, rows=512, seed=seed * 100 + 2, namespace="validate", hops=hops),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=BATCH_SIZE,
+            learning_rate=0.003,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_steps=BUDGET if steps is None else min(steps, BUDGET),
@@ -260,7 +264,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             deterministic=True,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         model.eval()
         train = records(rows=TRAIN_ROWS, seed=seed * 100 + 1, namespace="train", hops=hops)
         training_mean = float(np.mean([item["value"] for row in train for item in row["target"]]))

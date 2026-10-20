@@ -126,7 +126,6 @@ Use `preprocessor=` on either [data module](data-modules.qmd):
 ```python
 # Raw Parquet files come from the application.
 arrow_data = rf.ArrowDataModule(
-    model=model,
     train="payments/raw/train.parquet",
     validate="payments/raw/validation.parquet",
     preprocessor=pipeline,
@@ -143,7 +142,6 @@ prediction data module:
 
 ```python
 requests = rf.ArrowDataModule(
-    model=model,
     predict="payments/raw/requests.parquet",
     preprocessor=pipeline,
     retain=("payment_id",),

@@ -110,10 +110,9 @@ from copy import deepcopy
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P002"
 TRAIN_MAX = 6
@@ -188,20 +187,24 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=2,
         n_heads=4,
         reduction=rf.Attention(n_layers=2),
-        batch_size=64,
-        optimizer=lambda module: torch.optim.Adam(module.parameters(), lr=0.001),
         items=rf.Branch(
             length=CAPACITY, attention="mha", n_layers=2, reduction=rf.Attention(n_layers=2), amount=rf.Number
         ),
         total=rf.Number(mask=True, objective="mse"),
     )
     datamodule = rf.SyntheticDataModule(
-        model=model,
         train=lambda: random_records(rows=1536, seed=seed + 1),
         validate=lambda: random_records(rows=384, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        datamodule,
+        batch_size=64,
+        optimizer=lambda module: torch.optim.Adam(module.parameters(), lr=0.001),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -213,7 +216,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=datamodule)
+    trainer = model.trainer
 
     # Evaluate held-out answers and retain their original labels in corruption controls.
     in_range_score = score(train=train, test=in_range, predicted=prediction(model, in_range))

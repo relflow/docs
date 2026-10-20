@@ -19,13 +19,11 @@ model = rf.Model.xs(
     disputed=rf.Boolean(mask=True),
 )
 datamodule = rf.ArrowDataModule(
-    model=model,
     train="payments/train.parquet",
     validate="payments/validation.parquet",
 )
 model.fit(datamodule, batch_size=128, max_epochs=20)
 prediction_data = rf.ArrowDataModule(
-    model=model,
     predict="payments/requests.parquet",
 )
 predictions = model.predict(datamodule=prediction_data, batch_size=256, devices=1)
@@ -58,7 +56,7 @@ Constructor options live with their owning type.
 
 | API | Purpose |
 | --- | --- |
-| `rf.ArrowDataModule` | Provide named splits from Arrow tables, files, datasets, or restartable Arrow factories. |
+| `rf.ArrowDataModule` | Provide named splits from Arrow tables, files, datasets, or restartable Arrow factories; the model loop binds the module automatically. |
 | `rf.PolarsDataModule` | Convert eager DataFrames once into the Arrow pipeline. |
 | `rf.DuckDBDataModule` | Read restartable Arrow batches from configured DuckDB queries. |
 | `rf.source` | Configure Arrow file reading. |
@@ -68,11 +66,14 @@ Constructor options live with their owning type.
 | `model.validate`, `model.test` | Evaluate the corresponding data-module split and return aggregate metrics. |
 | `model.track` | Log a custom metric through Lightning; training defaults to step logging and evaluation to pass aggregates. |
 | `rf.EarlyStopping`, `rf.RollbackCheckpoint` | Configure stopping and best-checkpoint restoration explicitly. |
+| `rf.EMA` | Optionally average learned parameters for validation, checkpoint selection, and the model returned by fitting. |
 | `model.compile` | Compile selected encoders and attention pools; returns the same model. |
 
 `rf.CustomDataModule` and `rf.SyntheticDataModule` support application-owned
 mapping streams. Prefer Arrow and Polars modules when the data already has
-that form. See [Data Modules](../guides/data-modules.qmd),
+that form. All five RelFlow data modules bind automatically when passed to a
+model loop. Use `bind(model)` before direct loader access outside a loop. See
+[Data Modules](../guides/data-modules.qmd#bind-a-model-when-the-loop-starts),
 [Preprocessing](../guides/preprocessors.qmd),
 [Training And Checkpoints](../guides/lightning.qmd),
 [Evaluation](../guides/evaluation.qmd), and

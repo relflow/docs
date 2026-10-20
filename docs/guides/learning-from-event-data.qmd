@@ -102,7 +102,6 @@ model = rf.Model.xs(
     ),
 )
 data = rf.ArrowDataModule(
-    model=model,
     train="payments/context/train.parquet",
     validate="payments/context/validation.parquet",
 )

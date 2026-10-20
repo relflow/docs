@@ -76,8 +76,23 @@ normalization = rf.Number.normalization(model, rf.Address("amount"))
 The snapshot contains `mean`, `variance`, `std`, `count`, and `alpha`. Repeated
 training presentations count again; `count` is `None` for exponential updates.
 
-Reconstruction loss scales errors by the learned standard deviation. MAE and
-RMSE metrics use source units. Prediction `content` is a `float64` scalar, even
+Content reconstruction loss scales errors by the learned standard deviation
+and includes only selected reconstruction targets whose true state is
+`valued`. A selected null contributes state loss but no numeric content loss;
+zero remains a valid numeric target. If a batch has no eligible valued targets,
+the numeric content loss contributes zero.
+
+MAE and RMSE metrics use source units. Validation and test accumulate absolute
+or squared errors and eligible target counts across the pass and distributed
+ranks. Thus MAE is total absolute error divided by target count, and RMSE is
+the square root of total squared error divided by target count. Transactions
+in longer histories count individually; this is not a mean of per-account or
+per-batch errors. Training reports the current batch's valued-target metric,
+or `NaN` when it has no such targets. A pass with no eligible numeric targets
+does not establish prediction quality. See
+[numeric evaluation](../guides/evaluation.qmd#numeric-targets-and-missing-values).
+
+Prediction `content` is a `float64` scalar, even
 when the most likely predicted state is not `valued`; read it alongside
 `state` and `inferred` in the [prediction envelope](../guides/prediction-output.qmd).
 

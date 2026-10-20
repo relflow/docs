@@ -91,9 +91,8 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P062"
 BUDGET = 400
@@ -111,17 +110,15 @@ def build() -> rf.Model:
         d_model=32,
         n_layers=1,
         n_heads=4,
-        batch_size=64,
         dropout=0.0,
         x=rf.Number,
         code=rf.Category(mask=rf.Mask(query="hide", reconstruct=True)),
     )
-    model.optimizer = rf.adamw(learning_rate=0.002)
     return model
 
 
 def evaluate(trainer: lit.Trainer, model: rf.Model, rows: list[dict]) -> dict[str, float]:
-    data = rf.SyntheticDataModule(model=model, validate=lambda: iter(rows), seed=0)
+    data = rf.SyntheticDataModule(validate=lambda: iter(rows), seed=0)
     result = trainer.validate(model, datamodule=data, verbose=False)[0]
     prefix = ".code/validate."
     return {name.removeprefix(prefix): float(value) for name, value in result.items() if name.startswith(prefix)}
@@ -131,12 +128,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     lit.seed_everything(seed, workers=True)
     model = build()
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=8192, seed=seed + 1),
         validate=partial(records, rows=1024, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=64,
+        learning_rate=0.002,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -148,7 +151,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     original = list(records(rows=2048, seed=seed + 3))
     vocabulary = rf.Category.vocabulary(model, "/code")
     counts = rf.Category.counts(model, "/code")

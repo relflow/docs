@@ -189,8 +189,7 @@ model = rf.Model(
 
 RelFlow's hidden neural activations use tanh GELU and its neural normalization
 uses RMSNorm with epsilon `1e-5`. Pretrained text encoders retain their own
-architectures. Checkpoints created with the previous architecture require
-the matching RelFlow version; train and save a new model to adopt these defaults.
+architectures.
 
 Encoder and reduction settings are separate. `attention=None` disables encoder
 attention while leaving the reduction in place. `rf.Mean()` averages present

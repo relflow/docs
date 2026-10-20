@@ -86,8 +86,11 @@ its `predict` split; the direct `model.predict(...)` input is an in-memory API.
 Reserve table-input examples for explaining that API. Returned predictions
 remain Arrow tables.
 
-Use `rf.ArrowDataModule(model=model, train=train, validate=validate)` for
-canonical training examples. Name application-supplied inputs. Configure AdamW
+Use `rf.ArrowDataModule(train=train, validate=validate)` for canonical training
+examples. Omit the model argument in every data-module example: model loops
+and native Lightning Trainer loops bind the module automatically. Direct
+loader access requires an explicit `data.bind(model)` first. Name
+application-supplied inputs. Configure AdamW
 through `model.fit(data, batch_size=128, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)`;
 omitted options use defaults. Each fit binds a fresh optimizer to the current
 parameters, with any scheduler supplied for that run. Full training continuation
@@ -100,7 +103,7 @@ Repeated records always use variable Arrow lists, including bounded branches;
 input caps do not add public padding. Fixed-width vectors retain their feature
 axis. Extension output list children must be named `element`.
 Embeddings live in representation records with `path`, `parents`, `output_index`,
-and `embedding`. The pinned contract targets RelFlow 0.3.1; recorded proofs
+and `embedding`. The pinned contract records the current API source; recorded proofs
 retain their original provenance even when executable output readers are
 migrated. A reader migration does not establish fresh learning results. Show
 observation and output examples as one YAML record, nesting repeated values

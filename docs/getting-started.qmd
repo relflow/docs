@@ -15,7 +15,7 @@ across past payments. This first model has no account history. The next
 tutorial puts this payment and its predecessors in one transaction branch,
 with a dispute target on every item.
 
-You need Python 3.12 or newer. Install relflow in your project:
+You need Python 3.11 or newer. Install relflow in your project:
 
 ```bash
 uv add relflow
@@ -68,7 +68,6 @@ both splits include the observed `disputed` labels.
 
 ```python
 data = rf.ArrowDataModule(
-    model=model,
     train="payments/train.parquet",
     validate="payments/validation.parquet",
 )
@@ -86,7 +85,6 @@ because that is the outcome you want to predict.
 
 ```python
 requests = rf.ArrowDataModule(
-    model=model,
     predict="payments/requests.parquet",
 )
 predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
@@ -94,8 +92,8 @@ predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 
 `devices=1` collects the predictions on one device. `predictions` is an Arrow
 table. Read the target under `predictions.disputed`.
-[Prediction Output](guides/prediction-output.qmd) explains its probability and
-the difference from earlier address-keyed output.
+[Prediction Output](guides/prediction-output.qmd) explains how to read the
+probability and the other returned fields.
 
 Next, [add transaction history](tutorials/transaction-history.qmd) to move the
 payment fields into `trxns` and score each transaction using the shared

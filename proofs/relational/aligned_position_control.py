@@ -99,10 +99,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P024"
 PAIR_COUNT = 2
@@ -146,8 +145,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=2,
         n_heads=4,
         reduction=rf.Attention(),
-        batch_size=128,
-        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3),
         memory=rf.Branch(
             length=2 * PAIR_COUNT,
             n_layers=2,
@@ -159,12 +156,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         ),
     )
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=2048, seed=seed + 1, namespace="train"),
         validate=partial(records, rows=512, seed=seed + 2, namespace="validate"),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_steps=800 if steps is None else min(steps, 800),
         max_epochs=-1,
@@ -175,7 +178,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         check_val_every_n_epoch=5,
     )
-    trainer.fit(model, datamodule=data)
     test = list(records(rows=1024, seed=seed + 3, namespace="test"))
     broken = list(records(rows=1024, seed=seed + 3, namespace="test", broken_identity=True))
     intact_nrmse = normalized_rmse(model, test)

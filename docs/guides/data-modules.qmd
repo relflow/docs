@@ -2,7 +2,8 @@
 title: Data Modules
 ---
 
-A data module connects named datasets to a model and prepares Lightning batches.
+A data module supplies named datasets and prepares Lightning batches. Pass it
+to a model loop to bind it to that model automatically.
 Each row is one observation; nested lists and structs stay inside that row.
 Continue with the model from [Add Transaction History](../tutorials/transaction-history.qmd).
 Each row contains a prepared transaction sequence at one account-review cutoff:
@@ -48,7 +49,6 @@ import relflow as rf
 
 # Reuse the history model; each file row has the nested structure above.
 data = rf.ArrowDataModule(
-    model=model,
     train="payments/train.parquet",
     validate="payments/validation.parquet",
 )
@@ -56,6 +56,44 @@ data = rf.ArrowDataModule(
 
 Nested structs and lists remain part of each observation. Existing in-memory
 `pyarrow.Table` objects are also supported.
+
+## Bind A Model When The Loop Starts
+
+Configure the sources independently of the model, then pass the data module
+to the model's loop:
+
+```python
+data = rf.ArrowDataModule(
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
+)
+model.fit(data, batch_size=128, max_epochs=30)
+```
+
+`fit`, `validate`, `test`, and data-module `predict` bind an unbound module
+before setup and loading. `PolarsDataModule`, `DuckDBDataModule`,
+`CustomDataModule`, and `SyntheticDataModule` support the same lifecycle.
+The loop's model owns the schema and batch size used to prepare batches.
+
+For direct loader access outside a loop, call `data.bind(model)` first.
+Reading the model-dependent schema or batch size, or creating a configured
+loader while unbound, raises `RuntimeError`.
+Calling `bind` again with the same model is harmless; binding to a different
+model raises `ValueError`. Create a separate data module for each model in a
+comparison, including a separately loaded copy of the same artifact.
+
+Native Lightning `Trainer` loops also bind in data-module `setup` using the
+attached RelFlow model. Their optimizer requirements remain those described
+in [Training And Checkpoints](lightning.qmd#configure-optimization-and-callbacks).
+
+The default shuffle window is resolved once at binding as
+`max(model.batch_size * 32, 4096)` rows. For an unbound module, a loop's
+explicit batch size is applied before binding. An explicit `shuffle_rows`
+value takes precedence. Changing batch size after binding changes subsequent
+loader batches but does not resize that window; set `shuffle_rows` explicitly
+when comparing shuffle behavior across runs. This window applies to streaming
+sources; in-memory Arrow tables use a full permutation. Streaming shuffle can
+buffer up to twice the window, so account for that memory when sizing it.
 
 ## Splits and preparation
 
@@ -97,7 +135,6 @@ Use `rf.source(...)` to configure a directory or glob explicitly:
 
 ```python
 data = rf.ArrowDataModule(
-    model=model,
     train=rf.source("payments/train", format="parquet"),
     validate=rf.source("payments/validation/*.parquet", format="parquet"),
 )
@@ -106,6 +143,8 @@ data = rf.ArrowDataModule(
 `rf.source(...)` adds explicit format, schema, filesystem, and partitioning
 configuration when needed. Keep nested structs and lists in their Arrow form.
 Use an explicit schema when values are empty, entirely null, or ambiguous.
+Local `file://` URIs preserve Windows drive letters and URI-encoded path
+characters; ordinary local file paths remain supported.
 
 ## DuckDB
 
@@ -126,7 +165,6 @@ observations = """
 """
 
 data = rf.DuckDBDataModule(
-    model=model,
     database="warehouse/payments.duckdb",
     train=observations,
     validate=observations,
@@ -147,7 +185,6 @@ useful for queries that read files directly:
 
 ```python
 data = rf.DuckDBDataModule(
-    model=model,
     predict="""
         SELECT payment_id, trxns
         FROM read_parquet('warehouse/scoring/*.parquet')

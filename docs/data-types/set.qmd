@@ -99,10 +99,6 @@ and coverage together. Output `threshold` does not change these metrics.
 preservation and coverage; [P064](../proofs/vocabulary/set-unavailable-fallback.py)
 tests learning the empty/unknown distinction.
 
-The unavailable-input contribution adds a parameter to Set artifacts. Older
-checkpoints without that parameter cannot be loaded unchanged by the strict
-checkpoint loader; there is no automatic artifact migration in this change.
-
 ## Prediction
 
 `content` is a list of `value` / `probability` structs, with string labels and

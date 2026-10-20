@@ -85,6 +85,10 @@ def test_experiments_keep_generation_and_modeling_in_their_own_script() -> None:
                 constructor = constructor.value
             if isinstance(constructor.value, ast.Name) and constructor.value.id in relflow_names:
                 constructors.add(constructor.attr)
+                if constructor.attr.endswith("DataModule"):
+                    assert not node.args and all(keyword.arg != "model" for keyword in node.keywords), (
+                        f"{path}:{node.lineno}: let the model or Trainer loop bind the data module automatically"
+                    )
         assert {"Model", "SyntheticDataModule"} <= constructors, f"{path}: include the model and synthetic splits"
         assert any(isinstance(node, (ast.Yield, ast.YieldFrom)) for node in ast.walk(module)), (
             f"{path}: include the synthetic record generator"
@@ -93,6 +97,49 @@ def test_experiments_keep_generation_and_modeling_in_their_own_script() -> None:
             isinstance(node, (ast.FunctionDef, ast.AsyncFunctionDef)) and node.name.startswith("test_")
             for node in module.body
         ), f"{path}: expose an experiment rather than a collected test"
+
+
+def test_experiments_keep_explicit_training_protocols_on_model_fit() -> None:
+    entries = yaml.safe_load((PROOFS / "results.yaml").read_text())["proofs"]
+    for entry in entries.values():
+        path = ROOT / entry["script"]
+        module = ast.parse(path.read_text(), filename=str(path))
+        calls = [node for node in ast.walk(module) if isinstance(node, ast.Call)]
+        assert not any(ast.unparse(call.func) == "lit.Trainer" for call in calls), path
+        fits = [call for call in calls if ast.unparse(call.func) == "model.fit"]
+        assert len(fits) == 1, path
+        options = {keyword.arg: keyword.value for keyword in fits[0].keywords}
+        assert "batch_size" in options and "max_steps" in options and "max_epochs" in options, path
+        assert ast.literal_eval(options["early_stopping"]) is False, path
+        assert ast.literal_eval(options["rollback"]) is False, path
+        assert ast.literal_eval(options["precision"]) == "32-true", path
+        if "devices" in options:
+            assert ast.literal_eval(options["strategy"]) == "auto", path
+        else:
+            expected = ast.parse(
+                '"ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto"',
+                mode="eval",
+            ).body
+            assert ast.dump(options["strategy"], include_attributes=False) == ast.dump(
+                expected, include_attributes=False
+            ), path
+        assert ("optimizer" in options) != ("learning_rate" in options), path
+        for call in calls:
+            if ast.unparse(call.func) in {"rf.Model", "rf.Model.xs"}:
+                assert all(keyword.arg not in {"optimizer", "batch_size"} for keyword in call.keywords), path
+            if ast.unparse(call.func) == "rf.Cluster":
+                assert all(keyword.arg != "n_clusters" for keyword in call.keywords), path
+            if ast.unparse(call.func) == "rf.Address":
+                assert all(
+                    "/" not in argument.value
+                    for argument in call.args
+                    if isinstance(argument, ast.Constant) and isinstance(argument.value, str)
+                ), path
+        assert not any(
+            isinstance(node, ast.Assign)
+            and any(isinstance(target, ast.Attribute) and target.attr == "optimizer" for target in node.targets)
+            for node in ast.walk(module)
+        ), path
 
 
 def test_experiments_expose_the_shared_reporting_entrypoint() -> None:
