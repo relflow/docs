@@ -1,0 +1,197 @@
+---
+title: Which merchants will be paid again?
+description: A fictional comparison for merchant-repeat prediction alongside transaction disputes.
+benchmark-id: B002
+benchmark-status: Fictional
+categories: [Repeat payments]
+engine: markdown
+---
+
+A payment service wants to anticipate another payment to a merchant while
+continuing to prioritize disputes. This example adds payment channel and
+account tenure, then asks whether shared context is useful for both outcomes.
+
+::: {.callout-note title="Fictional benchmark"}
+All data, schemas, and results on this page are fictional placeholders.
+No benchmark has been run.
+:::
+
+## Example
+
+One fictional labeled observation follows the recurring-merchant example from
+[Learning From Event Histories](../guides/learning-from-event-data.qmd):
+
+```yaml
+account_age_days: 420
+trxns:
+  - booked_at: "2026-03-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+    disputed: false
+    repeats_next_30_days: true
+  - booked_at: "2026-04-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+    disputed: false
+    repeats_next_30_days: true
+  - booked_at: "2026-05-27T08:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    channel: card
+    disputed: true
+    repeats_next_30_days: false
+  - booked_at: "2026-05-28T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+    channel: direct_debit
+    disputed: false
+    repeats_next_30_days: true
+```
+
+The common cutoff is May 28, 2026 at 09:00. For every transaction,
+`repeats_next_30_days` means another payment to its merchant during the following
+30 days; `disputed` means a new dispute against that transaction during the
+same window. Both answers are attached only after the window is complete.
+Harbor Internet's repeated appearances share the same future merchant-repeat
+answer at this cutoff. The target does not identify subscriptions or assume
+that a calendar month always lasts 30 days.
+
+## Schema
+
+```{typst}
+//| label: fig-benchmark-repeat-payments
+//| fig-cap: "Fictional schema: account tenure and transaction channels support two hidden outcomes at every transaction position."
+//| fig-alt: "An account root has Number account_age_days and one repeated trxns branch. Each transaction has DateParts booked_at, Number amount, Category merchant, Enum channel, and hidden Boolean disputed and repeats_next_30_days targets. Both targets are supervised at every transaction position."
+#tree(node("account", kind: "root", body: [One review cutoff.], children: (
+  node("account_age_days", width: 160pt, type: "Number"),
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts", body: [Calendar cycles.]),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+    node("channel", type: "Enum"),
+    node("disputed", kind: "target", type: "Boolean", body: [Hidden for every transaction.]),
+    node("repeats_next_30_days", width: 190pt, kind: "target", type: "Boolean", body: [Hidden for every transaction.]),
+  )),
+)))
+```
+
+<details class="proof-details">
+<summary>Complete model schema</summary>
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    account_age_days=rf.Number,
+    trxns=rf.Branch(
+        length=32,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        merchant=rf.Category,
+        channel=rf.Enum(values=("card", "direct_debit", "bank_transfer")),
+        disputed=rf.Boolean(mask=True),
+        repeats_next_30_days=rf.Boolean(mask=True),
+    ),
+)
+```
+
+The anonymous root contains the profile and transaction collection. Histories
+are oldest to newest, and the last 32 are retained. Account age and channel must
+be known at the cutoff. `DateParts` encodes the chosen calendar cycles, not
+elapsed-time gaps. This fictional schema uses the calendar-only timing inputs
+from the event-history guide; it is a separate comparison from B001's duration
+example.
+
+Prediction records omit both outcome fields from every transaction. Both
+results appear under `predictions.trxns[i]`, with `inferred: true` at every
+retained position.
+
+</details>
+
+## Comparison
+
+Compare separate gradient-boosted tree models with the joint sequence model
+above. The trees receive the same profile and transaction attributes, plus
+spending, merchant-frequency, and channel summaries over the same history.
+Neither model receives either future label as input.
+
+Evaluate repeat ranking and probability quality separately from dispute
+ranking. Also compare the joint sequence model with one sequence model per
+task before attributing value to shared training.
+
+## Result
+
+| Fictional model | Repeat PR-AUC ↑ | Repeat Brier score ↓ | Dispute PR-AUC ↑ |
+| --- | ---: | ---: | ---: |
+| Separate trees with history summaries | 0.76 | 0.108 | 0.31 |
+| Joint RelFlow transaction sequence | 0.78 | 0.115 | 0.33 |
+
+: Fictional placeholder results for the proposed comparison. {#tbl-benchmark-repeat-payments}
+
+The example shows a mixed result: the sequence model ranks better, while the
+tree baseline has the lower repeat Brier score. Report ranking and probability
+quality separately so the team can assess both outcomes.
+
+<details class="proof-details">
+<summary>Fictional method, splits, and controls</summary>
+
+### Cohort and outcome
+
+The imaginary cohort contains accounts with card, direct-debit, or bank-transfer
+payments and one review snapshot per account. Every listed transaction has
+settled Boolean labels for both next-30-day outcomes. Profile values, merchant
+normalization, and event attributes use only information available at the
+snapshot cutoff.
+
+Repeat labels refer to the merchant, not an exact amount, payment channel, or
+subscription contract. A transaction disputed after the cutoff need not be
+fraud. Missing or incomplete outcome windows are not negative labels.
+
+### Proposed split
+
+| Split | Fictional snapshot cutoffs |
+| --- | --- |
+| Train | January–August 2025 |
+| Validation | October–November 2025 |
+| Test | January–June 2026 |
+
+Accounts are disjoint across splits, with intervening months separating label
+windows. Learn vocabularies and preprocessing state on training only. Use
+validation for model choices and any probability calibration, then preserve
+those choices for test.
+
+These imaginary paths describe prepared application inputs; no files or
+trained artifacts accompany this page:
+
+```python
+data = rf.ArrowDataModule(
+    model=model,
+    train="fictional/repeat-payments/train.parquet",
+    validate="fictional/repeat-payments/validation.parquet",
+    test="fictional/repeat-payments/test.parquet",
+)
+```
+
+### Controls for a real run
+
+- Keep accounts, retained histories, label windows, and tuning budgets matched
+  across models. Add channel and profile context in separate ablations.
+- Supervise both targets on every transaction. For repeat evaluation, average
+  scores within each account–merchant–cutoff group and count that group once;
+  repeated Harbor Internet records must not inflate its evaluation weight.
+- Calculate repeat PR-AUC as average precision and Brier score on those grouped
+  probabilities. Calculate dispute PR-AUC per retained transaction.
+- Compare joint and separate sequence models using identical inputs. Separate
+  task models exclude the other outcome field entirely.
+- Repeat training seeds and estimate uncertainty by resampling accounts. Report
+  both tasks, including regressions, before choosing a model for an application.
+
+</details>
+
+See [payment disputes](payment-disputes.qmd) for the simpler history comparison,
+or return to the [benchmark catalog](../benchmarks.qmd).

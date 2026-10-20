@@ -1,11 +1,12 @@
 <script>
-  {
-    const listing = document.querySelector("#listing-proofs");
+  for (const listing of document.querySelectorAll("#listing-proofs, #listing-benchmarks")) {
+    const isBenchmark = listing.id === "listing-benchmarks";
+    const statusField = isBenchmark ? "benchmark-status" : "proof-status";
 
-    // Quarto initializes the listing first; keep every matching proof visible.
+    // Quarto initializes the listing first; keep every matching entry visible.
     document.addEventListener("DOMContentLoaded", () => {
       listing.querySelector(".listing-pagination")?.remove();
-      window["quarto-listings"]["listing-proofs"].show(1, Infinity);
+      window["quarto-listings"]?.[listing.id]?.show(1, Infinity);
     });
 
     // Contain wide rows without scrolling the filter and sort controls.
@@ -14,20 +15,20 @@
     viewport.className = "table-responsive";
     viewport.tabIndex = 0;
     viewport.setAttribute("role", "region");
-    viewport.setAttribute("aria-label", "Proofs table");
+    viewport.setAttribute("aria-label", isBenchmark ? "Benchmarks table" : "Proofs table");
     table.before(viewport);
     viewport.append(table);
 
-    const sort = listing.querySelector("#listing-proofs-sort");
+    const sort = listing.querySelector(`#${listing.id}-sort`);
     for (const option of sort.querySelectorAll('option[value=""], option[value="index"]')) {
       option.remove();
     }
-    sort.value = "listing-id";
+    sort.value = isBenchmark ? "listing-benchmark-id" : "listing-id";
 
     // Keep Quarto's plain status text intact for listing search and sorting.
-    for (const badge of listing.querySelectorAll(".listing-proof-status")) {
-      badge.classList.add("proof-status");
-      badge.dataset.proofStatus = badge.textContent.trim();
+    for (const badge of listing.querySelectorAll(`.listing-${statusField}`)) {
+      badge.classList.add(statusField);
+      badge.dataset[isBenchmark ? "benchmarkStatus" : "proofStatus"] = badge.textContent.trim();
     }
 
     // Handle actual cell clicks; the title link remains the keyboard entry point.

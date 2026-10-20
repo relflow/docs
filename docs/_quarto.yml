@@ -140,6 +140,8 @@ website:
             text: Troubleshooting
           - href: proofs.qmd
             text: Proofs
+          - href: benchmarks.qmd
+            text: Benchmarks
   page-footer:
     border: true
     left: Grantham Taylor

@@ -34,6 +34,22 @@ every position, and each transaction has its own dispute target.
 3. [Prepare your observations](core-concepts/binding-data.qmd): keep the same payment and history in [application-supplied Parquet files](guides/data-modules.qmd).
 4. [Train and evaluate](guides/lightning.qmd): compare dispute predictions with the existing review process before adding more context.
 
+## Proofs And Benchmarks
+
+[Proofs](proofs.qmd) are small, controlled learning experiments on synthetic
+data. Each page shows a schema, a comparison, and a recorded result for a
+question such as adding values or matching unfamiliar IDs. Use them to
+understand what a model can learn under the tested conditions, where information
+can be lost, and which assumptions to test in your own model.
+
+[Benchmarks](benchmarks.qmd) describe evaluations for complete workloads, from
+dispute review to batch scoring. Their schemas, baseline comparisons, and
+metrics connect model choices to prediction quality, review capacity, and
+processing costs. Use them to plan how to judge whether a model improves your
+workflow and fits its time and resource budget. Current benchmark data,
+schemas, and numbers are **fictional placeholders**; no benchmark runs have
+been performed.
+
 ## Go Further When You Need To
 
 The later examples extend the transaction model in order:

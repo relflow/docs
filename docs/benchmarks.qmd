@@ -1,0 +1,41 @@
+---
+engine: markdown
+title: Benchmarks
+description: Fictional workload examples showing how a RelFlow benchmark could be described.
+format:
+  html:
+    css: assets/stylesheets/proofs.css
+    include-after-body: assets/proof-status.html
+    tbl-colwidths: false
+listing:
+  id: benchmarks
+  contents: "benchmarks/*.qmd"
+  type: table
+  fields: [benchmark-id, title, categories, benchmark-status]
+  field-links: [title]
+  field-display-names:
+    benchmark-id: ID
+    title: Benchmark
+    categories: Workload
+    benchmark-status: Results
+  sort: benchmark-id
+  filter-ui: [benchmark-id, title, categories, benchmark-status]
+  sort-ui: [benchmark-id, title, categories, benchmark-status]
+  categories: false
+---
+
+::: {.callout-note}
+## Fictional placeholders
+
+All data, schemas, and numbers on these benchmark pages are fictional
+placeholders. No benchmark runs have been performed.
+:::
+
+Open a workload to see its modeling question, example schema, and proposed
+comparison. These pages describe possible benchmarks; they provide no measured
+performance or learning results. For recorded experiments, see [Proofs](proofs.qmd).
+
+Search by benchmark, workload, results, or ID, such as `B001`.
+
+::: {#benchmarks}
+:::

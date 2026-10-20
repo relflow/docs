@@ -1,0 +1,180 @@
+---
+title: Which payments should the review team investigate?
+description: A fictional comparison of summary features and transaction sequences for dispute review.
+benchmark-id: B001
+benchmark-status: Fictional
+categories: [Dispute detection]
+engine: markdown
+---
+
+A review team has room to investigate only a small share of payments. This
+example asks whether keeping individual transactions helps rank the payments
+that will receive a dispute report, compared with a model using history
+summaries.
+
+::: {.callout-note title="Fictional benchmark"}
+All data, schemas, and results on this page are fictional placeholders.
+No benchmark has been run.
+:::
+
+## Example
+
+One fictional labeled observation contains the transactions available at an
+account-review cutoff:
+
+```yaml
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    hours_since_previous: null
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    hours_since_previous: 152.25
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    hours_since_previous: 20.25
+    disputed: false
+```
+
+The common cutoff is May 28, 2026 at 14:30. Every `disputed` label means a new
+dispute reported against that transaction during the following 30 days. The
+answers are attached after the window has completed and hidden from all inputs.
+The entire listed sequence is valid context at this shared cutoff; these are
+not separate forecasts made at the earlier booking times.
+
+`hours_since_previous` supplies elapsed time, while `DateParts` supplies
+calendar cycles. The first gap is null because the first supplied transaction
+has no predecessor in this observation. See [Preprocessing](../guides/preprocessors.qmd#derive-a-value)
+for the derivation.
+
+## Schema
+
+```{typst}
+//| label: fig-benchmark-payment-disputes
+//| fig-cap: "Fictional schema: the same transaction sequence provides context and a hidden dispute target at every position."
+//| fig-alt: "An account root owns one repeated trxns branch. Each transaction has DateParts booked_at, Number amount, Category merchant, Number hours_since_previous, and a Boolean disputed target hidden from input at every position."
+#tree(node("account", kind: "root", body: [One review cutoff.], children: (
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts", body: [Calendar cycles.]),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+    node("hours_since_previous", width: 180pt, type: "Number", body: [Elapsed hours; first gap null.]),
+    node("disputed", kind: "target", type: "Boolean", body: [Hidden for every transaction.]),
+  )),
+)))
+```
+
+<details class="proof-details">
+<summary>Complete model schema</summary>
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    trxns=rf.Branch(
+        length=32,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        merchant=rf.Category,
+        hours_since_previous=rf.Number,
+        disputed=rf.Boolean(mask=True),
+    ),
+)
+```
+
+The anonymous root contains only `trxns`; `account` is the diagram's descriptive
+label. Input histories are oldest to newest, so the branch keeps the last 32
+transactions. Prediction records omit `disputed` from every transaction and
+retain the other fields. Results remain aligned at
+`predictions.trxns[i].disputed`, with `inferred: true` at every retained position.
+
+</details>
+
+## Comparison
+
+Compare gradient-boosted trees using each transaction's fields and account
+history summaries with the sequence model above. The summaries include
+transaction count, spend totals, amount ranges, merchant counts, and gap
+statistics over the same retained history. Both models receive the same
+cutoff-safe evidence and predict the same transaction labels.
+
+Rank payments for a fixed review capacity. PR-AUC summarizes ranking across
+thresholds; recall at a 5% review rate asks how many later disputes fall in the
+highest-scoring 5% of transactions.
+
+## Result
+
+| Fictional model | PR-AUC ↑ | Recall at 5% review rate ↑ |
+| --- | ---: | ---: |
+| Trees with history summaries | 0.31 | 0.52 |
+| RelFlow transaction sequence | 0.34 | 0.56 |
+
+: Fictional placeholder results for the proposed comparison. {#tbl-benchmark-payment-disputes}
+
+The example pairs overall ranking quality with capture at the team's review
+budget. A measured comparison would also report uncertainty, calibration, and
+the cost of preparing and scoring the history.
+
+<details class="proof-details">
+<summary>Fictional method, splits, and controls</summary>
+
+### Cohort and outcome
+
+The imaginary cohort contains accounts with at least one eligible payment and
+one review snapshot per account. Each snapshot ends at its latest booking and
+contains at most 32 transactions. All input values must have been available at
+that cutoff. A dispute is a reported customer outcome, not automatically fraud.
+
+Every retained transaction has a settled Boolean label for the same next
+30-day window. Accounts whose outcome windows are incomplete are excluded from
+the labeled cohort; an unobserved outcome is not converted to `false`.
+
+### Proposed split
+
+| Split | Fictional snapshot cutoffs |
+| --- | --- |
+| Train | January–August 2025 |
+| Validation | October–November 2025 |
+| Test | January–June 2026 |
+
+Account groups are disjoint across splits. The intervening months separate
+the 30-day label windows. Merchant vocabularies, numeric state, and application
+summary statistics are learned only from training observations. Hyperparameters
+and review policies are chosen on validation; test is reserved for the final
+comparison.
+
+These imaginary Parquet paths illustrate how already-prepared application
+inputs would be connected. No such files are supplied by this page:
+
+```python
+data = rf.ArrowDataModule(
+    model=model,
+    train="fictional/payment-disputes/train.parquet",
+    validate="fictional/payment-disputes/validation.parquet",
+    test="fictional/payment-disputes/test.parquet",
+)
+```
+
+### Controls for a real run
+
+- Use the same accounts, retained transactions, label windows, and tuning budget
+  for both models. Include a transaction-only baseline to isolate history's value.
+- Calculate elapsed gaps before model binding. If histories are clipped first,
+  calculate gaps after that clipping; later branch overflow does not recompute them.
+- Score each retained transaction once. Calculate PR-AUC as average precision;
+  rank within each review day's eligible pool for the 5% capacity metric.
+- Repeat training seeds and estimate uncertainty by resampling accounts,
+  preserving dependence among their transactions. Inspect calibration separately.
+
+</details>
+
+Continue with [repeat payments](repeat-payments.qmd) for shared transaction
+outcomes, or return to the [benchmark catalog](../benchmarks.qmd).

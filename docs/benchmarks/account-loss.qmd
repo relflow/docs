@@ -1,0 +1,216 @@
+---
+title: Does richer account context improve loss estimates?
+description: A fictional comparison of transaction histories, purchase baskets, and cash withdrawals for account review.
+engine: markdown
+benchmark-id: B003
+benchmark-status: Fictional
+categories: [Account risk]
+---
+
+[All benchmarks](../benchmarks.qmd)
+
+An account review team has a limited investigation budget. It needs an estimate
+of expected loss over the next month, alongside the individual transactions
+that may attract disputes. This benchmark asks whether purchase baskets and a
+separate withdrawal history would help prioritize that review.
+
+::: {.callout-note title="Fictional benchmark"}
+All data, schemas, and results on this page are fictional placeholders.
+No benchmark has been run.
+:::
+
+## Example
+
+One row is an account snapshot at a common review cutoff of May 28, 2026 at
+14:30. Transactions and withdrawals contain only information known then.
+Every transaction's `disputed` label describes a new dispute reported during
+the following 30 days; `loss_next_30_days` is the account's realized loss over
+that same window, in the application's common currency.
+
+```yaml
+account_id: account-42
+account_age_days: 420
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+    channel: card
+    line_items:
+      - sku: lunch
+        quantity: 2
+    disputed: false
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+    channel: card
+    line_items:
+      - sku: groceries
+        quantity: 1
+      - sku: household-supplies
+        quantity: 2
+    disputed: true
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+    channel: card
+    line_items:
+      - sku: groceries
+        quantity: 1
+    disputed: false
+recent_cash_withdrawals:
+  - booked_at: "2026-05-26T16:00:00"
+    amount: 100.00
+    atm_region: home_region
+loss_next_30_days: 18.50
+```
+
+The labels above belong to a settled training observation. At scoring time,
+omit every `disputed` value and `loss_next_30_days`. `account_id` is an
+application identifier carried alongside the modeled fields.
+
+## Schema
+
+Line items describe the contents of each purchase. Withdrawals form an
+independent history, since an ATM event has neither a merchant nor a purchase
+basket. Both histories contribute to the account loss estimate, while each
+transaction also receives its own dispute prediction.
+
+```{typst}
+//| label: fig-benchmark-account-loss
+//| fig-cap: "Fictional account-loss schema: purchase baskets and withdrawals add context to transaction and account targets."
+//| fig-alt: "An account contains account_age_days, repeated trxns, repeated recent_cash_withdrawals, and the Number target loss_next_30_days. Each transaction contains booked_at DateParts, amount Number, merchant Category, channel Enum, repeated line_items with sku Category and quantity Number, and the Boolean target disputed. Each withdrawal contains booked_at DateParts, amount Number, and atm_region Category. Both targets are always hidden from input."
+#tree(node("account", kind: "root", children: (
+  node("account_age_days", width: 150pt, type: "Number"),
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+    node("channel", type: "Enum"),
+    node("line_items", kind: "branch", repeated: true, children: (
+      node("sku", type: "Category"),
+      node("quantity", type: "Number"),
+    )),
+    node("disputed", kind: "target", type: "Boolean", body: [Always hidden.]),
+  )),
+  node("recent_cash_withdrawals", width: 185pt, kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
+    node("amount", type: "Number"),
+    node("atm_region", type: "Category"),
+  )),
+  node("loss_next_30_days", width: 165pt, kind: "target", type: "Number", body: [Always hidden.]),
+)))
+```
+
+<details>
+<summary>Complete model schema</summary>
+
+```python
+import relflow as rf
+
+model = rf.Model.md(
+    account_age_days=rf.Number,
+    trxns=rf.Branch(
+        length=64,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        merchant=rf.Category,
+        channel=rf.Enum(values=("card", "direct_debit", "bank_transfer")),
+        line_items=rf.Branch(
+            length=16,
+            overflow="head",
+            sku=rf.Category,
+            quantity=rf.Number,
+        ),
+        disputed=rf.Boolean(mask=True),
+    ),
+    recent_cash_withdrawals=rf.Branch(
+        length=16,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        atm_region=rf.Category,
+    ),
+    loss_next_30_days=rf.Number(mask=True),
+)
+```
+
+Keep each history oldest to newest. The caps retain the last 64 transactions
+and last 16 withdrawals; each transaction retains its first 16 supplied line
+items. The two histories have independent coordinates. Booking-time
+`DateParts` provide calendar features, not exact elapsed durations.
+
+</details>
+
+## Comparison
+
+Keep the account profile, transaction inputs, both target definitions, and
+review windows fixed. Train three separate models with the same `md` preset
+and training budget. First use transactions without line items or withdrawals;
+then add purchase baskets; finally add the withdrawal history. This isolates
+which added context would account for any change.
+
+The primary measure is mean absolute error in account loss, including accounts
+with zero loss. Also report the share of disputed transactions captured in
+the highest-scored 10% of transactions, so a better account estimate cannot
+silently hide worse transaction review performance.
+
+## Result
+
+| Available context | Account loss MAE ↓ | Disputes captured in top 10% ↑ |
+| --- | ---: | ---: |
+| Profile and transactions | 4.80 | 41% |
+| Add purchase line items | 4.35 | 44% |
+| Add separate withdrawals | 4.10 | 45% |
+
+: Fictional placeholder results. MAE is in the application's common currency units. {#tbl-benchmark-account-loss-results}
+
+The example tracks how added context affects the account estimate and the
+transaction ranking separately. A measured comparison would report uncertainty
+for both outcomes.
+
+<details>
+<summary>Proposed data and evaluation protocol</summary>
+
+**Fictional data contract.** An application would supply nested Parquet
+observations using the schema above:
+
+| Split | Illustrative path | Proposed account snapshots |
+| --- | --- | ---: |
+| Train | `benchmarks/account-loss/train.parquet` | 400,000 |
+| Validation | `benchmarks/account-loss/validation.parquet` | 50,000 |
+| Test | `benchmarks/account-loss/test.parquet` | 50,000 |
+
+Use disjoint account groups across splits and later review cutoffs for validation and test.
+Leave at least the 30-day outcome window between the last training cutoff and
+the first validation cutoff, and again before test. Only include snapshots
+whose entire outcome window has settled. Fit category and numeric preparation
+on training observations and reuse it unchanged.
+
+**Workload.** The proposed source contains 1–64 retained transactions per
+account, 1–16 line items per purchase, and 0–16 withdrawals. Record the actual
+length distributions, null rates, category counts, and label prevalence when
+real data replace these placeholders. Use the same source observations and
+retained transactions for every comparison; remove only the context being
+tested. Both targets remain supervised in every configuration.
+
+**Training plan.** Use the same optimizer settings, batch size of 128 account
+observations, maximum 30 epochs, and three matched seeds for each schema.
+Choose checkpoints using validation account-loss MAE under a rule fixed before
+test. Report per-seed test results and their spread, plus account-level
+bootstrap intervals.
+
+**Decision rule.** Rank transactions globally at a fixed 10% review budget and
+calculate captured disputes on all retained test transactions. Account MAE
+uses one loss estimate per snapshot in the same common currency. Report
+calibration and error for loss-bearing accounts separately before using either
+output to allocate review capacity.
+
+</details>
+
+Continue with [Account Risk](../case-studies/customer-risk.qmd) for the modeling
+walkthrough, or return to [all benchmarks](../benchmarks.qmd).

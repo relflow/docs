@@ -1,0 +1,191 @@
+---
+title: How many accounts can a scoring job process?
+description: A fictional batch-size comparison for scoring nested transaction histories.
+engine: markdown
+benchmark-id: B004
+benchmark-status: Fictional
+categories: [Batch inference]
+---
+
+[All benchmarks](../benchmarks.qmd)
+
+A nightly account review must finish before investigators start work. This
+benchmark asks how batch size would affect job throughput and batch latency
+when the model, transaction histories, and machine stay fixed.
+
+::: {.callout-note title="Fictional benchmark"}
+All data, hardware specifications, schemas, and results on this page are
+fictional placeholders. No benchmark has been run.
+:::
+
+## Example
+
+One Parquet row is an account at a common review cutoff. This fictional
+eight-transaction observation belongs to the short-history part of the
+proposed workload. Records are oldest to newest and all are known by the
+May 28, 2026 at 14:30 cutoff.
+
+```yaml
+account_id: account-42
+trxns:
+  - booked_at: "2026-05-19T08:00:00"
+    amount: 4.50
+    merchant: Station Cafe
+  - booked_at: "2026-05-20T17:30:00"
+    amount: 28.10
+    merchant: North Market
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+  - booked_at: "2026-05-22T12:15:00"
+    amount: 12.40
+    merchant: River Deli
+  - booked_at: "2026-05-24T09:00:00"
+    amount: 24.00
+    merchant: Harbor Internet
+  - booked_at: "2026-05-25T18:45:00"
+    amount: 19.80
+    merchant: River Deli
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+```
+
+Scoring inputs omit `disputed`. The checkpoint's target predicts whether each
+retained transaction receives a new dispute during the 30 days after the
+common cutoff. `account_id` remains an application identifier outside the
+model schema.
+
+## Schema
+
+The job uses the same small model for every batch-size setting. One account
+observation contains one `trxns` list and produces a dispute result for every
+retained transaction.
+
+```{typst}
+//| label: fig-benchmark-batch-scoring
+//| fig-cap: "Fictional scoring schema: each account row contains a transaction history with one dispute target per transaction."
+//| fig-alt: "An account root contains the repeated branch trxns. Each transaction contains booked_at DateParts, amount Number, merchant Category, and disputed Boolean. The disputed target is always hidden from input and omitted from the scoring request."
+#tree(node("account", kind: "root", children: (
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category"),
+    node("disputed", kind: "target", type: "Boolean", body: [Always hidden.]),
+  )),
+)))
+```
+
+<details>
+<summary>Complete model schema</summary>
+
+```python
+import relflow as rf
+
+model = rf.Model.xs(
+    trxns=rf.Branch(
+        length=128,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        amount=rf.Number,
+        merchant=rf.Category,
+        disputed=rf.Boolean(mask=True),
+    ),
+)
+```
+
+The cap retains at most the last 128 supplied transactions. It is an input
+capacity, not a promise of 128 output records per account. Repeated prediction
+records use variable Arrow lists containing the retained positions.
+`DateParts` provide calendar features rather than elapsed-time gaps.
+
+</details>
+
+## Comparison
+
+Score the same ordered file with batch sizes of 64, 128, and 256 **account
+observations**. Keep the checkpoint, precision, hardware, output selection, and
+history lengths fixed. Report throughput in account observations per second;
+a transaction prediction is a different counting unit.
+
+The proposed timing boundary begins when a warmed scoring loop requests its
+next file batch and ends when the corresponding Arrow predictions are ready
+in host memory. It includes source reads, preparation, transfers, model work,
+and output conversion. It excludes checkpoint loading, warm-up, and writing
+the final output file. These are proposed end-to-end batch timings, not isolated
+model-kernel timings or online request latency.
+
+## Result
+
+| Batch size, accounts | Mean batch cycle, ms ↓ | Account observations / second ↑ | Timed workload, seconds ↓ |
+| ---: | ---: | ---: | ---: |
+| 64 | 32 | 2,000.0 | 8.192 |
+| 128 | 48 | 2,666.7 | 6.144 |
+| 256 | 80 | 3,200.0 | 5.120 |
+
+: Fictional placeholder timings for 16,384 account observations. All values are invented; throughput is calculated from the displayed batch cycle. {#tbl-benchmark-batch-scoring-results}
+
+The example trades a longer batch cycle for a shorter scoring job. A measured
+comparison would also report peak memory and variation across repeated passes.
+
+<details>
+<summary>Proposed workload and timing protocol</summary>
+
+**Fictional source.** The application would supply
+`benchmarks/batch-scoring/accounts.parquet`, with 16,384 account observations
+and no dispute labels. Define the retained history distribution exactly:
+
+| Account observations | Share | Transactions per account |
+| ---: | ---: | ---: |
+| 4,096 | 25% | 8 |
+| 8,192 | 50% | 32 |
+| 4,096 | 25% | 56 |
+
+That is 524,288 retained transactions, averaging 32 per account. The longest
+history is 56; the schema's cap of 128 leaves headroom without changing this
+workload. Use the same deterministic row order for all batch sizes, including
+the same placement of long and short histories. Record that order and the
+resulting batch widths: internal padding still costs memory and computation.
+
+**Fictional machine and model.** Reserve one illustrative accelerator with
+16 GiB of device memory, eight host CPU cores, 32 GiB of host memory, and local
+solid-state storage. Use one process and one device, BF16 model computation,
+and the same warmed `xs` checkpoint and fitted preparation state for every
+setting.
+
+**Application interface.** Supply the fictional path through the prediction
+split of `rf.ArrowDataModule`; set batch size on the prediction loop. The schema
+above describes the checkpoint, rather than an untrained model to time:
+
+```python
+# model is the application-loaded checkpoint with the schema above.
+data = rf.ArrowDataModule(
+    model=model,
+    predict="benchmarks/batch-scoring/accounts.parquet",
+)
+predictions = model.predict(datamodule=data, batch_size=128, devices=1)
+```
+
+**Timing plan.** Warm the model and source cache before measurement, then run
+five complete passes per batch size in a rotated order. Synchronize device
+work at the timing boundaries and include batch preparation and Arrow output
+conversion. Retain the same default prediction output selection for every
+pass. Report run-to-run spread, peak device memory, and full-job elapsed time
+alongside throughput when actual runs exist. Cold-start and persisted-output
+timings would require separate measurements.
+
+**Arithmetic.** The fictional table uses 256, 128, and 64 batches respectively.
+With no partial final batch, total time is batch count times mean batch cycle;
+throughput is 16,384 account observations divided by that time. Multiply by
+the workload's mean of 32 only when explicitly reporting transaction
+predictions per second.
+
+</details>
+
+See [Batch Inference](../guides/batch-inference.qmd) for the application workflow,
+or return to [all benchmarks](../benchmarks.qmd).
