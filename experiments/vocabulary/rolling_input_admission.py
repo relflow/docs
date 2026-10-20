@@ -92,9 +92,8 @@ from collections.abc import Iterator
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P066"
 BUDGET = 400
@@ -122,13 +121,11 @@ def build() -> rf.Model:
         d_model=32,
         n_layers=1,
         n_heads=4,
-        batch_size=128,
         dropout=0.0,
         entity=rf.Category(p_unavailable=0.2),
         context=rf.Category(p_unavailable=0.0),
         label=rf.Category(p_unavailable=0.0, mask=rf.Mask(query="hide", reconstruct=True)),
     )
-    model.optimizer = rf.adamw(learning_rate=0.002)
     return model
 
 
@@ -157,7 +154,7 @@ def score(p: np.ndarray, rows: list[dict], cohort: int, *, cold: bool = False) -
 
 
 def evaluate(trainer: lit.Trainer, model: rf.Model, rows: list[dict]) -> dict[str, float]:
-    data = rf.SyntheticDataModule(model=model, validate=lambda: iter(rows), seed=0)
+    data = rf.SyntheticDataModule(validate=lambda: iter(rows), seed=0)
     result = trainer.validate(model, datamodule=data, verbose=False)[0]
     prefix = ".label/validate."
     return {name.removeprefix(prefix): float(value) for name, value in result.items() if name.startswith(prefix)}
@@ -205,7 +202,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
                     f"{cohort}: cold marginal RMSE below 0.15": arm["cold"]["oracle_rmse"] < 0.15,
                 }
             )
-        trainer = lit.Trainer(
+        validation = list(records(rows=1024, seed=seed + 20 + cohort, cohort=cohort + 1))
+        data = rf.SyntheticDataModule(train=lambda: iter(training), validate=lambda: iter(validation), seed=seed)
+        # Lightning does not reset eval mode when fitting the same model again.
+        model.train()
+        model.fit(
+            data,
+            batch_size=128,
+            learning_rate=0.002,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_epochs=-1,
@@ -217,13 +225,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             deterministic=True,
             num_sanity_val_steps=0,
         )
-        validation = list(records(rows=1024, seed=seed + 20 + cohort, cohort=cohort + 1))
-        data = rf.SyntheticDataModule(
-            model=model, train=lambda: iter(training), validate=lambda: iter(validation), seed=seed
-        )
-        # Lightning does not reset eval mode when fitting the same model again.
-        model.train()
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         model.eval()
         arm["steps"] = trainer.global_step
         arm["learned"] = score(probability(model, rows), rows, cohort)

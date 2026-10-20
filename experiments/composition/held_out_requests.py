@@ -122,9 +122,8 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P071"
 BUDGET = 600
@@ -157,7 +156,6 @@ def records(*, rows: int, seed: int, complete: bool = False) -> Iterator[dict]:
 
 def build() -> rf.Model:
     model = rf.Model.xs(
-        batch_size=128,
         selected_group=rf.Enum(values=GROUPS, p_unavailable=0.0),
         operation=rf.Enum(values=OPERATIONS, p_unavailable=0.0),
         items=rf.Branch(
@@ -168,7 +166,6 @@ def build() -> rf.Model:
         ),
         answer=rf.Number(mask=True, objective="mse"),
     )
-    model.optimizer = rf.adamw(learning_rate=0.002)
     return model
 
 
@@ -216,12 +213,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         lit.seed_everything(seed, workers=True)
         model = build()
         data = rf.SyntheticDataModule(
-            model=model,
             train=partial(records, rows=TRAIN_ROWS, seed=seed * 100 + 1, complete=complete),
             validate=partial(records, rows=576, seed=seed * 100 + 2, complete=complete),
             seed=seed,
         )
-        trainer = lit.Trainer(
+        model.fit(
+            data,
+            batch_size=128,
+            learning_rate=0.002,
+            early_stopping=False,
+            rollback=False,
+            precision="32-true",
+            strategy="auto",
             accelerator=accelerator,
             devices=1,
             max_epochs=-1,
@@ -233,7 +236,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             enable_model_summary=False,
             num_sanity_val_steps=0,
         )
-        trainer.fit(model, datamodule=data)
+        trainer = model.trainer
         model.eval()
         train = list(records(rows=TRAIN_ROWS, seed=seed * 100 + 1, complete=complete))
         output = predict(model, test)

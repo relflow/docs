@@ -94,9 +94,8 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P052"
 LENGTH = 4
@@ -120,7 +119,6 @@ def records(*, rows: int, seed: int) -> Iterator[dict]:
 
 def build() -> rf.Model:
     return rf.Model.xs(
-        batch_size=64,
         items=rf.Branch(
             length=LENGTH,
             reduction=None,
@@ -146,14 +144,19 @@ def prediction(model: rf.Model, rows: list[dict]) -> tuple[np.ndarray, np.ndarra
 def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     lit.seed_everything(seed, workers=True)
     model = build()
-    model.optimizer = rf.adamw(learning_rate=0.002)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=2048, seed=seed + 1),
         validate=partial(records, rows=256, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=64,
+        learning_rate=0.002,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -165,7 +168,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         enable_model_summary=False,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     train = list(records(rows=2048, seed=seed + 1))
     test = list(records(rows=1024, seed=seed + 3))

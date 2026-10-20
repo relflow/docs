@@ -6,14 +6,12 @@ and recorded evidence. [`SPEC.md`](SPEC.md) defines the experimental protocol,
 controls, reporting rules, and planned coverage. The website presents the
 [proof catalog](../docs/proofs.qmd) without executing experiments.
 
-## RelFlow 0.3.1 compatibility
+## Run A Proof
 
-Executable readers use RelFlow 0.3.1 prediction output: nested decoded fields under
-`predictions`, variable lists for repeated records, and separate
-`representations` records for requested embeddings. A reader migration does not
-change the experiment's stored measurements or prove that its quality gates
-pass on the newer package. Existing results retain their recorded package,
-source fingerprints, seeds, and training budgets.
+Proofs train with `model.fit(...)` and data modules that bind automatically.
+Batch size and optimization belong on the fit call. Fixed-budget runs disable
+early stopping and rollback, and specify FP32 precision. Custom optimizer
+factories preserve experiments that deliberately use Torch Adam or AdamW.
 
 The documentation build only publishes local source and archived evidence.
 Running experiments is an explicit task in an environment with the intended

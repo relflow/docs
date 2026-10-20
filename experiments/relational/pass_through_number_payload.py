@@ -100,10 +100,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P023"
 LENGTH = 3
@@ -142,8 +141,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=1,
         n_heads=4,
         reduction=None,
-        batch_size=128,
-        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3),
         items=rf.Branch(
             length=LENGTH,
             overflow="error",
@@ -156,12 +153,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         answer=rf.Number(mask=True),
     )
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=4096, seed=seed + 1),
         validate=partial(records, rows=1024, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_steps=-1 if steps is None else steps,
         max_epochs=25,
@@ -171,7 +174,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         enable_checkpointing=False,
         deterministic=True,
     )
-    trainer.fit(model, datamodule=data)
     train = list(records(rows=4096, seed=seed + 1))
     test = list(records(rows=2048, seed=seed + 3))
     broken = list(records(rows=2048, seed=seed + 3, break_pairs=True))

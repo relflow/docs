@@ -116,9 +116,8 @@ from itertools import product
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
-from reporting import report
-
 import relflow as rf
+from reporting import report
 
 PROOF_ID = "P074"
 BUDGET = 600
@@ -153,7 +152,6 @@ def records(*, rows: int, seed: int, training: bool = False) -> Iterator[dict]:
 
 def build() -> rf.Model:
     return rf.Model.xs(
-        batch_size=64,
         fields={
             **{name: rf.Number(mask=rf.Mask(query=f"hide_{name}", skip=True, dropout=False)) for name in SENSORS},
             "nuisance": rf.Number,
@@ -181,14 +179,19 @@ def prediction(model: rf.Model, rows: list[dict]) -> np.ndarray:
 def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     lit.seed_everything(seed, workers=True)
     model = build()
-    model.optimizer = rf.adamw(learning_rate=0.002)
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=TRAIN_ROWS, seed=seed * 100 + 1, training=True),
         validate=partial(records, rows=512, seed=seed * 100 + 2, training=True),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=64,
+        learning_rate=0.002,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -200,7 +203,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         enable_model_summary=False,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     test = list(records(rows=TEST_ROWS, seed=seed * 100 + 3))
     actual = np.asarray([row["target"] for row in test])

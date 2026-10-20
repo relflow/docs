@@ -101,10 +101,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P035"
 ITEMS = 6
@@ -174,8 +173,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         n_layers=3,
         n_heads=4,
         reduction=None,
-        batch_size=128,
-        optimizer=lambda module: torch.optim.Adam(module.parameters(), lr=1e-3),
         items=rf.Branch(
             length=ITEMS,
             overflow="error",
@@ -186,12 +183,18 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         ),
     )
     data = rf.SyntheticDataModule(
-        model=model,
         train=partial(records, rows=1536, seed=seed + 1),
         validate=partial(records, rows=384, seed=seed + 2),
         seed=seed,
     )
-    trainer = lit.Trainer(
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.Adam(module.parameters(), lr=0.001),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_steps=900 if steps is None else min(steps, 900),
         max_epochs=-1,
@@ -202,7 +205,6 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
     train = list(records(rows=1536, seed=seed + 1))
     test = list(records(rows=768, seed=seed + 3))
     actual = targets(test)

@@ -117,10 +117,9 @@ from functools import partial
 import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P077"
 BUDGET = 400
@@ -151,7 +150,6 @@ def build(representation: str, task: str, objective: str = "mse") -> rf.Model:
     scalar = rf.Quantile if representation == "quantile" else rf.Number
     if task == "noisy":
         model = rf.Model.xs(
-            batch_size=128,
             group=rf.Enum(values=GROUPS, p_unavailable=0.0),
             target=scalar(objective=objective, mask=True),
         )
@@ -161,14 +159,20 @@ def build(representation: str, task: str, objective: str = "mse") -> rf.Model:
             if task == "rank"
             else rf.Number(objective="mse", mask=True)
         )
-        model = rf.Model.xs(batch_size=128, x=scalar, fields={task: target})
-    model.optimizer = rf.adamw(learning_rate=0.002)
+        model = rf.Model.xs(x=scalar, fields={task: target})
     return model
 
 
 def fit(model: rf.Model, train, validate, seed: int, steps: int | None, accelerator: str) -> int:
-    data = rf.SyntheticDataModule(model=model, train=train, validate=validate, seed=seed)
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(train=train, validate=validate, seed=seed)
+    model.fit(
+        data,
+        batch_size=128,
+        learning_rate=0.002,
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="auto",
         accelerator=accelerator,
         devices=1,
         max_epochs=-1,
@@ -180,7 +184,7 @@ def fit(model: rf.Model, train, validate, seed: int, steps: int | None, accelera
         enable_model_summary=False,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model, datamodule=data)
+    trainer = model.trainer
     model.eval()
     return trainer.global_step
 

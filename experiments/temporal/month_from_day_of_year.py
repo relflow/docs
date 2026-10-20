@@ -95,10 +95,9 @@ from functools import partial
 
 import lightning.pytorch as lit
 import numpy as np
+import relflow as rf
 import torch
 from reporting import report
-
-import relflow as rf
 
 PROOF_ID = "P044"
 
@@ -131,13 +130,18 @@ def fit(
         d_model=64,
         n_layers=3,
         n_heads=4,
-        batch_size=128,
         observed_at=rf.DateParts(dateparts=list(dateparts)),
         target=rf.Category(mask=True, p_unavailable=0.0),
     )
-    model.optimizer = lambda module: torch.optim.AdamW(module.parameters(), lr=3e-3)
-    data = rf.SyntheticDataModule(model=model, train=train, validate=validate, seed=seed)
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(train=train, validate=validate, seed=seed)
+    model.fit(
+        data,
+        batch_size=128,
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        early_stopping=False,
+        rollback=False,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
         accelerator=accelerator,
         max_epochs=epochs,
         max_steps=steps if steps is not None else -1,
@@ -148,22 +152,25 @@ def fit(
         deterministic=True,
         num_sanity_val_steps=0,
     )
-    trainer.fit(model=model, datamodule=data)
     return model
 
 
 def accuracy(model: rf.Model, records: Callable[[], Iterator[dict]], accelerator: str) -> float:
     """Evaluate held-out labels without updating the Category vocabulary."""
-    data = rf.SyntheticDataModule(model=model, test=records)
-    trainer = lit.Trainer(
+    data = rf.SyntheticDataModule(test=records)
+    metrics = model.test(
+        data,
         accelerator=accelerator,
         logger=False,
         enable_progress_bar=False,
         enable_model_summary=False,
         enable_checkpointing=False,
         deterministic=True,
-    )
-    metrics = trainer.test(model=model, datamodule=data, verbose=False)[0]
+        verbose=False,
+        batch_size=128,
+        precision="32-true",
+        strategy="ddp" if accelerator in ("gpu", "auto") and torch.cuda.device_count() > 1 else "auto",
+    )[0]
     return float(metrics[".target/test.accuracy.content"])
 
 
