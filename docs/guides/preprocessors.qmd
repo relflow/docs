@@ -246,7 +246,10 @@ them; they cannot be bound with `.partial(...)`:
 
 A processor may return one eager `pl.DataFrame`, an iterable of frames, or `None`
 to discard its input. Every returned frame needs at least one column; collect
-`LazyFrame` results explicitly. Keep source and final processed Arrow schemas
+`LazyFrame` results explicitly. Polars 2 collects lazy queries on its streaming
+engine, which does not preserve row order through `group_by` or joins, so pass
+`maintain_order` or sort before returning when order matters. Keep source and
+final processed Arrow schemas
 stable within each split across partitions and epochs, including empty and
 all-null columns. For an empty direct prediction result, return a typed empty
 frame: a pipeline that emits no frames raises an error.
