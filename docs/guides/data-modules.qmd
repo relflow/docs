@@ -200,12 +200,15 @@ relations, and tables registered on another connection are not inputs. Nested
 lists and structs remain Arrow-backed, and an empty result retains its schema.
 Close writable connections to a database file before starting read-only scans.
 
-Workers and distributed ranks replay the full query, then the Arrow pipeline
-assigns disjoint model batches. Use a deterministic `ORDER BY` with a unique
-key and keep query results stable for the duration of each pass across workers
-and ranks. Data may change between passes if its Arrow schema stays stable.
-The module does not materialize a shared snapshot, and adding workers repeats
-database work.
+Workers and distributed ranks replay the full query. Distributed ranks then
+take disjoint model batches, and local data workers alternate the Arrow
+batches the query yields before preprocessing, so each worker prepares only
+its share. Prediction, an `epoch_size` cap, and dataset-scoped preprocessors
+keep every worker on the complete stream, taking turns on finished batches.
+Use a deterministic `ORDER BY` with a unique key and keep query results stable
+for the duration of each pass across workers and ranks. Data may change
+between passes if its Arrow schema stays stable. The module does not
+materialize a shared snapshot, and adding workers repeats database work.
 
 `ingress_rows` defaults to `4096` and controls the Arrow batch size requested
 from DuckDB; `model.batch_size` controls the final model batches. Each connection

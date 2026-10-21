@@ -40,7 +40,8 @@ Prediction has no automatic time limit.
 
 With multiple distributed ranks, the loader trims the final group to divide
 evenly among ranks, so trailing rows can be omitted even with `drop_last=False`.
-Local data workers receive complete rank batches, including a partial tail.
+During prediction, local data workers take turns on complete rank batches,
+including a partial tail, so output keeps source order.
 Use one device with `drop_last=False` when every input row must be processed.
 
 A [postprocessor](postprocessors.qmd) can give files a consumer-specific schema:

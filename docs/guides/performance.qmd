@@ -128,11 +128,14 @@ datamodule = rf.ArrowDataModule(
 ```
 
 Workers and prefetching consume host memory. Arrow sources and retained data
-remain on CPU while encoded tensors move to the model's device. Source readers
-are replayed by consuming ranks/workers before disjoint row selection, so
-adding workers does not guarantee less source I/O. Keep Arrow/Polars
-transformations columnar instead of repeatedly converting observations to
-Python rows.
+remain on CPU while encoded tensors move to the model's device. Local data
+workers divide the source before preprocessing: file sources split their
+manifests so each worker reads only its files, streams are still read by every
+worker but each keeps alternate units, and in-memory tables stride rows. Each
+worker then preprocesses, samples, shuffles, and encodes only its share.
+Distributed ranks replay the source before disjoint row selection, so adding
+ranks does not reduce source I/O. Keep Arrow/Polars transformations columnar
+instead of repeatedly converting observations to Python rows.
 
 Throughput uses the actual number of observations in each Arrow or TensorDict
 batch, including a partial final batch. Other custom batch types fall back to
