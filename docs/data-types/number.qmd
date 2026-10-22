@@ -1,4 +1,7 @@
-# Number
+---
+title: Number
+description: "A magnitude such as a payment amount, standardized with learned online statistics."
+---
 
 The payment amount is a magnitude: `84.50` and `8.45` describe different-sized
 purchases. `Number` represents that numeric evidence alongside the merchant
@@ -48,6 +51,7 @@ validation. Normalize units and reject invalid measurements upstream.
 | `offset` | `4` | Positive upper Fourier exponent bound; frequencies end at `2 ** offset`. |
 | `alpha` | `None` | Cumulative normalization; a value strictly between `0` and `1` selects exponential updates. |
 | `objective` | `"mae"` | Reconstruction loss: `"mae"`, `"mse"`, or `"huber"`. |
+| `log` | `False` | Signed log scale, `sign(x) * ln(1 + |x|)`, for inputs and targets; predictions and error metrics return to source units. |
 
 There are `n_bands + offset + 1` Fourier frequencies.
 [Shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options)
@@ -59,6 +63,15 @@ Normalization observes finite, valued **pristine training values**, before
 masking and jitter. Validation, test, and prediction reuse these statistics;
 checkpoints preserve them. Distributed training combines each batch's
 sufficient statistics across ranks before updating.
+
+`log=True` moves the field to a signed log scale, `sign(x) * ln(1 + |x|)`,
+before any of this: inputs, targets, and the normalizer all work in log units,
+and the reported `normalization()` statistics are in those units. Predictions
+and the MAE and RMSE metrics invert the scale, so they stay in source units. Use
+it for heavy-tailed counts and amounts, and whenever a target is a product of
+inputs, since the product becomes a sum on the log scale. The median-optimal
+`"mae"` prediction is unchanged by the monotone map; `"mse"` and `"huber"`
+then penalize relative rather than absolute error.
 
 Training observations, means, and variances use float32, including under BF16
 mixed precision; counts remain int64. Centered batch moments avoid subtracting

@@ -45,6 +45,7 @@
     "Number": [
       "alpha",
       "jitter",
+      "log",
       "n_bands",
       "objective",
       "offset"
