@@ -7236,7 +7236,7 @@ proofs:
         optimization of every control.
 
         For a fixed business-calendar rule, derive the result exactly in
-        [preprocessing](../../guides/preprocessors.qmd). Here, learning the rule
+        [preprocessing](../../guides/preprocessing.qmd). Here, learning the rule
         serves as a controlled test of coordinate composition.
     runs:
     - started_at: '2026-09-15T02:16:52.837717+00:00'
@@ -7338,7 +7338,7 @@ proofs:
         | Improvement from added context | At least 0.40 | 0.500 |
 
         For exact month extraction, use a month coordinate or
-        [preprocessing](../../guides/preprocessors.qmd). The proof examines what a
+        [preprocessing](../../guides/preprocessing.qmd). The proof examines what a
         learned representation can distinguish when that direct answer is omitted.
     runs:
     - started_at: '2026-09-15T02:16:57.612852+00:00'
@@ -7436,7 +7436,7 @@ proofs:
 
         This is a learned periodicity experiment. For an application that simply
         needs the month, expose `month_of_year` or calculate it exactly in
-        [preprocessing](../../guides/preprocessors.qmd). The
+        [preprocessing](../../guides/preprocessing.qmd). The
         [leap boundary](leap-boundary-requires-context.qmd) explains why this
         experiment deliberately excludes leap years.
     runs:
@@ -7535,7 +7535,7 @@ proofs:
         | Improvement from weekday | At least 0.70 | 0.857 |
 
         A complete source timestamp does not imply a complete encoded timestamp.
-        [DateParts](../../data-types/dateparts.qmd) retains the coordinates requested
+        [DateParts](../../reference/fields/dateparts.qmd) retains the coordinates requested
         by the schema; omitted distinctions need to be supplied explicitly.
     runs:
     - started_at: '2026-09-15T02:17:06.356064+00:00'
@@ -42451,3 +42451,619 @@ proofs:
         Shuffling stable test IDs increases normalized RMSE by at least 0.40: true
       outcome: not_met
       duration_seconds: 17.505
+  P079:
+    script: proofs/representation/number_lanes.py
+    page: docs/proofs/representation/number-lanes.py
+    historical:
+      status: Passing
+      summary: A Number embedding raw and log lanes stays within 10 percent of the best single lane across additive,
+        moderate-tail, and heavy-tail tasks; the target space, not the input lane, is the large effect.
+      insights: 'Seed 7901 on CPU met every gate at 500 updates. On the heavy task (rate maximum about ten thousand
+        times its median) the raw lane scored 1.787 times the oracle MAE against 1.316 for the log lane, 1.415 for
+        both lanes, and 1.512 for Quantile ranks; the raw lane''s bulk ratio was 1.424 against 1.020. On the moderate
+        task every lane fell between 1.195 and 1.261 times the oracle, and on the additive task between 1.355 and
+        1.391 (ranks 1.784). A raw-unit target reached 2.814 times the oracle at 500 updates and 1.902 at 1,500,
+        still behind the log target''s 1.415 at 500, while the raw lane with 1,500 updates (1.324) matched the log
+        lane at 500. A Quantile MAE target scored 3.372 times the oracle: 14 of 4,096 predictions beyond the training
+        range carried 59 percent of its absolute error, because the inverse continues linearly past support.'
+      evidence: 'Two full CPU runs at seed 7901. The first used only the moderate generator (s = 1.5) and gated
+        a bulk blur of the raw lane that did not occur: input lanes scored within a few percent of each other (raw
+        1.205, log 1.172, both 1.227, ranks 1.202 times the oracle), the raw lane with three times the budget was
+        the best arm (1.033), and two of ten gates were unmet. A sweep over s in 1.5, 2.0, 2.5, and 3.0 located
+        the raw-lane degradation at s >= 2.5 (1.736 against 1.280 for the log lane at 2.5; 2.082 against 1.578 at
+        3.0), so the proof gained the heavy generator, kept the moderate one, replaced the blur gate with an overall
+        raw-versus-log gate, and widened the learning and non-inferiority margins to 1.5 and 10 percent. The second
+        run met all ten gates: heavy both lanes 1.415 against a 1.5 gate, additive 1.391, non-inferiority margins
+        of 7.5, 3.4, and 2.7 percent against 10, raw lane 36 percent above the log lane against 25, raw target 99
+        percent above the log target against 25. Shuffled-input normalized MAE was 1.11 to 2.09 in every arm against
+        a 0.90 floor. Thresholds are provisional; ten-seed calibration has not been performed and no GPU run is
+        recorded. The same seven single-lane arms were also run on the pre-lanes library (relflow commit 9de4787)
+        with identical seeds and scored within run-to-run variation of the lanes build.'
+      sources: []
+    runs:
+    - started_at: '2026-10-22T17:03:36.628414+00:00'
+      mode: full
+      seed: 7901
+      steps_override: null
+      accelerator: cpu
+      threads: 1
+      provenance:
+        proof_revision: 9f1bff28f5a1e84b8b26c9edaf4d1d6902225134
+        relflow_source_sha256: 68902da8a9088a3bda50d84a61569e0886539caffb346361eeb7b9fe474c0e5f
+        source_sha256: b8a5a0b9481b82d25211ba640cf83126a8124a34d8131111e8d88cf5d530d760
+        script_sha256: 7ee38417d91de35aae727cbd1535d1d28b6d3f939f17d2b2715c71bf8f0eb738
+        code_sha256: d4c2be0da6b78d35a23973d940341d570e2738e403342ed6665cef797fd22457
+        python: 3.12.10
+        platform: macOS-26.5.2-arm64-arm-64bit
+        host: Mac.localdomain
+        relflow_path: /Users/grantham/.cache/uv/archive-v0/uZ7hymK-FnJ2mtqw1SYYU/lib/python3.12/site-packages/relflow
+        packages:
+          relflow: 0.3.5
+          torch: 2.14.1
+          lightning: 2.6.6
+          numpy: 2.5.4
+          pyarrow: 26.0.0
+          polars: 2.0.0
+          torchmetrics: 1.9.0
+          tensordict: 0.15.2
+          pydantic: 2.14.1
+        cuda: null
+        gpu: null
+      metrics:
+        train_rows: 8192
+        test_rows: 4096
+        budget: 500
+        long_budget: 1500
+        multiplicative:
+          oracle_mae: 12.647328998301344
+          baseline_mae: 46.060133847509874
+          training_median: 19.58046286409691
+          bulk_rows: 2572
+          tail_rows: 422
+          raw_log:
+            mae: 15.246157485520747
+            oracle_ratio: 1.2054843744136372
+            normalized_mae: 0.33100549677071756
+            median_distance: 6.3543736364383125
+            shuffled_normalized_mae: 1.4975067969250027
+            finite: true
+            bulk_oracle_ratio: 1.0303675122257596
+            tail_oracle_ratio: 1.4134268432353587
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 5.1048994064331055
+              price_raw_scalar: 4.281722068786621
+              rate_raw_fourier: 5.268542289733887
+              rate_raw_scalar: 4.817276954650879
+          log_log:
+            mae: 14.820381686346899
+            oracle_ratio: 1.1718191001702745
+            normalized_mae: 0.3217615853095947
+            median_distance: 7.5884737538131795
+            shuffled_normalized_mae: 1.4310176133132242
+            finite: true
+            bulk_oracle_ratio: 1.0468764369064376
+            tail_oracle_ratio: 1.3215837850319563
+            steps: 500
+            lane_norms:
+              price_log_fourier: 4.71394681930542
+              price_log_scalar: 4.306562423706055
+              rate_log_fourier: 5.154148101806641
+              rate_log_scalar: 4.647335052490234
+          both_log:
+            mae: 15.522967488362745
+            oracle_ratio: 1.2273712094029994
+            normalized_mae: 0.3370152492338438
+            median_distance: 8.611502874900244
+            shuffled_normalized_mae: 1.421904321395085
+            finite: true
+            bulk_oracle_ratio: 1.05994206318818
+            tail_oracle_ratio: 1.4151771533711088
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.447492837905884
+              price_raw_scalar: 2.9725937843322754
+              price_log_fourier: 3.5906050205230713
+              price_log_scalar: 3.3465754985809326
+              rate_raw_fourier: 3.641443967819214
+              rate_raw_scalar: 2.6160686016082764
+              rate_log_fourier: 3.9606337547302246
+              rate_log_scalar: 3.3623476028442383
+          rank_log:
+            mae: 15.205965182456566
+            oracle_ratio: 1.202306446246387
+            normalized_mae: 0.3301328917714085
+            median_distance: 6.926626463170244
+            shuffled_normalized_mae: 1.4621251536459365
+            finite: true
+            bulk_oracle_ratio: 1.0224789107973287
+            tail_oracle_ratio: 1.4169960031556086
+            steps: 500
+          both_raw:
+            mae: 26.504641916834018
+            oracle_ratio: 2.095671103392174
+            normalized_mae: 0.5754356251890684
+            median_distance: 21.097904815749942
+            shuffled_normalized_mae: 1.1815024776938332
+            finite: true
+            bulk_oracle_ratio: 1.131181602437086
+            tail_oracle_ratio: 2.983431319273233
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.553844928741455
+              price_raw_scalar: 2.9617655277252197
+              price_log_fourier: 3.6582794189453125
+              price_log_scalar: 3.360140800476074
+              rate_raw_fourier: 3.800978660583496
+              rate_raw_scalar: 2.540313243865967
+              rate_log_fourier: 3.9935057163238525
+              rate_log_scalar: 3.235538959503174
+          both_rank:
+            mae: 118.19933286036093
+            oracle_ratio: 9.345794110063572
+            normalized_mae: 2.5661960352021658
+            median_distance: 114.8236188729148
+            shuffled_normalized_mae: 3.9483790716191525
+            finite: true
+            bulk_oracle_ratio: 1.17589900677467
+            tail_oracle_ratio: 17.524828762632932
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.46000337600708
+              price_raw_scalar: 3.033015489578247
+              price_log_fourier: 3.61711049079895
+              price_log_scalar: 3.3642141819000244
+              rate_raw_fourier: 3.6476922035217285
+              rate_raw_scalar: 2.7377121448516846
+              rate_log_fourier: 3.9630415439605713
+              rate_log_scalar: 3.346163749694824
+          raw_log_long:
+            mae: 13.06213986941802
+            oracle_ratio: 1.0327982984527713
+            normalized_mae: 0.2835888387268374
+            median_distance: 3.6130411874883053
+            shuffled_normalized_mae: 1.5400973804399758
+            finite: true
+            bulk_oracle_ratio: 1.0110292402436691
+            tail_oracle_ratio: 1.054778319118808
+            steps: 1500
+            lane_norms:
+              price_raw_fourier: 5.913665294647217
+              price_raw_scalar: 4.290554523468018
+              rate_raw_fourier: 6.053108215332031
+              rate_raw_scalar: 4.738698482513428
+          both_raw_long:
+            mae: 17.78111724100173
+            oracle_ratio: 1.4059187709428531
+            normalized_mae: 0.3860413714790588
+            median_distance: 10.376594073751924
+            shuffled_normalized_mae: 1.3968145700797052
+            finite: true
+            bulk_oracle_ratio: 1.0325315869828067
+            tail_oracle_ratio: 1.8341057525066347
+            steps: 1500
+            lane_norms:
+              price_raw_fourier: 4.526072978973389
+              price_raw_scalar: 2.7762529850006104
+              price_log_fourier: 4.613570213317871
+              price_log_scalar: 3.2781989574432373
+              rate_raw_fourier: 4.63458251953125
+              rate_raw_scalar: 2.3035664558410645
+              rate_log_fourier: 4.910521030426025
+              rate_log_scalar: 3.0481178760528564
+        additive:
+          oracle_mae: 1.5908315552689958
+          baseline_mae: 33.230921049070666
+          training_median: 1.0262815748840113
+          bulk_rows: null
+          tail_rows: null
+          raw_raw:
+            mae: 2.155210197160299
+            oracle_ratio: 1.3547695794831476
+            normalized_mae: 0.06485556611499853
+            median_distance: 1.268608069038737
+            shuffled_normalized_mae: 1.3658920326660433
+            finite: true
+            steps: 500
+            lane_norms:
+              left_raw_fourier: 4.616535186767578
+              left_raw_scalar: 4.190996170043945
+              right_raw_fourier: 4.571377754211426
+              right_raw_scalar: 4.684223651885986
+          log_raw:
+            mae: 2.1996457707178196
+            oracle_ratio: 1.3827018727610534
+            normalized_mae: 0.06619274161765476
+            median_distance: 1.4083661769546447
+            shuffled_normalized_mae: 1.3726046390214777
+            finite: true
+            steps: 500
+            lane_norms:
+              left_log_fourier: 5.577003002166748
+              left_log_scalar: 4.036251544952393
+              right_log_fourier: 5.5550456047058105
+              right_log_scalar: 4.580842971801758
+          both_raw:
+            mae: 2.212519400008396
+            oracle_ratio: 1.3907942627114147
+            normalized_mae: 0.06658014072921013
+            median_distance: 1.3114238597681962
+            shuffled_normalized_mae: 1.3617940933814858
+            finite: true
+            steps: 500
+            lane_norms:
+              left_raw_fourier: 3.466973066329956
+              left_raw_scalar: 3.063140869140625
+              left_log_fourier: 3.5117783546447754
+              left_log_scalar: 3.041250467300415
+              right_raw_fourier: 3.507571220397949
+              right_raw_scalar: 2.9580557346343994
+              right_log_fourier: 3.461646318435669
+              right_log_scalar: 3.2542548179626465
+          rank_raw:
+            mae: 2.8380201355967256
+            oracle_ratio: 1.783985316482386
+            normalized_mae: 0.08540299353743291
+            median_distance: 2.2210171182822163
+            shuffled_normalized_mae: 1.3446911169905926
+            finite: true
+            steps: 500
+      checks:
+        'Multiplicative: both lanes with a log target reach 1.3 times the oracle MAE': true
+        'Additive: both lanes reach 1.3 times the oracle MAE': false
+        'Multiplicative: both lanes stay within 5 percent of the best single input choice': true
+        'Additive: both lanes stay within 5 percent of the best single input choice': true
+        'Multiplicative: the raw lane blurs the bulk by at least 25 percent': false
+        'Multiplicative: a raw-unit target lags a log target by at least 25 percent': true
+        'Multiplicative: three times the budget does not close the raw-lane gap': false
+        'Multiplicative: three times the budget does not close the raw-target gap': true
+        Shuffled inputs lose the relationship in every arm: true
+        Every arm produces finite predictions: true
+      outcome: not_met
+      duration_seconds: 103.907
+    - started_at: '2026-10-22T17:15:15.584262+00:00'
+      mode: full
+      seed: 7901
+      steps_override: null
+      accelerator: cpu
+      threads: 1
+      provenance:
+        proof_revision: 9f1bff28f5a1e84b8b26c9edaf4d1d6902225134
+        relflow_source_sha256: 68902da8a9088a3bda50d84a61569e0886539caffb346361eeb7b9fe474c0e5f
+        source_sha256: 01520830a66f56fff69493a37f2480da85aab58e12c2b46a4609882196120687
+        script_sha256: 66b6e0a1a2d5c1f28d43889c495cfe8a2c69aed8765d4996a90ac7f5bbd22b5b
+        code_sha256: 305bb2b60c05017743618988cda615d1261964e75491c28fb7a7213cfc58a9bc
+        python: 3.12.10
+        platform: macOS-26.5.2-arm64-arm-64bit
+        host: Mac.localdomain
+        relflow_path: /Users/grantham/.cache/uv/archive-v0/uZ7hymK-FnJ2mtqw1SYYU/lib/python3.12/site-packages/relflow
+        packages:
+          relflow: 0.3.5
+          torch: 2.14.1
+          lightning: 2.6.6
+          numpy: 2.5.4
+          pyarrow: 26.0.0
+          polars: 2.0.0
+          torchmetrics: 1.9.0
+          tensordict: 0.15.2
+          pydantic: 2.14.1
+        cuda: null
+        gpu: null
+      metrics:
+        train_rows: 8192
+        test_rows: 4096
+        budget: 500
+        long_budget: 1500
+        heavy:
+          oracle_mae: 20.049340867784466
+          baseline_mae: 79.14908516991858
+          training_median: 19.493894243740083
+          training_support:
+          - 0.021296251049474066
+          - 12924.484930568127
+          bulk_rows: 2572
+          tail_rows: 422
+          raw_log:
+            mae: 35.83751227660265
+            oracle_ratio: 1.7874658580016873
+            normalized_mae: 0.4527849210090816
+            median_distance: 29.195854222748455
+            shuffled_normalized_mae: 1.4146658164459613
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.4241789918220247
+            tail_oracle_ratio: 2.1177059586103617
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 5.162446975708008
+              price_raw_scalar: 4.084541320800781
+              rate_raw_fourier: 5.945884704589844
+              rate_raw_scalar: 5.008212566375732
+          log_log:
+            mae: 26.392857362142472
+            oracle_ratio: 1.316395263873779
+            normalized_mae: 0.33345751635008597
+            median_distance: 15.169254201425861
+            shuffled_normalized_mae: 1.4795646843988872
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.020415330590116
+            tail_oracle_ratio: 1.555074433280403
+            steps: 500
+            lane_norms:
+              price_log_fourier: 4.642111301422119
+              price_log_scalar: 4.210514068603516
+              rate_log_fourier: 5.299753665924072
+              rate_log_scalar: 4.682961463928223
+          both_log:
+            mae: 28.360113218638396
+            oracle_ratio: 1.4145159886132608
+            normalized_mae: 0.35831258387578874
+            median_distance: 19.34299392953782
+            shuffled_normalized_mae: 1.4359392555533614
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0577030558567386
+            tail_oracle_ratio: 1.7090358642222312
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.45210337638855
+              price_raw_scalar: 2.895805597305298
+              price_log_fourier: 3.5023465156555176
+              price_log_scalar: 3.233919620513916
+              rate_raw_fourier: 3.52695631980896
+              rate_raw_scalar: 2.5997939109802246
+              rate_log_fourier: 4.374400615692139
+              rate_log_scalar: 3.450307846069336
+          rank_log:
+            mae: 30.314119683861463
+            oracle_ratio: 1.5119758741081895
+            normalized_mae: 0.3830002534935509
+            median_distance: 19.29590239393223
+            shuffled_normalized_mae: 1.4420729344045435
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0210432674591887
+            tail_oracle_ratio: 1.9069750623844468
+            steps: 500
+          both_raw:
+            mae: 56.427212036402466
+            oracle_ratio: 2.814417312195556
+            normalized_mae: 0.7129231110538243
+            median_distance: 50.47164143329525
+            shuffled_normalized_mae: 1.1138810731892976
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.446049914593196
+            tail_oracle_ratio: 3.5770739907029947
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.4845526218414307
+              price_raw_scalar: 2.9019014835357666
+              price_log_fourier: 3.601810932159424
+              price_log_scalar: 3.2184078693389893
+              rate_raw_fourier: 3.4764199256896973
+              rate_raw_scalar: 2.575042724609375
+              rate_log_fourier: 4.347827434539795
+              rate_log_scalar: 3.41141939163208
+          both_rank:
+            mae: 67.6019735401414
+            oracle_ratio: 3.3717803485881728
+            normalized_mae: 0.8541093481372823
+            median_distance: 56.91735336372075
+            shuffled_normalized_mae: 2.0876697253982934
+            beyond_support_rows: 14
+            beyond_support_error_share: 0.5914883668144183
+            finite: true
+            bulk_oracle_ratio: 1.0121614197492494
+            tail_oracle_ratio: 5.260366998991122
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.4434814453125
+              price_raw_scalar: 2.955927848815918
+              price_log_fourier: 3.527270555496216
+              price_log_scalar: 3.248112916946411
+              rate_raw_fourier: 3.408954381942749
+              rate_raw_scalar: 2.8999385833740234
+              rate_log_fourier: 4.3468194007873535
+              rate_log_scalar: 3.4289793968200684
+          raw_log_long:
+            mae: 26.539627997630134
+            oracle_ratio: 1.323715735726472
+            normalized_mae: 0.335311873038765
+            median_distance: 16.88592740941047
+            shuffled_normalized_mae: 1.639751240196742
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0634452941526444
+            tail_oracle_ratio: 1.5302506407166867
+            steps: 1500
+            lane_norms:
+              price_raw_fourier: 5.6098456382751465
+              price_raw_scalar: 3.9566946029663086
+              rate_raw_fourier: 6.762824535369873
+              rate_raw_scalar: 5.030282497406006
+          both_raw_long:
+            mae: 38.13845596658938
+            oracle_ratio: 1.9022299145938875
+            normalized_mae: 0.48185592903206786
+            median_distance: 28.939606280591676
+            shuffled_normalized_mae: 1.342906867405226
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.052904737533139
+            tail_oracle_ratio: 2.5448344759179555
+            steps: 1500
+            lane_norms:
+              price_raw_fourier: 4.434414863586426
+              price_raw_scalar: 2.627624034881592
+              price_log_fourier: 4.504879474639893
+              price_log_scalar: 3.150052309036255
+              rate_raw_fourier: 4.1670145988464355
+              rate_raw_scalar: 2.3163692951202393
+              rate_log_fourier: 5.673938751220703
+              rate_log_scalar: 3.2084100246429443
+        moderate:
+          oracle_mae: 13.675417163491726
+          baseline_mae: 49.16591498411684
+          training_median: 19.96810061554254
+          training_support:
+          - 0.11390242454780923
+          - 6132.076160092331
+          bulk_rows: 2618
+          tail_rows: 353
+          raw_log:
+            mae: 17.238149710783386
+            oracle_ratio: 1.260520940948173
+            normalized_mae: 0.35061179510952273
+            median_distance: 10.155604213863938
+            shuffled_normalized_mae: 1.5756051352092504
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.1134493055371224
+            tail_oracle_ratio: 1.486359090204086
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 5.136228084564209
+              price_raw_scalar: 4.274374485015869
+              rate_raw_fourier: 5.5500078201293945
+              rate_raw_scalar: 4.868372440338135
+          log_log:
+            mae: 16.347376451464907
+            oracle_ratio: 1.1953841156017029
+            normalized_mae: 0.33249409589440093
+            median_distance: 6.440408539263812
+            shuffled_normalized_mae: 1.508368006440397
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0230305182557213
+            tail_oracle_ratio: 1.440705407268869
+            steps: 500
+            lane_norms:
+              price_log_fourier: 4.672279357910156
+              price_log_scalar: 4.288195610046387
+              rate_log_fourier: 5.09840202331543
+              rate_log_scalar: 4.662519931793213
+          both_log:
+            mae: 16.888314354404166
+            oracle_ratio: 1.2349396111651847
+            normalized_mae: 0.34349639094197626
+            median_distance: 7.948914897377259
+            shuffled_normalized_mae: 1.4490843465975565
+            beyond_support_rows: 3
+            beyond_support_error_share: 3.366200236490673e-06
+            finite: true
+            bulk_oracle_ratio: 1.0272223423455331
+            tail_oracle_ratio: 1.5132135996728453
+            steps: 500
+            lane_norms:
+              price_raw_fourier: 3.459190845489502
+              price_raw_scalar: 2.9513113498687744
+              price_log_fourier: 3.626131772994995
+              price_log_scalar: 3.3000669479370117
+              rate_raw_fourier: 3.661752462387085
+              rate_raw_scalar: 2.6582469940185547
+              rate_log_fourier: 3.9730539321899414
+              rate_log_scalar: 3.347341775894165
+          rank_log:
+            mae: 16.503988911245127
+            oracle_ratio: 1.2068362313147298
+            normalized_mae: 0.33567948275907766
+            median_distance: 7.013477601914458
+            shuffled_normalized_mae: 1.5142815179144586
+            beyond_support_rows: 2
+            beyond_support_error_share: 2.637131181322269e-06
+            finite: true
+            bulk_oracle_ratio: 1.0044979693916225
+            tail_oracle_ratio: 1.4972035129913983
+            steps: 500
+        additive:
+          oracle_mae: 1.5908315552689958
+          baseline_mae: 33.230921049070666
+          training_median: 1.0262815748840113
+          training_support:
+          - -98.10397112660722
+          - 100.62500716859951
+          bulk_rows: null
+          tail_rows: null
+          raw_raw:
+            mae: 2.155210197160299
+            oracle_ratio: 1.3547695794831476
+            normalized_mae: 0.06485556611499853
+            median_distance: 1.268608069038737
+            shuffled_normalized_mae: 1.3658920326660433
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+            lane_norms:
+              left_raw_fourier: 4.616535186767578
+              left_raw_scalar: 4.190996170043945
+              right_raw_fourier: 4.571377754211426
+              right_raw_scalar: 4.684223651885986
+          log_raw:
+            mae: 2.1996457707178196
+            oracle_ratio: 1.3827018727610534
+            normalized_mae: 0.06619274161765476
+            median_distance: 1.4083661769546447
+            shuffled_normalized_mae: 1.3726046390214777
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+            lane_norms:
+              left_log_fourier: 5.577003002166748
+              left_log_scalar: 4.036251544952393
+              right_log_fourier: 5.5550456047058105
+              right_log_scalar: 4.580842971801758
+          both_raw:
+            mae: 2.212519400008396
+            oracle_ratio: 1.3907942627114147
+            normalized_mae: 0.06658014072921013
+            median_distance: 1.3114238597681962
+            shuffled_normalized_mae: 1.3617940933814858
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+            lane_norms:
+              left_raw_fourier: 3.466973066329956
+              left_raw_scalar: 3.063140869140625
+              left_log_fourier: 3.5117783546447754
+              left_log_scalar: 3.041250467300415
+              right_raw_fourier: 3.507571220397949
+              right_raw_scalar: 2.9580557346343994
+              right_log_fourier: 3.461646318435669
+              right_log_scalar: 3.2542548179626465
+          rank_raw:
+            mae: 2.8380201355967256
+            oracle_ratio: 1.783985316482386
+            normalized_mae: 0.08540299353743291
+            median_distance: 2.2210171182822163
+            shuffled_normalized_mae: 1.3446911169905926
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+      checks:
+        'Heavy tails: both lanes with a log target reach 1.5 times the oracle MAE': true
+        'Additive: both lanes reach 1.5 times the oracle MAE': true
+        'Heavy tails: both lanes stay within 10 percent of the best single input choice': true
+        'Moderate tails: both lanes stay within 10 percent of the best single input choice': true
+        'Additive: both lanes stay within 10 percent of the best single input choice': true
+        'Heavy tails: the raw lane scores at least 25 percent above the log lane': true
+        'Heavy tails: a raw-unit target lags a log target by at least 25 percent': true
+        'Heavy tails: three times the budget does not close the raw-target gap': true
+        Shuffled inputs lose the relationship in every arm: true
+        Every arm produces finite predictions: true
+      outcome: met
+      duration_seconds: 129.506
