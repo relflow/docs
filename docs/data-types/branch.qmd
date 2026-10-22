@@ -175,7 +175,7 @@ Sharing key/value heads changes model capacity as well as cost.
 | Reduction | Parent receives | Tradeoff |
 | --- | --- | --- |
 | `rf.Attention(n_outputs=1)` | A fixed number of learned summaries. | Bounded memory; outputs do not guarantee item identity. |
-| `rf.Mean()` | One average of present encoded vectors. | Cheap; count, order, and individual values are not directly preserved. |
+| `rf.Mean()` | One average of present encoded vectors plus a learned count lane. | Cheap; multiplicity survives through the count lane, while order and individual values are not directly preserved. |
 | `None` | Every encoded child slot with its presence state. | Keeps token correspondence available; increases parent sequence cost. |
 
 `Attention` has `n_outputs=1`, `n_layers=1`, `n_heads=None`, `dropout=None`,

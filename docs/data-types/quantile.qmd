@@ -38,7 +38,9 @@ unused branch slots are padded. See [value states](../core-concepts/data-types.q
 Each field learns its own approximate distribution from pristine training
 values, including values selected as hidden reconstruction targets. Encoding
 preserves source values as float64 before mapping them to float32 percentile
-coordinates. The embedder combines percentile and Fourier features with value
+coordinates paired with a robust standardized lane, the value's distance from
+the training median in interquartile ranges, bounded at 64. The embedder
+combines percentile, standardized, and Fourier features with value
 state.
 
 Equal values receive equal coordinates. A constant training distribution maps
@@ -84,8 +86,10 @@ data. A [preprocessor](../guides/preprocessors.qmd) can pass its supplied
 `encoding_context` in place of `model` to inspect the same field state.
 
 Prediction `content` is a nullable `float64` scalar in source units. It is null
-until a distribution has been learned. Inverse mapping clips to the learned
-minimum and maximum. MAE and RMSE metrics use source units; the reconstruction
+until a distribution has been learned. Inverse mapping follows the learned
+quantiles inside the training support and continues linearly beyond it, using
+the slope of the outer deciles, so the standardized lane can carry a value past
+the learned minimum or maximum. MAE and RMSE metrics use source units; the reconstruction
 objective uses percentile units. Source-unit error metrics are omitted until
 the field has learned a distribution. Read the scalar alongside `state` and
 `inferred` in the [prediction envelope](../guides/prediction-output.qmd).
@@ -96,7 +100,8 @@ intervals or coverage estimates.
 The [regression proof](../proofs/quantile/rank-regression.html) measures held-out
 learning against shuffled inputs. The
 [extrapolation proof](../proofs/quantile/clipped-extrapolation.html) measures the
-error imposed by the learned support boundary.
+error imposed by the learned support boundary; its recorded result predates the
+outer-decile continuation.
 The [representation tradeoff proof](../proofs/quantile/representation-tradeoffs.html)
 compares Number and Quantile under contaminated inputs and distinguishes
 percentile-loss predictions from source-unit conditional means and medians.

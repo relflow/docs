@@ -137,7 +137,8 @@ These experiments cover specific edits and synthetic tasks. Consult their
 recorded outcomes: retaining state entries does not establish identical
 predictions when a schema-derived computation changes.
 
-The added-target experiment currently fails exact prediction retention with
-the default attention reduction. Adding the hidden field changes the root
-pool's capacity and shifts old predictions despite preserving existing state.
-The new output still learns successfully during adaptation.
+Hidden targets never reach the encoder, so adding one no longer changes a
+branch's capacity or shifts its siblings' positions; old predictions are
+retained up to floating-point reassociation. The recorded added-target
+experiment predates that change and still shows the earlier capacity shift
+until it is re-run. The new output learns successfully during adaptation.

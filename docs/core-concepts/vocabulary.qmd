@@ -173,8 +173,10 @@ includes decisive-context controls. Its synthetic missing-ID population does
 not establish robustness to arbitrary new-population effects.
 
 Vocabulary admission activates an unused or newly allocated representation.
-It does not train that representation and can change predictions immediately.
-Keep serving vocabularies frozen, and evaluate a separately continued-training
+For Category that representation starts where the unknown label stood: a zero
+content row and a silent decoder row, so existing predictions are unchanged
+until training moves it. Admission does not train the representation. Keep
+serving vocabularies frozen, and evaluate a separately continued-training
 artifact before promotion. Counts measure exposures, not representation competence.
 
 At the start of each Lightning validation, test, or prediction loop, RelFlow

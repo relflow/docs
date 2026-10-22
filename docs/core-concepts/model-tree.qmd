@@ -193,7 +193,8 @@ architectures.
 
 Encoder and reduction settings are separate. `attention=None` disables encoder
 attention while leaving the reduction in place. `rf.Mean()` averages present
-inputs; `reduction=None` preserves routed child slots. Attention reductions
+inputs and adds a learned count lane; `reduction=None` preserves routed child
+slots. Attention reductions
 have their own settings and inherit omitted heads/dropout from the branch.
 See [Branch](../data-types/branch.qmd) for the full contract.
 
