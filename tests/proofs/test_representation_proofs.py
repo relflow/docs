@@ -134,3 +134,67 @@ def test_frozen_probe_reads_every_root_representation_and_excludes_leaf_embeddin
     assert actual.shape == (len(rows), outputs * 16)
     np.testing.assert_allclose(actual, np.asarray(root).reshape(len(rows), -1))
     np.testing.assert_allclose(np.linalg.norm(actual.reshape(len(rows), outputs, 16), axis=-1), 1.0, atol=1e-6)
+
+
+@pytest.mark.parametrize(
+    ("generator", "keys"),
+    [("multiplicative", {"price", "rate", "ltv"}), ("additive", {"left", "right", "total"})],
+)
+def test_number_lanes_generators_restart_and_expose_only_visible_fields(generator, keys):
+    proof = load("number_lanes")
+    records = getattr(proof, generator)
+    rows = list(records(rows=64, seed=11))
+    assert rows == list(records(rows=64, seed=11))
+    assert rows != list(records(rows=64, seed=12))
+    assert all(set(row) == keys for row in rows)
+    assert proof.TRAIN_ROWS >= 4096 and proof.TEST_ROWS >= 2048
+
+
+def test_number_lanes_multiplicative_oracle_is_the_conditional_median_of_heavy_tails():
+    proof = load("number_lanes")
+    rows = list(proof.multiplicative(rows=16384, seed=21))
+    price = np.asarray([row["price"] for row in rows])
+    rate = np.asarray([row["rate"] for row in rows])
+    ltv = np.asarray([row["ltv"] for row in rows])
+    oracle = proof.median("heavy", rows)
+    np.testing.assert_allclose(oracle, price * np.sqrt(rate))
+    assert abs(np.median(ltv / oracle) - 1.0) < 0.03
+    assert abs(np.mean(np.log(ltv / oracle))) < 0.02
+    assert abs(np.std(np.log(ltv / oracle)) - proof.NOISE) < 0.02
+    assert price.mean() > 1.5 * np.median(price)
+    assert rate.max() > 5000 * np.median(rate)
+    assert ltv.max() > 50 * np.median(ltv)
+    moderate = np.asarray([row["rate"] for row in proof.RECORDS["moderate"](rows=16384, seed=21)])
+    assert 50 * np.median(moderate) < moderate.max() < 2000 * np.median(moderate)
+
+
+def test_number_lanes_additive_oracle_residual_has_the_declared_noise():
+    proof = load("number_lanes")
+    rows = list(proof.additive(rows=16384, seed=31))
+    residual = np.asarray([row["total"] for row in rows]) - proof.median("additive", rows)
+    assert abs(residual.mean()) < 0.1
+    np.testing.assert_allclose(residual.std(), proof.ADDITIVE_NOISE, rtol=0.05)
+    assert all(-proof.SPAN <= row["left"] <= proof.SPAN and -proof.SPAN <= row["right"] <= proof.SPAN for row in rows)
+
+
+@pytest.mark.parametrize("inputs", ["raw", "log", "both", "rank"])
+@pytest.mark.parametrize("target", ["raw", "log", "rank"])
+def test_number_lanes_arms_change_only_the_numeric_representation(inputs, target):
+    proof = load("number_lanes")
+    model = proof.build("heavy", inputs, target)
+    requests = model.schema.requests
+    assert set(requests) == {rf.Address("price"), rf.Address("rate"), rf.Address("ltv")}
+    for name in ("price", "rate"):
+        request = requests[rf.Address(name)]
+        assert not request.mask
+        if inputs == "rank":
+            assert request.type == "quantile"
+        else:
+            assert request.type == "number"
+            assert request.lanes == (("raw", "log") if inputs == "both" else (inputs,))
+    hidden = requests[rf.Address("ltv")]
+    assert all(mask.skip and mask.reconstruct for mask in hidden.mask)
+    if target == "rank":
+        assert hidden.type == "quantile" and hidden.objective == "mae"
+    else:
+        assert hidden.type == "number" and hidden.log is (target == "log") and hidden.objective == "mae"
