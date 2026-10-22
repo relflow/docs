@@ -177,9 +177,9 @@ def test_number_lanes_additive_oracle_residual_has_the_declared_noise():
     assert all(-proof.SPAN <= row["left"] <= proof.SPAN and -proof.SPAN <= row["right"] <= proof.SPAN for row in rows)
 
 
-@pytest.mark.parametrize("inputs", ["raw", "log", "both", "rank"])
-@pytest.mark.parametrize("target", ["raw", "log", "rank"])
-def test_number_lanes_arms_change_only_the_numeric_representation(inputs, target):
+@pytest.mark.parametrize("inputs", ["number", "rank"])
+@pytest.mark.parametrize("target", ["number", "rank"])
+def test_number_lanes_arms_change_only_the_numeric_datatype(inputs, target):
     proof = load("number_lanes")
     model = proof.build("heavy", inputs, target)
     requests = model.schema.requests
@@ -187,14 +187,16 @@ def test_number_lanes_arms_change_only_the_numeric_representation(inputs, target
     for name in ("price", "rate"):
         request = requests[rf.Address(name)]
         assert not request.mask
-        if inputs == "rank":
-            assert request.type == "quantile"
-        else:
-            assert request.type == "number"
-            assert request.lanes == (("raw", "log") if inputs == "both" else (inputs,))
+        assert request.type == ("quantile" if inputs == "rank" else "number")
     hidden = requests[rf.Address("ltv")]
     assert all(mask.skip and mask.reconstruct for mask in hidden.mask)
-    if target == "rank":
-        assert hidden.type == "quantile" and hidden.objective == "mae"
-    else:
-        assert hidden.type == "number" and hidden.log is (target == "log") and hidden.objective == "mae"
+    assert hidden.type == ("quantile" if target == "rank" else "number") and hidden.objective == "mae"
+
+
+def test_number_lanes_narrow_task_is_the_additive_task_moved_away_from_zero():
+    proof = load("number_lanes")
+    centered = list(proof.RECORDS["additive"](rows=256, seed=5))
+    moved = list(proof.RECORDS["narrow"](rows=256, seed=5))
+    assert [row["left"] for row in centered] == [row["left"] for row in moved]
+    np.testing.assert_allclose([row["total"] + proof.OFFSET for row in centered], [row["total"] for row in moved])
+    np.testing.assert_allclose(proof.median("narrow", moved), proof.median("additive", centered) + proof.OFFSET)
