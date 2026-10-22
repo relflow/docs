@@ -100,6 +100,7 @@ in this example share the same review cutoff and future outcome window. They
 are not forecasts made separately at each transaction's original booking time.
 
 Encoder updates use residual attention and feed-forward blocks with RMSNorm and
-tanh GELU.
+tanh GELU. Attention normalizes each head's projected queries and keys before
+applying rotary positions, so attention logits do not grow with projection scale.
 Architecture options and collection limits belong in the
 [model tree](../../core-concepts/model-tree.qmd) and [Branch reference](../../data-types/branch.qmd).

@@ -118,8 +118,10 @@ def new(
 
 This is a signature excerpt; implementations supply the body. Retain `state`, `content`, `present`, `trainable`, `inferred`, and `targets`
 on the tensorfield. State follows schema geometry; content may add trailing
-axes. Use the shared `rf.Tokens`, with separate presence and target-selection
-bits rather than another masking path.
+axes. Fill `targets` only when the address is in `schema.objectives`; built-in
+tensorfields leave it empty otherwise, because nothing reads reconstruction
+targets for a leaf without an objective. Use the shared `rf.Tokens`, with
+separate presence and target-selection bits rather than another masking path.
 
 A `RaggedField` stores Arrow `values`, flat `int8` state, flat `int64` placement,
 and dense `shape`. `field.dense` gives shaped NumPy state; `field.place(...)`

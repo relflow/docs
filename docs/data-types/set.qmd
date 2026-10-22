@@ -63,9 +63,12 @@ This tuple snapshot lists populated labels in index order. It also accepts a
 preprocessor's `encoding_context`; consult established vocabularies for
 inference preprocessing, not to decide which training labels may be learned.
 
-Content contains membership bits spanning the current allocation and a count
-of distinct unavailable members. Unknown identities have no positive bit; duplicates and
-member order do not affect either representation. The encoder averages known
+Content lists each set's distinct known member identities as compact indices,
+padded to the widest set in the batch, plus a count of distinct unavailable
+members; dense membership over the allocation forms only where the
+reconstruction loss needs it. Unknown identities take no index; duplicates and
+member order do not affect either representation, and storage grows with
+observed members rather than with the vocabulary. The encoder averages known
 member embeddings and adds a learned contribution when **any** member is
 unavailable, plus the value-state embedding. That contribution starts at zero;
 real or simulated OOV training teaches it. It distinguishes unavailable

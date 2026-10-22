@@ -2,12 +2,15 @@
   "schema": 1,
   "upstream": {
     "repository": "https://github.com/relflow/relflow",
-    "commit": "65fec85a1193c4e8a44c59e16ba05046e3c00d0b",
+    "commit": "bba36e508ff5e28f4d8a3eb629bea48ae5b1e625",
     "version": "0.3.5",
     "branch": "stage/0.3.5",
-    "reviewed_on": "2026-10-20",
+    "reviewed_on": "2026-10-21",
     "baseline_commit": "18d582cca2af3dafde65b756111b32aed5b3e580",
-    "baseline_version": "0.3.1"
+    "baseline_version": "0.3.1",
+    "requires": {
+      "polars": ">=2,<3"
+    }
   },
   "fields": {
     "Boolean": [
