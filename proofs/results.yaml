@@ -42456,29 +42456,27 @@ proofs:
     page: docs/proofs/representation/number-lanes.py
     historical:
       status: Passing
-      summary: A Number embedding raw and log lanes stays within 10 percent of the best single lane across additive,
-        moderate-tail, and heavy-tail tasks; the target space, not the input lane, is the large effect.
-      insights: 'Seed 7901 on CPU met every gate at 500 updates. On the heavy task (rate maximum about ten thousand
-        times its median) the raw lane scored 1.787 times the oracle MAE against 1.316 for the log lane, 1.415 for
-        both lanes, and 1.512 for Quantile ranks; the raw lane''s bulk ratio was 1.424 against 1.020. On the moderate
-        task every lane fell between 1.195 and 1.261 times the oracle, and on the additive task between 1.355 and
-        1.391 (ranks 1.784). A raw-unit target reached 2.814 times the oracle at 500 updates and 1.902 at 1,500,
-        still behind the log target''s 1.415 at 500, while the raw lane with 1,500 updates (1.324) matched the log
-        lane at 500. A Quantile MAE target scored 3.372 times the oracle: 14 of 4,096 predictions beyond the training
-        range carried 59 percent of its absolute error, because the inverse continues linearly past support.'
-      evidence: 'Two full CPU runs at seed 7901. The first used only the moderate generator (s = 1.5) and gated
-        a bulk blur of the raw lane that did not occur: input lanes scored within a few percent of each other (raw
-        1.205, log 1.172, both 1.227, ranks 1.202 times the oracle), the raw lane with three times the budget was
-        the best arm (1.033), and two of ten gates were unmet. A sweep over s in 1.5, 2.0, 2.5, and 3.0 located
-        the raw-lane degradation at s >= 2.5 (1.736 against 1.280 for the log lane at 2.5; 2.082 against 1.578 at
-        3.0), so the proof gained the heavy generator, kept the moderate one, replaced the blur gate with an overall
-        raw-versus-log gate, and widened the learning and non-inferiority margins to 1.5 and 10 percent. The second
-        run met all ten gates: heavy both lanes 1.415 against a 1.5 gate, additive 1.391, non-inferiority margins
-        of 7.5, 3.4, and 2.7 percent against 10, raw lane 36 percent above the log lane against 25, raw target 99
-        percent above the log target against 25. Shuffled-input normalized MAE was 1.11 to 2.09 in every arm against
-        a 0.90 floor. Thresholds are provisional; ten-seed calibration has not been performed and no GPU run is
-        recorded. The same seven single-lane arms were also run on the pre-lanes library (relflow commit 9de4787)
-        with identical seeds and scored within run-to-run variation of the lanes build.'
+      summary: Number's raw and log lanes with a standardized log-scale readout stay within 1.3 times the oracle
+        MAE on additive, moderate-tail, heavy-tail, and far-from-zero targets, and within 10 percent of Quantile
+        inputs everywhere.
+      insights: 'Seed 7901 on CPU met every gate at 500 updates. Number scored 1.259 times the oracle MAE on the
+        heavy task (Quantile inputs 1.430), 1.195 on the moderate task (1.178), 1.199 on the additive task (2.128),
+        and 1.211 on the target near 1,000 (1.213). A Quantile MAE target on the heavy task scored 3.372: 14 of
+        4,096 predictions beyond the training range carried 59 percent of its absolute error, because its inverse
+        continues linearly past support. Three times the budget moved Number''s heavy-task score only from 1.259
+        to 1.243.'
+      evidence: 'Three full CPU runs at seed 7901, each on a different library. The first two ablated the lanes
+        and the target scale through options that no longer exist: run one (moderate generator only) refuted a bulk-blur
+        gate for the raw lane; a sweep over the tail scale located the raw lane''s degradation at s >= 2.5; run
+        two met every gate with both regimes, with the raw lane 36 percent above the log lane on heavy tails and
+        a raw-unit target still trailing a log-unit target at three times the budget. Side experiments beside the
+        proof then showed a plain log-unit head scoring 6.3 times the oracle on a target near 1,000, a standardized
+        readout bringing it to 1.2, a dual-scale loss keeping heavy, additive, and near-1,000 targets within 1.19
+        to 1.35, and an fp32 embedder recovering the 11 percent the log lane lost under bf16 autocast. Those findings
+        became the datatype''s defaults; run three, on that library, met all ten gates listed above with margins
+        of 0.24 to 0.31 against the 1.5 learning gate. Shuffled-input normalized MAE was 1.39 to 2.09 in every arm
+        against a 0.90 floor. Thresholds are provisional; ten-seed calibration has not been performed and no GPU
+        run is recorded.'
       sources: []
     runs:
     - started_at: '2026-10-22T17:03:36.628414+00:00'
@@ -43067,3 +43065,197 @@ proofs:
         Every arm produces finite predictions: true
       outcome: met
       duration_seconds: 129.506
+    - started_at: '2026-10-22T18:29:18.256168+00:00'
+      mode: full
+      seed: 7901
+      steps_override: null
+      accelerator: cpu
+      threads: 1
+      provenance:
+        proof_revision: 115eeaffbb7b6dafa45af6f687c1fa86e2c69c23
+        relflow_source_sha256: d7eac1203da01e394a5481f9b20b3c7236229b7258a54a1a5c7483a0021e054a
+        source_sha256: 482e0fcafb745dcbc3af96b7cbdb27b0f35efd3a81fbbca8f0eac591c316efc7
+        script_sha256: 88142fd43dee1c5891ec3764eb943c5a6e3e3b0b671b7227e07e4922d7145bed
+        code_sha256: ac220ea14f44d43e81d06d7812db6c73cb2aebe9601efa3a45ac4dc4b5ea0dd2
+        python: 3.12.10
+        platform: macOS-26.5.2-arm64-arm-64bit
+        host: Mac.localdomain
+        relflow_path: /Users/grantham/.cache/uv/archive-v0/DkK5xwg7IbYnX0jHDj3wc/lib/python3.12/site-packages/relflow
+        packages:
+          relflow: 0.3.5
+          torch: 2.14.1
+          lightning: 2.6.6
+          numpy: 2.5.4
+          pyarrow: 26.0.0
+          polars: 2.0.0
+          torchmetrics: 1.9.0
+          tensordict: 0.15.2
+          pydantic: 2.14.1
+        cuda: null
+        gpu: null
+      metrics:
+        train_rows: 8192
+        test_rows: 4096
+        budget: 500
+        long_budget: 1500
+        heavy:
+          oracle_mae: 20.049340867784466
+          baseline_mae: 79.14908516991858
+          training_median: 19.493894243740083
+          training_support:
+          - 0.021296251049474066
+          - 12924.484930568127
+          bulk_rows: 2572
+          tail_rows: 422
+          number_number:
+            mae: 25.242469052348895
+            oracle_ratio: 1.2590174020587785
+            normalized_mae: 0.3189230677544528
+            median_distance: 13.169053883033424
+            shuffled_normalized_mae: 1.540193043986542
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0232211264344324
+            tail_oracle_ratio: 1.4515515627541602
+            steps: 500
+          rank_number:
+            mae: 28.671300085262022
+            oracle_ratio: 1.4300370408351644
+            normalized_mae: 0.36224423849890364
+            median_distance: 18.175037196238076
+            shuffled_normalized_mae: 1.6067180977296893
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0797957653764476
+            tail_oracle_ratio: 1.7013916526615258
+            steps: 500
+          number_rank:
+            mae: 67.6019735401414
+            oracle_ratio: 3.3717803485881728
+            normalized_mae: 0.8541093481372823
+            median_distance: 56.91735336372075
+            shuffled_normalized_mae: 2.0876697253982934
+            beyond_support_rows: 14
+            beyond_support_error_share: 0.5914883668144183
+            finite: true
+            bulk_oracle_ratio: 1.0121614197492494
+            tail_oracle_ratio: 5.260366998991122
+            steps: 500
+          number_number_long:
+            mae: 24.92367555402535
+            oracle_ratio: 1.243116954237285
+            normalized_mae: 0.3148953080192751
+            median_distance: 14.63418130740255
+            shuffled_normalized_mae: 1.646399233739516
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.0552753673956428
+            tail_oracle_ratio: 1.3635954705945579
+            steps: 1500
+        moderate:
+          oracle_mae: 13.675417163491726
+          baseline_mae: 49.16591498411684
+          training_median: 19.96810061554254
+          training_support:
+          - 0.11390242454780923
+          - 6132.076160092331
+          bulk_rows: 2618
+          tail_rows: 353
+          number_number:
+            mae: 16.340406291014087
+            oracle_ratio: 1.1948744302028964
+            normalized_mae: 0.33235232775171364
+            median_distance: 8.253955960866321
+            shuffled_normalized_mae: 1.463491459736978
+            beyond_support_rows: 14
+            beyond_support_error_share: 6.418423540976932e-05
+            finite: true
+            bulk_oracle_ratio: 1.0800270231057183
+            tail_oracle_ratio: 1.3408780712963884
+            steps: 500
+          rank_number:
+            mae: 16.109045825600504
+            oracle_ratio: 1.1779564479104638
+            normalized_mae: 0.32764661922400035
+            median_distance: 6.4005650664609774
+            shuffled_normalized_mae: 1.4874147071514285
+            beyond_support_rows: 5
+            beyond_support_error_share: 1.2203966157601172e-05
+            finite: true
+            bulk_oracle_ratio: 1.0193075574619472
+            tail_oracle_ratio: 1.39629763125594
+            steps: 500
+        additive:
+          oracle_mae: 1.5908315552689958
+          baseline_mae: 33.230921049070666
+          training_median: 1.0262815748840113
+          training_support:
+          - -98.10397112660722
+          - 100.62500716859951
+          bulk_rows: null
+          tail_rows: null
+          number_number:
+            mae: 1.9075004892348835
+            oracle_ratio: 1.1990587456711228
+            normalized_mae: 0.05740137284844317
+            median_distance: 1.081530971522105
+            shuffled_normalized_mae: 1.391682490182984
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+          rank_number:
+            mae: 3.3846473576987424
+            oracle_ratio: 2.1275963168372205
+            normalized_mae: 0.1018523486815421
+            median_distance: 3.0572675529743414
+            shuffled_normalized_mae: 1.4051901949458512
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+        narrow:
+          oracle_mae: 1.560349028092706
+          baseline_mae: 33.851426493424
+          training_median: 1000.0894108196668
+          training_support:
+          - 900.7738772582007
+          - 1101.7515061983338
+          bulk_rows: null
+          tail_rows: null
+          number_number:
+            mae: 1.8893566373413893
+            oracle_ratio: 1.2108551377449481
+            normalized_mae: 0.05581320591344701
+            median_distance: 1.030936816905868
+            shuffled_normalized_mae: 1.4010947089928047
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+          rank_number:
+            mae: 1.8922749378868016
+            oracle_ratio: 1.2127254247723187
+            normalized_mae: 0.055899414999672055
+            median_distance: 1.1451817223257388
+            shuffled_normalized_mae: 1.4147787728350152
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+      checks:
+        'Heavy tails: Number reaches 1.5 times the oracle MAE': true
+        'Heavy tails: Number stays within 10 percent of Quantile inputs': true
+        'Moderate tails: Number reaches 1.5 times the oracle MAE': true
+        'Moderate tails: Number stays within 10 percent of Quantile inputs': true
+        'Additive: Number reaches 1.5 times the oracle MAE': true
+        'Additive: Number stays within 10 percent of Quantile inputs': true
+        'Far from zero: Number reaches 1.5 times the oracle MAE': true
+        'Far from zero: Number stays within 10 percent of Quantile inputs': true
+        Shuffled inputs lose the relationship in every arm: true
+        Every arm produces finite predictions: true
+      outcome: met
+      duration_seconds: 91.448

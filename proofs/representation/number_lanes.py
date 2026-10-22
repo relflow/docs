@@ -4,30 +4,30 @@
 # categories:
 # - Representation
 # proof-id: P079
-# description: Compare raw, log, rank, and combined input lanes with raw, log, and rank target spaces on
-#   an additive task and multiplicative tasks with moderate and very heavy tails at a fixed update budget.
+# description: Compare Number, which embeds raw and log lanes and reads out standardized log-scale
+#   deviations, with Quantile ranks on additive, moderate-tail, heavy-tail, and far-from-zero targets.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
 # proof-readout:
-# - label: Heavy tails, raw lane only
+# - label: Heavy tails, Number
 #   metric:
 #   - heavy
-#   - raw_log
+#   - number_number
 #   - normalized_mae
 #   format: error
-# - label: Heavy tails, both lanes
+# - label: Far from zero, Number
 #   metric:
-#   - heavy
-#   - both_log
+#   - narrow
+#   - number_number
 #   - normalized_mae
 #   format: error
-# - label: Additive, both lanes
+# - label: Additive, Number
 #   metric:
 #   - additive
-#   - both_raw
+#   - number_number
 #   - normalized_mae
 #   format: error
 # ---
@@ -47,38 +47,39 @@
 # //| fig-cap: "Amber cards are hidden prediction targets. Each arm changes only how numbers are represented."
 # //| fig-alt: "Model tree with customer, price, rate, ltv. Amber cards are hidden prediction targets. Each arm changes only how numbers are represented."
 # #tree(node("customer", kind: "root", children: (
-#   node("price", type: "Number", detail: "raw, log, or both lanes"),
-#   node("rate", type: "Number", detail: "raw, log, or both lanes"),
-#   node("ltv", kind: "target", type: "Number / Quantile", detail: "raw, log, or rank space"),
+#   node("price", type: "Number / Quantile", detail: "raw and log lanes, or ranks"),
+#   node("rate", type: "Number / Quantile", detail: "raw and log lanes, or ranks"),
+#   node("ltv", kind: "target", type: "Number / Quantile", detail: "log-scale readout, or ranks"),
 # )))
 # ```
 #
 # ## Comparison
 #
-# Hold the data, model width, optimizer, and update budget fixed. Change only how
-# numbers are represented: which standardized lanes the inputs embed, and which
-# space the target trains in. Score every arm in source units against the known
-# conditional median, on the bulk of the distribution and on its tails, for an
-# additive task and for multiplicative tasks with moderate and very heavy tails.
+# Hold the data, model width, optimizer, and update budget fixed. Change only the
+# numeric datatype: Number, which embeds a raw lane and a signed-log lane and
+# reads targets out as standardized deviations on the signed-log scale, or
+# Quantile, which represents values by their training percentile. Score every
+# arm in source units against the known conditional median, on the bulk of the
+# distribution and on its tails, for an additive task, for multiplicative tasks
+# with moderate and very heavy tails, and for a target that sits near 1,000.
 #
 # ## Result
 #
 # {{< proof P079 status >}}
 #
-# A number field that embeds both a raw lane and a log lane is meant to stay
-# close to the better single lane on every task without a per-field decision.
-# With moderate tails the lanes are interchangeable: Fourier features over a
-# standardized value resolve lognormal inputs whose maximum is a few hundred
-# times the median. Only when the maximum reaches ten thousand times the median
-# does the raw lane degrade, because standardization is then set by a handful of
-# extreme rows. The target space matters far more than the input lane: a
-# raw-unit target must grow a readout that spans the tail and lags a log-unit
-# target even with three times the budget. A monotone target transform leaves
-# the median-optimal MAE answer unchanged, so these are claims about
-# optimization at a budget, not about the estimand. A Quantile target with the
-# same objective fails on heavy tails because its inverse mapping continues
-# linearly past the learned support, so a slightly high rank becomes an
-# enormous source value.
+# Number has no scale option. Its two lanes make additive and multiplicative
+# structure both readable: with moderate tails they are interchangeable, and
+# only when the largest input is ten thousand times the median does a raw lane
+# alone degrade, because standardization is then set by a handful of extreme
+# rows. Its readout starts at the training mean on the signed-log scale and
+# predicts standardized deviations, which is what lets a target near 1,000 or
+# a heavy-tailed target train at the same budget as a centered one; a plain
+# raw-unit head cannot grow a readout that spans either. A monotone target
+# transform leaves the median-optimal MAE answer unchanged, so these are
+# claims about optimization at a budget, not about the estimand. Quantile
+# ranks are a fair input but a poor heavy-tailed target, because the inverse
+# continues linearly past the learned support and a slightly high rank
+# becomes an enormous source value.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -91,7 +92,10 @@
 #
 # ### Synthetic processes and oracles
 #
-# The multiplicative tasks draw `price = exp(3 + 1.2 z1)` and
+# The additive task draws `left` and `right` uniformly on [-50, 50] and sets
+# `total = left + right + 2 z`; the far-from-zero task adds 1,000 to that
+# total, so its target spans roughly 900 to 1,100. The multiplicative tasks
+# draw `price = exp(3 + 1.2 z1)` and
 # `rate = exp(s z2)` from independent standard normals, then
 # `ltv = price * sqrt(rate) * exp(0.3 z3)`. Prices have a median near 20 and a
 # long tail; rates have a median of 1. The heavy task uses `s = 2.5`, where the
@@ -99,9 +103,7 @@
 # regime of RelBench's study-adverse count. The moderate task uses `s = 1.5`,
 # where that ratio is a few hundred. The noise is symmetric in log units, so
 # the conditional median is exactly `price * sqrt(rate)`, and the evaluator
-# computes it from the visible inputs without any latent variable. The additive
-# task draws `left` and `right` uniformly on [-50, 50] and sets
-# `total = left + right + 2 z`; its conditional median is `left + right`.
+# computes it from the visible inputs without any latent variable.
 #
 # Oracle MAE is the test-set error of the conditional median. Baseline MAE is
 # the error of the training-median constant. The multiplicative bulk is the set
@@ -112,14 +114,11 @@
 #
 # ### Arms and budget
 #
-# Inputs embed as `Number(lanes=("raw",))`, `Number(lanes=("log",))`,
-# `Number` with both lanes, or `Quantile` ranks. Targets train as a raw-unit
-# `Number`, a `Number(log=True)`, or a `Quantile` with the MAE objective. The
-# heavy task compares the four input choices with a log target, then the three
-# target spaces with both input lanes; two extra heavy arms give the raw-lane
-# inputs and the raw-unit target three times the budget. The moderate task
-# compares the four input choices with a log target. The additive task compares
-# the four input choices with a raw target.
+# Inputs embed as `Number` or as `Quantile` ranks; targets train as a `Number`
+# or as a `Quantile` with the MAE objective. Every task compares the two input
+# choices with a Number target; the heavy task also compares the two target
+# choices with Number inputs, and gives the Number arm three times the budget
+# once.
 #
 # Every arm uses the `xs` preset, 8,192 training rows, 1,024 validation rows,
 # batch size 128, learning rate 0.002, and 500 AdamW updates (1,500 for the
@@ -129,37 +128,34 @@
 #
 # ### Gates
 #
-# The first full run used `s = 1.5` only and gated a bulk blur of the raw lane
-# that did not occur: every input lane scored within a few percent of the
-# others, and the raw lane with three times the budget was the best arm. A
-# recorded sweep over `s` in 1.5, 2.0, 2.5, and 3.0 located the degradation at
-# `s >= 2.5`, so the proof now carries both regimes and gates the contract the
-# data support. That run remains in the evidence with its own code fingerprint.
+# Two earlier full runs ablated the lanes and the target scale through options
+# that no longer exist. The first, on moderate tails only, refuted a bulk-blur
+# gate for the raw lane; a sweep located the raw lane's degradation at
+# `s >= 2.5`; the second met every gate with both regimes and showed a raw-unit
+# target lagging a log-unit target even at three times the budget. Those runs
+# remain in the evidence under their own code fingerprints, and their findings
+# became the datatype's defaults. This version gates the contract of the
+# resulting Number against Quantile.
 #
-# Gates remain provisional until ten-seed calibration. The combined lanes must
-# reach at most 1.5 times the oracle MAE on the heavy and additive tasks and
-# stay within 10 percent of the best single input choice on all three tasks. On
-# the heavy task the raw lane must score at least 25 percent above the log lane,
-# the raw-unit target must lag the log target by at least 25 percent, and the
-# raw-unit target with three times the budget must still trail the log target.
-# Every arm must produce finite predictions and lose the relationship under
-# shuffled inputs. The long raw-lane arm and the beyond-support error shares are
-# diagnostics without gates.
+# Gates remain provisional until ten-seed calibration. Number must reach at most
+# 1.5 times the oracle MAE on every task and stay within 10 percent of Quantile
+# inputs on every task. Every arm must produce finite predictions and lose the
+# relationship under shuffled inputs. The Quantile target, the long-budget arm,
+# and the beyond-support error shares are diagnostics without gates.
 #
 # ### Remaining work
 #
 # The tasks are two-input and noise-free apart from symmetric log or additive
 # noise. They do not cover bounded or bimodal bulks, where a rank lane may add
-# information beyond the log lane, mixed-sign heavy tails, or bf16 precision.
-# The combined lanes trail the log lane by a few percent on the heavy task, so
-# the first projection does not isolate the informative lane completely at this
-# budget; whether a longer budget closes that gap is not measured here.
+# information beyond the log lane, or mixed-sign heavy tails. Mixed precision
+# is covered only by the recorded side experiments: an fp32 embedder and
+# readout under bf16 autocast matched fp32 scores, which is now the default.
 #
 # ### Complete experiment code
 #
 
 # %%
-"""P079: compare numeric input lanes and target spaces on additive and multiplicative structure."""
+"""P079: compare Number's lanes and log-scale readout with Quantile ranks across numeric regimes."""
 
 from collections.abc import Callable, Iterator
 from functools import partial
@@ -182,25 +178,25 @@ MODERATE_SCALE = 1.5
 NOISE = 0.3
 SPAN = 50.0
 ADDITIVE_NOISE = 2.0
-INPUTS = {"heavy": ("price", "rate"), "moderate": ("price", "rate"), "additive": ("left", "right")}
-TARGETS = {"heavy": "ltv", "moderate": "ltv", "additive": "total"}
+OFFSET = 1000.0
+INPUTS = {
+    "heavy": ("price", "rate"),
+    "moderate": ("price", "rate"),
+    "additive": ("left", "right"),
+    "narrow": ("left", "right"),
+}
+TARGETS = {"heavy": "ltv", "moderate": "ltv", "additive": "total", "narrow": "total"}
 ARMS = (
-    ("heavy", "raw", "log", BUDGET),
-    ("heavy", "log", "log", BUDGET),
-    ("heavy", "both", "log", BUDGET),
-    ("heavy", "rank", "log", BUDGET),
-    ("heavy", "both", "raw", BUDGET),
-    ("heavy", "both", "rank", BUDGET),
-    ("heavy", "raw", "log", LONG_BUDGET),
-    ("heavy", "both", "raw", LONG_BUDGET),
-    ("moderate", "raw", "log", BUDGET),
-    ("moderate", "log", "log", BUDGET),
-    ("moderate", "both", "log", BUDGET),
-    ("moderate", "rank", "log", BUDGET),
-    ("additive", "raw", "raw", BUDGET),
-    ("additive", "log", "raw", BUDGET),
-    ("additive", "both", "raw", BUDGET),
-    ("additive", "rank", "raw", BUDGET),
+    ("heavy", "number", "number", BUDGET),
+    ("heavy", "rank", "number", BUDGET),
+    ("heavy", "number", "rank", BUDGET),
+    ("heavy", "number", "number", LONG_BUDGET),
+    ("moderate", "number", "number", BUDGET),
+    ("moderate", "rank", "number", BUDGET),
+    ("additive", "number", "number", BUDGET),
+    ("additive", "rank", "number", BUDGET),
+    ("narrow", "number", "number", BUDGET),
+    ("narrow", "rank", "number", BUDGET),
 )
 
 
@@ -214,12 +210,12 @@ def multiplicative(*, rows: int, seed: int, scale: float = HEAVY_SCALE) -> Itera
         yield {"price": float(price[index]), "rate": float(rate[index]), "ltv": float(ltv[index])}
 
 
-def additive(*, rows: int, seed: int) -> Iterator[dict]:
-    """Two uniform terms add under symmetric noise; nothing is heavy-tailed."""
+def additive(*, rows: int, seed: int, offset: float = 0.0) -> Iterator[dict]:
+    """Two uniform terms add under symmetric noise; ``offset`` moves the total away from zero."""
     rng = np.random.default_rng(seed)
     left = rng.uniform(-SPAN, SPAN, rows)
     right = rng.uniform(-SPAN, SPAN, rows)
-    total = left + right + ADDITIVE_NOISE * rng.standard_normal(rows)
+    total = offset + left + right + ADDITIVE_NOISE * rng.standard_normal(rows)
     for index in range(rows):
         yield {"left": float(left[index]), "right": float(right[index]), "total": float(total[index])}
 
@@ -228,6 +224,7 @@ RECORDS: dict[str, Callable[..., Iterator[dict]]] = {
     "heavy": multiplicative,
     "moderate": partial(multiplicative, scale=MODERATE_SCALE),
     "additive": additive,
+    "narrow": partial(additive, offset=OFFSET),
 }
 
 
@@ -235,19 +232,18 @@ def median(task: str, rows: list[dict]) -> np.ndarray:
     """Conditional median of the target given the visible inputs."""
     if task == "additive":
         return np.asarray([row["left"] + row["right"] for row in rows])
+    if task == "narrow":
+        return np.asarray([OFFSET + row["left"] + row["right"] for row in rows])
     return np.asarray([row["price"] * np.sqrt(row["rate"]) for row in rows])
 
 
 def build(task: str, inputs: str, target: str) -> rf.Model:
-    if inputs == "rank":
-        fields: dict[str, object] = {name: rf.Quantile for name in INPUTS[task]}
-    else:
-        lanes = ("raw", "log") if inputs == "both" else (inputs,)
-        fields = {name: rf.Number(lanes=lanes) for name in INPUTS[task]}
+    scalar = rf.Quantile if inputs == "rank" else rf.Number
+    fields: dict[str, object] = {name: scalar for name in INPUTS[task]}
     if target == "rank":
         fields[TARGETS[task]] = rf.Quantile(objective="mae", mask=True)
     else:
-        fields[TARGETS[task]] = rf.Number(log=target == "log", mask=True)
+        fields[TARGETS[task]] = rf.Number(mask=True)
     return rf.Model.xs(fields=fields)
 
 
@@ -282,19 +278,6 @@ def predict(model: rf.Model, task: str, rows: list[dict]) -> np.ndarray:
     return np.asarray([row[TARGETS[task]]["content"] for row in predictions], dtype=np.float64)
 
 
-def lane_norms(model: rf.Model, task: str) -> dict[str, float]:
-    """Weight norms of the first projection per lane: which lane the model reads."""
-    norms = {}
-    for name in INPUTS[task]:
-        embedder = model.nodes[rf.Address(f"/{name}")].embedder
-        bands = 2 * embedder.weights.numel()
-        fourier, scalar = embedder.linear.weight.detach(), embedder.scalar.weight.detach()
-        for index, lane in enumerate(embedder.lanes):
-            norms[f"{name}_{lane}_fourier"] = float(fourier[:, index * bands : (index + 1) * bands].norm())
-            norms[f"{name}_{lane}_scalar"] = float(scalar[:, index].norm())
-    return norms
-
-
 def evaluate(output: np.ndarray, control: np.ndarray, reference: dict, bulk: np.ndarray | None) -> dict:
     target, oracle = reference["target"], reference["oracle"]
     error = np.abs(output - target)
@@ -321,7 +304,7 @@ def evaluate(output: np.ndarray, control: np.ndarray, reference: dict, bulk: np.
 def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     stream = seed * 100
     metrics: dict = {"train_rows": TRAIN_ROWS, "test_rows": TEST_ROWS, "budget": BUDGET, "long_budget": LONG_BUDGET}
-    for offset, task in ((0, "heavy"), (20, "moderate"), (10, "additive")):
+    for offset, task in ((0, "heavy"), (20, "moderate"), (10, "additive"), (30, "narrow")):
         records, name = RECORDS[task], TARGETS[task]
         training = list(records(rows=TRAIN_ROWS, seed=stream + offset + 1))
         test = list(records(rows=TEST_ROWS, seed=stream + offset + 3))
@@ -337,7 +320,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             "support": (float(observed.min()), float(observed.max())),
         }
         bulk = None
-        if task != "additive":
+        if task in ("heavy", "moderate"):
             columns = {key: np.asarray([row[key] for row in training]) for key in INPUTS[task]}
             low = {key: np.percentile(values, 10) for key, values in columns.items()}
             high = {key: np.percentile(values, 90) for key, values in columns.items()}
@@ -370,39 +353,26 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             )
             result = evaluate(predict(model, task, test), predict(model, task, shuffled), reference, bulk)
             result["steps"] = updates
-            if inputs != "rank":
-                result["lane_norms"] = lane_norms(model, task)
             metrics[task][f"{inputs}_{space}" + ("_long" if budget != BUDGET else "")] = result
-    heavy, moderate, total = metrics["heavy"], metrics["moderate"], metrics["additive"]
     arms = [value for task in TARGETS for value in metrics[task].values() if isinstance(value, dict)]
-    single = ("raw", "log", "rank")
-    checks = {
-        "Heavy tails: both lanes with a log target reach 1.5 times the oracle MAE": heavy["both_log"]["oracle_ratio"]
-        <= 1.5,
-        "Additive: both lanes reach 1.5 times the oracle MAE": total["both_raw"]["oracle_ratio"] <= 1.5,
-        "Heavy tails: both lanes stay within 10 percent of the best single input choice": (
-            heavy["both_log"]["mae"] <= 1.10 * min(heavy[f"{lane}_log"]["mae"] for lane in single)
-        ),
-        "Moderate tails: both lanes stay within 10 percent of the best single input choice": (
-            moderate["both_log"]["mae"] <= 1.10 * min(moderate[f"{lane}_log"]["mae"] for lane in single)
-        ),
-        "Additive: both lanes stay within 10 percent of the best single input choice": (
-            total["both_raw"]["mae"] <= 1.10 * min(total[f"{lane}_raw"]["mae"] for lane in single)
-        ),
-        "Heavy tails: the raw lane scores at least 25 percent above the log lane": (
-            heavy["raw_log"]["mae"] >= 1.25 * heavy["log_log"]["mae"]
-        ),
-        "Heavy tails: a raw-unit target lags a log target by at least 25 percent": (
-            heavy["both_raw"]["mae"] >= 1.25 * heavy["both_log"]["mae"]
-        ),
-        "Heavy tails: three times the budget does not close the raw-target gap": (
-            heavy["both_raw_long"]["mae"] > heavy["both_log"]["mae"]
-        ),
-        "Shuffled inputs lose the relationship in every arm": all(
-            arm["shuffled_normalized_mae"] >= 0.90 for arm in arms
-        ),
-        "Every arm produces finite predictions": all(arm["finite"] for arm in arms),
-    }
+    checks = {}
+    for task in TARGETS:
+        label = {
+            "heavy": "Heavy tails",
+            "moderate": "Moderate tails",
+            "additive": "Additive",
+            "narrow": "Far from zero",
+        }[task]
+        checks[f"{label}: Number reaches 1.5 times the oracle MAE"] = (
+            metrics[task]["number_number"]["oracle_ratio"] <= 1.5
+        )
+        checks[f"{label}: Number stays within 10 percent of Quantile inputs"] = (
+            metrics[task]["number_number"]["mae"] <= 1.10 * metrics[task]["rank_number"]["mae"]
+        )
+    checks["Shuffled inputs lose the relationship in every arm"] = all(
+        arm["shuffled_normalized_mae"] >= 0.90 for arm in arms
+    )
+    checks["Every arm produces finite predictions"] = all(arm["finite"] for arm in arms)
     return metrics, checks
 
 
