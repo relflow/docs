@@ -43259,3 +43259,197 @@ proofs:
         Every arm produces finite predictions: true
       outcome: met
       duration_seconds: 91.448
+    - started_at: '2026-10-22T21:46:40.431590+00:00'
+      mode: full
+      seed: 7901
+      steps_override: null
+      accelerator: cpu
+      threads: 2
+      provenance:
+        proof_revision: 4130108cf64133b77ab15885b90b4d7bf5af42fd
+        relflow_source_sha256: b0d01c0bb6f626de0a9a358591733480d4d7d54e267c2f662c413859207e5d98
+        source_sha256: a3b4aab6a7c9f749f6aefc17337b546a239b74bd1c76ad6a718e0169e6324465
+        script_sha256: 88142fd43dee1c5891ec3764eb943c5a6e3e3b0b671b7227e07e4922d7145bed
+        code_sha256: ac220ea14f44d43e81d06d7812db6c73cb2aebe9601efa3a45ac4dc4b5ea0dd2
+        python: 3.12.10
+        platform: macOS-26.5.2-arm64-arm-64bit
+        host: Mac.localdomain
+        relflow_path: /Users/grantham/Desktop/relflow/src/relflow
+        packages:
+          relflow: 0.3.5
+          torch: 2.12.0
+          lightning: 2.6.4
+          numpy: 2.4.6
+          pyarrow: 24.0.0
+          polars: 2.0.0
+          torchmetrics: 1.9.0
+          tensordict: 0.12.4
+          pydantic: 2.13.4
+        cuda: null
+        gpu: null
+      metrics:
+        train_rows: 8192
+        test_rows: 4096
+        budget: 500
+        long_budget: 1500
+        heavy:
+          oracle_mae: 20.049340867784466
+          baseline_mae: 79.14908516991858
+          training_median: 19.493894243740083
+          training_support:
+          - 0.021296251049474066
+          - 12924.484930568127
+          bulk_rows: 2572
+          tail_rows: 422
+          number_number:
+            mae: 25.241750729938303
+            oracle_ratio: 1.2589815743268182
+            normalized_mae: 0.31891399219269423
+            median_distance: 12.574396865516384
+            shuffled_normalized_mae: 1.5381235341539883
+            beyond_support_rows: 6
+            beyond_support_error_share: 1.0987413190289877e-05
+            finite: true
+            bulk_oracle_ratio: 1.0114671064474496
+            tail_oracle_ratio: 1.4598241630623938
+            steps: 500
+          rank_number:
+            mae: 26.672240427586264
+            oracle_ratio: 1.3303300394500028
+            normalized_mae: 0.3369873495104315
+            median_distance: 16.393534103665147
+            shuffled_normalized_mae: 1.5163255184544442
+            beyond_support_rows: 7
+            beyond_support_error_share: 1.5757734170127516e-05
+            finite: true
+            bulk_oracle_ratio: 1.078502382061533
+            tail_oracle_ratio: 1.528739411507642
+            steps: 500
+          number_rank:
+            mae: 679.0206465713279
+            oracle_ratio: 33.867479786449586
+            normalized_mae: 8.579008147897035
+            median_distance: 679.1710996221072
+            shuffled_normalized_mae: 10.08414367411134
+            beyond_support_rows: 167
+            beyond_support_error_share: 0.9222408237257561
+            finite: true
+            bulk_oracle_ratio: 4.967222805479885
+            tail_oracle_ratio: 47.344716896165224
+            steps: 500
+          number_number_long:
+            mae: 24.25163177766771
+            oracle_ratio: 1.2095974594673853
+            normalized_mae: 0.3064044483344805
+            median_distance: 13.59024327482124
+            shuffled_normalized_mae: 1.7349846141826708
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            bulk_oracle_ratio: 1.1330420207968035
+            tail_oracle_ratio: 1.2735309471302445
+            steps: 1500
+        moderate:
+          oracle_mae: 13.675417163491726
+          baseline_mae: 49.16591498411684
+          training_median: 19.96810061554254
+          training_support:
+          - 0.11390242454780923
+          - 6132.076160092331
+          bulk_rows: 2618
+          tail_rows: 353
+          number_number:
+            mae: 15.384375959400414
+            oracle_ratio: 1.1249657524503875
+            normalized_mae: 0.31290734575712403
+            median_distance: 5.830519311227985
+            shuffled_normalized_mae: 1.5282360594194753
+            beyond_support_rows: 7
+            beyond_support_error_share: 2.05952635087076e-05
+            finite: true
+            bulk_oracle_ratio: 1.0489043120290213
+            tail_oracle_ratio: 1.2304156774998203
+            steps: 500
+          rank_number:
+            mae: 15.20021857540176
+            oracle_ratio: 1.1114994441252355
+            normalized_mae: 0.3091617145803597
+            median_distance: 5.123879967846789
+            shuffled_normalized_mae: 1.5344011212131925
+            beyond_support_rows: 3
+            beyond_support_error_share: 3.3682871848551582e-06
+            finite: true
+            bulk_oracle_ratio: 1.0136285548254473
+            tail_oracle_ratio: 1.2631182107154348
+            steps: 500
+        additive:
+          oracle_mae: 1.5908315552689958
+          baseline_mae: 33.230921049070666
+          training_median: 1.0262815748840113
+          training_support:
+          - -98.10397112660722
+          - 100.62500716859951
+          bulk_rows: null
+          tail_rows: null
+          number_number:
+            mae: 1.8302295758596037
+            oracle_ratio: 1.150486089993436
+            normalized_mae: 0.05507610135623333
+            median_distance: 0.8875032610331286
+            shuffled_normalized_mae: 1.3853316438958307
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+          rank_number:
+            mae: 2.3176434333677784
+            oracle_ratio: 1.456875447115383
+            normalized_mae: 0.06974358098427108
+            median_distance: 1.7054350574869086
+            shuffled_normalized_mae: 1.4119701158646445
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+        narrow:
+          oracle_mae: 1.560349028092706
+          baseline_mae: 33.851426493424
+          training_median: 1000.0894108196668
+          training_support:
+          - 900.7738772582007
+          - 1101.7515061983338
+          bulk_rows: null
+          tail_rows: null
+          number_number:
+            mae: 2.045503224488625
+            oracle_ratio: 1.3109267142550458
+            normalized_mae: 0.06042590922677914
+            median_distance: 1.3700003510924508
+            shuffled_normalized_mae: 1.399443385091635
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+          rank_number:
+            mae: 3.0995099963008124
+            oracle_ratio: 1.9864209484524762
+            normalized_mae: 0.09156216790163703
+            median_distance: 2.8973329134468475
+            shuffled_normalized_mae: 1.4137802517365397
+            beyond_support_rows: 0
+            beyond_support_error_share: 0.0
+            finite: true
+            steps: 500
+      checks:
+        'Heavy tails: Number reaches 1.5 times the oracle MAE': true
+        'Heavy tails: Number stays within 10 percent of Quantile inputs': true
+        'Moderate tails: Number reaches 1.5 times the oracle MAE': true
+        'Moderate tails: Number stays within 10 percent of Quantile inputs': true
+        'Additive: Number reaches 1.5 times the oracle MAE': true
+        'Additive: Number stays within 10 percent of Quantile inputs': true
+        'Far from zero: Number reaches 1.5 times the oracle MAE': true
+        'Far from zero: Number stays within 10 percent of Quantile inputs': true
+        Shuffled inputs lose the relationship in every arm: true
+        Every arm produces finite predictions: true
+      outcome: met
+      duration_seconds: 116.66
