@@ -683,9 +683,12 @@ extrapolation.
 Train variable-length bags only at lengths one through six while configuring
 capacity twelve. Evaluate independent in-range bags, exact whole-bag
 duplication, equal-valued bags of different lengths, and an out-of-range split
-at lengths seven through ten. Mean is the matched positive for averages and
-negative for sums: complete-bag duplication must leave its representation and
-average prediction unchanged to numerical precision.
+at lengths seven through ten. Mean is the matched positive for averages:
+complete-bag duplication must leave its average prediction within a small
+fraction of the target spread. Since Mean gained a count lane, duplication
+changes its representation through that lane alone, and a total can be
+recovered from the same summary; the plain-average erasure the earlier
+snapshot described is no longer the contract.
 
 Use three sum rungs:
 
@@ -705,9 +708,12 @@ mean, duplication-equivariant sum, and linear response to repeating one equal
 value `k` times. Empty, null, overflow, and nested cardinality each require a
 separate declared semantic rather than sharing this gate.
 
-Implementation snapshot: `Mean()` reaches 0.0373 nRMSE with permutation and
-duplication drift below `2.3e-7`. Attention's internal additive mass/count lane
-now clears the in-range, unseen-length, duplication, and equal-value gates.
+Implementation snapshot: `Mean()` reaches about 0.01 nRMSE with permutation
+drift below `1e-7` and duplication drift near `1e-3` of the target spread, the
+count lane's footprint; the same lane lets the no-attention Mean route recover
+one-versus-six totals within 0.1 (P013, P041). Attention's internal additive
+mass/count lane clears the in-range, unseen-length, duplication, and
+equal-value gates.
 Mean plus a visible count also clears its unseen-length and duplication gates
 after Number gained a monotone scalar lane and target queries gained aligned
 visible-sibling context. Random-split accuracy alone remains insufficient; the

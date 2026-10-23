@@ -181,7 +181,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     boundary, boundary_labels = prediction(model, probes)
     fields = model.encode(pa.Table.from_pylist(probes), strata="test")
     input_field = fields["/tags"]
-    target_bits = fields["/labels"].targets[rf.TensorKey.content]["membership"]
+    target_bits = fields["/labels"].targets[rf.TensorKey.content]["indices"]
     metrics = {
         "steps": trainer.global_step,
         "vocabularies": vocabularies,
@@ -212,7 +212,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         "All-unknown and empty inputs have identical known membership bits": bool(
             input_field.state[:2].eq(rf.Tokens.valued).all()
         )
-        and bool((input_field.content["membership"][0] == input_field.content["membership"][1]).all()),
+        and bool((input_field.content["indices"][0] == input_field.content["indices"][1]).all()),
         "All-unknown and empty targets have identical membership bits": bool((target_bits[0] == target_bits[1]).all()),
         "Untrained fallback leaves all-unknown and empty predictions identical": abs(boundary[0] - boundary[1]) < 1e-5
         and boundary_labels[0] == boundary_labels[1],

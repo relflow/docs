@@ -5,20 +5,27 @@
 # - Associative recall
 # proof-id: P025
 # description: Mix source values and questions in different positions. Use unfamiliar IDs to connect each
-#   question to its source.
+#   question to its source, and judge the result over a panel of three seeds.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
 # proof-readout:
-# - label: Matching IDs
+# - label: Matching IDs, median of three seeds
 #   metric:
+#   - median
 #   - intact_nrmse
 #   format: error
-# - label: Changed IDs
+# - label: Changed IDs, median of three seeds
 #   metric:
+#   - median
 #   - broken_nrmse
+#   format: error
+# - label: Matching IDs, worst seed
+#   metric:
+#   - worst
+#   - intact_nrmse
 #   format: error
 # ---
 #
@@ -56,7 +63,7 @@
 #
 # {{< proof P025 status >}}
 #
-# The model uses matching IDs rather than a fixed position. Only two source values are tested; missing IDs and larger memories need separate checks.
+# Three paired seeds train and score the same task, and the gates read their medians, so one lucky or unlucky draw cannot decide the outcome. Only two source values are tested; missing IDs and larger memories need separate checks.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -76,12 +83,21 @@
 # The [aligned control](aligned-position-control.html) shows what happens when
 # position alone supplies an alternative answer path.
 #
+# Each seed of the panel draws its own records and initialization. The gates
+# require the median seed to recall matching IDs within 0.25 normalized RMSE,
+# to lose that recall when IDs change, and every seed to beat the constant
+# baseline and to be hurt by the change; the worst seed is reported beside
+# the medians. Training uses AdamW at learning rate 0.001 for 800 updates:
+# at 0.003 roughly one seed in six finds the lookup and the rest settle on the
+# constant predictor, while at 0.001 every seed of a twelve-seed calibration
+# recalls.
+#
 # ### Remaining work
 #
-# Calibrate across three core seeds and ten lightweight seeds. Test complete
-# record permutations, simultaneous key renaming, larger memories, absent or
-# duplicate keys, padding, and Hash collisions. Use an explicit application
-# lookup when the mapping must be exact.
+# Extend the panel to ten lightweight seeds before freezing the thresholds.
+# Test complete record permutations, simultaneous key renaming, larger
+# memories, absent or duplicate keys, padding, and Hash collisions. Use an
+# explicit application lookup when the mapping must be exact.
 #
 # ### Complete experiment code
 #
@@ -91,7 +107,8 @@
 
 Only query values are masked. Independent order and unseen identities prevent
 positional copying and vocabulary memorization. Rotating query keys while
-retaining targets tests whether successful recall actually uses identity.
+retaining targets tests whether successful recall actually uses identity. A
+panel of three seeds decides, through its medians.
 
 Run this file with --help for seed, training-budget, and reporting options.
 """
@@ -109,6 +126,7 @@ from reporting import report
 
 PROOF_ID = "P025"
 PAIR_COUNT = 2
+PANEL = (0, 100, 200)
 
 
 def records(*, rows: int, seed: int, namespace: str, broken_identity: bool = False) -> Iterator[dict]:
@@ -143,7 +161,8 @@ def normalized_rmse(model: rf.Model, records: list[dict]) -> float:
     return float(np.sqrt(np.mean(np.square(np.asarray(predicted) - actual)) / np.mean(np.square(actual))))
 
 
-def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
+def trial(seed: int, steps: int | None, accelerator: str) -> dict:
+    """Train and score one seed of the panel."""
     lit.seed_everything(seed, workers=True)
     model = rf.Model(
         d_model=64,
@@ -168,7 +187,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     model.fit(
         data,
         batch_size=128,
-        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.003),
+        optimizer=lambda module: torch.optim.AdamW(module.parameters(), lr=0.001),
         early_stopping=False,
         rollback=False,
         precision="32-true",
@@ -187,17 +206,31 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     broken = list(records(rows=1024, seed=seed + 3, namespace="test", broken_identity=True))
     intact_nrmse = normalized_rmse(model, test)
     broken_nrmse = normalized_rmse(model, broken)
-    metrics = {
+    return {
+        "seed": seed,
+        "steps": model.trainer.global_step,
         "intact_nrmse": intact_nrmse,
         "broken_nrmse": broken_nrmse,
         "corruption_gap": broken_nrmse - intact_nrmse,
     }
+
+
+def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
+    trials = [trial(seed + offset, steps, accelerator) for offset in PANEL]
+    keys = ("intact_nrmse", "broken_nrmse", "corruption_gap")
+    median = {key: float(np.median([result[key] for result in trials])) for key in keys}
+    worst = {
+        "intact_nrmse": max(result["intact_nrmse"] for result in trials),
+        "corruption_gap": min(result["corruption_gap"] for result in trials),
+    }
+    metrics = {"trials": trials, "median": median, "worst": worst}
     checks = {
-        "Finite errors": bool(np.isfinite([intact_nrmse, broken_nrmse]).all()),
-        "Recall calibration nRMSE <= 0.90": intact_nrmse <= 0.90,
-        "Identity recall nRMSE <= 0.25": intact_nrmse <= 0.25,
-        "Broken identities nRMSE >= 0.80": broken_nrmse >= 0.80,
-        "Corruption increases nRMSE by >= 0.50": broken_nrmse - intact_nrmse >= 0.50,
+        "Finite errors on every seed": all(np.isfinite([result[key] for result in trials for key in keys])),
+        "Every seed beats the constant baseline (intact nRMSE <= 0.90)": worst["intact_nrmse"] <= 0.90,
+        "Median identity recall nRMSE <= 0.25": median["intact_nrmse"] <= 0.25,
+        "Median broken identities nRMSE >= 0.80": median["broken_nrmse"] >= 0.80,
+        "Median corruption gap >= 0.50": median["corruption_gap"] >= 0.50,
+        "Every seed is hurt by changed IDs": worst["corruption_gap"] > 0.0,
     }
     return metrics, checks
 

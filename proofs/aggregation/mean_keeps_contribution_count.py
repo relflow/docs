@@ -5,7 +5,7 @@
 # - Weighted aggregation
 # proof-id: P013
 # description: Use an average-only branch, with item attention disabled, to predict both an average and
-#   a total.
+#   a total; the branch's count lane carries the multiplicity a plain average erases.
 # execute:
 #   enabled: false
 #   eval: false
@@ -17,11 +17,11 @@
 #   - mean_score
 #   - nrmse
 #   format: error
-# - label: 'Predicted total, one copy (correct: 0.75)'
+# - label: Total prediction
 #   metric:
-#   - paired_sum
-#   - 0
-#   format: number
+#   - sum_score
+#   - nrmse
+#   format: error
 # - label: 'Predicted total, six copies (correct: 4.5)'
 #   metric:
 #   - paired_sum
@@ -46,7 +46,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mean-erases-contribution-count
+# //| label: fig-proof-mean-keeps-contribution-count
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, contribution, mean_contribution, weighted_sum. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -66,7 +66,7 @@
 #
 # {{< proof P013 status >}}
 #
-# The model learns the average but gives the same total for different counts. Preserve count information or supply it separately when the total matters.
+# The model learns both the average and a total that scales with the count. Mean's count lane preserves the multiplicity its plain average would erase.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -80,21 +80,23 @@
 # ### How it works
 #
 # The item branch uses `attention=None` and `rf.Mean()`. Every item in a
-# record repeats the same randomly drawn contribution. Averaging its identical
-# encoded tokens produces the same representation for one repetition or six.
-# No later decoder can reconstruct the removed count from that representation.
+# record repeats the same randomly drawn contribution, so averaging its
+# identical encoded tokens gives the same content for one repetition or six.
+# Mean adds a learned direction scaled by the number of present items over the
+# branch capacity, and that lane is the only difference the parent sees between
+# the two. The total head learns to multiply the shared contribution by it.
 #
-# The model should learn the contribution average. A separate probe compares sum
-# predictions for one and six copies of 0.75: those predictions must agree,
-# although their correct sums are 0.75 and 4.5. The passing assertion therefore
-# demonstrates an information-loss boundary, not successful sum learning.
+# The model should learn the contribution average and the total. A separate
+# probe compares total predictions for one and six copies of 0.75, whose
+# correct totals are 0.75 and 4.5: the six-copy prediction must exceed the
+# one-copy prediction, and each must land within 0.5 of its correct value.
 #
 # ### Remaining work
 #
-# Check the numerical invariance across seeds. Count-preserving routes are
-# covered separately by [Attention sums](attention-sum-unseen-lengths.html) and
-# [visible count with Mean](visible-count-sum.html); neither changes what this
-# no-attention Mean configuration discards.
+# Check the count lane across seeds and at lengths the training data never
+# showed. Count-preserving routes without the lane are covered separately by
+# [Attention sums](attention-sum-unseen-lengths.html) and
+# [visible count with Mean](visible-count-sum.html).
 #
 # The family’s promotion target is at least three core seeds and ten lightweight
 # calibration seeds.
@@ -103,9 +105,10 @@
 #
 
 # %%
-"""Mean is a weighted-sum footgun when item cardinality varies.
+"""Mean keeps the count a weighted sum needs when item cardinality varies.
 
-Learn the raw average while a no-attention Mean discards multiplicity.
+Learn the raw average and the total while a no-attention Mean carries
+multiplicity through its count lane.
 
 Run: uv run python proofs/run.py P013"""
 
@@ -124,7 +127,7 @@ ITEMS = 6
 
 
 def repeated_contribution_records(*, rows: int, seed: int) -> Iterator[dict]:
-    """Draw variable counts of repeated products for the Mean counterexample."""
+    """Draw variable counts of one repeated contribution with its average and total."""
     rng = np.random.default_rng(seed)
     for _ in range(rows):
         count = int(rng.integers(1, ITEMS + 1))
@@ -146,12 +149,10 @@ def rmse(actual: np.ndarray, predicted: np.ndarray | float) -> float:
     return float(np.sqrt(np.mean(np.square(actual - predicted))))
 
 
-def score(*, train: list[dict], test: list[dict], predicted: np.ndarray) -> dict[str, float]:
+def score(*, train: list[dict], test: list[dict], predicted: np.ndarray, target: str) -> dict[str, float]:
     """Compare held-out RMSE with the constant training-target mean."""
-    actual = np.asarray([row["mean_contribution"] for row in test], dtype=np.float64)
-    baseline_rmse = rmse(
-        actual, float(np.asarray([row["mean_contribution"] for row in train], dtype=np.float64).mean())
-    )
+    actual = np.asarray([row[target] for row in test], dtype=np.float64)
+    baseline_rmse = rmse(actual, float(np.asarray([row[target] for row in train], dtype=np.float64).mean()))
     measured = rmse(actual, predicted)
     return {"rmse": measured, "baseline_rmse": baseline_rmse, "nrmse": measured / baseline_rmse}
 
@@ -195,16 +196,26 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     )
     trainer = model.trainer
 
-    # Evaluate held-out answers and retain their original labels in corruption controls.
-    mean_score = score(train=train, test=test, predicted=prediction(model, test, "mean_contribution"))
+    # Evaluate held-out answers, then probe one versus six copies of the same contribution.
+    mean_score = score(
+        train=train, test=test, predicted=prediction(model, test, "mean_contribution"), target="mean_contribution"
+    )
+    sum_score = score(train=train, test=test, predicted=prediction(model, test, "weighted_sum"), target="weighted_sum")
     paired = [{"items": [{"contribution": 0.75}]}, {"items": [{"contribution": 0.75}] * ITEMS}]
     paired_sum = prediction(model, paired, "weighted_sum")
-    metrics = {"mean_score": mean_score, "paired_sum": paired_sum.tolist(), "steps": trainer.global_step}
+    correct = np.asarray([0.75, 0.75 * ITEMS])
+    metrics = {
+        "mean_score": mean_score,
+        "sum_score": sum_score,
+        "paired_sum": paired_sum.tolist(),
+        "paired_sum_error": (paired_sum - correct).tolist(),
+        "steps": trainer.global_step,
+    }
     checks = {
         "Mean contribution nRMSE below 0.25": bool(mean_score["nrmse"] < 0.25),
-        "Mean reduction erases contribution count": bool(
-            np.allclose(paired_sum[0], paired_sum[1], atol=1e-06, rtol=0.0)
-        ),
+        "Weighted sum nRMSE below 0.35": bool(sum_score["nrmse"] < 0.35),
+        "Six copies predict a larger total than one copy": bool(paired_sum[1] > paired_sum[0] + 1.0),
+        "Paired totals land within 0.5 of their correct values": bool(np.all(np.abs(paired_sum - correct) < 0.5)),
     }
     return metrics, checks
 

@@ -194,8 +194,8 @@ static routed width, or `None` when pass-through width depends on the batch.
 
 The [nested cardinality proof](../proofs/structure/attention-preserves-nested-cardinality.html)
 tests whether session summaries preserve enough information for their parent.
-The [Mean control](../proofs/structure/mean-erases-cardinality.html) isolates what
-is lost when identical repeated values become one normalized summary.
+The [Mean control](../proofs/structure/mean-keeps-cardinality.html) shows that
+Mean's count lane keeps the multiplicity a plain average would lose.
 
 ## Masks and output
 

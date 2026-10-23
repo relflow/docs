@@ -102,8 +102,11 @@ preprocessing and query/overflow selection but before input masking and
 learns its label vocabulary too. Masking does not prevent vocabulary learning.
 
 Admission does not move existing predictions: a newly admitted label embeds
-exactly as it did while unknown, and its decoder row starts silent until
-gradients move it.
+exactly as it did while unknown, because its content row starts at zero, and
+its decoder row starts silent until gradients move it. The next training
+batch gives every still-zero content row a normal start before using it, so
+labels become distinguishable as soon as learning resumes; outside training
+the rows stay at zero and predictions hold.
 
 Training-stage encoding, including `model.encode(..., strata="train")`, can
 update this state even without an optimizer step. Validation or prediction on

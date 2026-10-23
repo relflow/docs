@@ -4,7 +4,8 @@
 # categories:
 # - Hierarchical statistics
 # proof-id: P041
-# description: Predict both average and total after an average-only branch with item attention disabled.
+# description: Predict both average and total after an average-only branch with item attention disabled;
+#   the branch's count lane keeps the total recoverable.
 # execute:
 #   enabled: false
 #   eval: false
@@ -15,11 +16,10 @@
 #   metric:
 #   - mean_nrmse
 #   format: error
-# - label: 'Predicted total, one copy (correct: 1.25)'
+# - label: Total prediction
 #   metric:
-#   - paired_total_predictions
-#   - 0
-#   format: number
+#   - total_nrmse
+#   format: error
 # - label: 'Predicted total, six copies (correct: 7.5)'
 #   metric:
 #   - paired_total_predictions
@@ -39,7 +39,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-structure-mean-erases-cardinality
+# //| label: fig-proof-structure-mean-keeps-cardinality
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, transactions, amount, mean_amount, global_total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", children: (
@@ -59,7 +59,7 @@
 #
 # {{< proof P041 status >}}
 #
-# This summary loses the count: the model predicts the same total for both records. Choose a summary that retains count, or supply count explicitly.
+# The summary keeps the count: one and six copies produce different totals that track the correct values, while the average stays shared.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -74,14 +74,16 @@
 #
 # The transaction branch uses `attention=None, reduction=rf.Mean()`. Its
 # identical encoded amounts are averaged without preceding branch attention
-# introducing count or position information. The parent sees the same summary
-# for one and six repeats, so it cannot recover their different totals.
+# introducing position information, and Mean adds a learned direction scaled
+# by the number of present items over the branch capacity. The parent sees the
+# same averaged content for one and six repeats and reads their counts from
+# that lane, so it can recover their different totals.
 #
 # The synthetic training process varies the number of repeated equal amounts
 # from one to six and varies the shared amount across observations. After 300
-# deterministic steps, evaluation checks the average on 512 held-out rows
-# and compares predictions for the explicit one-versus-six pair. Training and
-# validation contain 1,024 and 256 independently generated rows.
+# deterministic steps, evaluation checks the average and the total on 512
+# held-out rows and compares predictions for the explicit one-versus-six pair.
+# Training and validation contain 1,024 and 256 independently generated rows.
 #
 # ### Remaining work
 #
@@ -92,16 +94,17 @@
 # Use [preprocessing](../../guides/preprocessing.qmd) for exact business
 # arithmetic. For learned hierarchy compression, the
 # [nested Attention case](attention-preserves-nested-cardinality.html) tests a
-# route that retains cardinality information.
+# route that retains cardinality information through attention instead.
 #
 # ### Complete experiment code
 #
 
 # %%
-"""P041: learn an average while deliberately erasing repeated-value counts.
+"""P041: learn an average and a total from repeated equal values through Mean's count lane.
 
-With branch attention disabled, Mean represents one and six identical inputs
-the same way. A downstream sum therefore cannot identify their different totals.
+With branch attention disabled, Mean averages one and six identical inputs to
+the same content and tells them apart only through its count lane. A
+downstream sum must read that lane to recover their different totals.
 """
 
 from collections.abc import Iterator
@@ -174,27 +177,36 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     )
     trainer = model.trainer
 
-    test_mean = np.asarray([row["mean_amount"] for row in test])
-    train_mean = np.mean([row["mean_amount"] for row in train()])
-    baseline = rmse(test_mean, float(train_mean))
-    mean_rmse = rmse(test_mean, prediction(model, test, "transactions", "mean_amount"))
-    mean_nrmse = mean_rmse / baseline
+    training = list(train())
+    scores = {}
+    for target in ("mean_amount", "global_total"):
+        actual = np.asarray([row[target] for row in test])
+        baseline = rmse(actual, float(np.mean([row[target] for row in training])))
+        measured = rmse(actual, prediction(model, test, "transactions", target))
+        scores[target] = {"baseline_rmse": baseline, "rmse": measured, "nrmse": measured / baseline}
     paired = [
         {"transactions": [{"amount": 1.25}]},
         {"transactions": [{"amount": 1.25} for _ in range(6)]},
     ]
     paired_total = prediction(model, paired, "transactions", "global_total")
+    correct = np.asarray([1.25, 7.5])
     return {
         "steps": trainer.global_step,
-        "mean_baseline_rmse": baseline,
-        "mean_rmse": mean_rmse,
-        "mean_nrmse": mean_nrmse,
+        "mean_baseline_rmse": scores["mean_amount"]["baseline_rmse"],
+        "mean_rmse": scores["mean_amount"]["rmse"],
+        "mean_nrmse": scores["mean_amount"]["nrmse"],
+        "total_baseline_rmse": scores["global_total"]["baseline_rmse"],
+        "total_rmse": scores["global_total"]["rmse"],
+        "total_nrmse": scores["global_total"]["nrmse"],
         "paired_total_predictions": paired_total.tolist(),
+        "paired_total_error": (paired_total - correct).tolist(),
     }, {
-        "Mean normalized RMSE is below 0.25": mean_nrmse < 0.25,
-        "One and six equal values produce the same total prediction": bool(
-            np.allclose(paired_total[0], paired_total[1], atol=1e-6, rtol=0.0)
+        "Mean normalized RMSE is below 0.25": scores["mean_amount"]["nrmse"] < 0.25,
+        "Total normalized RMSE is below 0.35": scores["global_total"]["nrmse"] < 0.35,
+        "Six equal values predict at least four times the one-value total": bool(
+            paired_total[1] > 4.0 * paired_total[0] > 0.0
         ),
+        "Paired totals land within 0.5 of their correct values": bool(np.all(np.abs(paired_total - correct) < 0.5)),
     }
 
 

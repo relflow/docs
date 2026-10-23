@@ -4,7 +4,8 @@
 # categories:
 # - Cardinality generalization
 # proof-id: P003
-# description: Predict the average amount, using a branch that averages its encoded items without item attention.
+# description: Predict the average amount, using a branch that averages its encoded items without item
+#   attention; the branch's count lane sees the repetition, the average must not.
 # execute:
 #   enabled: false
 #   eval: false
@@ -53,7 +54,7 @@
 #
 # {{< proof P003 status >}}
 #
-# This setup learns the average and preserves it under repetition. The same summary cannot distinguish different totals caused only by repetition.
+# This setup learns the average and keeps it under repetition to within a thousandth of the target spread. The summary itself is no longer identical: Mean carries a count lane, so the same summary can also tell a total apart.
 #
 # <details class="proof-details">
 # <summary>Experiment details and code</summary>
@@ -67,14 +68,19 @@
 # ### How it works
 #
 # The item branch uses `attention=None` and `rf.Mean()`. It averages encoded
-# Number tokens rather than directly averaging raw amounts. A learned downstream
-# path must still map that representation to the arithmetic-mean target.
+# Number tokens rather than directly averaging raw amounts, and adds a learned
+# direction scaled by the number of present items over the branch capacity. A
+# learned downstream path must still map that representation to the
+# arithmetic-mean target.
 #
-# Without preceding item attention, permuting tokens or duplicating the complete
-# bag leaves their encoded average unchanged. The test checks both invariances
-# at numerical precision. This is correct for the mean target; a sum would change
-# from 1.0 to 2.0 when the illustrated bag is duplicated and could not be recovered
-# from the same summary without additional count information.
+# Without preceding item attention, permuting tokens leaves the summary
+# unchanged exactly, and the test checks that invariance at numerical precision.
+# Duplicating the complete bag leaves the averaged content unchanged but doubles
+# the count lane, so the summary differs; the mean readout learns to ignore that
+# lane, and the test bounds the remaining drift at five percent of the target
+# spread. The same lane is what lets a total be recovered from this route, which
+# the [contribution count](mean-keeps-contribution-count.html) and
+# [cardinality](../structure/mean-keeps-cardinality.html) proofs measure.
 #
 # ### Remaining work
 #
@@ -89,9 +95,10 @@
 #
 
 # %%
-"""Mean is invariant here with item attention disabled.
+"""Mean keeps its average under repetition with item attention disabled.
 
-Learn average and retain it exactly under two multiset interventions.
+Learn the average, retain it exactly under permutation, and keep it within
+a small tolerance when the whole bag is duplicated and only the count lane moves.
 
 Run: uv run python proofs/run.py P003"""
 
@@ -222,7 +229,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     checks = {
         "Mean nRMSE below 0.25": bool(measured["nrmse"] < 0.25),
         "Permutation drift below 1e-6 target SD": bool(permutation_drift < 1e-06),
-        "Duplication drift below 1e-6 target SD": bool(duplication_drift < 1e-06),
+        "Duplication drift below 0.05 target SD": bool(duplication_drift < 0.05),
     }
     return metrics, checks
 
