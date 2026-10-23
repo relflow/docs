@@ -27,7 +27,7 @@
   box-sizing: border-box;
   width: 6em;
   padding: 0.2em 0.6em;
-  border: 1px solid currentColor;
+  border: 1px solid rgba(0, 0, 0, 0.18);
   border-radius: 0.4rem;
   font-size: 0.85em;
   font-weight: 600;
@@ -37,61 +37,61 @@
 }
 
 .proof-status[data-proof-status="Passing"] {
-  color: #234631;
-  background-color: #e6eddf;
+  color: #1b2621;
+  background-color: #94aa83;
 }
 
 .proof-status[data-proof-status="Limited"] {
-  color: #805224;
-  background-color: #fbf0de;
+  color: #3a2a0f;
+  background-color: #d8b47e;
 }
 
 .proof-status[data-proof-status="Partial"] {
-  color: #31576b;
-  background-color: #edf3f6;
+  color: #1b2a33;
+  background-color: #a2bdcb;
 }
 
 .proof-status[data-proof-status="Failing"] {
-  color: #8a3b32;
-  background-color: #f8e4e1;
+  color: #3d1a15;
+  background-color: #d9968c;
 }
 
 .proof-status[data-proof-status="Error"] {
-  color: #6a3f78;
-  background-color: #f1e7f4;
+  color: #35213c;
+  background-color: #c7a8d2;
 }
 
 .proof-status[data-proof-status="Missing"] {
-  color: #35463b;
-  background-color: #f1f4f0;
+  color: #1b2621;
+  background-color: #ccd6cf;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Passing"] {
-  color: #234631;
-  background-color: #e6eddf;
+  color: #1b2621;
+  background-color: #94aa83;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Limited"] {
-  color: #805224;
-  background-color: #fbf0de;
+  color: #3a2a0f;
+  background-color: #d8b47e;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Partial"] {
-  color: #31576b;
-  background-color: #edf3f6;
+  color: #1b2a33;
+  background-color: #a2bdcb;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Failing"] {
-  color: #8a3b32;
-  background-color: #f8e4e1;
+  color: #3d1a15;
+  background-color: #d9968c;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Error"] {
-  color: #6a3f78;
-  background-color: #f1e7f4;
+  color: #35213c;
+  background-color: #c7a8d2;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Missing"] {
-  color: #35463b;
-  background-color: #f1f4f0;
+  color: #1b2621;
+  background-color: #ccd6cf;
 }

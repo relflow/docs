@@ -1,6 +1,6 @@
 # %% [markdown]
 # ---
-# title: Why can an average lose the total?
+# title: Can an average lose the total?
 # categories:
 # - Hierarchical statistics
 # proof-id: P041

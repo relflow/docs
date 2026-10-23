@@ -2,7 +2,7 @@
 # ---
 # title: Do five clusters mean five behaviors were found?
 # categories:
-# - Clustering
+# - Cluster
 # proof-id: P018
 # description: Repeated identities follow five hidden numerical rules. Watch how the Cluster field groups
 #   them during training.

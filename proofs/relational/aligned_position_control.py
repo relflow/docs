@@ -1,6 +1,6 @@
 # %% [markdown]
 # ---
-# title: Could it be copying by position instead of ID?
+# title: Is it copying by position instead of by ID?
 # categories:
 # - Associative recall
 # proof-id: P024

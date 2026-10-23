@@ -2,7 +2,7 @@
 # ---
 # title: Does a Cluster input group itself automatically?
 # categories:
-# - Clustering
+# - Cluster
 # proof-id: P019
 # description: Use a Cluster field only as an input beside a hidden prediction target.
 # execute:

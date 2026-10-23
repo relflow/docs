@@ -2,7 +2,7 @@
 # ---
 # title: Can it predict the next value without seeing the future?
 # categories:
-# - Dynamic masking
+# - Masking
 # proof-id: P054
 # description: Expose the beginning of a simple numeric sequence, hide its remaining events, and predict
 #   the next value.

@@ -2,7 +2,7 @@
 # ---
 # title: Can it spot an ordinary value in the wrong context?
 # categories:
-# - Reconstruction
+# - Anomaly detection
 # proof-id: P076
 # description: Learn to reconstruct a numeric answer from its context. Use a large reconstruction error
 #   as a warning that the value does not fit.

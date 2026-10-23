@@ -137,52 +137,8 @@ website:
             text: API map
           - href: reference/troubleshooting.qmd
             text: Troubleshooting
-      - section: Proofs
-        contents:
-          - href: proofs.qmd
-            text: Catalog
-          - section: Aggregation
-            contents:
-              - auto: "proofs/aggregation/*.py"
-          - section: Anomaly
-            contents:
-              - auto: "proofs/anomaly/*.py"
-          - section: Calibration
-            contents:
-              - auto: "proofs/calibration/*.py"
-          - section: Composition
-            contents:
-              - auto: "proofs/composition/*.py"
-          - section: Identity
-            contents:
-              - auto: "proofs/identity/*.py"
-          - section: Masking
-            contents:
-              - auto: "proofs/masking/*.py"
-          - section: Mutations
-            contents:
-              - auto: "proofs/mutations/*.py"
-          - section: Relational
-            contents:
-              - auto: "proofs/relational/*.py"
-          - section: Representation
-            contents:
-              - auto: "proofs/representation/*.py"
-              - auto: "proofs/quantile/*.py"
-              - auto: "proofs/enum/*.py"
-              - auto: "proofs/cluster/*.py"
-          - section: State
-            contents:
-              - auto: "proofs/state/*.py"
-          - section: Structure
-            contents:
-              - auto: "proofs/structure/*.py"
-          - section: Temporal
-            contents:
-              - auto: "proofs/temporal/*.py"
-          - section: Vocabulary
-            contents:
-              - auto: "proofs/vocabulary/*.py"
+      - href: proofs.qmd
+        text: Proofs
   page-footer:
     border: true
     left: Grantham Taylor

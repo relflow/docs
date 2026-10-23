@@ -2,7 +2,7 @@
 # ---
 # title: Can it discover hidden groups with different behaviors?
 # categories:
-# - Clustering
+# - Cluster
 # proof-id: P078
 # description: Repeated identities follow four hidden numerical rules. Ask the Cluster field to recover
 #   the groups while predicting new observations.

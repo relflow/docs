@@ -1,8 +1,8 @@
 # %% [markdown]
 # ---
-# title: Can a model adapt after losing an input?
+# title: Can it adapt after losing an input?
 # categories:
-# - Mutation ablation
+# - Schema mutation
 # proof-id: P050
 # description: Delete b from a model trained on y = a + b, then continue training with only a.
 # execute:

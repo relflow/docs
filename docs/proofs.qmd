@@ -11,16 +11,15 @@ listing:
   id: proofs
   contents: "proofs/catalog.yaml"
   type: table
-  fields: [id, title, categories, proof-status]
+  fields: [id, title, group, proof-status]
   field-links: [title]
   field-display-names:
     id: ID
     title: Question
-    categories: Topic
+    group: Group
     proof-status: Result
-  sort: id
-  filter-ui: [id, title, categories, proof-status]
-  sort-ui: [id, title, categories, proof-status]
+  filter-ui: [id, title, group, proof-status]
+  sort-ui: [id, title, group, proof-status]
   categories: false
 ---
 
@@ -33,7 +32,9 @@ Start with [adding six numbers](proofs/structure/attention-learns-fixed-width-su
 [distinguishing missing values from zero](proofs/state/null-versus-zero.html).
 
 
-Search by question, topic, result, or ID, such as `P021`.
+The catalog is ordered by group, from simple aggregation to calibration and
+anomaly detection. Search or sort by question, group, result, or ID, such as
+`P021`.
 
 ::: {#proofs}
 :::
