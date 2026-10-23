@@ -1,12 +1,18 @@
-# Training And Checkpoints
+---
+title: Training options
+description: "Logging, validation cadence, loops, batch size, optimization, and local distributed training."
+---
 
-Train the payment model from [Your First Model](../getting-started.qmd) with
-`model.fit(...)`. Give it training and validation data; it returns with the best
-validation checkpoint restored.
+[Train and save](../learn/train-and-save.qmd) covers the first run: one
+`model.fit(...)` call that binds the data, selects hardware, stops early, and
+restores the best checkpoint. This guide documents every option behind that
+call: logging and validation cadence, loops, batch size, optimization, and
+local distributed training. Saving, parameter averaging, and resuming have
+their own page, [Checkpoints, EMA, and resuming](checkpoints-ema-and-resuming.qmd).
 
-## Fit A Model
+## Fit a model
 
-Continue with the [transaction-history model](../tutorials/transaction-history.qmd)
+Continue with the [transaction-history model](../learn/add-transaction-history.qmd)
 and independent, application-supplied Parquet files at `payments/train.parquet`
 and `payments/validation.parquet`. Each row keeps the latest payment and its
 predecessors together in `trxns`. Every transaction has a supervised
@@ -30,7 +36,7 @@ model.fit(
 ```
 
 For eager Polars frames, use `rf.PolarsDataModule`. It converts the frames to Arrow
-at ingress. See [Data Modules](data-modules.qmd) for source and split choices.
+at ingress. See [Data modules](data-modules.qmd) for source and split choices.
 Each loop binds an unbound data module to its model before loading. See
 [automatic binding](data-modules.qmd#bind-a-model-when-the-loop-starts) for ownership
 and native Lightning behavior.
@@ -40,40 +46,9 @@ in `min` mode; patience is ten validation checks and `min_delta` is zero. Full
 best and last checkpoints are saved. Without `checkpoint_dir`, the run uses a
 unique directory under `default_root_dir/checkpoints`. Fitting restores the best
 model state, including schema, vocabularies, and normalizers, before returning
-the model. Read [Evaluation](evaluation.qmd) before choosing a monitor.
+the model. Read [Evaluation](../learn/evaluation.qmd) before choosing a monitor.
 
-## Save And Load
-
-Use a relflow artifact to retain the schema and learned model state:
-
-```python
-model.save("artifacts/payment.rf")
-loaded = rf.Model.load("artifacts/payment.rf")
-prediction_data = rf.ArrowDataModule(
-    predict="payments/requests.parquet",
-)
-predictions = loaded.predict(datamodule=prediction_data, batch_size=256, devices=1)
-```
-
-The application supplies `payments/requests.parquet` as a Parquet file.
-Prediction records omit `disputed` from every transaction.
-
-The artifact contains the state dictionary, schema, batch size, and producing
-relflow version. State includes field-owned buffers such as vocabularies and
-normalizers. `load` constructs the model on CPU. Move it to the intended device
-for direct inference; Lightning owns placement when using its loops.
-
-A `Model.save` artifact does not contain optimizer or scheduler state, Trainer
-progress, data sources, or processor configuration. Supply those explicitly
-when fitting a loaded model. Compilation is transient and must be requested
-again after loading.
-
-### Checkpoint Compatibility
-
-Saved weights must match the model architecture used to load them. Loading
-incompatible weights raises an error; there is no automatic conversion.
-
-## Report Progress And Validate
+## Report progress and validate
 
 `Model.track` uses Lightning's native logging: training metrics are logged only
 per step. `log_every_n_steps`, defaulting to 50, controls
@@ -89,7 +64,7 @@ and test retain pass aggregates; `loss/validate` remains the default checkpoint
 and early-stopping monitor. `Model.track(..., on_epoch=True)` explicitly opts
 into epoch logging for a custom metric. More frequent logging does not run validation, save
 checkpoints, change patience, or advance schedulers. See
-[Evaluation](evaluation.qmd) for metric definitions.
+[Evaluation](../learn/evaluation.qmd) for metric definitions.
 
 ```python
 model.fit(datamodule, logger=application_logger, log_every_n_steps=50)
@@ -133,7 +108,7 @@ Use integer batch counts for Arrow iterable loaders. Data-module sampling and
 a budget for the whole fit. `fast_dev_run=True` skips automatic early stopping
 and rollback for Lightning's single-pass diagnostic run.
 
-## Choose The Loop
+## Choose the loop
 
 | Call | Required data split | Purpose |
 | --- | --- | --- |
@@ -146,7 +121,7 @@ Stages also control masking and field-owned learning, such as vocabulary and
 normalizer updates. Use the corresponding split rather than repurposing a
 training loader for inference. For bounded requests, the separate
 `model.predict(observations)` convenience returns an Arrow table without a
-Trainer; see [Prediction Output](prediction-output.qmd).
+Trainer; see [Prediction output](../reference/prediction-output.qmd).
 
 Hardware defaults to `accelerator="auto"`, `devices="auto"`,
 `strategy="ddp_find_unused_parameters_true"` for multiple devices or nodes,
@@ -160,7 +135,7 @@ Compile
 selected model regions before the loop with `model.compile()` if desired;
 [Performance](performance.qmd) describes exactly what this compiles.
 
-## Batch Size
+## Batch size
 
 Set `batch_size` on `fit`, `validate`, `test`, or `predict`. It must be a positive
 integer. The value updates `model.batch_size` and remains current for later
@@ -188,9 +163,9 @@ workflows can continue to use it.
 For direct in-memory Arrow input, setting `batch_size=256` on `model.predict(...)` also
 chunks the processed observations before encoding. Omitting that override
 preserves whole-input execution. See
-[Direct prediction batches](prediction-output.qmd#batch-direct-requests).
+[Direct prediction batches](../reference/prediction-output.qmd#batch-direct-requests).
 
-## Configure Optimization And Callbacks
+## Configure optimization and callbacks
 
 Configure AdamW on `fit(...)`. Omitted options use these effective defaults:
 
@@ -215,7 +190,7 @@ model.fit(datamodule, learning_rate=1e-4, weight_decay=0.01, max_epochs=30)
 ```
 
 The second run starts from the first run's restored best model, with new
-optimization state. Use [`ckpt_path`](#resume-training) to continue a saved
+optimization state. Use [`ckpt_path`](checkpoints-ema-and-resuming.qmd#resume-training) to continue a saved
 run's optimizer, scheduler, and loop progress instead.
 
 Pass any scheduler as `fit(scheduler=...)` for that run. A scheduler factory
@@ -244,76 +219,7 @@ such as `model.optimizer = rf.adamw(learning_rate=1e-3)`. Use Trainer directly
 when a Lightning tool needs it; the model methods accept its execution options
 for ordinary loops.
 
-## Average Learned Parameters With EMA
-
-Payment-review validation scores can vary as optimization moves the learned
-parameters. Exponential moving averaging (EMA) evaluates a smoothed parameter
-history. It is optional; compare it with ordinary training on the same
-held-out payments before adopting it.
-
-```python
-model.fit(
-    datamodule,
-    batch_size=128,
-    learning_rate=1e-4,
-    max_epochs=30,
-    callbacks=[rf.EMA(decay=0.99)],
-    checkpoint_dir="checkpoints/payments-ema",
-)
-```
-
-`rf.EMA` defaults to `decay=0.99`. Decay must be finite and satisfy
-`0 <= decay < 1`. A larger decay gives older updates more influence after
-warmup. Averaging follows optimizer updates, so accumulating more batches
-before an update does not itself advance EMA.
-
-EMA smooths learned parameters, while vocabulary and normalization state keep
-their current values. Averaging restarts for parameters replaced by model or
-vocabulary changes. It consumes additional model memory, including during
-validation; include it when checking whether a training configuration fits.
-
-During fitting, validation uses averaged parameters and restores live
-parameters afterward so optimization can continue. Early stopping and rollback
-therefore select using the averaged model's validation score. Fitting ends
-with averaged parameters; default rollback restores the best selected averaged
-checkpoint. With `rollback=False`, the returned model retains the final
-average. Use that returned model or its saved artifact for subsequent test and
-prediction. Adding EMA only to standalone evaluation does not create an
-average of a past training run.
-
-### Save And Resume EMA Training
-
-`rf.Model.load(...)` reads an EMA checkpoint's averaged model for inference.
-Full Lightning checkpoints also preserve the information needed to continue
-training. Resume with a fresh EMA callback and the full checkpoint:
-
-```python
-checkpoint = "checkpoints/payments-ema/last.ckpt"
-resumed = rf.Model.load(checkpoint)
-resume_data = rf.ArrowDataModule(
-    train="payments/train.parquet",
-    validate="payments/validation.parquet",
-)
-resumed.fit(
-    resume_data,
-    batch_size=128,
-    learning_rate=1e-4,
-    max_epochs=60,
-    callbacks=[rf.EMA(decay=0.99)],
-    ckpt_path=checkpoint,
-)
-```
-
-Use the actual checkpoint path produced by the run. Recreate the optimizer
-and any scheduler configuration as in [Resume Training](#resume-training).
-Loading the model alone and calling `fit` without `ckpt_path` starts a new
-run from its exported averaged parameters. Resuming restores the saved decay.
-EMA rejects checkpoint callbacks configured with
-`save_weights_only=True`; use full checkpoints, including for recovery saves.
-A `model.save(...)` artifact stores the current inference model but cannot
-resume the EMA or optimizer history.
-
-## Local Distributed Training
+## Local distributed training
 
 For CPU distributed training on one Mac, if Gloo aborts with
 `uv_accept: invalid argument`, select the loopback interface before launching
@@ -328,59 +234,7 @@ For training across machines, select a network interface reachable from every
 rank. PyTorch documents this setting under
 [Gloo network interface configuration](https://docs.pytorch.org/docs/stable/distributed.html#choosing-the-network-interface-to-use).
 
-## Resume Training
-
-The default rollback callback saves best and last full checkpoints at its
-validation/epoch checkpoints. The best model is selected for its validation
-score; the last checkpoint preserves the most recent state saved by that
-callback. For recovery between validation checks, attach a separate unmonitored
-checkpoint callback:
-
-```python
-from lightning.pytorch.callbacks import ModelCheckpoint
-
-recovery = ModelCheckpoint(
-    dirpath="checkpoints/recovery",
-    filename="step-{step}",
-    monitor=None,
-    every_n_train_steps=1_000,
-    save_top_k=1,
-    save_last=True,
-)
-model.fit(datamodule, callbacks=[recovery])
-```
-
-The recovery checkpoint contains optimizer and scheduler state. Its step
-schedule does not select the best model using a previous validation score;
-the built-in rollback callback continues to select from fresh validation checks.
-
-Use a full Lightning checkpoint to resume optimizer/scheduler state and loop
-progress. Recreate the runtime configuration and pass the checkpoint to `fit`:
-
-```python
-resumed = rf.Model.load("checkpoints/recovery/last.ckpt")
-resume_data = rf.ArrowDataModule(
-    train="payments/train.parquet",
-    validate="payments/validation.parquet",
-)
-resumed.fit(
-    resume_data,
-    batch_size=128,
-    learning_rate=1e-3,
-    max_epochs=100,
-    ckpt_path="checkpoints/recovery/last.ckpt",
-)
-```
-
-Recreate any scheduler and keep optimizer configuration consistent with the
-saved run. `rf.Model.load` restores model state; the `ckpt_path` argument is
-what tells Lightning to resume training state.
-
-Another `fit` call without `ckpt_path` starts a new optimizer run from the current
-model state. Use the best full checkpoint to continue with optimizer and
-scheduler state matching the restored best model. A new ordinary fit after
-rollback creates AdamW on the restored parameters automatically. Supply any
-scheduler again for that new run.
-
 To learn from unlabeled transaction records before the supervised task, see
-[Pretraining And Fine-Tuning](pretraining.qmd). That is an optional separate workflow.
+[Pretraining and fine-tuning](../learn/pretraining-and-fine-tuning.qmd). That is an optional separate workflow.
+If a run fails, [Troubleshooting](../reference/troubleshooting.qmd) lists the first checks
+for binding, optimizer, checkpoint, and EMA errors.

@@ -1,5 +1,6 @@
 ---
 title: Preprocessing
+description: "Derive values, rename, filter, join, and reshape records with eager Polars transforms before binding."
 ---
 
 A preprocessor prepares records before relflow resolves schema fields or queries.
@@ -8,7 +9,7 @@ call. Use it for derived values, renaming, filters, joins, and nested reshaping.
 
 ## Derive a value
 
-Reuse the model from [Add Transaction History](../tutorials/transaction-history.qmd).
+Reuse the model from [Add transaction history](../learn/add-transaction-history.qmd).
 Add the elapsed time since each transaction's predecessor. Calendar features
 describe recurring patterns; this gap gives the model information about the
 pace of account activity. A burst of purchases minutes apart carries a different
@@ -155,7 +156,7 @@ Arrow rows are divided into model batches. File-backed data modules apply
 processors at their configured [scope](#scope-and-context).
 
 Retention reads the processed columns. Before any
-[postprocessing](postprocessors.qmd), predictions contain one row per processed
+[postprocessing](postprocessing.qmd), predictions contain one row per processed
 observation. Filtering removes observations; exploding or a one-to-many join can
 add them. Keep a business key when outputs must be joined back to source records;
 relflow does not restore the original rows or order.
@@ -253,3 +254,8 @@ final processed Arrow schemas
 stable within each split across partitions and epochs, including empty and
 all-null columns. For an empty direct prediction result, return a typed empty
 frame: a pipeline that emits no frames raises an error.
+
+When the source only needs different names or nesting, a
+[query](query-paths.qmd) may be enough. Attach processors to
+the [data module](data-modules.qmd) for training and prediction, or to a
+[deployment](serving.qmd) for serving.

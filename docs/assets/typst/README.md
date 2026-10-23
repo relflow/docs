@@ -124,3 +124,58 @@ accents distinguish root contexts, branch contexts, and prediction targets.
 If the dark canvas changes, update both the project setting and the palette selector.
 Standalone Typst rendering defaults to the light palette; use
 `--input typst-render-background=#181c1b` for the dark variant.
+
+# Explanatory diagrams
+
+`diagrams.typ` exports `flow`, `step`, `timeline`, and `tokens`. They share the
+model-tree palette and canvas, so they sit beside model trees without a change
+of style. The preamble imports all four. Use them where a tree cannot show the
+idea: a sequence of stages, a position in time, or the tokens inside a branch.
+
+```typst
+flow(..lanes, title-width: 64pt)
+step(label, kind: "field", note: none, width: 108pt)
+```
+
+Each lane is `(title: "...", steps: (step(...), ...))` and renders as one row
+of cards joined by arrows. `kind` selects the same colors as tree nodes: use
+`root` and `branch` for what relflow owns, `target` for work the application
+must maintain, and `field` for neutral stages. Put a short `note` on a step
+rather than a footnote.
+
+```typst
+timeline(events, cutoff: none, window: none, start: 0, end: 1, width: 430pt)
+```
+
+Events are `(at: number, label: content, level: 0 or 1, kind: "input")`.
+`input` events are known at the cutoff, `excluded` events happened later and
+stay out of the inputs, and a `label` event defines an outcome. `cutoff` is
+`(at:, label:)` and `window` is `(from:, to:, label:)`. Positions are plain
+numbers between `start` and `end`, such as days; stagger nearby labels with
+`level: 1`.
+
+```typst
+tokens(fields, records, summary: [Learned summary], within: none, across: none,
+       reduce: none, highlight: 1)
+```
+
+`fields` names the columns and each record is `(label: content, values: (...))`.
+The first record is framed as one coordinate and the `highlight` column is
+framed across records; `within`, `across`, and `reduce` label those frames and
+the summary card. Pass `frame-first: false`, `highlight: none`, or
+`summary: none` to omit a frame or the reduction arrow. An optional `states`
+matrix, one value state per cell, shades cells that a masking policy hides.
+Keep values short, and use the same example records as the nearby YAML.
+
+```typst
+policies(stages, rows, label-width: 200pt, legend: true)
+repeat(state, count)
+```
+
+`policies` draws one row per policy or field and one column per stage. Each
+row is `(label: content, cells: ((state, ...), ...))` with one state tuple per
+stage; each tuple draws the retained positions of one repeated field. Value
+states are `input` (visible), `masked` (present as a learned mask), `skipped`
+(absent from attention), `target` (hidden and reconstructed or predicted), and
+`none` (not in the schema). `repeat("input", 5)` builds a uniform tuple. The
+legend names the four drawn states; turn it off for a small follow-up grid.

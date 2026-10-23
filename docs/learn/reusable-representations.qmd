@@ -1,4 +1,8 @@
-# Learning Modes And Embeddings
+---
+title: Reusable representations
+description: "Export learned context as embeddings and evaluate them as inputs to separate predictors."
+engine: markdown
+---
 
 After learning from payment histories, you may need another prediction from
 the same evidence: whether a merchant will be paid again, or which payments
@@ -11,10 +15,10 @@ An embedding is a numeric representation of the context the model has learned.
 Set `embed=True` where you want to export one. Exporting adds no learning
 objective; use a model already trained with supervision or reconstruction.
 
-## Choose Where To Export
+## Choose where to export
 
 Continue with the saved payment model from
-[Pretraining And Fine-Tuning](../guides/pretraining.qmd). It already includes
+[Pretraining and fine-tuning](pretraining-and-fine-tuning.qmd). It already includes
 the account profile and transactions, including the latest payment once. Turn
 on exports at its root and `trxns` branch:
 
@@ -40,6 +44,22 @@ task predictor.
 | Branch | The branch's reduced context. |
 | Leaf | The decoder's pooled context before its datatype output head. |
 
+```{typst}
+//| label: fig-embedding-sites
+//| fig-cap: "Where embed=True is set decides what each exported vector describes: the observation, the transaction history, or one transaction."
+//| fig-alt: "An account root with embed=True exporting one vector per observation. It contains account_age_days Number and a repeated trxns branch with embed=True exporting one summary per observation under the xs preset. Inside the branch, booked_at DateParts, amount Number, merchant Category annotated that a leaf export would give one vector per transaction, channel Enum, and a hidden disputed Boolean target at every transaction."
+#tree(node("account", kind: "root", width: 150pt, detail: "embed=True", body: [One vector per observation.], children: (
+  node("account_age_days", width: 150pt, type: "Number"),
+  node("trxns", kind: "branch", repeated: true, width: 150pt, detail: "embed=True", body: [One summary per observation with the `xs` preset.], children: (
+    node("booked_at", type: "DateParts"),
+    node("amount", type: "Number"),
+    node("merchant", type: "Category", width: 165pt, body: [`embed=True` here would export one vector per transaction.]),
+    node("channel", type: "Enum"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction"),
+  )),
+)))
+```
+
 The pretraining example uses the `xs` preset with one-output reductions. This
 therefore exports one vector for the account snapshot and one summary of its
 transactions per observation. It does not export one vector per transaction.
@@ -54,9 +74,9 @@ A leaf embedding is different from its raw input embedding: it can include
 ancestor context and visible, aligned sibling fields. A branch embedding
 summarizes the inputs controlled by that branch's reduction.
 
-## Read The Output
+## Read the output
 
-This example uses [prediction output](../guides/prediction-output.qmd),
+This example uses [prediction output](../reference/prediction-output.qmd),
 which keeps representations separate from decoded field results.
 
 Use the same account profile and `trxns` records in your application's request
@@ -65,29 +85,47 @@ the final booking time; all vectors describe the evidence available then.
 Export the vectors in prediction mode:
 
 ```python
-import pyarrow as pa
-import pyarrow.compute as pc
-
 requests = rf.ArrowDataModule(
     predict="payments/finetuning/requests.parquet",
 )
 result = model.predict(datamodule=requests, batch_size=256, devices=1)
-representations = result["representations"].combine_chunks()
-observation_rows = pc.list_parent_indices(representations)
-records = pc.list_flatten(representations)
-path_lists = pc.struct_field(records, "path")
-# Arrow's string-join kernel expects nullable string elements.
-paths = pc.binary_join(path_lists.cast(pa.list_(pa.field("element", pa.string()))), "/")
-snapshot_records = pc.filter(records, pc.equal(paths, ""))
-transaction_records = pc.filter(records, pc.equal(paths, "trxns"))
-snapshot_embedding = pc.struct_field(snapshot_records, "embedding")
-transaction_embedding = pc.struct_field(transaction_records, "embedding")
 ```
 
-`observation_rows` associates each flattened representation with its table row;
-keep or filter these indices alongside the records when joining to retained
-identifiers. The empty joined path selects the anonymous root. Field names
-cannot contain `/`, so joining segments here does not merge distinct paths.
+Each row's `representations` list holds one record per exported vector. An
+empty `path` is the anonymous root, and `["trxns"]` is the transaction
+summary. Rows come back in request order:
+
+```python
+snapshot_vectors = []
+history_vectors = []
+for row in result.to_pylist():
+    for record in row["representations"]:
+        if record["path"] == []:
+            snapshot_vectors.append(record["embedding"])
+        elif record["path"] == ["trxns"]:
+            history_vectors.append(record["embedding"])
+```
+
+For many rows, let Polars give you one row per vector, with an `observation`
+index that ties each vector back to its request row:
+
+```python
+import polars as pl
+
+vectors = (
+    pl.from_arrow(result)
+    .with_row_index("observation")
+    .select("observation", "representations")
+    .explode("representations")
+    .unnest("representations")
+    .with_columns(path=pl.col("path").list.join("/"))
+)
+snapshot_vectors = vectors.filter(pl.col("path") == "")
+history_vectors = vectors.filter(pl.col("path") == "trxns")
+```
+
+Field names cannot contain `/`, so joining path segments does not merge
+distinct paths.
 
 Exported vectors are float32 and L2-normalized along their fixed `d_model`
 axis; zero vectors remain zero. Each representation record also carries
@@ -102,13 +140,13 @@ including its defined zero slots; its output indices do not claim an inferred
 source-record identity. A branch summary can exist for an empty collection
 when its reduction defines that output. A leaf embedding requires a valid
 item coordinate. Representation counts therefore need not match item counts.
-See [Branch](../data-types/branch.qmd) and the full
-[Prediction Output](../guides/prediction-output.qmd) contract.
+See [Branch](../datatypes/branch.qmd) and the full
+[Prediction output](../reference/prediction-output.qmd) contract.
 
 Evaluate an embedding on its intended downstream task. A useful dispute
 predictor does not by itself establish useful similarity or clustering.
 Preserve the schema and trained state with
-[the model artifact](../guides/lightning.qmd#save-and-load).
+[the model artifact](../guides/checkpoints-ema-and-resuming.qmd#save-and-load).
 
 To evaluate a frozen representation, keep the exporting model fixed and
 generate vectors in prediction mode for the training and held-out
@@ -128,10 +166,11 @@ assess the fixed choices on test data. For merchant-repeat prediction, measure
 precision and recall for the defined 30-day outcome window. For payment review,
 measure dispute recall at a fixed review capacity. These task metrics help
 decide whether the reusable representation earns a place in the workflow.
-[Learning From Event Histories](../guides/learning-from-event-data.qmd) explains
-how to prepare the observations and outcome windows for these experiments.
+[Profile context and a second outcome](profile-context-and-a-second-outcome.qmd)
+explains how to prepare the observations and outcome windows for these
+experiments.
 
-## Learn Without A Label
+## Learn without a label
 
 You can export context before adapting to a supervised outcome. Load the
 reconstruction-trained artifact from the same payment workflow and request
@@ -151,17 +190,17 @@ This model learned by reconstructing sampled transaction amounts and merchants;
 it has not learned from dispute labels. Run prediction with this model to
 generate vectors for a separately labeled task. `embed=True` alone creates no
 objective, and sampled reconstruction does not request ordinary decoded
-prediction output. [Masking](dynamic-masking.qmd) explains that distinction.
-Supervised and sampled reconstruction objectives can coexist, with each leaf's
-`weight` scaling its contribution.
+prediction output. [Masking and reconstruction](../concepts/masking-and-reconstruction.qmd) explains
+that distinction. Supervised and sampled reconstruction objectives can coexist,
+with each leaf's `weight` scaling its contribution.
 
-[Pretraining And Fine-Tuning](../guides/pretraining.qmd) shows how to transfer
+[Pretraining and fine-tuning](pretraining-and-fine-tuning.qmd) shows how to transfer
 reconstruction training to a labeled task. The
 [reconstruction transfer proof](../proofs/representation/reconstruction-transfer.html)
 compares frozen root embeddings with raw features, an untrained encoder, and
 training on independently permuted views.
 
-Once the payment workflow is established, the
-[application examples](../case-studies/relational-tasks.qmd) show how to organize
-purchase, review, and report histories around their own outcomes. Define and
-evaluate the representation for each schema and task before relying on it.
+Next, [Other domains and outcomes](other-domains-and-outcomes.qmd) shows
+how to organize purchase, review, report, and market histories around their
+own outcomes. Define and evaluate the representation for each schema and task
+before relying on it.

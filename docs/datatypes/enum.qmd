@@ -1,4 +1,7 @@
-# Enum
+---
+title: Enum
+description: "One label from an application-declared list, such as a currency code."
+---
 
 The amount `84.50` needs a currency to be interpreted consistently. `Enum`
 represents one label from an application-declared list, such as the currency
@@ -37,10 +40,10 @@ Mixed types, null labels, NaN, and infinity are rejected. For example,
 `values=(1, 2, 3)` declares integer labels; floating-point inputs must not be
 used in their place. Arrow widths may differ within the declared type family.
 
-Null inputs are separate [value states](../core-concepts/data-types.qmd#value-state),
+Null inputs are separate [value states](index.qmd#value-state),
 not members of `values`. An input outside the declared set raises an error in
 training, validation, test, and prediction, including when the field is hidden
-by a mask. Use a [preprocessor](../guides/preprocessors.qmd) to normalize
+by a mask. Use a [preprocessor](../guides/preprocessing.qmd) to normalize
 application-specific spellings or map unmatched inputs to a fallback label
 that you include in `values`.
 
@@ -49,8 +52,10 @@ that you include in `values`.
 | `values` | Required | Nonempty tuple of unique labels of one built-in type; tuple order defines their internal indices. |
 | `p_unavailable` | `0.01` | Training probability of replacing known valued input content with unavailable content. Reconstruction targets remain unchanged. |
 | `topk` | `[]` | Sorted, unique integer accuracy cutoffs greater than one; also controls prediction candidates. Each cutoff is capped by the declared label count. |
+| `strip` | `False` | Trim surrounding whitespace from string labels, in `values` and in every input alike. |
+| `cased` | `True` | `False` lowercases string labels, in `values` and in every input alike; declarations that collide after folding are rejected. |
 
-See [shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options)
+See [shared leaf options](index.qmd#shared-leaf-options)
 for reconstruction, masking, and embedding configuration. Since `values` is
 required, construct each field with `rf.Enum(values=(...))`.
 
@@ -93,7 +98,7 @@ A declared label may receive a prediction before it has training examples;
 membership in the schema does not establish prediction quality. With only one
 declared label, its conditional probability is one. Read content probabilities
 alongside `state` and `inferred` in the
-[prediction envelope](../guides/prediction-output.qmd).
+[prediction envelope](../reference/prediction-output.qmd).
 
 The [fixed-class proof](../proofs/enum/fixed-class-learning.html) compares
 informative and shuffled context. The

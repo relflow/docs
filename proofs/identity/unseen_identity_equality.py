@@ -67,7 +67,7 @@
 #
 # ### How it works
 #
-# [Hash](../../data-types/hash.qmd) preserves equality across fields within an
+# [Hash](../../datatypes/hash.qmd) preserves equality across fields within an
 # encoded batch. Its representation does not require a persistent entry for
 # each identifier, so new strings can still supply the comparison signal.
 #

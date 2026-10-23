@@ -1,8 +1,8 @@
 ---
+title: Tree routing and decoding
+description: "Context moves from the leaves toward the root, and each decoder reads the context along its path."
 engine: markdown
 ---
-
-# Tree Routing And Decoding
 
 The model builds context from the leaves toward the root, then each requested
 field decoder reads the context available along its schema path. The tutorial
@@ -10,10 +10,12 @@ has one `trxns` branch containing earlier payments and the latest payment.
 Its fields build transaction context, and `disputed=rf.Boolean(mask=True)`
 requests a dispute prediction at every retained transaction coordinate.
 
-This routing explanation was checked
-against the [0.2.4 execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py).
+This explanation follows the
+[execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py)
+introduced in 0.2.4. The current pages are checked against RelFlow 0.3.6
+([pinned source](https://github.com/relflow/relflow/tree/299413375f3c113e6750f75e81cb52736978b643)).
 
-## Context Moves Toward The Root
+## Context moves toward the root
 
 ```{typst}
 //| label: fig-mechanism-tree-routing
@@ -42,9 +44,9 @@ describes dependencies, without promising parallel execution.
 
 The root is anonymous at `rf.Address()`. `account` in the figure describes the
 observation; it does not add an address prefix. For schema construction and
-addresses, see [Model Tree](../../core-concepts/model-tree.qmd).
+addresses, see [Model tree](model-tree.qmd).
 
-## A Decoder Reads Its Path
+## A decoder reads its path
 
 A target decoder receives the representations retained along its heritage:
 the schema path through its ancestors to the field. A nested target can
@@ -65,23 +67,19 @@ establish those positions.
 
 `embed=True` requests an exported contextual representation and adds no
 reconstruction objective. These roles have their own explanations in
-[Masking And Objectives](../../core-concepts/dynamic-masking.qmd) and
-[Embeddings](../../core-concepts/embeddings.qmd).
+[Masking and reconstruction](masking-and-reconstruction.qmd) and
+[Reusable representations](../learn/reusable-representations.qmd).
 
-The branch can use the full collection through the latest transaction's
-booking time, the common review cutoff. Every target concerns a new dispute
-during the following 30 days. These are forecasts from that shared cutoff,
-not from each transaction's original booking time.
-
-## Read The Result
+## Read the result
 
 Output format 2 returns decoded fields in a `predictions` tree
 and requested embeddings in a separate `representations` column. Only selected
 columns appear. Repeated decoded siblings share one record collection; branch
-representations retain their own output indices and ancestor coordinates. Follow
-[Read Predictions](../prediction-output.qmd) for one payment's output and its
-state, content, and inference flag.
+representations retain their own output indices and ancestor coordinates.
+[Read predictions](../learn/read-predictions.qmd) walks through one
+payment's output and its state, content, and inference flag;
+[Prediction output](../reference/prediction-output.qmd) is the full contract.
 
-Continue with [Branch Summaries](branch-reduction.qmd) for the information passed
-between levels, or [How Fields Interact](field-interactions.qmd) for the context
+Continue with [Branch summaries](branch-summaries.qmd) for the information passed
+between levels, or [How fields interact](how-fields-interact.qmd) for the context
 built inside each branch.

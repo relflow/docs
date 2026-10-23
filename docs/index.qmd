@@ -1,14 +1,29 @@
 ---
 title: relflow
+subtitle: Deep learning for the records you already keep.
 body-classes: home
 toc: false
+engine: markdown
 ---
 
-relflow learns predictions and representations from structured business data.
-Describe a transaction, the history available around it, and the outcome you
-want to predict. The schema defines a trainable PyTorch model.
+::: {.lead}
+Describe one observation, with its history nested inside, and relflow learns
+the encodings, the context, and the predictions from the rows themselves. No
+feature pipeline, no fixed-width table, no second path for serving.
+:::
 
-For example, learn whether a payment will later be disputed:
+::: {.home-actions}
+[Build your first model →](learn/your-first-model.qmd){.btn .btn-primary}
+[See what it automates](learn/featureless-models.qmd){.btn .btn-outline-primary}
+:::
+
+## Three fields are a model
+
+::: {.column-screen-inset-right}
+::: {.grid .home-code}
+
+::: {.g-col-12 .g-col-lg-5}
+A payment has an amount, a merchant, and a dispute outcome learned later:
 
 ```yaml
 amount: 84.50
@@ -16,39 +31,163 @@ merchant: North Market
 disputed: false
 ```
 
-The model reads `amount` and `merchant`, and learns to predict `disputed`.
-A risk team can use that prediction to prioritize payments for review.
-The later dispute outcome supplies the training answer.
+The merchant vocabulary, the amount scale, the training loop, early stopping,
+and the best checkpoint are all handled inside one call. When the question
+grows, put the payment last in a `trxns` sequence after the account's earlier
+activity. Every transaction keeps its booking time, amount, and merchant
+together, and each one gets its own dispute prediction from the shared
+context.
+:::
 
-As the question grows, place that payment last in a **transaction sequence**
-called `trxns`, after the account's earlier activity. Each transaction keeps
-its booking time, amount, and merchant together. One merchant field serves
-every position, and each transaction has its own dispute target.
+::: {.g-col-12 .g-col-lg-7}
+Name the fields, mark the outcome, and train:
 
-[Build your first model →](getting-started.qmd){.btn .btn-primary}
+```python
+import relflow as rf
 
-## Start Small
+model = rf.Model.xs(
+    amount=rf.Number,
+    merchant=rf.Category,
+    disputed=rf.Boolean(mask=True),
+)
+data = rf.ArrowDataModule(
+    train="payments/train.parquet",
+    validate="payments/validation.parquet",
+)
+model.fit(data, batch_size=128, max_epochs=20)
+```
+:::
 
-1. [Your first model](getting-started.qmd): define fields, train, and predict.
-2. [Add transaction history](tutorials/transaction-history.qmd): put transactions in one `trxns` branch and predict a dispute for each one.
-3. [Prepare your observations](core-concepts/binding-data.qmd): keep the same payment and history in [application-supplied Parquet files](guides/data-modules.qmd).
-4. [Train and evaluate](guides/lightning.qmd): compare dispute predictions with the existing review process before adding more context.
+:::
+:::
 
-## Go Further When You Need To
+## What relflow promises
 
-The later examples extend the transaction model in order:
+::: {.column-screen-inset-right}
+::: {.grid .home-promises}
+
+::: {.g-col-12 .g-col-md-6}
+### No feature pipeline
+
+Vocabularies and normalizers are learned during training and saved inside the
+model, and sequence widths follow each batch. The same record layout trains,
+scores, and serves. There is nothing to fit offline, rerun before scoring, or
+keep in sync.
+:::
+
+::: {.g-col-12 .g-col-md-6}
+### Model the records as they are
+
+Transactions inside accounts, line items inside transactions, a withdrawal
+history beside a payment history. Nested rows are the input, and attention
+learns which fields and which events matter together instead of someone
+guessing which summaries to compute.
+:::
+
+::: {.g-col-12 .g-col-md-6}
+### A target at any depth
+
+Put `mask=True` on a field anywhere in the tree and it becomes a supervised
+target that never leaks into the input. Predict a label for every transaction,
+a loss for the whole account, or both at once from one model.
+:::
+
+::: {.g-col-12 .g-col-md-6}
+### Vocabularies that grow while you train
+
+There is no label count to guess. New merchants are admitted before the batch
+that introduces them, storage grows in place, and training continues, on one
+device or across a distributed run.
+:::
+
+::: {.g-col-12 .g-col-md-6}
+### Learn before the labels arrive
+
+Hide sampled values and let the model reconstruct them from the rest of the
+history, then adapt the same model to the outcome once labels exist. Export
+its learned context as vectors for any other predictor.
+:::
+
+::: {.g-col-12 .g-col-md-6}
+### Change a trained model without starting over
+
+Add a target, drop an input, or extend a branch on a model that has already
+learned. State that still fits is kept, and the mutation proofs record exactly
+what survives each edit.
+:::
+
+:::
+:::
+
+Each promise has receipts. The [proofs](proofs.qmd) are small recorded
+experiments on the mechanisms behind them: what the architecture can learn,
+where it loses information, and the controls that tell the two apart.
+
+## The pipeline you no longer build
+
+::: {.column-screen-inset-right}
+```{typst}
+//| fig-cap: "A feature pipeline maintains jobs, a fixed-width table, and serving features. A relflow schema reads nested records and learns its own encodings."
+//| fig-alt: "Two lanes. The feature pipeline lane runs from source tables through feature jobs that aggregate, encode, and scale, to a fixed-width feature table, a model, and a second set of serving features. The relflow lane runs from nested source records through a schema of fields, branches, and targets to a model that learns vocabularies, normalizers, and context, then to predictions on the same records with labels omitted."
+#flow(
+  (title: "Feature pipeline", steps: (
+    step("Source tables", note: "Transactions, accounts"),
+    step("Feature jobs", kind: "target", note: "Aggregate, encode, scale. Rerun before every training and scoring run."),
+    step("Feature table", kind: "target", note: "One fixed-width row per entity"),
+    step("Model"),
+    step("Serving features", kind: "target", note: "A second pipeline kept in sync"),
+  )),
+  (title: "relflow", steps: (
+    step("Source records", note: "Nested rows as stored"),
+    step("Schema", kind: "branch", note: "Fields, branches, targets"),
+    step("Model", kind: "root", note: "Learns vocabularies, normalizers, and context"),
+    step("Predictions", note: "Same records, labels omitted"),
+  )),
+)
+```
+:::
+
+[Featureless models](learn/featureless-models.qmd) goes through each pipeline
+step and what replaces it, what remains your work, and how to compare the
+result with an aggregate-feature baseline.
+
+## Learn in order
+
+Each page builds on the one before it and ends with the next step.
+
+1. [Your first model](learn/your-first-model.qmd): define three fields, train, and predict.
+2. [Add transaction history](learn/add-transaction-history.qmd): put the payment and its predecessors in one `trxns` branch and predict a dispute for each.
+3. [Featureless models](learn/featureless-models.qmd): see what the two models did without a feature pipeline.
+4. [Prepare observations](learn/prepare-observations.qmd): decision times, label windows, ordering, and binding.
+5. [Train and save](learn/train-and-save.qmd): the options that matter on a first run, and the artifact.
+6. [Read predictions](learn/read-predictions.qmd): find each probability and keep the identifiers you need.
+7. [Evaluation](learn/evaluation.qmd): compare with the existing review process before adding more.
+
+Then extend the same model, in this order:
 
 | Business question | What the example adds |
 | --- | --- |
-| [Will this merchant be paid again?](guides/learning-from-event-data.qmd) | Payment channels, account profile context, and a second outcome learned from the same history. |
-| [Which transactions and accounts need attention?](case-studies/customer-risk.qmd) | Line items inside transactions, a separate withdrawal history, and a future account-loss target alongside transaction disputes. |
-| [Can unlabeled activity help?](guides/pretraining.qmd) | Reconstruction of hidden historical fields before adapting to an outcome. |
-| [Can other predictors reuse the context?](core-concepts/embeddings.qmd) | Frozen transaction-history representations evaluated on separate tasks. |
-| [Where else does this pattern apply?](case-studies/relational-tasks.qmd) | Purchase histories for retention, followed by other related-record applications. |
+| [Will this merchant be paid again?](learn/profile-context-and-a-second-outcome.qmd) | Payment channels, account profile context, and a second outcome learned from the same history. |
+| [Which transactions and accounts need attention?](learn/nested-context-and-account-outcomes.qmd) | Line items inside transactions, a separate withdrawal history, and a future account-loss target alongside transaction disputes. |
+| [Can unlabeled activity help?](learn/pretraining-and-fine-tuning.qmd) | Reconstruction of hidden historical fields before adapting to an outcome. |
+| [Can other predictors reuse the context?](learn/reusable-representations.qmd) | Frozen transaction-history representations evaluated on separate tasks. |
+| [Where else does this pattern apply?](learn/other-domains-and-outcomes.qmd) | Purchase histories for retention, followed by other related-record applications. |
 
-Follow [Model Structure](core-concepts/model-tree.qmd) and
-[Field Interactions](guides/mechanisms/field-interactions.qmd) when you want to
-understand how the model combines the evidence.
+## Go deeper
+
+- **Concepts** explain how the model combines evidence: the
+  [model tree](concepts/model-tree.qmd),
+  [how fields interact](concepts/how-fields-interact.qmd),
+  [branch summaries](concepts/branch-summaries.qmd),
+  [masking](concepts/masking-and-reconstruction.qmd), and the
+  [online vocabulary](concepts/online-vocabulary.qmd).
+- **Guides** cover one task each: [data modules](guides/data-modules.qmd),
+  [preprocessing](guides/preprocessing.qmd), [serving](guides/serving.qmd),
+  [performance](guides/performance.qmd), and
+  [training options](guides/training-options.qmd).
+- **Reference** holds the [datatypes](datatypes/index.qmd),
+  [model presets](reference/model-presets.qmd), the
+  [API map](reference/api-map.qmd), and the [proofs](proofs.qmd).
 
 The examples use payments and accounts. The same field and branch definitions
 work with other kinds of tabular and nested records.

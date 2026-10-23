@@ -166,16 +166,16 @@ def test_datatype_references_cover_public_options_and_states() -> None:
     contract = json.loads((ROOT / "contracts/relflow.json").read_text())
     assert contract["schema"] == 1
     assert contract["upstream"]["repository"] == "https://github.com/relflow/relflow"
-    assert contract["upstream"]["version"] == "0.3.5"
-    assert contract["upstream"]["branch"] == "stage/0.3.5"
-    assert contract["upstream"]["commit"] == "bba36e508ff5e28f4d8a3eb629bea48ae5b1e625"
+    assert contract["upstream"]["version"] == "0.3.6"
+    assert contract["upstream"]["branch"] == "stage/0.3.6"
+    assert contract["upstream"]["commit"] == "299413375f3c113e6750f75e81cb52736978b643"
     for name, options in contract["fields"].items():
-        reference = (DOCS / f"data-types/{name.lower()}.qmd").read_text()
+        reference = (DOCS / f"datatypes/{name.lower()}.qmd").read_text()
         for option in options:
             assert f"`{option}`" in reference, f"{name}.{option} is missing from its reference"
-    data_types = (DOCS / "core-concepts/data-types.qmd").read_text()
+    data_types = (DOCS / "datatypes/index.qmd").read_text()
     assert all(f"`{name}`" in data_types for name in contract["tokens"])
-    branch = (DOCS / "data-types/branch.qmd").read_text()
+    branch = (DOCS / "datatypes/branch.qmd").read_text()
     assert all(mode in branch for mode in contract["attention_modes"])
 
 

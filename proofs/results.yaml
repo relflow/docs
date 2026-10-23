@@ -7535,7 +7535,7 @@ proofs:
         | Improvement from weekday | At least 0.70 | 0.857 |
 
         A complete source timestamp does not imply a complete encoded timestamp.
-        [DateParts](../../reference/fields/dateparts.qmd) retains the coordinates requested
+        [DateParts](../../datatypes/dateparts.qmd) retains the coordinates requested
         by the schema; omitted distinctions need to be supplied explicitly.
     runs:
     - started_at: '2026-09-15T02:17:06.356064+00:00'

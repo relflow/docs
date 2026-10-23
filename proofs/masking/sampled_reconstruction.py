@@ -76,7 +76,7 @@
 #
 # ### Training and controls
 #
-# The model uses the [xs preset](../../core-concepts/model-tree.qmd#choose-a-size).
+# The model uses the [xs preset](../../concepts/model-tree.qmd#choose-a-size).
 #
 # Fit for 400 AdamW updates at learning rate 0.002. Evaluate the final model;
 # no checkpoint or gate is selected using the test set. Each direction must

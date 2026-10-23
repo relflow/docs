@@ -2,10 +2,10 @@
   "schema": 1,
   "upstream": {
     "repository": "https://github.com/relflow/relflow",
-    "commit": "bba36e508ff5e28f4d8a3eb629bea48ae5b1e625",
-    "version": "0.3.5",
-    "branch": "stage/0.3.5",
-    "reviewed_on": "2026-10-21",
+    "commit": "299413375f3c113e6750f75e81cb52736978b643",
+    "version": "0.3.6",
+    "branch": "stage/0.3.6",
+    "reviewed_on": "2026-10-22",
     "baseline_commit": "18d582cca2af3dafde65b756111b32aed5b3e580",
     "baseline_version": "0.3.1",
     "requires": {
@@ -17,7 +17,9 @@
       "threshold"
     ],
     "Category": [
+      "cased",
       "p_unavailable",
+      "strip",
       "topk"
     ],
     "Cluster": [
@@ -32,7 +34,9 @@
       "pattern"
     ],
     "Enum": [
+      "cased",
       "p_unavailable",
+      "strip",
       "topk",
       "values"
     ],
@@ -45,7 +49,6 @@
     "Number": [
       "alpha",
       "jitter",
-      "log",
       "n_bands",
       "objective",
       "offset"
@@ -56,7 +59,9 @@
       "objective"
     ],
     "Set": [
+      "cased",
       "p_unavailable",
+      "strip",
       "threshold"
     ],
     "Text": [

@@ -1,4 +1,7 @@
-# Hash
+---
+title: Hash
+description: "Identifier equality without a learned vocabulary."
+---
 
 An account's current payment and an earlier payment may share a merchant ID,
 even when that ID was not seen during training. `Hash` supplies an equality
@@ -75,5 +78,5 @@ trained two-hop task, with a separate result for each condition.
 ## Output
 
 Hash has no decoded public content. `embed=True` can export a contextual
-embedding, as described in [shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options).
+embedding, as described in [shared leaf options](index.qmd#shared-leaf-options).
 Keep IDs outside the model schema when equality itself is not useful.

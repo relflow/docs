@@ -1,8 +1,9 @@
 ---
-title: Postprocessors
+title: Postprocessing
+description: "Turn the nested prediction table into the columns an application consumes."
 ---
 
-A postprocessor turns the [prediction table](prediction-output.qmd) into the
+A postprocessor turns the [prediction table](../reference/prediction-output.qmd) into the
 shape an application needs. It receives and returns an eager Polars DataFrame.
 
 The payment review workflow needs dispute probabilities and review decisions
@@ -10,7 +11,7 @@ for its transactions. Keep the model and input history from the earlier
 guides; this step converts the nested results into application columns.
 
 For the trained sequence model with a `/trxns/disputed` target on every transaction, using
-[nested prediction output](prediction-output.qmd):
+[nested prediction output](../reference/prediction-output.qmd):
 
 ```python
 import polars as pl
@@ -48,9 +49,12 @@ model.predict(
 )
 ```
 
-The Writer applies the processor to each prediction batch and writes Parquet
-files under `payment-decisions`. Each output list follows the retained
-transaction order. One output record has this shape; values are placeholders:
+The chain of `struct.field` calls follows the nesting of one output record:
+`predictions`, then `trxns`, then each transaction's `disputed`, `content`,
+and `probability`. `list.eval` applies that path to every transaction in the
+list, so the payment keeps one row with one value per transaction. The Writer
+applies the processor to each prediction batch and writes Parquet files under
+`payment-decisions`. Each output list follows the retained transaction order. One output record has this shape; values are placeholders:
 
 ```yaml
 payment_id: payment-42
@@ -99,3 +103,6 @@ schema across batches in its shard.
 HTTP serving has an additional requirement: preserve one final row per valid
 request with the same identity and order. RelFlow checks the count; processors
 own identity and order, including when row counts happen to be equal.
+
+For file output at scale, see [Batch inference](batch-inference.qmd); for the
+HTTP path, see [Serving](serving.qmd).

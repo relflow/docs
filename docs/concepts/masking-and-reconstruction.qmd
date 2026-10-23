@@ -1,15 +1,19 @@
-# Masking And Reconstruction
+---
+title: Masking and reconstruction
+description: "Policies that hide inputs, sample reconstruction targets, or select them with application Booleans."
+engine: markdown
+---
 
 A mask controls which values the model can see and which values it learns to
-predict. The [transaction-history tutorial](../tutorials/transaction-history.qmd)
+predict. The [transaction-history tutorial](../learn/add-transaction-history.qmd)
 uses `disputed=rf.Boolean(mask=True)`: every retained transaction's label is
 hidden and supervised. That simple policy needs no selector.
 
 This later guide introduces optional policies for hiding ordinary inputs or
 reconstructing selected parts of a record. These advanced choices are
-independent of [exporting embeddings](embeddings.qmd).
+independent of [exporting embeddings](../learn/reusable-representations.qmd).
 
-## Choose The Intended Effect
+## Choose the intended effect
 
 | Goal | Field configuration |
 | --- | --- |
@@ -20,6 +24,23 @@ independent of [exporting embeddings](embeddings.qmd).
 | Reconstruct sampled values | `mask=rf.Mask(rate=0.15, reconstruct=True)` |
 | Reconstruct amounts selected by the application | `mask=rf.Mask(query="routing.hide_amount", reconstruct=True)` |
 | Remove an input in every stage without a target | `mask=rf.Mask(skip=True, dropout=False)` |
+
+```{typst}
+//| label: fig-masking-policies
+//| fig-cap: "What each policy does to one field across five retained transactions, by stage. Sampled policies select one position here for illustration."
+//| fig-alt: "A grid with one row per policy and columns for train, validate and test, and predict. mask=True hides and reconstructs every position in every stage. mask=0.15 replaces a sampled position with a learned mask during training only. Mask with rate 0.15 and skip drops a sampled position during training only. Mask with rate 0.15 and reconstruct hides and reconstructs a sampled position during training and validation and is off at prediction. Mask with a query selector and reconstruct hides and reconstructs the selected position in every stage. Mask with skip and dropout false removes the field in every stage."
+#policies(
+  ("Train", "Validate and test", "Predict"),
+  (
+    (label: [`mask=True`], cells: (repeat("target", 5), repeat("target", 5), repeat("target", 5))),
+    (label: [`mask=0.15`], cells: (("input", "input", "masked", "input", "input"), repeat("input", 5), repeat("input", 5))),
+    (label: [`rf.Mask(rate=0.15, skip=True)`], cells: (("input", "input", "skipped", "input", "input"), repeat("input", 5), repeat("input", 5))),
+    (label: [`rf.Mask(rate=0.15, reconstruct=True)`], cells: (("input", "input", "target", "input", "input"), ("input", "input", "target", "input", "input"), repeat("input", 5))),
+    (label: [`rf.Mask(query="routing.hide_amount", reconstruct=True)`], cells: (("input", "target", "input", "input", "input"), ("input", "target", "input", "input", "input"), ("input", "target", "input", "input", "input"))),
+    (label: [`rf.Mask(skip=True, dropout=False)`], cells: (repeat("skipped", 5), repeat("skipped", 5), repeat("skipped", 5))),
+  ),
+)
+```
 
 `mask=True` is shorthand for
 `rf.Mask(skip=True, dropout=False, reconstruct=True)`. Under a repeated branch,
@@ -35,7 +56,7 @@ retain their pristine values for the loss.
 A mask selects whole values: one Number, Text value, or Set, for example. It
 does not select individual tokens inside Text or members inside Set.
 
-## Configure A Policy
+## Configure a policy
 
 | Option | Meaning |
 | --- | --- |
@@ -61,7 +82,7 @@ Validation and test use different random streams. Sampling depends on seed,
 stage, owner address, epoch, and record layout; do not assume that changing
 batching preserves exactly the same selections.
 
-## Select Within Nested Data
+## Select within nested data
 
 A selector is an ordinary Boolean value prepared by the application. For an
 optional amount-reconstruction objective, attach `routing.hide_amount` to each
@@ -111,15 +132,24 @@ model = rf.Model.xs(
 )
 ```
 
+```{typst}
+//| label: fig-masking-selector
+//| fig-cap: "One field can be an input at some positions and a reconstruction target at others. The dispute target stays hidden everywhere."
+//| fig-alt: "A payment root owns a repeated trxns branch. Inside it, booked_at DateParts and merchant Category are inputs. The amount Number is hidden and reconstructed where routing.hide_amount is true and an ordinary input elsewhere. The disputed Boolean target is hidden and supervised at every transaction."
+#tree(node("payment", kind: "root", children: (
+  node("trxns", kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
+    node("amount", type: "Number", width: 175pt, body: [Hidden and reconstructed where `routing.hide_amount` is true; an ordinary input elsewhere.]),
+    node("merchant", type: "Category"),
+    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction"),
+  )),
+)))
+```
+
 `routing` is not declared as a model field. The selected amount is represented
 by a learned mask and reconstructed from the remaining context. The other
 amounts remain ordinary inputs and receive no amount-reconstruction loss.
 All dispute labels remain hidden and supervised independently of this choice.
-
-As in the tutorial, every dispute label means a new dispute during the 30 days
-after one common review cutoff, `2026-05-28T14:30:00`. Labels are attached after
-that window is complete. Full-sequence context is valid for this shared
-cutoff; it is not a forecast made at each earlier transaction's booking time.
 
 For conditional amount prediction, keep every amount field and selector in
 the source schema, using `amount: null` where the requested amount is unknown.
@@ -129,8 +159,7 @@ unconditional `disputed` field can be omitted from all prediction transactions.
 The selector must provide exactly one non-null Boolean per retained owner
 record; integers, lists, missing paths, and null selectors are rejected. A
 node's value `query` selects its source value; `Mask.query` independently
-selects which owner occurrences receive the policy. `booked_at` supplies the
-chosen calendar cycles, not elapsed time or an automatic sort.
+selects which owner occurrences receive the policy.
 
 Place a policy on the branch when all descendants should share a decision:
 
@@ -147,12 +176,28 @@ trxns = rf.Branch(
 )
 ```
 
+```{typst}
+//| label: fig-masking-branch-policy
+//| fig-cap: "A branch policy selects whole transactions. A selected transaction's fields are hidden together, along with any nested descendants."
+//| fig-alt: "A grid of three transactions by three fields. The middle transaction is selected by the branch policy, so its booked_at, amount, and merchant cells are all skipped. The other two transactions remain visible inputs."
+#tokens(
+  ("booked_at", "amount", "merchant"),
+  (
+    (label: [May 21], values: ([Thu 10:00], [32.00], [Station Cafe])),
+    (label: [May 27, selected], values: ([Wed 18:15], [56.20], [North Market])),
+    (label: [May 28, latest], values: ([Thu 14:30], [84.50], [North Market])),
+  ),
+  states: (repeat("input", 3), repeat("skipped", 3), repeat("input", 3)),
+  highlight: none, frame-first: false, summary: none,
+)
+```
+
 Each selected transaction hides all three fields and any nested descendants. A
 root mask similarly broadcasts through an observation. Reconstructing branch
 or root policies create objectives on active descendant leaves, whose
 extensions must support reconstruction.
 
-## Derive A Selector
+## Derive a selector
 
 For a separate amount-reconstruction task, a processor can derive a selector
 from each transaction's application verification flag. Keep this Boolean
@@ -185,7 +230,7 @@ data module. For direct prediction pass `preprocess=select_unverified` to
 verification flag; the processor adds a non-null Boolean selector inside that
 transaction before mask resolution.
 
-## Combine Policies
+## Combine policies
 
 Pass a tuple or list of `rf.Mask` objects to combine selections:
 
@@ -198,12 +243,27 @@ amount = rf.Number(
 )
 ```
 
+```{typst}
+//| label: fig-masking-combined
+//| fig-cap: "Two policies on one field during training. Where both select a position, the skip wins and the reconstruction objective remains."
+//| fig-alt: "Three rows over five transactions. The sampled learned-mask policy masks the second and fifth positions. The selector policy hides and reconstructs the third and fifth positions. The combined row shows a learned mask at the second position and hidden reconstructed targets at the third and fifth."
+#policies(
+  ("Train",),
+  (
+    (label: [`rf.Mask(rate=0.10)`], cells: (("input", "masked", "input", "input", "masked"),)),
+    (label: [`rf.Mask(query="routing.hide_amount", skip=True, reconstruct=True)`], cells: (("input", "input", "target", "input", "target"),)),
+    (label: [Combined], cells: (("input", "masked", "target", "input", "target"),)),
+  ),
+  legend: false,
+)
+```
+
 Ancestor and local selections accumulate. A skip wins over a learned mask;
 reconstruction selections accumulate independently. A child policy cannot
 restore an input hidden by an ancestor. Duplicate policies are normalized
 away.
 
-## Targets During Training And Prediction
+## Targets during training and prediction
 
 Fitting needs observed target values. Explicit nulls can contribute value-state
 objectives for selected nullable fields; structurally absent positions do not
@@ -228,11 +288,11 @@ Conditional predictions retain their structural positions. Finite and automatic
 branch lengths both write variable lists of sibling result structs; a finite
 cap does not add public padding. Null collections, empty collections, and null
 items remain distinct. See
-[repeated coordinates](../guides/prediction-output.qmd#repeated-coordinates).
+[repeated coordinates](../reference/prediction-output.qmd#repeated-coordinates).
 Use each coordinate's `inferred` flag to identify requested outputs. See
-[Prediction Output](../guides/prediction-output.qmd) for the Arrow contract.
+[Prediction output](../reference/prediction-output.qmd) for the Arrow contract.
 
-[Pretraining And Fine-Tuning](../guides/pretraining.qmd) shows how to change
+[Pretraining and fine-tuning](../learn/pretraining-and-fine-tuning.qmd) shows how to change
 objectives between training stages. The [proof catalog](../proofs.qmd)
 includes sampled reconstruction, nested selectors, branch ablation, and
 prefix-only sequence prediction in P051–P054. The

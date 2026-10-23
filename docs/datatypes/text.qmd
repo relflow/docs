@@ -1,4 +1,7 @@
-# Text
+---
+title: Text
+description: "Free-form strings encoded by a frozen text model."
+---
 
 A payment description can carry detail beyond the merchant label, such as
 whether the charge is a delivery order. `Text` encodes those free-form strings
@@ -87,13 +90,13 @@ own caches. Use a finite cap when inputs contain many distinct descriptions:
 
 A reconstructing mask trains the decoder against the pristine frozen embedding,
 using state loss and the configured content objective on valued targets.
-[Jitter](../core-concepts/jitter.qmd) affects only visible continuous inputs,
+[Jitter](../reference/jitter.qmd) affects only visible continuous inputs,
 not strings, token IDs, or target embeddings. Both settings of
 `jitter.normalize` act at the same pooled-embedding boundary.
 
 Text has no decoded public state/content payload. `embed=True` exports a
 contextual relflow embedding, distinct from the frozen encoder output; see
-[shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options).
+[shared leaf options](index.qmd#shared-leaf-options).
 Use [Vector](vector.qmd) when the source already supplies an embedding.
 
 ## External model assets

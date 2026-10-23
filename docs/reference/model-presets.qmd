@@ -1,15 +1,16 @@
 ---
-title: Model Presets
+title: Model presets
+description: "The bundled xs to xl size ladder, which node owns each setting, overrides, and application presets."
 engine: markdown
 ---
 
 `rf.Model.xs(...)`, `.sm(...)`, `.md(...)`, `.lg(...)`, and `.xl(...)` build the
 same schema with different architecture defaults. Start with `xs` or `sm` to
 establish a working payment model, then compare larger configurations on
-validation data. See [Your First Model](../getting-started.qmd) for the basic
+validation data. See [Your first model](../learn/your-first-model.qmd) for the basic
 training workflow.
 
-## Bundled Sizes
+## Bundled sizes
 
 These are the bundled revision-1 configurations:
 
@@ -38,7 +39,7 @@ A size name describes defaults, rather than a parameter-count range or a
 prediction-quality guarantee. The schema, vocabularies, requested decoders,
 and external text encoders also determine model size.
 
-## Which Node Owns A Setting?
+## Which node owns a setting?
 
 A preset fills three separate scopes:
 
@@ -79,10 +80,9 @@ own `ffnx=8` defaults. Changing the history's multiplier does not change them.
 Each `ffnx` must be a positive integer; its hidden feed-forward width is
 `ffnx * d_model`.
 
-The prepared sequence follows
-[Add Transaction History](../tutorials/transaction-history.qmd). Every
-transaction's dispute label is hidden and supervised over the same 30-day
-window after the account review cutoff. Prediction records can omit `disputed`.
+The sequence is the one from
+[Add transaction history](../learn/add-transaction-history.qmd), with a
+hidden dispute target on every transaction.
 
 ```{typst}
 //| label: fig-preset-ownership
@@ -103,7 +103,7 @@ learned reduction. On a leaf it controls query-decoder feed-forward blocks and
 aligned sibling-context projection. It does not change the number of retained
 transactions or the shared output width.
 
-## Overrides And Explicit None
+## Overrides and explicit None
 
 Resolution follows this order at each node:
 
@@ -136,13 +136,13 @@ weights, and datatype-specific options to the application. Set batch size on
 the loop, such as `model.fit(data, batch_size=128, max_epochs=30)`. Constructor
 batch size remains the initial value, defaulting to one. Optimization,
 schedulers, training budgets, hardware, and data-loader settings belong to the
-[training workflow](../guides/lightning.qmd), not the size profile.
+[training workflow](../guides/training-options.qmd), not the size profile.
 
 For YAML configurations, `preset: sm` chooses the same bundled policy.
 Python overrides win over file options, which win over the preset. See
-[Model Templates](../guides/model-templates.qmd).
+[Model templates](../guides/model-templates.qmd).
 
-## Save, Load, And Extend
+## Save, load, and extend
 
 The resolved schema records the model's actual architecture. `model.preset`
 holds the immutable construction policy, including its name and revision.
@@ -161,7 +161,7 @@ restored.extend(
 The new `country` field receives the saved `sm` leaf defaults. Existing nodes
 keep their resolved options, including the earlier dispute-head override.
 Updating a trained model does not reapply the preset to its existing tree.
-See [Schema Mutation](../guides/schema-mutation.qmd) for learned-state boundaries.
+See [Schema mutation](../guides/schema-mutation.qmd) for learned-state boundaries.
 
 `rf.Model(schema=schema)` restores an already resolved architecture. It carries
 no preset policy unless loaded from a saved artifact that contains one; newly
@@ -172,7 +172,7 @@ Selecting another size constructs a new architecture. Increasing width, depth,
 or output count on a trained model does not provide automatic weight
 compatibility.
 
-## Define An Application Preset
+## Define an application preset
 
 Use `rf.presets.Preset` with frozen root, branch, and leaf configurations, then
 bind it to a model subclass with `rf.presets.factory`:
@@ -222,7 +222,7 @@ Ordinary Python construction uses these factories rather than a `preset=` or
 `size=` selector. A schema child named `preset` or `size` remains an ordinary
 field. YAML templates reserve their own top-level `preset` entry.
 
-## Capacity, Embeddings, And Cost
+## Capacity, embeddings, and cost
 
 The size ladder increases shared width and root depth while keeping child
 encoders shallower. More reduction outputs let a branch send more context to
@@ -245,7 +245,7 @@ projection parameter count.
 An attention reduction may have more outputs than inputs. In that case it
 expands context rather than compressing it. Mean reduction emits one summary;
 no reduction preserves routed child slots. Completely inactive subtrees emit
-no structural outputs. See [Branch](../data-types/branch.qmd) for these contracts.
+no structural outputs. See [Branch](../datatypes/branch.qmd) for these contracts.
 
 With root `embed=True`, the default `xs` model emits one width-64 vector, while
 `md` emits four width-256 vectors. Set `reduction=rf.Attention(n_outputs=1)`
@@ -263,5 +263,5 @@ not make a branch with positional encoder attention permutation invariant.
 Compare task quality on fixed validation splits and record the actual parameter
 count, peak memory, and throughput for the schema and hardware used. Increase
 one capacity axis at a time. A larger preset can underfit, overfit, or cost more
-without improving the task. See [Evaluation](../guides/evaluation.qmd) and
+without improving the task. See [Evaluation](../learn/evaluation.qmd) and
 [Performance](../guides/performance.qmd).

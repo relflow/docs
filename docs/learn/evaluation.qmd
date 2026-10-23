@@ -1,4 +1,7 @@
-# Evaluation
+---
+title: Evaluation
+description: "Measure whether the model finds more disputes at the team's review capacity, and compare each addition fairly."
+---
 
 The payment review team can investigate only a limited number of payments.
 Evaluate whether the model finds more later disputes at that review capacity,
@@ -6,7 +9,7 @@ alongside validation loss. Start with the payment-and-history model before
 adding profile fields or another task. When a model has several targets, an
 improving combined loss can hide a regression in an individual outcome.
 
-## Read The Metrics
+## Read the metrics
 
 With a trained model and a configured validation split:
 
@@ -19,14 +22,14 @@ dispute_auc = metrics[0][".trxns.disputed/validate.auc.content"]
 ```
 
 Set the evaluation batch size on the method call; see
-[Batch size](lightning.qmd#batch-size) for its persistent model setting and
+[Batch size](../guides/training-options.qmd#batch-size) for its persistent model setting and
 per-device meaning.
 
 relflow uses Lightning's native logging. Attached loggers receive training
 metrics only at the configured step cadence, every `log_every_n_steps` optimizer
 updates. Validation and test losses and content metrics summarize each pass.
 Throughput is logged per step. Each tensorfield determines which content
-metrics are available. [Training And Checkpoints](lightning.qmd#report-progress-and-validate)
+metrics are available. [Training options](../guides/training-options.qmd#report-progress-and-validate)
 explains how logging, validation, and checkpoint schedules are configured.
 
 | Metric | Interpretation |
@@ -55,7 +58,7 @@ the training batch is skipped. Validation/test return zero loss for that
 batch. Repeated empty-objective warnings suggest a mismatch among masks,
 source geometry, and split contents; they do not demonstrate learning.
 
-## Numeric Targets And Missing Values
+## Numeric targets and missing values
 
 For a numeric target such as refund amount, Number content loss and error
 metrics include selected reconstruction coordinates only when the true value
@@ -64,18 +67,18 @@ numeric zero targets. Validation/test MAE and RMSE accumulate error totals and
 valued-target counts across the full pass and distributed ranks. For example,
 one eligible target in a batch has one tenth the weight of ten targets in
 another batch. RMSE takes its square root after the squared errors have been
-combined; it is not an average of batch RMSEs. See [Number](../data-types/number.qmd).
+combined; it is not an average of batch RMSEs. See [Number](../datatypes/number.qmd).
 
 Compare candidate models on the same source and eligible coordinates before
 setting early-stopping thresholds.
 Loss aggregation remains separate from the target-counted content metrics.
 
-## Compare Models Fairly
+## Compare models fairly
 
 Use the same held-out observations, target definitions, preprocessing, and
 masking policy across comparisons. Keep entity groups and time boundaries
 consistent with deployment; construct those splits before supplying them to
-the [data module](data-modules.qmd).
+the [data module](../guides/data-modules.qmd).
 
 Choose an output-specific metric alongside `loss/validate`. Number errors and
 categorical accuracy measure different things; their scale and eligible
@@ -86,7 +89,7 @@ checkpoints, leaving the test split for a final assessment.
 Hash validation uses fixed salt zero, matching test and prediction; training
 still resalts each batch. Keep this encoding policy consistent when comparing
 validation scores. If using
-[EMA](lightning.qmd#average-learned-parameters-with-ema), validation and checkpoint
+[EMA](../guides/checkpoints-ema-and-resuming.qmd#average-learned-parameters-with-ema), validation and checkpoint
 selection during fit use the averaged parameters. Record that choice alongside
 the architecture and dataset split.
 
@@ -98,14 +101,14 @@ choice at a time:
 | Does the history help? | Compare the payment-only model, the history model, and a tuned tabular baseline with spending counts, totals, and recency. |
 | Do richer transaction and profile fields help? | Add payment channel and account tenure to the same history model. |
 | Do shared outcomes help? | Compare the joint dispute/repeat model with a separate model for each task, inspecting each outcome's metric. |
-| Does deeper account context help? | Add purchase line items, then the separate withdrawal history in the [account example](../case-studies/customer-risk.qmd), keeping the same transaction-level targets. |
+| Does deeper account context help? | Add purchase line items, then the separate withdrawal history in the [account example](nested-context-and-account-outcomes.qmd), keeping the same transaction-level targets. |
 | Does pretraining help? | Compare fine-tuning with the same supervised architecture trained from scratch. |
 | Is the representation reusable? | Keep the exporting model fixed and compare downstream predictors using existing features, exported vectors, and both together. |
 
 Keep the prediction time and future outcome window identical across these
 comparisons. A payment without a recorded dispute yet may still be awaiting
 its outcome; define when a negative label is ready before building the splits.
-See [Business Prediction Examples](../case-studies/relational-tasks.qmd) for concrete
+See [Other domains and outcomes](other-domains-and-outcomes.qmd) for concrete
 entity, history, and outcome-window definitions.
 
 Preserving individual events has a cost: more preparation, retained records,
@@ -126,9 +129,9 @@ disputed = rf.Boolean(
 This changes threshold-qualified accuracy, precision, recall, and specificity
 metrics. It does not change the training loss or the probability-only
 prediction payload. Category `topk` likewise adds datatype-specific metrics;
-see the relevant [datatype reference](../core-concepts/data-types.qmd).
+see the relevant [datatype reference](../datatypes/index.qmd).
 
-## Measure Dependence On An Input
+## Measure dependence on an input
 
 An ablation temporarily removes an input and reevaluates the trained model:
 
@@ -148,8 +151,12 @@ training with suitable structural dropout can make the comparison more useful.
 An ablation shows dependence under this experiment, not causation.
 
 `override` restores schema attributes on exit, not a snapshot of all learned
-state. See [Schema Mutation](schema-mutation.qmd) for its boundaries.
+state. See [Schema mutation](../guides/schema-mutation.qmd) for its boundaries.
 
 The [modeling proofs](../proofs.qmd) give worked examples of held-out
 metrics, corrupted-input controls, and deliberately lossy representations.
 Each scenario includes its model tree and the current evidence for its claim.
+
+Next, extend the model with
+[profile context and a second outcome](profile-context-and-a-second-outcome.qmd), and
+evaluate each addition in the order above.

@@ -1,7 +1,10 @@
-# Custom tensorfields
+---
+title: Custom tensorfields
+description: "Register an extension when a field needs its own representation, encoder, objective, or output."
+---
 
 Create an extension when a field needs a new representation, encoder, objective,
-or output contract. Use a [preprocessor](preprocessors.qmd) for renaming,
+or output contract. Use a [preprocessor](../guides/preprocessing.qmd) for renaming,
 filtering, joins, and derived values that existing types can already represent.
 
 The extension owns datatype semantics. Shared data code owns Arrow containers,
@@ -37,7 +40,7 @@ Extension names such as `signed_scalar` must use lowercase letters, digits,
 and underscores. A duplicate extension name replaces the registry entry with
 a warning.
 
-Request options inherit [shared leaf behavior](../core-concepts/data-types.qmd#shared-leaf-options).
+Request options inherit [shared leaf behavior](index.qmd#shared-leaf-options).
 Parents supply field names; constructors accept configuration only. Name
 Pydantic validators `check_...`; use `post_bind_validate()` when validation
 needs the bound tree.
@@ -166,7 +169,7 @@ summary on the model side. The extension owns distributed reduction. With
 `loss(module, prediction, batch, strata)` returns the scalar objective. Use
 `batch.trainable` to select objectives and target state to determine where
 content is meaningful. `module.track((address, strata, metric, component), value=...)`
-records metrics using the [evaluation naming convention](evaluation.qmd#read-the-metrics);
+records metrics using the [evaluation naming convention](../learn/evaluation.qmd#read-the-metrics);
 relflow applies the request's loss weight.
 
 `output(module, address)` returns a stable `pa.StructType` or None. relflow
@@ -175,7 +178,7 @@ compiles it once, then passes that exact type to
 coordinate per decoded position, with exactly the declared types and order.
 It must not infer types from values, filter rows, or wrap repeated axes.
 
-The [prediction runtime](prediction-output.qmd) adds
+The [prediction runtime](../reference/prediction-output.qmd) adds
 `state` and `inferred` to rich leaf results and writes normalized embeddings in
 a separate `representations` column. Only `state` and `inferred` are reserved
 within a leaf result; an extension may own an `embedding` payload member without

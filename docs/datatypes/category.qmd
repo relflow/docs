@@ -1,4 +1,7 @@
-# Category
+---
+title: Category
+description: "A label learned from training data, such as a merchant name."
+---
 
 The merchant name identifies where a payment was made. `Category` learns a
 representation for each label seen during training, so the model can learn
@@ -32,16 +35,20 @@ and [Text](text.qmd) for word meaning.
 
 Accepts scalar Boolean, integer, floating-point, string, or binary labels.
 Keep one compatible Arrow type family per field; normalize inconsistent labels
-upstream. A null is a [value state](../core-concepts/data-types.qmd#value-state),
-not a vocabulary member.
+upstream, or fold look-alike spellings with `strip` and `cased`. A null is a
+[value state](index.qmd#value-state), not a vocabulary member, and a
+floating-point NaN label is not a label: it takes the `other` state and never
+enters the vocabulary.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
 | `p_unavailable` | `0.01` | Training probability of replacing known valued **input** content with unavailable content. Reconstruction targets are unchanged. |
 | `topk` | `[]` | Sorted, unique integer accuracy cutoffs greater than one; also controls prediction candidates. Each cutoff is capped by the discovered label count at runtime. |
+| `strip` | `False` | Trim surrounding whitespace from string labels before vocabulary lookup. |
+| `cased` | `True` | `False` lowercases string labels before lookup. Vocabulary snapshots and written labels hold the folded form; other label types are unaffected. |
 
 Vocabulary storage grows automatically; there is no size option to configure.
-See [shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options)
+See [shared leaf options](index.qmd#shared-leaf-options)
 for reconstruction and embedding configuration.
 
 ## Vocabulary and learning
@@ -51,7 +58,7 @@ needed. The training process resolves batch-local dictionaries from encoding
 workers and gathers labels across DDP ranks. Validation, test, and prediction
 reuse the frozen mapping; checkpoints preserve it and the grown tables.
 
-See [Online Vocabulary](../core-concepts/vocabulary.qmd) for admission order,
+See [Online vocabulary](../concepts/online-vocabulary.qmd) for admission order,
 growth and state preservation, supported training strategies, and reuse during
 fine-tuning.
 
@@ -112,5 +119,5 @@ With only one populated label, its conditional probability is one even before
 learning; vocabulary membership is not evidence of predictive competence.
 Unweighted cross entropy removes a systematic class-weighting distortion, but
 does not guarantee calibration under finite data or distribution shift.
-See the [prediction envelope](../guides/prediction-output.qmd) for shared state
+See the [prediction envelope](../reference/prediction-output.qmd) for shared state
 probabilities, `inferred`, and repeated shapes.

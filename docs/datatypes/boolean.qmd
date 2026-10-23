@@ -1,4 +1,7 @@
-# Boolean
+---
+title: Boolean
+description: "A true/false value such as whether a payment was disputed."
+---
 
 `Boolean` represents a true/false value. Use it to predict whether a payment
 will be disputed. `mask=True` keeps the answer out of the model's inputs.
@@ -38,7 +41,7 @@ zero.
 | --- | --- | --- |
 | `threshold` | `0.5` | One threshold or a nonempty list in `[0, 1]` for decision metrics. Duplicates are removed in first-seen order. |
 
-See [shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options)
+See [shared leaf options](index.qmd#shared-leaf-options)
 for masks, decoder pooling, and embeddings.
 
 ## Learning and output
@@ -48,12 +51,12 @@ cross entropy for valued targets. relflow tracks AUC and decision accuracy,
 precision, recall, and specificity for each configured threshold; names include
 `accuracy@0.5` and `recall@0.8`.
 Training scores describe the latest batch; validation and test aggregate scores
-over the pass. See [Evaluation](../guides/evaluation.qmd) for logging cadence.
+over the pass. See [Evaluation](../learn/evaluation.qmd) for logging cadence.
 
 Prediction `content.probability` is the probability of true. Thresholds affect
 metrics only; they never turn the output into a Boolean. Read it with the
 shared `state` and `inferred` members in the
-[prediction envelope](../guides/prediction-output.qmd).
+[prediction envelope](../reference/prediction-output.qmd).
 
 For an application-supplied trained `model`:
 

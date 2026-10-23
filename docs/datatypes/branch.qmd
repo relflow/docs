@@ -1,8 +1,8 @@
 ---
+title: Branch
+description: "A collection of records with the same fields, such as an account's transactions."
 engine: markdown
 ---
-
-# Branch
 
 A payment of `84.50` at North Market may be easier to assess alongside the
 account's earlier activity. A `Branch` keeps the earlier events and latest
@@ -46,11 +46,10 @@ trxns:
 
 `length=32` keeps at most 32 transactions. `overflow="tail"` keeps the most
 recent ones, including the latest payment, when the application supplies this
-order. A [preprocessor](../guides/preprocessors.qmd) owns sorting.
-`mask=True` hides and predicts the dispute label for every transaction. Each
-label covers new dispute reports in the 30 days after one shared review cutoff;
-all listed transactions are available at that time. Prediction records can omit
-`disputed`. DateParts supplies recurring calendar context, not exact elapsed time.
+order. A [preprocessor](../guides/preprocessing.qmd) owns sorting.
+`mask=True` hides and predicts the dispute label for every transaction, and
+prediction records omit it. [Prepare observations](../learn/prepare-observations.qmd)
+defines the cutoff and label window these records follow.
 
 ```{typst}
 //| label: fig-branch-context
@@ -70,7 +69,7 @@ all listed transactions are available at that time. Prediction records can omit
 
 The parent keyword supplies the collection name. With `query=None`,
 `trxns` reads the same-named child collection, and its leaves read
-keys within each transaction. Use a [query](../core-concepts/querypaths.qmd) for
+keys within each transaction. Use a [query](../guides/query-paths.qmd) for
 a different structural path and a preprocessor for sorting, filtering, or derived
 values.
 
@@ -79,7 +78,7 @@ the generated model root reads one object directly. Each child branch adds a
 repeated axis. Its execution width follows the selected collections in each
 batch; an explicit `length` caps retained items. Padding does not contribute to
 attention or reduction, but it still has storage and processing costs.
-[Prediction output](../guides/prediction-output.qmd#repeated-coordinates) writes
+[Prediction output](../reference/prediction-output.qmd#repeated-coordinates) writes
 every record collection as a variable Arrow list of sibling result structs,
 without public cap padding. Structural nulls and empty collections are preserved.
 
@@ -88,7 +87,7 @@ Use `fields={"length": rf.Number}` for generated schemas or child names that
 collide with configuration. Use [Set](set.qmd) for membership alone and
 [Vector](vector.qmd) for one numeric vector.
 
-## Automatic Lengths And Limits {#automatic-lengths-and-limits}
+## Automatic lengths and limits {#automatic-lengths-and-limits}
 
 Omitting `length`, or setting `length=None`, retains every collection slot:
 
@@ -134,7 +133,7 @@ No hidden cap is applied to `length=None`.
 ## Options
 
 These are the direct `rf.Branch` defaults. A
-[size preset](../core-concepts/model-tree.qmd#choose-a-size) such as
+[size preset](../concepts/model-tree.qmd#choose-a-size) such as
 `Model.xs` fills omitted branch settings; explicit node settings take precedence.
 
 | Option | Default | Meaning |
@@ -146,7 +145,7 @@ These are the direct `rf.Branch` defaults. A
 | `attention` | `"mha"` | Encoder mode; see below. |
 | `n_layers` | `1` | Positive sequence-encoder depth. |
 | `n_heads` | `4` | Positive, even encoder head count and fallback for Attention reduction. Active attention requires heads to divide `d_model` with at least two dimensions per head. |
-| `ffnx` | `8` | Positive integer feed-forward multiplier for this branch's encoders and learned reduction. See [model-tree configuration](../core-concepts/model-tree.qmd#configure-the-context). |
+| `ffnx` | `8` | Positive integer feed-forward multiplier for this branch's encoders and learned reduction. See [model-tree configuration](../concepts/model-tree.qmd#configure-the-context). |
 | `reduction` | `rf.Attention()` | What encoded memory reaches the parent. |
 | `dropout` | `None` | Optional encoder dropout in `[0, 1)` and reduction fallback. |
 | `mask` | `False` | Visibility and reconstruction policy applied atomically to active descendants. |
@@ -206,5 +205,5 @@ their transaction positions; the branch groups those results and has no typed
 prediction value of its own.
 
 `embed=True` exports branch context at its address. See
-[Embeddings](../core-concepts/embeddings.qmd) for output roles and
-[Model tree](../core-concepts/model-tree.qmd) for the route through nested contexts.
+[Reusable representations](../learn/reusable-representations.qmd) for output roles and
+[Model tree](../concepts/model-tree.qmd) for the route through nested contexts.

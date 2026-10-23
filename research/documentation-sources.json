@@ -13,13 +13,13 @@
     ]
   },
   "curriculum": [
-    {"page": "docs/getting-started.qmd", "addition": "One payment, its amount and merchant, and a later dispute label."},
-    {"page": "docs/tutorials/transaction-history.qmd", "addition": "One trxns branch contains the transaction sequence. Shared merchant representation and explicit booking-time calendar features accompany dispute supervision for every transaction."},
-    {"page": "docs/guides/learning-from-event-data.qmd", "addition": "Payment channels and account profile context, with an application-defined merchant-repeat target alongside each transaction's dispute target."},
-    {"page": "docs/case-studies/customer-risk.qmd", "addition": "Account observations with nested purchase line items, a separate cash-withdrawal history, transaction-level dispute targets, and a future account-loss target."},
-    {"page": "docs/guides/pretraining.qmd", "addition": "Reconstruct observed historical fields before adapting to a later outcome."},
-    {"page": "docs/core-concepts/embeddings.qmd", "addition": "Export trained context and evaluate frozen representations in separate downstream predictors."},
-    {"page": "docs/case-studies/relational-tasks.qmd", "addition": "Transfer the observation/history/outcome pattern to purchase inactivity and other related-record applications."}
+    {"page": "docs/learn/your-first-model.qmd", "addition": "One payment, its amount and merchant, and a later dispute label."},
+    {"page": "docs/learn/add-transaction-history.qmd", "addition": "One trxns branch contains the transaction sequence. Shared merchant representation and explicit booking-time calendar features accompany dispute supervision for every transaction."},
+    {"page": "docs/learn/profile-context-and-a-second-outcome.qmd", "addition": "Payment channels and account profile context, with an application-defined merchant-repeat target alongside each transaction's dispute target."},
+    {"page": "docs/learn/nested-context-and-account-outcomes.qmd", "addition": "Account observations with nested purchase line items, a separate cash-withdrawal history, transaction-level dispute targets, and a future account-loss target."},
+    {"page": "docs/learn/pretraining-and-fine-tuning.qmd", "addition": "Reconstruct observed historical fields before adapting to a later outcome."},
+    {"page": "docs/learn/reusable-representations.qmd", "addition": "Export trained context and evaluate frozen representations in separate downstream predictors."},
+    {"page": "docs/learn/other-domains-and-outcomes.qmd", "addition": "Transfer the observation/history/outcome pattern to purchase inactivity and other related-record applications."}
   ],
   "research": [
     {

@@ -1,9 +1,12 @@
-# DateParts
+---
+title: DateParts
+description: "Recurring calendar patterns from a timestamp, such as weekday and hour."
+---
 
 A weekday afternoon and a weekend night can describe different payment
 contexts. `DateParts` represents recurring calendar patterns, such as the
 weekday and hour when this payment was booked. The
-[transaction sequence](../tutorials/transaction-history.qmd) uses this field
+[transaction sequence](../learn/add-transaction-history.qmd) uses this field
 on every transaction, including the latest one. Calendar cycles and sequence
 order supply different evidence; neither is an exact elapsed duration.
 
@@ -31,8 +34,11 @@ disputed: false
 
 Accepts Arrow date, timestamp, or string values. Strings are parsed by Arrow
 using `pattern` when supplied; otherwise Arrow casts them to timestamps.
-Calendar extraction uses second-resolution timestamps. Normalize to the intended
-calendar timezone upstream; the field does not choose a local-time policy.
+Calendar extraction uses second-resolution timestamps. Naive timestamps are
+read as wall-clock time, and zone-aware timestamps are read in their own zone,
+so `hour_of_day` and `day_of_week` describe local time. Strings that carry an
+offset are normalized to UTC by Arrow before parts are taken; give such
+columns a zone upstream instead.
 
 | Option | Default | Meaning |
 | --- | --- | --- |
@@ -58,7 +64,7 @@ Each part becomes a sine/cosine pair: the end of a cycle is near its beginning.
 relflow projects each pair and combines the results with a state embedding.
 Null, padded, and masked content is zero; state remains separate.
 
-[Jitter](../core-concepts/jitter.qmd) changes the circle coordinates, not the
+[Jitter](../reference/jitter.qmd) changes the circle coordinates, not the
 timestamp, and does not renormalize noisy pairs. Its magnitude is measured in
 coordinate units. Both settings of `jitter.normalize` use this same boundary.
 
@@ -67,7 +73,7 @@ The per-part `mae` metric is angular error in radians, not elapsed time.
 
 DateParts has no decoded public content and does not generate timestamps.
 Use `embed=True` for a contextual embedding; see
-[shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options).
+[shared leaf options](index.qmd#shared-leaf-options).
 
 The [month-inference proof](../proofs/temporal/month-from-day-of-year.html)
 tests a recurring relationship on withheld dates and years. The

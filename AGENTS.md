@@ -6,8 +6,12 @@ canonical proof experiments. It must build from this checkout alone.
 ## Scope and build
 
 - Authored website pages, assets, extensions, and `_quarto.yml` live in `docs/`.
-  Canonical proof source, runner, and results live in `proofs/`. Preserve page
-  URLs, anchors, branding, layout, and mobile overflow behavior.
+  Canonical proof source, runner, and results live in `proofs/`. Page folders
+  mirror the sidebar groups (`learn/`, `guides/`, `concepts/`, `datatypes/`,
+  `reference/`) and
+  file names match page titles; when a page moves or is renamed, update every
+  link in the same change. Preserve branding, layout, and mobile overflow
+  behavior.
 - Use `make check`, `make check-docs`, `make render`, and `make dev`.
 - The build uses pinned Quarto 1.10.18, bundled Typst, and the committed
   extension. PyYAML is the only Python runtime dependency; pytest and Ruff are
@@ -126,7 +130,9 @@ targeting another package version.
 
 Use the shared `node` and `tree` Typst functions in
 `docs/assets/typst/model-tree.typ`; read `docs/assets/typst/README.md` before
-changing structural diagrams. Diagrams explain field roles and repeated context
+changing structural diagrams. For stages, decision times, branch tokens, and
+masking policies, use `flow`, `timeline`, `tokens`, and `policies` from
+`docs/assets/typst/diagrams.typ`, which share the same palette. Diagrams explain field roles and repeated context
 rather than hyperparameters. Keep nearby code, YAML, labels, captions, and text
 alternatives consistent. Preserve bundled extension and font licenses.
 

@@ -1,10 +1,11 @@
 ---
 title: Serving
+description: "Serve a saved model over HTTP with request validation, bounded inputs, and shared processors."
 ---
 
 `rf.Deployment` serves a checkpoint or an in-memory model through FastAPI.
 The examples deploy the trained sequence model from
-[Add Transaction History](../tutorials/transaction-history.qmd). Requests
+[Add transaction history](../learn/add-transaction-history.qmd). Requests
 supply its `trxns` inputs and omit the dispute labels. Every transaction
 receives a prediction.
 Install the optional dependency:
@@ -13,7 +14,7 @@ Install the optional dependency:
 pip install 'relflow[serving]'
 ```
 
-Save the trained model as shown in [Training And Checkpoints](lightning.qmd#save-and-load),
+Save the trained model as shown in [Train and save](../learn/train-and-save.qmd),
 then create an ASGI application in your application module:
 
 ```python
@@ -58,7 +59,7 @@ with `Content-Type: application/vnd.apache.arrow.stream`; the response is also
 an IPC stream. `GET /health` supplies a health endpoint, and `/docs` exposes the
 API reference.
 
-In [prediction output](prediction-output.qmd), successful responses
+In [prediction output](../reference/prediction-output.qmd), successful responses
 preserve the canonical selected columns: `predictions`, requested
 `representations`, and explicitly retained `inputs`. A postprocessor can define
 the same application response schema used by direct or batch prediction.
@@ -76,7 +77,7 @@ A failed JSON item carries an explicit error in its original request position;
 it is not an empty successful prediction. Successful-record parity does not
 make JSON error envelopes part of the canonical Arrow success schema.
 
-## Bound Public Requests
+## Bound public requests
 
 ::: {.callout-warning}
 ## Inference-time DoS/DDoS attack vector
@@ -102,7 +103,7 @@ bytes. One row can contain an oversized nested collection.
 RelFlow logs one aggregate warning per model generation for active unbounded
 paths; serving startup checks the same guard after queued schema changes. The
 warning does not reject requests or impose a cap. See
-[branch limits](../data-types/branch.qmd#automatic-lengths-and-limits).
+[branch limits](../datatypes/branch.qmd#automatic-lengths-and-limits).
 
 ## Validate application inputs
 
@@ -137,7 +138,7 @@ input records are available at the account-review cutoff.
 
 ## Reuse processing
 
-Reuse the `decision` processor from [Postprocessors](postprocessors.qmd) to
+Reuse the `decision` processor from [Postprocessing](postprocessing.qmd) to
 return a payment identifier and aligned lists of dispute probabilities and review flags:
 
 ```python
@@ -152,7 +153,7 @@ Retention exposes `payment_id` to the postprocessor. The final result must
 contain one row per valid request with unchanged identity and request order.
 Equal row counts cannot detect a permutation; both pre- and postprocessors
 must preserve that association. If the API accepts raw fields
-that require [preprocessing](preprocessors.qmd), attach that processor with
+that require [preprocessing](preprocessing.qmd), attach that processor with
 `.preprocess(prepare)` and make the request signature match those raw fields.
 
 Concurrent JSON requests can share a model microbatch. `max_batch_size` bounds
@@ -168,3 +169,6 @@ Use one process for an in-memory model or a deployment configured with
 signatures, processors, or queued mutations. For
 `Deployment(workers=2).serve()`, the configuration must be checkpoint-based and
 cannot carry those in-process objects or a tuple retention projection.
+
+For failures at startup, binding, or batching, see
+[Troubleshooting](../reference/troubleshooting.qmd).

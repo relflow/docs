@@ -1,18 +1,24 @@
 ---
+title: Branch summaries
+description: "What a branch passes to its parent, and why learned reduction keeps evidence a plain average loses."
 engine: markdown
 ---
-
-# Branch Summaries
 
 A `trxns` branch can contain many field vectors from earlier payments and the
 latest payment. Reduction determines how much of that encoded collection
 reaches the parent. It follows the
-[field interactions](field-interactions.qmd) within the branch.
+[field interactions](how-fields-interact.qmd) within the branch.
 
 This explanation follows the
-[0.2.4 reduction implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/pool.py).
+[reduction implementation](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/pool.py)
+introduced in 0.2.4, with the count lane added to learned queries in 0.3.5
+and to `rf.Mean()` in 0.3.6. Both lanes scale the present-token count by the
+branch's embedded leaves, so extending a model with another hidden target does
+not rescale existing predictions. The current pages are checked against
+RelFlow 0.3.6
+([pinned source](https://github.com/relflow/relflow/tree/299413375f3c113e6750f75e81cb52736978b643)).
 
-## Choose What Reaches The Parent
+## Choose what reaches the parent
 
 | Reduction | Context passed to the parent | Main tradeoff |
 | --- | --- | --- |
@@ -20,16 +26,39 @@ This explanation follows the
 | `rf.Mean()` | One average of present token vectors plus a count lane | Simple; one learned direction carries how many tokens were present. |
 | `None` | The encoded token sequence | Retains more detail and increases the parent's token count. |
 
+```{typst}
+//| label: fig-branch-reductions
+//| fig-cap: "Three reductions of the same encoded transactions. Attention and Mean send a fixed number of summaries; pass-through sends every slot."
+//| fig-alt: "Three lanes start from N encoded transaction tokens. The Attention lane passes them through K learned queries with additive sum and count lanes to K summaries. The Mean lane averages present tokens, adds a count lane, and sends one summary. The None lane passes all N routed slots to the parent."
+#flow(
+  (title: "Attention", steps: (
+    step("N encoded tokens", kind: "branch", note: "After coordinate and sequence attention"),
+    step("K learned queries", kind: "root", note: "Plus additive sum and count lanes"),
+    step("K summaries", kind: "root", note: "Bounded context for the parent"),
+  )),
+  (title: "Mean", steps: (
+    step("N encoded tokens", kind: "branch", note: "After coordinate and sequence attention"),
+    step("Average of present tokens", kind: "root", note: "Plus a count lane"),
+    step("1 summary", kind: "root", note: "Order and individual values not kept"),
+  )),
+  (title: "None", steps: (
+    step("N encoded tokens", kind: "branch", note: "After coordinate and sequence attention"),
+    step("Pass-through", note: "No reduction"),
+    step("N routed slots", kind: "branch", note: "Parent cost grows with N"),
+  )),
+)
+```
+
 These choices concern reduction. A mean reduction can still follow a learned
 branch encoder. Configure the branch's attention separately; see the
-[Branch reference](../../data-types/branch.qmd#reduce-branch-memory).
+[Branch reference](../datatypes/branch.qmd#reduce-branch-memory).
 
 Learned attention starts with trainable query vectors. Each query attends to the
 branch's present memory and collects a summary. Multiple outputs provide
 multiple learned views of the same history; their meanings emerge during
 training.
 
-## Why An Average Loses Multiplicity
+## Why an average loses multiplicity
 
 An attention head combines values with normalized weights:
 
@@ -51,7 +80,7 @@ payments can carry different evidence from one payment even when their
 merchants and amounts are identical. RelFlow's learned branch reduction
 includes additive evidence alongside attention.
 
-## Additive Evidence
+## Additive evidence
 
 The learned reduction adds two trainable contributions to each normalized
 attention summary:
@@ -69,13 +98,12 @@ contribute neither values nor counts.
 The count here is a **token count**. Fields can supply several tokens, and
 nested branch outputs can add further tokens. It is not directly a count of
 transactions or a sum of payment amounts. The model must learn how those
-vector and count signals relate to each transaction's dispute target for the
-30 days after the common review cutoff.
+vector and count signals relate to each transaction's dispute target.
 
 This mechanism supplies information that a normalized average can discard. It
 does not make the model an exact calculator or guarantee extrapolation to
-longer histories. Use the [canonical proofs](../../proofs.qmd) to inspect
+longer histories. Use the [canonical proofs](../proofs.qmd) to inspect
 recorded evidence, and validate the reduction choice on the application's
 held-out observations.
 
-Next, follow the summaries through [Tree Routing And Decoding](tree-routing.qmd).
+Next, follow the summaries through [Tree routing and decoding](tree-routing-and-decoding.qmd).

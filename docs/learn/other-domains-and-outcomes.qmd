@@ -1,20 +1,20 @@
 ---
+title: Other domains and outcomes
+description: "Apply the same history-and-outcome pattern to retail retention, reviewer engagement, study reporting, and price forecasting."
 engine: markdown
-title: Retention, Engagement, And Trial Reporting
-description: Define useful predictions from customer, review, and clinical-study histories, with precise outcome windows.
 ---
 
-The [payment-history workflow](../guides/learning-from-event-data.qmd) combines
+The [payment-history workflow](profile-context-and-a-second-outcome.qmd) combines
 account context, repeated transactions, and later outcomes. The
-[account model](customer-risk.qmd) adds several levels of context and targets.
+[account model](nested-context-and-account-outcomes.qmd) adds several levels of context and targets.
 Once that pattern is familiar, apply it to a retailer's purchase histories and
 customer retention decisions.
 
-The review and study-reporting examples later on this page are optional
-applications to other event domains. Each keeps attributes at the root,
-related records in a branch, and a target describing a later outcome.
+The review, study-reporting, and market examples later on this page are
+optional applications to other event domains. Each keeps attributes at the
+root, related records in a branch, and a target describing a later outcome.
 
-## Retail: Who Will Make No Purchase Next Week?
+## Retail: who will make no purchase next week?
 
 A retail team can rank recently active customers by their estimated chance of
 making no purchase next week, then choose whom to contact. Whether that contact
@@ -27,10 +27,11 @@ a specific measure of short-term inactivity.
 
 Customer attributes describe the person. Their purchase history describes
 interactions: which articles they bought, through which channels, and when
-they were booked. Your application joins those records and keeps only information available
-at the decision time before supplying the observation to RelFlow.
+they were booked. Your application joins those records and keeps only
+information available at the decision time before supplying the observation
+to RelFlow.
 
-### One Illustrative Observation
+### One illustrative observation
 
 At the May 28, 2026 decision, a training observation contains customer
 attributes and purchases booked by that date. The root Boolean records customer
@@ -52,7 +53,7 @@ recent_purchases:
 inactive_next_7_days: true
 ```
 
-### Describe The Customer And Their Purchases
+### Describe the customer and their purchases
 
 ```python
 import relflow as rf
@@ -74,24 +75,41 @@ model = rf.Model.sm(
 )
 ```
 
+```{typst}
+//| label: fig-retail-retention
+//| fig-cap: "The customer is the subject: attributes at the root, purchases in a branch, and one hidden outcome for the customer."
+//| fig-alt: "A customer root contains customer_age Number, club_member_status Category, a repeated recent_purchases branch with booked_at DateParts, article_id Category, amount Number, and sales_channel Category, and a hidden inactive_next_7_days Boolean target at the root."
+#tree(node("customer", kind: "root", children: (
+  node("customer_age", width: 150pt, type: "Number"),
+  node("club_member_status", width: 150pt, type: "Category"),
+  node("recent_purchases", width: 150pt, kind: "branch", repeated: true, children: (
+    node("booked_at", type: "DateParts"),
+    node("article_id", type: "Category"),
+    node("amount", type: "Number"),
+    node("sales_channel", type: "Category"),
+  )),
+  node("inactive_next_7_days", width: 160pt, kind: "target", type: "Boolean", detail: "One per customer"),
+)))
+```
+
 The customer is the subject of the prediction; each purchase keeps its own
-article, amount, channel, and booking date together. Supply purchases oldest to newest
-so the branch retains the most recent 32. Choose that capacity for the history your
-application needs. `mask=True` keeps the later outcome out of the inputs while
-using it as supervision. This customer target is always masked, so omit
-it when requesting a new prediction. `DateParts` represents recurring calendar
-patterns; it does not supply elapsed time since a purchase.
-Retain customer identifiers and decision times in your application to associate
-the result with the right customer snapshot.
+article, amount, channel, and booking date together. Supply purchases oldest to
+newest so the branch retains the most recent 32. Choose that capacity for the
+history your application needs. `mask=True` keeps the later outcome out of the
+inputs while using it as supervision. This customer target is always masked,
+so omit it when requesting a new prediction. Retain customer identifiers and
+decision times in your application to associate the result with the right
+customer snapshot.
 
 A table containing days since the last purchase, purchase counts, spending
 totals, and channel counts is a sensible baseline. Keeping individual purchases
 gives the model access to combinations of article, amount, channel, and timing
-that those summaries may omit. Compare both approaches on later decision windows with the same
-eligible customers and available evidence. Use relational context when that
-comparison justifies its preparation and processing cost.
+that those summaries may omit. Compare both approaches on later decision
+windows with the same eligible customers and available evidence. Use
+relational context when that comparison justifies its preparation and
+processing cost.
 
-### Train And Predict From Parquet Files
+### Train and predict from Parquet files
 
 Prepare your application's training and validation files with one customer
 observation per row and the fields above. Use earlier decision windows for
@@ -115,11 +133,11 @@ requests = rf.ArrowDataModule(
 predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
-[Prediction Output](../guides/prediction-output.qmd) explains how to read the
-result under `predictions.inactive_next_7_days` in output format 2.
-The schema address remains `/inactive_next_7_days`.
+[Read predictions](read-predictions.qmd) explains how to read the
+result under `predictions.inactive_next_7_days`. The schema address remains
+`/inactive_next_7_days`.
 
-## Engagement: Will An Active Reviewer Stop Posting?
+## Engagement: will an active reviewer stop posting?
 
 A team seeking fresh product feedback can use the same structure to anticipate
 review inactivity. Choose customers who posted a review in the preceding 91
@@ -131,7 +149,7 @@ participation in a feedback channel: a customer can keep buying without posting
 a review. Compare a richer review history with review recency and frequency
 summaries before using it to prioritize invitations for feedback.
 
-## Clinical Studies: Which Studies Will Report Larger Totals?
+## Clinical studies: which studies will report larger totals?
 
 A trial operations team may want to anticipate which ongoing studies will
 report larger totals of affected subjects. For studies that have already
@@ -146,21 +164,59 @@ report, so it does not measure unique affected people or an individual's risk.
 Define how incomplete reporting affects label availability; a missing report
 does not establish a zero total.
 
-## Keep The Decision Time In Every Example
+## Markets: what will tomorrow's close be?
 
-Construct every observation as it could have been seen at its decision time.
-An event that happened earlier but was reported later is unavailable until its
-report arrives. Mutable customer or study attributes also need values known at
-that time. Attach labels from the specified future window, and allow that
-window to finish before treating them as observed outcomes.
+A market-data application can supply daily bars and ask for the next trading
+day's closing price. A bar is a multivariate event: opening, high, low, and
+closing prices plus volume belong to the same interval. The history-and-target
+pattern stays the same:
+
+```python
+market_model = rf.Model.xs(
+    daily_bars=rf.Branch(
+        length=64,
+        overflow="tail",
+        booked_at=rf.DateParts(
+            dateparts=["day_of_month", "day_of_week", "hour_of_day"],
+        ),
+        open=rf.Number,
+        high=rf.Number,
+        low=rf.Number,
+        close=rf.Number,
+        volume=rf.Number,
+    ),
+    next_close=rf.Number(mask=True),
+)
+```
+
+Each bar keeps its price and volume measurements together. Prepare observations
+at the end of a trading day, including only completed bars known then.
+`booked_at` supplies calendar context for each completed bar. The
+`next_close` label comes from the following trading day and becomes available
+after that day closes. Train from Parquet files through `ArrowDataModule`, as
+above, using files prepared for this market schema.
+
+This defines one future-value prediction. If the application needs several
+future steps, define their target structure and evaluation horizon explicitly.
+Include a last-known-close baseline when evaluating this forecast.
+
+## Keep the decision time in every example
+
+Every example follows [Prepare observations](prepare-observations.qmd):
+construct each observation as it could have been seen at its decision time,
+attach labels from the specified future window, and let that window finish
+before treating them as observed outcomes. Two points matter more outside
+payments. An event that happened earlier but was reported later is unavailable
+until its report arrives, and mutable customer or study attributes need the
+values known at the decision time.
 
 The same entity can appear at several decision times. Keep later evaluation
 windows separate and control overlap between their label periods and training
-examples. [Evaluation](../guides/evaluation.qmd) explains the comparison;
-[Preprocessing](../guides/preprocessors.qmd) covers preparing the nested inputs.
+examples. [Evaluation](evaluation.qmd) explains the comparison;
+[Preprocessing](../guides/preprocessing.qmd) covers preparing the nested inputs.
 
-After defining the observations, you can test
-[reconstruction pretraining](../guides/pretraining.qmd) on the available
-histories or evaluate [frozen representations](../core-concepts/embeddings.qmd)
-for several outcomes from the same evidence. Each application needs its own
-schema, completed labels, and held-out comparison.
+This is the end of the learning path. To understand how the model combines
+the evidence, continue with the [model tree](../concepts/model-tree.qmd)
+and [how fields interact](../concepts/how-fields-interact.qmd). To
+put a model into production, see [Serving](../guides/serving.qmd) and
+[Batch inference](../guides/batch-inference.qmd).

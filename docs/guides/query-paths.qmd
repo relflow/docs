@@ -1,13 +1,15 @@
 ---
-title: Query Paths
+title: Query paths
+description: "Read differently named or nested source values without renaming the model's fields."
 engine: markdown
 ---
 
 Use `query=` when a model node reads a differently named or nested source.
-Every path starts from the value selected by its parent node.
-If the schema already matches the records, use [ordinary binding](binding-data.qmd).
+Every path starts from the value selected by its parent node. When names and
+nesting already match the schema, no query is needed; see
+[Prepare observations](../learn/prepare-observations.qmd).
 
-Suppose the same payment from [Binding Data](binding-data.qmd) arrives inside
+Suppose the same payment from [Prepare observations](../learn/prepare-observations.qmd) arrives inside
 a `payload`, with different names for its fields:
 
 ```yaml
@@ -51,9 +53,9 @@ model = rf.Model.xs(
 
 The root selects `payload`. The branch selects the last 32 transaction records,
 then each child reads relative to a transaction. Children do not repeat the
-parent's path. The list includes the latest payment exactly once at its end.
-`mask=True` hides and predicts every transaction's dispute label, with all
-labels defined over the same 30 days after the account review cutoff.
+parent's path. The list includes the latest payment exactly once at its end,
+and `mask=True` hides and predicts every transaction's dispute label as
+before.
 
 ```{typst}
 //| label: fig-query-order
@@ -75,7 +77,7 @@ positions before branch geometry is resolved. With `length=None`, the branch
 keeps all selected slots. A finite `length` applies its overflow policy to that
 selection; each batch then uses its largest retained width. Descendant widths
 are determined from the retained parent records. See
-[Branch](../data-types/branch.qmd#automatic-lengths-and-limits).
+[Branch](../datatypes/branch.qmd#automatic-lengths-and-limits).
 
 ## Path syntax
 
@@ -148,5 +150,5 @@ requests should omit the label entirely.
 
 When a query fails, inspect the **processed** Arrow schema, then read the path
 from its parent's selected value. Errors identify the query segment and model
-address. See [Preprocessing](../guides/preprocessors.qmd) for preparing nested
+address. See [Preprocessing](preprocessing.qmd) for preparing nested
 records and shared roles.

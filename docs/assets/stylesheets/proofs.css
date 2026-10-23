@@ -37,61 +37,61 @@
 }
 
 .proof-status[data-proof-status="Passing"] {
-  color: #166534;
-  background-color: #dcfce7;
+  color: #234631;
+  background-color: #e6eddf;
 }
 
 .proof-status[data-proof-status="Limited"] {
-  color: #92400e;
-  background-color: #fef3c7;
+  color: #805224;
+  background-color: #fbf0de;
 }
 
 .proof-status[data-proof-status="Partial"] {
-  color: #1e40af;
-  background-color: #dbeafe;
+  color: #31576b;
+  background-color: #edf3f6;
 }
 
 .proof-status[data-proof-status="Failing"] {
-  color: #991b1b;
-  background-color: #fee2e2;
+  color: #8a3b32;
+  background-color: #f8e4e1;
 }
 
 .proof-status[data-proof-status="Error"] {
-  color: #6b21a8;
-  background-color: #f3e8ff;
+  color: #6a3f78;
+  background-color: #f1e7f4;
 }
 
 .proof-status[data-proof-status="Missing"] {
-  color: #475569;
-  background-color: #f1f5f9;
+  color: #35463b;
+  background-color: #f1f4f0;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Passing"] {
-  color: #86efac;
-  background-color: #143324;
+  color: #234631;
+  background-color: #e6eddf;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Limited"] {
-  color: #fcd34d;
-  background-color: #3b2c10;
+  color: #805224;
+  background-color: #fbf0de;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Partial"] {
-  color: #93c5fd;
-  background-color: #182e49;
+  color: #31576b;
+  background-color: #edf3f6;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Failing"] {
-  color: #fca5a5;
-  background-color: #431e24;
+  color: #8a3b32;
+  background-color: #f8e4e1;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Error"] {
-  color: #f0abfc;
-  background-color: #3b2044;
+  color: #6a3f78;
+  background-color: #f1e7f4;
 }
 
 body.quarto-dark .proof-status[data-proof-status="Missing"] {
-  color: #cbd5e1;
-  background-color: #29313d;
+  color: #35463b;
+  background-color: #f1f4f0;
 }

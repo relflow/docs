@@ -1,44 +1,20 @@
 ---
-title: Data Modules
+title: Data modules
+description: "Supply named train, validate, test, and predict sources from Parquet, Arrow, Polars, or DuckDB."
 ---
 
 A data module supplies named datasets and prepares Lightning batches. Pass it
-to a model loop to bind it to that model automatically.
-Each row is one observation; nested lists and structs stay inside that row.
-Continue with the model from [Add Transaction History](../tutorials/transaction-history.qmd).
-Each row contains a prepared transaction sequence at one account-review cutoff:
-
-```yaml
-payment_id: payment-42
-trxns:
-  - booked_at: "2026-05-21T10:00:00"
-    amount: 32.00
-    merchant: Station Cafe
-    disputed: false
-  - booked_at: "2026-05-27T18:15:00"
-    amount: 56.20
-    merchant: North Market
-    disputed: true
-  - booked_at: "2026-05-28T14:30:00"
-    amount: 84.50
-    merchant: North Market
-    disputed: false
-```
-
-The model reads `booked_at`, `amount`, and `merchant` from every `trxns` record.
-Every record's `disputed` label is supervised and excluded from input.
-`payment_id` can remain a source
-column without becoming a model field.
-
-Your application supplies the Parquet files and chooses the train/validation
-splits. It also assembles each history, orders it oldest to newest, and excludes
-events after the review cutoff. The data module reads that
-nested observation; it does not automatically join transaction tables into a
+to a model loop to bind it to that model automatically. Each row is one
+observation prepared as in
+[Prepare observations](../learn/prepare-observations.qmd): nested lists and
+structs stay inside the row, the application assembles each history and
+chooses the splits, and training files carry settled labels while prediction
+files omit them. The data module does not join transaction tables into a
 history.
 
-Training files contain settled Boolean labels for every transaction: whether
-a new dispute was reported during the 30 days after that common cutoff.
-Prediction files keep the same transaction inputs and omit `disputed`.
+The examples continue the
+[transaction model](../learn/add-transaction-history.qmd). Its `payment_id`
+column remains a source column without becoming a model field.
 
 ## Arrow
 
@@ -57,7 +33,7 @@ data = rf.ArrowDataModule(
 Nested structs and lists remain part of each observation. Existing in-memory
 `pyarrow.Table` objects are also supported.
 
-## Bind A Model When The Loop Starts
+## Bind a model when the loop starts
 
 Configure the sources independently of the model, then pass the data module
 to the model's loop:
@@ -84,7 +60,7 @@ comparison, including a separately loaded copy of the same artifact.
 
 Native Lightning `Trainer` loops also bind in data-module `setup` using the
 attached RelFlow model. Their optimizer requirements remain those described
-in [Training And Checkpoints](lightning.qmd#configure-optimization-and-callbacks).
+in [Training options](training-options.qmd#configure-optimization-and-callbacks).
 
 The default shuffle window is resolved once at binding as
 `max(model.batch_size * 32, 4096)` rows. For an unbound module, a loop's
@@ -102,7 +78,7 @@ required. Each supplied path or source belongs to its named split. Training
 shuffles by default. The other splits do not. Set model
 batch size on the loop, for example `model.fit(data, batch_size=128, max_epochs=30)`.
 Arrow data modules read the model's current size whenever they create loaders;
-see [Batch size](lightning.qmd#batch-size) for overrides on the other loops.
+see [Batch size](training-options.qmd#batch-size) for overrides on the other loops.
 
 Choose splits before constructing the module. For time-based evaluation, define
 an observation cutoff, build features only from information available then, and
@@ -110,13 +86,13 @@ keep later outcomes out of inputs. relflow does not enforce these application
 rules. Fit application preprocessing state on training data and reuse it for
 validation and prediction.
 
-Attach an ordered [preprocessor](preprocessors.qmd) with
+Attach an ordered [preprocessor](preprocessing.qmd) with
 `preprocessor=prepare` or `preprocessor=(clean, enrich)`. Processing happens
 before sampling, shuffling, and model batching. The source and processed Arrow
 schemas must remain stable within each split across partitions and epochs.
 
 For prediction, `retain=("payment_id",)` keeps a processed identifier in the
-output for downstream joins. See [Batch Inference](batch-inference.qmd).
+output for downstream joins. See [Batch inference](batch-inference.qmd).
 
 ## Polars
 
@@ -215,7 +191,7 @@ from DuckDB; `model.batch_size` controls the final model batches. Each connectio
 defaults to one DuckDB thread. Override connection settings with `config`, such
 as `config={"threads": 2}`. The usual `ArrowDataModule` options, including
 sampling, shuffling, retention, and workers, also apply. Partition-scoped
-[preprocessors](preprocessors.qmd) run on streamed Arrow batches converted to
+[preprocessors](preprocessing.qmd) run on streamed Arrow batches converted to
 eager Polars frames; dataset-scoped preprocessing is unsupported for these
 restartable query sources.
 
@@ -237,3 +213,6 @@ PyArrow S3 without another transport dependency. Application-owned datasets,
 filesystems, and unfinished iterators have their own lifetimes; close active
 iterators when stopping a scan early. The change does not establish that every
 native Arrow shutdown hang has the same cause or replace runtime supervision.
+
+[Preprocessing](preprocessing.qmd) attaches to any of these sources. If a
+split fails to bind, see [Troubleshooting](../reference/troubleshooting.qmd).

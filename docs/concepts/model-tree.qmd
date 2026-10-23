@@ -1,36 +1,18 @@
 ---
+title: Model tree
+description: "How a schema describes one observation: fields, branches, names, addresses, size, and context settings."
 engine: markdown
 ---
 
-# Model Tree
-
 The schema describes one observation. For account review, it identifies the
 transaction sequence available at a cutoff and the later outcome for each
-record. Fields describe values; a branch groups related values; the
-model root combines them to predict a target.
+record. Fields describe values; a branch groups related values; the model
+root combines them to predict a target.
 
-## Follow One Observation
+## Follow one observation
 
-Follow the same payment and earlier transactions from
-[Add Transaction History](../tutorials/transaction-history.qmd):
-
-```yaml
-trxns:
-  - booked_at: "2026-05-21T10:00:00"
-    amount: 32.00
-    merchant: Station Cafe
-    disputed: false
-  - booked_at: "2026-05-27T18:15:00"
-    amount: 56.20
-    merchant: North Market
-    disputed: true
-  - booked_at: "2026-05-28T14:30:00"
-    amount: 84.50
-    merchant: North Market
-    disputed: false
-```
-
-The model follows the same structure:
+Take the model from [Add transaction history](../learn/add-transaction-history.qmd),
+which reads the three-transaction record shown there:
 
 ```python
 import relflow as rf
@@ -51,14 +33,14 @@ model = rf.Model.xs(
 
 ```{typst}
 //| label: fig-model-tree
-//| fig-alt: The payment root owns a repeated trxns branch containing booked_at DateParts, amount Number, merchant Category, and disputed Boolean. Every transaction's dispute value is hidden and supervised.
-//| fig-cap: One sequence contains the evidence and a target for every transaction.
-#tree(node("payment", kind: "root", children: (
-  node("trxns", kind: "branch", repeated: true, children: (
-    node("booked_at", type: "DateParts"),
-    node("amount", type: "Number"),
-    node("merchant", type: "Category"),
-    node("disputed", kind: "target", type: "Boolean", detail: "Every transaction"),
+//| fig-alt: "The anonymous payment root at address slash owns a repeated trxns branch at slash trxns. Its children are booked_at DateParts, amount Number, and merchant Category at slash trxns slash booked_at, amount, and merchant, and a hidden disputed Boolean target at slash trxns slash disputed."
+//| fig-cap: "Each node has an address formed from the names along its path. The root is anonymous."
+#tree(node("payment", kind: "root", detail: "Address: /", children: (
+  node("trxns", kind: "branch", repeated: true, detail: "/trxns", children: (
+    node("booked_at", type: "DateParts", detail: "/trxns/booked_at"),
+    node("amount", type: "Number", detail: "/trxns/amount"),
+    node("merchant", type: "Category", detail: "/trxns/merchant"),
+    node("disputed", kind: "target", type: "Boolean", detail: "/trxns/disputed"),
   )),
 )))
 ```
@@ -66,9 +48,8 @@ model = rf.Model.xs(
 The timestamp, amount, and merchant at one list position belong to the same
 transaction. The latest payment appears once at the end of `trxns`; the root
 contains no second amount or merchant. `mask=True` hides and supervises every
-transaction's dispute value. The labels concern new dispute reports in the
-30 days after the shared account review cutoff, so the entire listed sequence
-is available context. Prediction can omit `disputed` from every record.
+transaction's dispute value, and prediction can omit `disputed` from every
+record.
 
 This structure lets the model learn both which fields occur together in an
 event and how behavior varies across the history. With the default reduction,
@@ -83,13 +64,12 @@ they describe.
 
 `length=32` limits the history to 32 transactions. With oldest-to-newest input,
 `overflow="tail"` keeps the latest ones. Sorting and excluding future records
-belong in application data preparation. Order and time are separate: the list
-says which event came first, while `booked_at` supplies calendar context through
-DateParts. Selected calendar cycles do not measure exact elapsed time. Omitting
-`length` retains all history items and lets each batch determine its width; see
-[automatic lengths and limits](../data-types/branch.qmd#automatic-lengths-and-limits).
+belong in application data preparation, as
+[Prepare observations](../learn/prepare-observations.qmd) describes. Omitting `length` retains
+all history items and lets each batch determine its width; see
+[automatic lengths and limits](../datatypes/branch.qmd#automatic-lengths-and-limits).
 
-## Names And Addresses
+## Names and addresses
 
 The parent names each child: `amount=rf.Number` creates an `amount` field.
 Use the bare class for defaults; call it for options, as in
@@ -106,9 +86,9 @@ selected = model.select(rf.where("address") == trxn_amount)
 
 The second address is `/trxns/amount`. The target is `/trxns/disputed`.
 Addresses identify schema locations in configuration, metrics, and mutations,
-even when a [query](querypaths.qmd) reads another source path. `rf.Address` is a string
+even when a [query](../guides/query-paths.qmd) reads another source path. `rf.Address` is a string
 subclass and serializes as a plain string in schema configuration.
-[Prediction output](../guides/prediction-output.qmd) uses ordinary
+[Prediction output](../reference/prediction-output.qmd) uses ordinary
 child names in its result tree and path segments in representation records.
 
 The root is anonymous, has address `/`, and represents one observation.
@@ -128,10 +108,10 @@ transactions = rf.Branch(
 ```
 
 Reusing a definition creates independent named nodes and learned modules;
-it does not share weights. See [Binding Data](binding-data.qmd) for how names
-and nesting select source values.
+it does not share weights. See [Prepare observations](../learn/prepare-observations.qmd) for how
+names and nesting select source values.
 
-## Choose A Size
+## Choose a size
 
 `rf.Model.xs(...)`, `.sm(...)`, `.md(...)`, `.lg(...)`, and `.xl(...)` supply
 architecture defaults. Start with `xs` or `sm` to establish a working model,
@@ -140,11 +120,11 @@ decoded fields also affect memory and compute.
 
 The presets leave collection lengths, overflow, queries, masking, datatype
 options, optimizer settings, and runtime settings to the application.
-See [Model Presets](../reference/model-presets.qmd) for the size table,
+See [Model presets](../reference/model-presets.qmd) for the size table,
 node-local overrides, and checkpoint rules. For schemas stored in YAML,
-see [Model Templates](../guides/model-templates.qmd).
+see [Model templates](../guides/model-templates.qmd).
 
-## Configure The Context
+## Configure the context
 
 Use `rf.Model(...)` with required `d_model`, `n_layers`, and `n_heads` to
 choose the architecture directly. `d_model` is the shared embedding width.
@@ -158,8 +138,8 @@ Root encoder settings apply to the root; child branches have their own settings.
 | `reduction` | Context passed to the parent; default `rf.Attention()`. |
 | `length` | `None` by default: retain all records; a positive integer sets a hard limit. |
 | `overflow` | Only with a finite limit: keep first records (`"head"`, the bounded default), last records (`"tail"`), or raise (`"error"`). |
-| `mask` | Inputs to hide or reconstruct; see [Masking](dynamic-masking.qmd). |
-| `embed=True` | Export a representation; see [Embeddings](embeddings.qmd). |
+| `mask` | Inputs to hide or reconstruct; see [Masking and reconstruction](masking-and-reconstruction.qmd). |
+| `embed=True` | Export a representation; see [Reusable representations](../learn/reusable-representations.qmd). |
 
 Set a positive integer `ffnx` on a root, branch, or tensorfield to change that
 node's feed-forward width. Each child keeps its own default unless configured.
@@ -196,16 +176,21 @@ attention while leaving the reduction in place. `rf.Mean()` averages present
 inputs and adds a learned count lane; `reduction=None` preserves routed child
 slots. Attention reductions
 have their own settings and inherit omitted heads/dropout from the branch.
-See [Branch](../data-types/branch.qmd) for the full contract.
+See [Branch](../datatypes/branch.qmd) for the full contract.
 
 Padding and structurally skipped inputs do not contribute to attention or
 mean pooling. An explicit null remains a modeled value state; see
-[Value state](data-types.qmd#value-state).
+[Value state](../datatypes/index.qmd#value-state).
 A decoder pools representations along its ancestor path and can condition
 learned queries on visible siblings at matching coordinates. Tree connections
-show ownership; database joins belong in [preprocessing](../guides/preprocessors.qmd).
+show ownership; database joins belong in [preprocessing](../guides/preprocessing.qmd).
 
 Only declared options are accepted. Use `description` for notes.
 A leaf's `active=False` retains it in the schema while excluding it from
 execution. Change an existing model through
 [mutation methods](../guides/schema-mutation.qmd).
+
+To follow the evidence through this tree, continue with
+[How fields interact](how-fields-interact.qmd),
+[Branch summaries](branch-summaries.qmd), and
+[Tree routing and decoding](tree-routing-and-decoding.qmd).

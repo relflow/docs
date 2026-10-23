@@ -1,0 +1,149 @@
+---
+title: Read predictions
+description: "Run the saved model on request files, find each probability, and keep the identifiers you need to act on it."
+---
+
+A prediction request is a training record without its target. This page
+scores the first model, whose output is small enough to read whole, then the
+transaction model, whose output has one result per transaction.
+
+## Score the first model
+
+The [first model](your-first-model.qmd) reads `amount` and `merchant`. The
+request file keeps those columns, omits `disputed`, and carries an identifier
+to join the answer back:
+
+```yaml
+payment_id: payment-42
+amount: 84.50
+merchant: North Market
+```
+
+```python
+import relflow as rf
+
+model = rf.Model.load("artifacts/payment.rf")
+requests = rf.ArrowDataModule(
+    predict="payments/requests.parquet",
+    retain=("payment_id",),
+)
+result = model.predict(datamodule=requests, batch_size=256, devices=1)
+```
+
+`devices=1` collects one Arrow table on one device. `retain` copies the named
+source columns into an `inputs` column; nothing else from the request is
+echoed. One row of the result has this shape, with placeholders for the
+numbers:
+
+```yaml
+inputs:
+  payment_id: payment-42
+predictions:
+  disputed:
+    state:
+      valued: <probability>
+      "null": <probability>
+      padded: <probability>
+      masked: <probability>
+      other: <probability>
+    content:
+      probability: <probability of true>
+    inferred: true
+```
+
+`content.probability` is the probability that this payment will be disputed.
+`state` gives the probabilities of the five value states, and `inferred`
+marks that this position was requested as a prediction; it is not a
+confidence. To read the probabilities as Python values:
+
+```python
+rows = result.to_pylist()
+probabilities = {
+    row["inputs"]["payment_id"]: row["predictions"]["disputed"]["content"]["probability"]
+    for row in rows
+}
+```
+
+## Score the transaction model
+
+The [transaction model](add-transaction-history.qmd) predicts every retained
+transaction. The request keeps the `trxns` records, cut at the decision time
+as in [Prepare observations](prepare-observations.qmd), and omits
+`disputed` from each one:
+
+```yaml
+payment_id: payment-42
+trxns:
+  - booked_at: "2026-05-21T10:00:00"
+    amount: 32.00
+    merchant: Station Cafe
+  - booked_at: "2026-05-27T18:15:00"
+    amount: 56.20
+    merchant: North Market
+  - booked_at: "2026-05-28T14:30:00"
+    amount: 84.50
+    merchant: North Market
+```
+
+The same `predict` call returns `predictions.trxns`, a list with one result
+per retained transaction in request order. Each item carries the same
+`disputed` payload as above:
+
+```python
+observation = result.slice(0, 1).to_pylist()[0]
+probabilities = [
+    transaction["disputed"]["content"]["probability"]
+    for transaction in observation["predictions"]["trxns"]
+]
+```
+
+The list is as long as the retained history, not the branch cap: a request
+with three transactions gets three results. With `overflow="tail"` and more
+than 32 transactions, only the last 32 are retained and scored, so keep your
+own transaction identifiers to match results to records.
+
+## Read many rows at once
+
+Converting to Python objects is fine for a few rows. For a whole request
+file, keep the table columnar and let Polars flatten the nesting: each
+`explode` turns a list into rows and each `unnest` turns a struct into
+columns, following the record's shape from the outside in:
+
+```python
+import polars as pl
+
+transactions = (
+    pl.from_arrow(result)
+    .select(
+        pl.col("inputs").struct.field("payment_id"),
+        pl.col("predictions").struct.field("trxns"),
+    )
+    .explode("trxns")
+    .unnest("trxns")
+    .unnest("disputed")
+    .unnest("content")
+)
+```
+
+`transactions` has one row per scored transaction with `payment_id`,
+`state`, `probability`, and `inferred` columns, in request order. The same
+expressions inside a [postprocessor](../guides/postprocessing.qmd) run on
+every batch during batch inference and serving.
+
+## Act on the result
+
+Choosing a threshold is an application decision. A
+[postprocessor](../guides/postprocessing.qmd) can turn the nested table into
+flat decision columns, and the same processor serves batch files and the HTTP
+deployment. For large request files, write results as they complete with
+[batch inference](../guides/batch-inference.qmd); for online requests, see
+[Serving](../guides/serving.qmd).
+
+Two other columns can appear. `representations` holds exported embeddings
+when a node has `embed=True`; see
+[Reusable representations](reusable-representations.qmd). Nested targets,
+structural nulls, and the full Arrow contract are described in
+[Prediction output](../reference/prediction-output.qmd).
+
+Next, [evaluate](evaluation.qmd) the model against the review
+process it is meant to support.

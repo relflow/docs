@@ -61,7 +61,7 @@ can include repeated seeds and earlier source versions; the foldout and
 Experiments with more seeds provide stronger evidence about repeatability.
 
 Learned arithmetic is approximate. Use
-[preprocessing](guides/preprocessors.qmd) for business rules that require exact results.
+[preprocessing](guides/preprocessing.qmd) for business rules that require exact results.
 Each page includes its reproduction command and a downloadable script.
 
 </details>

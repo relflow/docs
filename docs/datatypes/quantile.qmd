@@ -1,4 +1,7 @@
-# Quantile
+---
+title: Quantile
+description: "A number represented by its position in the learned training distribution."
+---
 
 How large is `84.50` relative to the payment amounts seen during training?
 `Quantile` represents a number by its position in that learned distribution.
@@ -33,7 +36,7 @@ is not automatically a separate amount distribution for each merchant.
 The Arrow leaf accepts finite integers and floating-point scalars. Booleans,
 strings, lists, NaN, and infinity are rejected. Put repeated measurements
 inside a [Branch](branch.qmd). Nulls remain separate from numeric values;
-unused branch slots are padded. See [value states](../core-concepts/data-types.qmd#value-state).
+unused branch slots are padded. See [value states](index.qmd#value-state).
 
 Each field learns its own approximate distribution from pristine training
 values, including values selected as hidden reconstruction targets. Encoding
@@ -56,7 +59,7 @@ observed, numeric inputs use `0.5`.
 | `n_bands` | `8` | Positive number of Fourier frequencies; frequency `k` is `k * pi`, for `k` from `1` through `n_bands`. |
 | `objective` | `"mae"` | Reconstruction loss in percentile units: `"mae"`, `"mse"`, or `"huber"`. |
 
-[Shared leaf options](../core-concepts/data-types.qmd#shared-leaf-options)
+[Shared leaf options](index.qmd#shared-leaf-options)
 control masking, decoder pooling, and exported embeddings. Quantile does not
 accept a `jitter` option.
 
@@ -82,7 +85,7 @@ normalization = rf.Quantile.normalization(
 
 The snapshot contains `count`, `compression`, `minimum`, `median`, and `maximum`.
 The last three values are `None` until the field has observed numeric training
-data. A [preprocessor](../guides/preprocessors.qmd) can pass its supplied
+data. A [preprocessor](../guides/preprocessing.qmd) can pass its supplied
 `encoding_context` in place of `model` to inspect the same field state.
 
 Prediction `content` is a nullable `float64` scalar in source units. It is null
@@ -92,7 +95,7 @@ the slope of the outer deciles, so the standardized lane can carry a value past
 the learned minimum or maximum. MAE and RMSE metrics use source units; the reconstruction
 objective uses percentile units. Source-unit error metrics are omitted until
 the field has learned a distribution. Read the scalar alongside `state` and
-`inferred` in the [prediction envelope](../guides/prediction-output.qmd).
+`inferred` in the [prediction envelope](../reference/prediction-output.qmd).
 
 These percentiles describe the numeric representation. They are not prediction
 intervals or coverage estimates.

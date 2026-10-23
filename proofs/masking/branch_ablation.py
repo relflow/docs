@@ -85,7 +85,7 @@
 #
 # ### Training and controls
 #
-# The model uses the [xs preset](../../core-concepts/model-tree.qmd#choose-a-size).
+# The model uses the [xs preset](../../concepts/model-tree.qmd#choose-a-size).
 #
 # Fit for 500 AdamW updates at learning rate 0.002. On the same test observations,
 # set each of the four branch-mask patterns deterministically. At least one

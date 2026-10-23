@@ -1,10 +1,10 @@
 ---
+title: Add transaction history
+description: "Predict a dispute for every transaction in an account's history using shared context."
 engine: markdown
-title: Add Transaction History
-description: Predict dispute outcomes for transactions using shared account context.
 ---
 
-The [first model](../getting-started.qmd) reads one flat payment. Now move that
+The [first model](your-first-model.qmd) reads one flat payment. Now move that
 payment into a `trxns` list and prepend earlier transactions from the same
 account. Each listed transaction has its own dispute target.
 
@@ -18,7 +18,7 @@ whether that detail improves dispute prediction.
 The latest payment appears once, at the end of the same list as the earlier
 events. Its amount and merchant need no separate root fields.
 
-## Add A Collection To Each Record
+## Add a collection to each record
 
 Your application supplies `trxns` in oldest-to-newest order, ending at the
 payment being assessed:
@@ -39,22 +39,22 @@ trxns:
     disputed: false
 ```
 
-Use one account review cutoff: here, immediately after the last listed booking
-on May 28. For every transaction, `disputed` means a new dispute reported in the
-30 days after that same cutoff. The full listed sequence is therefore available
-context for every prediction. Attach the Boolean labels after that window has
-completed; keep later events out of the inputs.
+Every transaction shares one review cutoff, immediately after the last listed
+booking on May 28, and `disputed` records whether a new dispute was reported
+in the 30 days after it. The whole sequence is therefore valid context for
+every prediction. [Prepare observations](prepare-observations.qmd)
+defines the cutoff, the label window, and the ordering rules in full.
 
-Order describes which transaction came first. `booked_at` supplies a timestamp
-whose selected calendar parts can reveal recurring patterns. Those calendar
-cycles do not represent an exact elapsed-time gap.
+List order says which transaction came first. `booked_at` supplies calendar
+parts that can reveal recurring patterns, not the elapsed time between
+transactions.
 
 A fixed feature table might retain total spend and transaction count. Here,
 the amount and merchant stay paired within each event: a cafe payment and a
 visit to North Market remain distinguishable. This gives the model evidence
 for learning account behavior without deciding every summary in advance.
 
-## Describe The Collection With A Branch
+## Describe the collection with a branch
 
 ```python
 import relflow as rf
@@ -92,7 +92,7 @@ trains the model to predict it from the shared context.
 )))
 ```
 
-## Use The Same Training Steps
+## Use the same training steps
 
 Train this new model with the history present in each record. Your application
 supplies Parquet files with the nested structure shown above:
@@ -115,13 +115,12 @@ requests = rf.ArrowDataModule(
 predictions = model.predict(datamodule=requests, batch_size=256, devices=1)
 ```
 
-In output format 2, `predictions.trxns[i].disputed` contains the
-answer for each transaction, with `inferred: true` on every record.
+`predictions.trxns` holds one result per retained transaction;
+[Read predictions](read-predictions.qmd) shows how to extract each
+probability.
 
-If your source uses different names or shapes, continue with
-[Binding Data](../core-concepts/binding-data.qmd). To prepare these histories
-from transaction tables, see [Preprocessing](../guides/preprocessors.qmd).
-
-After preparing and evaluating this model,
-[Learning From Event Histories](../guides/learning-from-event-data.qmd)
-adds payment channels, account profile context, and a merchant-repeat target.
+Next, [Featureless models](featureless-models.qmd) names what
+these two models did without a feature pipeline. After that,
+[Prepare observations](prepare-observations.qmd) defines the data
+contract these files follow, and [Preprocessing](../guides/preprocessing.qmd)
+shows how to build the histories from transaction tables.

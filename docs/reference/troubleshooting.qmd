@@ -1,4 +1,7 @@
-# Troubleshooting
+---
+title: Troubleshooting
+description: "Symptoms, the check to make first, and how to separate event logs from metrics."
+---
 
 Start with the error's schema address and the smallest affected observation.
 For a transaction amount error, inspect that payment and its
@@ -20,20 +23,20 @@ against the schema before changing model capacity or optimization settings.
 | A data module is not bound to a model | Pass it to a model loop, or call `bind(model)` before direct loader access outside a loop. |
 | A data module belongs to a different model | Construct a new module for that model; binding is single-owner, including for separately loaded copies. |
 | EMA rejects a checkpoint callback | Set `save_weights_only=False`; optimizer-consistent EMA resumes require full checkpoints. |
-| An attention checkpoint reports missing parameters | Check [checkpoint compatibility](lightning.qmd#checkpoint-compatibility); saved weights must match the loading architecture. |
+| An attention checkpoint reports missing parameters | Check [checkpoint compatibility](../guides/checkpoints-ema-and-resuming.qmd#checkpoint-compatibility); saved weights must match the loading architecture. |
 | Training batches have no selected targets | Check masks, source presence, and target geometry; those batches are skipped. |
 | Expected decoded output is absent | Fractional reconstruction policies are inactive in ordinary prediction; use deterministic reconstruction to request outputs. |
 | Too many or too few embeddings | In format 2, inspect representation paths, ancestor coordinates, and output indices; summary counts need not equal item counts. |
 | Prediction reports no public outputs | Select a field with decoded public output or set `embed=True`; reconstruction alone does not guarantee a writable value. |
-| Parquet rejects a fixed-size list beneath a null container | Preserve the structure using Arrow IPC; see [Batch Inference](batch-inference.qmd#fixed-size-vectors-and-null-containers). |
+| Parquet rejects a fixed-size list beneath a null container | Preserve the structure using Arrow IPC; see [Batch inference](../guides/batch-inference.qmd#fixed-size-vectors-and-null-containers). |
 | Mutation is rejected during a loop | Move the edit outside forward, predict, or Lightning execution. |
 | Compilation disappears after a change | Mutations and checkpoint rebuilds clear it; call `compile()` again. |
 
-Use [Binding Data](../core-concepts/binding-data.qmd),
-[Masking](../core-concepts/dynamic-masking.qmd), and
-[Embeddings](../core-concepts/embeddings.qmd) for those contracts.
+Use [Prepare observations](../learn/prepare-observations.qmd),
+[Masking and reconstruction](../concepts/masking-and-reconstruction.qmd), and
+[Reusable representations](../learn/reusable-representations.qmd) for those contracts.
 
-## Separate Events From Metrics
+## Separate events from metrics
 
 Model construction, mutation, checkpoint restoration, and numerical safeguards
 produce operational logs. Set `RELFLOW_LOG_LEVEL` before import or configure the
@@ -47,7 +50,7 @@ configure(level="DEBUG")
 
 Supported levels are `DEBUG`, `INFO`, `WARNING`, `ERROR`, and `CRITICAL`.
 This controls relflow event logging. Lightning experiment loggers, progress
-bars, and [evaluation metrics](evaluation.qmd) have their own configuration.
+bars, and [evaluation metrics](../learn/evaluation.qmd) have their own configuration.
 
 When isolating a failure, retain the original field types, relevant nested
 structure, and mask selectors. Dropping a containing branch can change target

@@ -1,9 +1,10 @@
 ---
-title: Account Risk
+title: Nested context and account outcomes
+description: "Nest line items inside transactions, add a withdrawal history, and predict an account-level loss beside transaction disputes."
 engine: markdown
 ---
 
-The [repeat-payment example](../guides/learning-from-event-data.qmd) predicts
+The [repeat-payment example](profile-context-and-a-second-outcome.qmd) predicts
 two outcomes for each transaction in an account history. An account review team
 also needs to know how much loss to expect across the account over the next month.
 
@@ -13,7 +14,7 @@ form another event history with different fields. This advanced example
 combines nested context, transaction predictions, and an account-level
 target.
 
-## One Observation
+## One observation
 
 ```yaml
 account_id: account-42
@@ -64,13 +65,12 @@ then. Purchase baskets can distinguish activity at the same merchant; cash
 withdrawals provide another view of account behavior without inventing a
 merchant or line items for an ATM event.
 
-The final booking time, May 28, 2026 at 09:00, is the common snapshot cutoff.
-Each `disputed` label records a new dispute reported against that transaction
-during the following 30 days. `loss_next_30_days` records total account loss
-in the application's common currency over the same window. All predictions
-use the transaction and withdrawal records known at this cutoff.
+The cutoff is the final booking on May 28 at 09:00, following
+[Prepare observations](prepare-observations.qmd). Each `disputed`
+label covers the 30 days after it, and `loss_next_30_days` records total
+account loss in the application's currency over the same window.
 
-## Place Each Target With Its Subject
+## Place each target with its subject
 
 ```python
 import relflow as rf
@@ -136,7 +136,7 @@ Line items form context within each transaction. The transaction sequence then
 sends its reduced representation to the account root, alongside the withdrawal
 history. The dispute decoder uses its ancestor context and aligned visible
 siblings; its output retains the
-transaction coordinates. See [Model Tree](../core-concepts/model-tree.qmd).
+transaction coordinates. See [Model tree](../concepts/model-tree.qmd).
 
 Both targets use `mask=True`. Every transaction's dispute label and the
 account-loss label supply supervision while staying out of the inputs.
@@ -145,7 +145,7 @@ At prediction time, omit `loss_next_30_days` and omit `disputed` from every
 transaction. Keep the transaction, line-item, and withdrawal records known
 at the decision time; they define the positions and context to predict.
 
-## Preserve The Context The Task Needs
+## Preserve the context the task needs
 
 The `md` preset uses Attention reductions with four summaries per parent
 coordinate. Those summaries bound the context sent upward; they are not one
@@ -157,8 +157,7 @@ Nesting does not join database tables.
 items keep the default first-items policy. Withdrawals are also oldest to
 newest and retain their own last 16 records. The two histories have independent
 lengths; matching list positions do not imply related events. Choose each
-capacity from the records the application needs to model. Booking dates supply
-calendar features, not elapsed time between events.
+capacity from the records the application needs to model.
 
 Fit the same way as earlier examples, using files prepared for this richer
 account schema:
@@ -171,10 +170,10 @@ data = rf.ArrowDataModule(
 model.fit(data, batch_size=128, max_epochs=30)
 ```
 
-## Evaluate The Two Outcomes
+## Evaluate the two outcomes
 
 Fit using [data modules](../guides/data-modules.qmd) and
-[Training And Checkpoints](../guides/lightning.qmd). Hold out later decision
+[Training options](../guides/training-options.qmd). Hold out later decision
 windows and control overlap between related account snapshots.
 
 Compare the transaction-only model, the addition of line items, and the
@@ -189,8 +188,9 @@ All retained dispute positions have `inferred: true`. Retain `account_id` and th
 application's transaction identifiers when joining outputs back to records.
 Account for the retained history window: an attention summary is not a
 transaction identifier.
-See [Prediction Output](../guides/prediction-output.qmd).
+See [Prediction output](../reference/prediction-output.qmd).
 
-If labels are scarce, continue with [Pretraining](../guides/pretraining.qmd)
-to learn from observed transaction fields first. That guide changes the
-learning objective while keeping the payment-history modeling pattern.
+Next, when labels are scarce,
+[pretrain](pretraining-and-fine-tuning.qmd) on the observed transaction fields
+before adapting the model to an outcome. That guide changes the learning
+objective while keeping the payment-history modeling pattern.

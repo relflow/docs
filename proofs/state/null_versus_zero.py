@@ -79,7 +79,7 @@
 # calibration seeds. Retain both controls when checking stability and selecting
 # the final chance bands.
 #
-# For the representation contract, see [Data Types](../../core-concepts/data-types.qmd).
+# For the representation contract, see [Data Types](../../datatypes/index.qmd).
 #
 # ### Complete experiment code
 #

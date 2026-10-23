@@ -76,7 +76,7 @@
 #
 # ### Training and controls
 #
-# The model uses the [xs preset](../../core-concepts/model-tree.qmd#choose-a-size).
+# The model uses the [xs preset](../../concepts/model-tree.qmd#choose-a-size).
 #
 # Fit for 350 AdamW updates at learning rate 0.002. Require at least 0.95
 # known-only accuracy, exactly 50% output-label coverage, and zero accuracy on

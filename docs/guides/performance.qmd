@@ -1,11 +1,14 @@
-# Performance
+---
+title: Performance
+description: "Control work through branch limits, feed the device, tune batch size, and compile selected regions."
+---
 
 Measure the complete workload: source reading and preprocessing, tensorization,
 model computation, and prediction writing. Schema shape and requested outputs
 can matter as much as model width. Compare quality and throughput under the
 same data, hardware, precision, and optimization budget.
 
-## Control Work First
+## Control work first
 
 Repeated branches use the largest retained collection length in each batch.
 The default `length=None` retains all slots; a finite limit bounds retention
@@ -13,7 +16,7 @@ and permits an overflow policy. Even bounded branches compact their internal
 width below the cap when possible. Nested batch maxima can multiply coordinate
 counts. Choose limits that retain the context the task needs; reductions
 determine how much reaches the parent. These choices also affect model quality.
-See [Branch](../data-types/branch.qmd#automatic-lengths-and-limits).
+See [Branch](../datatypes/branch.qmd#automatic-lengths-and-limits).
 
 Padding and structurally skipped coordinates are absent from attention.
 Eligible encoder work packs present coordinates when the layers have no
@@ -39,13 +42,13 @@ and Category top-k values enlarge the prediction payload. Selecting a larger
 batch can improve utilization but also changes updates per epoch; account for
 that when comparing training runs.
 
-## Let Lightning Select Training Hardware
+## Let Lightning select training hardware
 
 `model.fit(...)` selects available hardware by default: `accelerator="auto"`,
 `devices="auto"`, DDP with unused-parameter detection for multiple devices, and
 BF16 mixed precision where the selected devices support it. Otherwise it uses
 FP32. Override these choices only when the workload needs it; see
-[Training And Checkpoints](lightning.qmd#choose-the-loop).
+[Training options](training-options.qmd#choose-the-loop).
 
 Mixed precision keeps model parameters and Number normalization statistics in
 float32. When using `lit.Trainer` directly, configure its hardware and precision
@@ -109,7 +112,7 @@ The nominal effective batch is the batch size multiplied by the device count
 and gradient-accumulation count on one node; set accumulation explicitly when
 comparing trials, and account for incomplete final accumulation windows.
 
-## Feed The Device
+## Feed the device
 
 Loop `batch_size` overrides set the model's current encoded batch size, for
 example `model.fit(datamodule, batch_size=128, max_epochs=30)`. The value is per
@@ -161,11 +164,11 @@ model.fit(datamodule, learning_rate=1e-4, weight_decay=0.01, fused=True, max_epo
 Ordinary fits default to fused Torch AdamW. Use `fused=False` for an unsupported
 device or `fused=None` for Torch's selection. Biases, scalar and one-dimensional
 parameters, and names containing `"norm"` receive no weight decay by default.
-See [Optimization](lightning.qmd#configure-optimization-and-callbacks) for all
+See [Optimization](training-options.qmd#configure-optimization-and-callbacks) for all
 options and per-run state. When resuming, keep optimizer settings consistent
 with the saved run.
 
-## Compile Encoder And Pool Regions
+## Compile encoder and pool regions
 
 `model.compile()` updates the existing model and returns it, so it can follow
 a constructor or be called programmatically before training or inference.

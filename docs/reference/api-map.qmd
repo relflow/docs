@@ -1,8 +1,11 @@
-# Public API
+---
+title: API map
+description: "Every public name grouped by workflow, with the page that documents it."
+---
 
 Import RelFlow as `import relflow as rf`. This page maps the public API to its
 reference pages. For a first payment model, start with
-[Getting Started](../getting-started.qmd).
+[Your first model](../learn/your-first-model.qmd).
 
 ## Common workflow
 
@@ -31,7 +34,7 @@ predictions = model.predict(datamodule=prediction_data, batch_size=256, devices=
 
 `mask=True` declares the prediction target. Fitting restores the best validation
 checkpoint by default. Predictions are returned as an Arrow table.
-[Prediction output](../guides/prediction-output.qmd) uses nested field
+[Prediction output](prediction-output.qmd) uses nested field
 names for decoded results and a separate column for requested representations.
 
 ## Build a model
@@ -47,9 +50,9 @@ names for decoded results and a separate column for requested representations.
 | `rf.Attention`, `rf.Mean` | Choose branch reduction; `reduction=None` preserves routed tokens. |
 | `rf.Mask`, `rf.Jitter` | Configure visibility/objectives and continuous input perturbation. |
 
-See [Data Types](../core-concepts/data-types.qmd),
-[Model Tree](../core-concepts/model-tree.qmd), and
-[Size Presets](../core-concepts/model-tree.qmd#choose-a-size).
+See [Datatypes](../datatypes/index.qmd),
+[Model tree](../concepts/model-tree.qmd), and
+[Model presets](model-presets.qmd).
 Constructor options live with their owning type.
 
 ## Train and evaluate
@@ -73,13 +76,13 @@ Constructor options live with their owning type.
 mapping streams. Prefer Arrow and Polars modules when the data already has
 that form. All five RelFlow data modules bind automatically when passed to a
 model loop. Use `bind(model)` before direct loader access outside a loop. See
-[Data Modules](../guides/data-modules.qmd#bind-a-model-when-the-loop-starts),
-[Preprocessing](../guides/preprocessors.qmd),
-[Training And Checkpoints](../guides/lightning.qmd),
-[Evaluation](../guides/evaluation.qmd), and
+[Data modules](../guides/data-modules.qmd#bind-a-model-when-the-loop-starts),
+[Preprocessing](../guides/preprocessing.qmd),
+[Training options](../guides/training-options.qmd),
+[Evaluation](../learn/evaluation.qmd), and
 [Performance](../guides/performance.qmd).
 For an unlabeled training objective followed by a labeled task, see
-[Pretraining And Fine-Tuning](../guides/pretraining.qmd).
+[Pretraining and fine-tuning](../learn/pretraining-and-fine-tuning.qmd).
 
 ## Predict and save
 
@@ -93,8 +96,8 @@ For an unlabeled training objective followed by a labeled task, see
 
 Serving types, including `rf.Accelerator`, `rf.JSONBackend`, and
 `rf.ModelSource`, require `relflow[serving]`. See
-[Prediction Output](../guides/prediction-output.qmd),
-[Postprocessors](../guides/postprocessors.qmd), and [Serving](../guides/serving.qmd).
+[Prediction output](prediction-output.qmd),
+[Postprocessing](../guides/postprocessing.qmd), and [Serving](../guides/serving.qmd).
 
 ## Advanced schema operations
 
@@ -105,8 +108,8 @@ Serving types, including `rf.Accelerator`, `rf.JSONBackend`, and
 | `rf.presets.factory` | Bind an immutable preset configuration to a typed classmethod on a `Model` subclass. |
 | `model.encode`, `model.forward`, `model.write` | Access the encoding, Torch computation, and Arrow writing stages. |
 
-See [Schema Mutation](../guides/schema-mutation.qmd) and
-[Model Tree](../core-concepts/model-tree.qmd) before changing a fitted model.
+See [Schema mutation](../guides/schema-mutation.qmd) and
+[Model tree](../concepts/model-tree.qmd) before changing a fitted model.
 
 ## Extensions
 
@@ -114,4 +117,4 @@ See [Schema Mutation](../guides/schema-mutation.qmd) and
 output, and related behavior. `rf.RequestBase`, `rf.TensorFieldBase`,
 `rf.EmbedderBase`, `rf.DecoderBase`, `rf.TensorInput`, `rf.Context`, and
 `rf.RaggedField` provide its shared contracts. See
-[Custom Tensorfields](../guides/custom-tensorfields.qmd).
+[Custom tensorfields](../datatypes/custom-tensorfields.qmd).

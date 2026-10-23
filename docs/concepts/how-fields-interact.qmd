@@ -1,49 +1,45 @@
 ---
+title: How fields interact
+description: "Context forms at two scales: fields within one event, then events across the history."
 engine: markdown
 ---
-
-# How Fields Interact
 
 A payment's amount has more meaning alongside its merchant and the account's
 earlier activity. RelFlow builds that context at two scales: fields belonging
 to one event record, then events belonging to the same history. This keeps the
 relationship between an amount and its merchant available when the model
-compares transactions.
-Start with [transaction history](../../tutorials/transaction-history.qmd) for
-the application example.
+compares transactions. The example is the collection from
+[Add transaction history](../learn/add-transaction-history.qmd); the current
+payment is the final transaction, and the earlier ones were known at its
+decision time.
 
-## Within One Transaction
-
-Follow the tutorial's collection. The current payment is the final transaction;
-the earlier transactions were known at its decision time:
-
-```yaml
-trxns:
-  - booked_at: "2026-05-21T10:00:00"
-    amount: 32.00
-    merchant: Station Cafe
-    disputed: false
-  - booked_at: "2026-05-27T18:15:00"
-    amount: 56.20
-    merchant: North Market
-    disputed: true
-  - booked_at: "2026-05-28T14:30:00"
-    amount: 84.50
-    merchant: North Market
-    disputed: false
+```{typst}
+//| label: fig-field-interactions
+//| fig-cap: "Context forms in two stages inside the branch, then a reduction decides what reaches the root."
+//| fig-alt: "A grid of tokens with one row per transaction on May 21, May 27, and May 28 and one column per field: booked_at, amount, and merchant. The first row is framed as coordinate attention among the fields of one transaction. The amount column is framed as sequence attention across the history. An arrow leads from the grid to a learned summary labeled reduction."
+#tokens(
+  ("booked_at", "amount", "merchant"),
+  (
+    (label: [May 21], values: ([Thu 10:00], [32.00], [Station Cafe])),
+    (label: [May 27], values: ([Wed 18:15], [56.20], [North Market])),
+    (label: [May 28, latest], values: ([Thu 14:30], [84.50], [North Market])),
+  ),
+  within: [1. Coordinate attention: the fields of one transaction],
+  across: [2. Sequence attention: one field across the history],
+  reduce: [3. Reduction: what reaches the root],
+)
 ```
+
+## Within one transaction
 
 Each field first supplies an embedding at each transaction coordinate.
 Coordinate attention groups the direct sibling fields at the same coordinate:
-`booked_at`, `amount`, and `merchant` from the first transaction interact with one
-another. The other transactions have their own groups. This step allows an amount's
-representation to depend on the merchant attached to that amount.
+`booked_at`, `amount`, and `merchant` from the first transaction interact with
+one another. The other transactions have their own groups. This step allows an
+amount's representation to depend on the merchant attached to that amount.
 
 `disputed=rf.Boolean(mask=True)` keeps every dispute label out of the inputs
-and supervises every retained transaction. Each label means a new dispute
-during the 30 days after the common review cutoff,
-`2026-05-28T14:30:00`. The application attaches these Boolean answers after
-that window is complete; they are not facts available to the model at review.
+and supervises every retained transaction; the labels are never evidence.
 
 Two histories can have the same total spend and merchant counts while pairing
 the larger purchase with different merchants. Keeping each transaction's
@@ -55,7 +51,7 @@ fields. When fewer than two active direct fields are available, there is no
 coordinate interaction to perform. Setting branch attention to `None` also
 disables this encoder.
 
-## Across The History
+## Across the history
 
 After coordinate attention, the branch concatenates its children's tokens into
 one sequence and applies its sequence encoder. Tokens from different history
@@ -72,35 +68,35 @@ These two stages answer different questions:
 | Sequence attention | Present child tokens across the branch | How does this transaction compare with earlier ones? |
 | Branch reduction | The branch's encoded transactions | Which context should reach the observation root? |
 
-Reduction is a separate step, described in [Branch Summaries](branch-reduction.qmd).
+Reduction is a separate step, described in [Branch summaries](branch-summaries.qmd).
 With the default reduction, `trxns` passes a learned summary to its parent.
 That summary includes the earlier and latest transactions; the root has no
 duplicate amount or merchant fields. The summary is trained for the model's
 objectives; it is not a readable transaction ledger or a guaranteed calculation
 of a business statistic.
 
-## Presence And Position
+## Presence and position
 
 Padding represents an absent coordinate. The encoder excludes it from attention
 and restores zero output at absent positions. A null value at a present
 coordinate has its own field state; replacing it with zero changes what the
-model observes. See [field states](../../core-concepts/data-types.qmd).
+model observes. See [field states](../datatypes/index.qmd).
 
 Rotary position information gives attention a signal about token positions.
 `booked_at=rf.DateParts(dateparts=["day_of_month", "day_of_week", "hour_of_day"])`
-supplies calendar cycles. Those cycles do not compute elapsed time or preserve
-every distinction in the original timestamp. Input ordering still belongs to
-the application: sort by the full booking timestamp, oldest to newest, and
-keep only transactions available through the latest payment's decision time.
-Position information does not repair an incorrectly ordered collection or
-prevent future information from entering the inputs.
+supplies calendar cycles, not elapsed time. Input ordering still belongs to
+the application, as [Prepare observations](../learn/prepare-observations.qmd)
+describes; position information does not repair an incorrectly ordered
+collection or prevent future information from entering the inputs.
 
-Sequence attention can use the complete retained collection. All predictions
-in this example share the same review cutoff and future outcome window. They
-are not forecasts made separately at each transaction's original booking time.
+Sequence attention can use the complete retained collection, because every
+prediction in this example shares one review cutoff.
 
 Encoder updates use residual attention and feed-forward blocks with RMSNorm and
 tanh GELU. Attention normalizes each head's projected queries and keys before
 applying rotary positions, so attention logits do not grow with projection scale.
 Architecture options and collection limits belong in the
-[model tree](../../core-concepts/model-tree.qmd) and [Branch reference](../../data-types/branch.qmd).
+[model tree](model-tree.qmd) and [Branch reference](../datatypes/branch.qmd).
+
+Next, follow the encoded transactions through
+[Branch summaries](branch-summaries.qmd).
