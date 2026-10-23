@@ -83,7 +83,7 @@
 #
 # The [nested-cardinality proof](attention-preserves-nested-cardinality.html)
 # tests a statistic whose answer changes when those same amounts are regrouped.
-# Use [preprocessing](../../guides/preprocessors.qmd) when a sum must be exact.
+# Use [preprocessing](../../guides/preprocessing.qmd) when a sum must be exact.
 #
 # ### Complete experiment code
 #

@@ -74,7 +74,7 @@
 #
 # ### Training and controls
 #
-# The model uses the [xs preset](../../core-concepts/model-tree.qmd#choose-a-size).
+# The model uses the [xs preset](../../concepts/model-tree.qmd#choose-a-size).
 #
 # Use 600 AdamW updates at learning rate 0.002. Known-code and null predictions
 # must each achieve nRMSE below 0.25 against their training-mean baseline.

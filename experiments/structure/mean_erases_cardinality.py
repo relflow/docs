@@ -89,7 +89,7 @@
 # nested `global_total` task and a `largest_session_average` target, then three
 # paired core seeds and at least ten calibration seeds for the learned gates.
 #
-# Use [preprocessing](../../guides/preprocessors.qmd) for exact business
+# Use [preprocessing](../../guides/preprocessing.qmd) for exact business
 # arithmetic. For learned hierarchy compression, the
 # [nested Attention case](attention-preserves-nested-cardinality.html) tests a
 # route that retains cardinality information.

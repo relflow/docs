@@ -71,7 +71,7 @@
 #
 # ### Training and controls
 #
-# The [xs preset](../../core-concepts/model-tree.qmd#choose-a-size) supplies the
+# The [xs preset](../../concepts/model-tree.qmd#choose-a-size) supplies the
 # architecture defaults; the items branch keeps `reduction=None` to retain
 # its coordinate slots.
 #
