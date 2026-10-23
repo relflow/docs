@@ -2,7 +2,7 @@
 # ---
 # title: Can each item choose which value to hide?
 # categories:
-# - Dynamic masking
+# - Masking
 # proof-id: P052
 # description: Use an item’s selected flag to hide its value and predict it from x.
 # execute:

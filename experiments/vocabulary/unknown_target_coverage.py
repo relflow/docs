@@ -2,7 +2,7 @@
 # ---
 # title: Can perfect accuracy hide answers it cannot name?
 # categories:
-# - Vocabulary and OOV
+# - Vocabulary
 # proof-id: P056
 # description: Ask a Category output to predict a mix of familiar and unfamiliar target labels.
 # execute:

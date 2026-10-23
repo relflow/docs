@@ -1,6 +1,6 @@
 # %% [markdown]
 # ---
-# title: Are both weekday and hour needed?
+# title: Does it need both weekday and hour?
 # categories:
 # - Calendar reasoning
 # proof-id: P042

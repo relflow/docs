@@ -2,7 +2,7 @@
 # ---
 # title: Can it recover when a whole branch is hidden?
 # categories:
-# - Dynamic masking
+# - Masking
 # proof-id: P053
 # description: Provide two redundant measurements of the same signal and sometimes hide an entire branch.
 # execute:

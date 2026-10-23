@@ -2,7 +2,7 @@
 # ---
 # title: Can an input be disabled and restored?
 # categories:
-# - Mutation ablation
+# - Schema mutation
 # proof-id: P049
 # description: Train on y = a + b, temporarily disable b, then enable it again.
 # execute:

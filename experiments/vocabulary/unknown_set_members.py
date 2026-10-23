@@ -2,7 +2,7 @@
 # ---
 # title: What happens to Set members never seen in training?
 # categories:
-# - Vocabulary and OOV
+# - Vocabulary
 # proof-id: P058
 # description: Train a Set field on known members without ever teaching it how unavailable members should
 #   affect prediction.

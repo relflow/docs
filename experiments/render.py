@@ -173,6 +173,32 @@ def write(path: Path, content: str) -> None:
         path.write_text(content)
 
 
+GROUPS = {
+    "aggregation": "Aggregation",
+    "structure": "Structure",
+    "state": "State",
+    "identity": "Identity",
+    "relational": "Relational",
+    "representation": "Representation",
+    "quantile": "Representation",
+    "enum": "Representation",
+    "cluster": "Representation",
+    "vocabulary": "Vocabulary",
+    "masking": "Masking",
+    "mutations": "Mutations",
+    "temporal": "Temporal",
+    "composition": "Composition",
+    "calibration": "Calibration",
+    "anomaly": "Anomaly",
+}
+GROUP_ORDER = list(dict.fromkeys(GROUPS.values()))
+
+
+def group(script: Path) -> str:
+    """Catalog group for a proof, from its folder; unknown folders keep their own name."""
+    return GROUPS.get(script.parent.name, script.parent.name.capitalize())
+
+
 def render(root: Path) -> None:
     docs = root / "docs/proofs"
     source = root / "proofs/results.yaml"
@@ -256,6 +282,7 @@ def render(root: Path) -> None:
             {
                 "id": identifier,
                 "title": header["title"],
+                "group": group(script),
                 "categories": header["categories"],
                 "path": page.relative_to(root / "docs").with_suffix(".html").as_posix(),
                 "proof-status": state,
@@ -265,6 +292,12 @@ def render(root: Path) -> None:
     for page in docs.glob("*/*.py"):
         if page.parent != output and page not in pages:
             page.unlink()
+
+    def position(row: dict[str, Any]) -> tuple[int, str]:
+        order = GROUP_ORDER.index(row["group"]) if row["group"] in GROUP_ORDER else len(GROUP_ORDER)
+        return (order, row["id"])
+
+    catalog.sort(key=position)
     write(docs / "catalog.yaml", yaml.safe_dump(catalog, sort_keys=False, allow_unicode=True))
     write(output / "results.yaml", recorded)
 

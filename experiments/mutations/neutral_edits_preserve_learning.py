@@ -2,7 +2,7 @@
 # ---
 # title: Do harmless schema edits preserve predictions?
 # categories:
-# - Mutation retention
+# - Schema mutation
 # proof-id: P046
 # description: Train a useful predictor, then make edits that should not alter its visible information or
 #   learned state.

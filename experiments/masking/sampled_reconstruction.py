@@ -2,7 +2,7 @@
 # ---
 # title: Can hiding values teach a relationship in both directions?
 # categories:
-# - Dynamic masking
+# - Masking
 # proof-id: P051
 # description: Sometimes hide x or y during training, then ask the model to recover the missing value from
 #   the other.

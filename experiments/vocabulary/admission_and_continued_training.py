@@ -1,8 +1,8 @@
 # %% [markdown]
 # ---
-# title: Does adding a label teach the model to predict it?
+# title: Does admitting a label teach it to predict that label?
 # categories:
-# - Vocabulary and OOV
+# - Vocabulary
 # proof-id: P059
 # description: Introduce new output labels to a model trained on an earlier pair of classes.
 # execute:

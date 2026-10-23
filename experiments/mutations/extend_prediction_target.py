@@ -2,7 +2,7 @@
 # ---
 # title: What happens when a new prediction target is added?
 # categories:
-# - Mutation adaptation
+# - Schema mutation
 # proof-id: P047
 # description: Add hidden target w to a model already trained to predict u and v from a and b.
 # execute:

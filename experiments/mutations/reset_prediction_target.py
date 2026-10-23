@@ -2,7 +2,7 @@
 # ---
 # title: Can one prediction target be reset and relearned?
 # categories:
-# - Mutation reset
+# - Schema mutation
 # proof-id: P048
 # description: Reset the learned predictor for u while preserving its sibling target v.
 # execute:

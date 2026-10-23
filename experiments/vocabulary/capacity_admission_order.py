@@ -2,7 +2,7 @@
 # ---
 # title: Does label encounter order limit vocabulary coverage?
 # categories:
-# - Vocabulary and OOV
+# - Vocabulary
 # proof-id: P057
 # description: Train on common and rare labels, changing which labels appear first.
 # execute:

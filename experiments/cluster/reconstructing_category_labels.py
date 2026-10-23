@@ -2,7 +2,7 @@
 # ---
 # title: Do stable labels produce the right groups?
 # categories:
-# - Clustering
+# - Cluster
 # proof-id: P020
 # description: Repeated identities carry stable labels. Ask the Cluster field to reconstruct identities
 #   while predicting their labels.

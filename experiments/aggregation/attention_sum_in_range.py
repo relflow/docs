@@ -1,6 +1,6 @@
 # %% [markdown]
 # ---
-# title: Can the model add a list of numbers?
+# title: Can it add a list of numbers?
 # categories:
 # - Cardinality generalization
 # proof-id: P001

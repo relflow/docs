@@ -2,7 +2,7 @@
 # ---
 # title: Is an unfamiliar category the same as a null?
 # categories:
-# - Vocabulary and OOV
+# - Vocabulary
 # proof-id: P055
 # description: Compare familiar labels, new labels, and missing values in a task where identity and numeric
 #   context both matter.
