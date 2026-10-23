@@ -199,9 +199,9 @@ its resources available in loading, data-loader, DDP, and serving processes.
 
 Declare optional dependencies with
 `requires={"import_name": "distribution[extra]"}`. relflow checks availability
-before graph construction, including load and rebuild. Register Lightning
-callback classes or factories through `extension.callback(...)`; every rank
-must use the same registrations.
+before graph construction, including load and rebuild. Declare Lightning
+callback classes or factories with `rf.Extension(..., callbacks=(...))`; every
+rank must declare the same callbacks.
 
 Start from a nearby built-in and its tests: Boolean for a scalar, Number for
 normalization, Set for vocabularies, or DateParts for structured content.
