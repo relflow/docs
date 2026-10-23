@@ -1367,21 +1367,20 @@ proofs:
       outcome: met
       duration_seconds: 21.578
   P013:
-    script: proofs/aggregation/mean_erases_contribution_count.py
-    page: docs/proofs/aggregation/mean-erases-contribution-count.py
+    script: proofs/aggregation/mean_keeps_contribution_count.py
+    page: docs/proofs/aggregation/mean-keeps-contribution-count.py
     historical:
-      status: Limited
+      status: Passing
       source_revision: 810b3fe3b0b25c2c7a718571d83f6006f23110c3
       sources:
       - https://github.com/relflow/relflow/blob/810b3fe/proofs/aggregation/weighted_aggregation/test_mean_erases_contribution_count.py
       - https://github.com/relflow/relflow/blob/810b3fe/proofs/aggregation/weighted_aggregation/support.py
-      summary: |-
-        The checked-in report confirms the intended count-erasure boundary. Passing
-        this proof does not mean its sum predictions are correct.
-      insights: |-
-        **This Mean configuration discards the count required to recover a sum.** With item attention disabled, averaging identical encoded contributions produces the same summary for one copy or many. A larger decoder cannot recover a distinction that no longer reaches it.
+      summary: >-
+        Rewritten 2026-10-23 for Mean's count lane: the no-attention Mean route now learns the average and a total that scales with the count, and the one-versus-six probe lands within 0.5 of the correct totals.
+      insights: >-
+        **Mean's count lane keeps the multiplicity a plain average erases.** With item attention disabled, averaging identical encoded contributions still gives the same content for one copy or six; the learned direction scaled by the present count is the only difference the parent sees, and the total head learns to multiply the shared contribution by it.
 
-        The model still learns the contribution average, showing that useful content survives. Its matching sum predictions are the intended limitation, even though the correct totals differ. To predict variable-length totals, preserve multiplicity through a suitable reduction or supply an explicit count. Mean remains useful when repeating the whole collection should leave the desired answer unchanged.
+        The earlier version of this proof documented the opposite boundary at the same seed, before Mean gained the lane. Supplying an explicit count or using Attention remain valid routes; they are no longer required for a total.
       evidence: |-
         The proof uses deterministic CPU training at seed 3309 for 300 updates.
         The split contains 1,024 training, 256 validation, and 512 test records.
@@ -7100,24 +7099,20 @@ proofs:
       outcome: met
       duration_seconds: 2.859
   P041:
-    script: proofs/structure/mean_erases_cardinality.py
-    page: docs/proofs/structure/mean-erases-cardinality.py
+    script: proofs/structure/mean_keeps_cardinality.py
+    page: docs/proofs/structure/mean-keeps-cardinality.py
     historical:
-      status: Limited
+      status: Passing
       source_revision: 810b3fe3b0b25c2c7a718571d83f6006f23110c3
       sources:
       - https://github.com/relflow/relflow/blob/810b3fe/proofs/structure/hierarchical_statistics/test_mean_erases_cardinality.py
       - https://github.com/relflow/relflow/blob/810b3fe/proofs/structure/hierarchical_statistics/support.py
-      summary: |-
-        The source records one seed learning the average while producing identical
-        total predictions for one and six equal values. Passing demonstrates both
-        a useful average representation and deliberate count erasure in this route.
-      insights: |-
-        **With branch attention disabled, averaging identical encoded values erases how many copies were present.** One amount and six copies yield the same branch summary, so a downstream decoder cannot recover their different totals from that summary.
+      summary: >-
+        Rewritten 2026-10-23 for Mean's count lane: one and six equal values now produce different totals that track the correct values while the average stays shared.
+      insights: >-
+        **The summary keeps the count.** Mean averages the identical encoded amounts to the same content and adds a learned direction scaled by the number of present items over the branch capacity, so the parent recovers one-versus-six totals from that lane.
 
-        The recorded model learns the average but produces identical total predictions for the explicit one-versus-six pair. This is an expected information boundary, not simply insufficient training. Mean reduces encoded tokens rather than calculating a raw numerical average directly.
-
-        Choose a summary that retains what the parent needs. The result specifically uses `attention=None`; preceding attention can change the available information. Exact business totals belong in preprocessing, while learned alternatives need their own behavioral checks.
+        The earlier version recorded identical total predictions for both records, before Mean gained the lane; use preprocessing for exact business arithmetic all the same.
       evidence: |-
         | Evaluation | Required gate | Recorded result |
         | --- | --- | --- |

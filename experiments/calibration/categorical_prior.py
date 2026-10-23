@@ -98,7 +98,7 @@ import lightning.pytorch as lit
 import numpy as np
 import pyarrow as pa
 import relflow as rf
-from relflow.helpers.resize import Resize
+from relflow.tensorfields.shared.resize import Resize
 from reporting import report
 
 PROOF_ID = "P060"
