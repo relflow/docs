@@ -49,6 +49,7 @@ separate state. Tokenization pads and truncates at `max_length`.
 | `encoder_pooling` | `"cls"` | `"cls"`, `"mean"`, or `"pooler"`; the last requires `pooler_output`. |
 | `cache` | `False` | Reuse pooled frozen-encoder outputs and token rows: `True` keeps every distinct embedding; a positive integer caps retained entries. |
 | `store` | `None` | Directory of persistent frozen-encoder vectors shared by every run, split, and field with the same encoder. |
+| `resident` | `None` | Accelerator memory in MiB a store may occupy for on-device lookups; `None` allows a quarter of the device up to 2 GiB, `0` keeps the store on the host. |
 | `objective` | `"l2"` | Embedding reconstruction loss: `"l1"` or `"l2"`. |
 | `jitter` | `rf.Jitter()` | Training noise on the pooled frozen embedding before learned projection. |
 
@@ -103,8 +104,12 @@ vectors; a row the store lacks is encoded once and appended. New vectors wait
 in memory and are written as a new shard at the end of every epoch and phase,
 or after 65,536 new rows, so readers never block and no shard is rewritten.
 Lookups hash whole token rows and binary-search a sorted index, so a batch
-resolves without a Python loop over its rows. With a store the in-process
-embedding `cache` is bypassed; the token-row cache still follows `cache`.
+resolves without a Python loop over its rows. A store small enough for the
+`resident` budget is uploaded to the accelerator once per index version and
+answered there, with no host round trip; larger stores answer from the host
+index over memory-mapped shards, which the page cache keeps in memory after
+first use. With a store the in-process embedding `cache` is bypassed; the
+token-row cache still follows `cache`.
 
 To fill a store ahead of training, encode the strings the data will carry:
 
