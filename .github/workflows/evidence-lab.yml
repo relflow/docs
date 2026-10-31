@@ -1,0 +1,58 @@
+name: Run evidence on lab
+
+on:
+  workflow_call:
+
+permissions:
+  contents: read
+  id-token: write
+
+jobs:
+  run:
+    name: Run full paired suite on lab
+    if: github.repository == 'relflow/relflow' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 120
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          repository: relflow/docs
+          ref: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+          enable-cache: true
+      - run: uv sync --locked
+      - uses: actions/download-artifact@v4
+        with:
+          name: evidence-inputs
+          path: inputs
+      - name: Require the configured Tailscale identity and lab target
+        env:
+          CLIENT_ID: ${{ vars.TAILSCALE_OIDC_CLIENT_ID }}
+          LAB_TARGET: ${{ vars.EVIDENCE_LAB_TARGET }}
+        run: |
+          test -n "$CLIENT_ID" || { echo 'Configure the TAILSCALE_OIDC_CLIENT_ID repository variable'; exit 1; }
+          test -n "$LAB_TARGET" || { echo 'Configure the EVIDENCE_LAB_TARGET repository variable'; exit 1; }
+      - name: Connect an ephemeral runner through Tailscale OIDC
+        uses: tailscale/github-action@064b10558093f38325e838ddea35486bdc6b1d5c
+        with:
+          oauth-client-id: ${{ vars.TAILSCALE_OIDC_CLIENT_ID }}
+          audience: api.tailscale.com/${{ vars.TAILSCALE_OIDC_CLIENT_ID }}
+          tags: tag:relflow-evidence-ci
+          ping: ${{ vars.EVIDENCE_LAB_HOST || 'lab' }}
+      - name: Dispatch isolated experiments and retrieve reports
+        env:
+          LAB_TARGET: ${{ vars.EVIDENCE_LAB_TARGET }}
+          CANDIDATE_SHA: ${{ github.sha }}
+          BASELINE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.sha }}
+        run: uv run python -u evidence/ssh_run.py --transport tailscale --target "$LAB_TARGET" --candidate-wheel inputs/candidate/*.whl --baseline-wheel inputs/baseline/*.whl --candidate-sha "$CANDIDATE_SHA" --baseline-sha "$BASELINE_SHA" --requirements inputs/requirements.txt --output evidence/runs/gh-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Attach report on success or failure
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: relflow-evidence
+          path: evidence/runs/gh-${{ github.run_id }}-${{ github.run_attempt }}/
+          retention-days: 90
+          if-no-files-found: warn
