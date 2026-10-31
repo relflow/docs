@@ -343,14 +343,16 @@ def render(root: Path) -> None:
         path.parent.mkdir(parents=True, exist_ok=True)
         relative = os.path.relpath(root / "docs" / target, path.parent)
         escaped = html.escape(relative, quote=True)
+        fragment = 'location.hash.replace("fig-proof-", "fig-evidence-").replace("#proofs", "#evidence")'
+        if Path(source).stem != Path(target).stem:
+            fragment += f".replace({json.dumps(Path(source).stem)}, {json.dumps(Path(target).stem)})"
         write(
             path,
             '<!doctype html><html lang="en"><meta charset="utf-8">'
             "<title>Evidence has moved</title>"
             f'<link rel="canonical" href="{escaped}">'
             f'<meta http-equiv="refresh" content="0;url={escaped}">'
-            f"<script>location.replace({json.dumps(relative)} + "
-            'location.hash.replace("fig-proof-", "fig-evidence-").replace("#proofs", "#evidence"));</script>'
+            f"<script>location.replace({json.dumps(relative)} + {fragment});</script>"
             f'<a href="{escaped}">Continue to Evidence</a></html>\n',
         )
 

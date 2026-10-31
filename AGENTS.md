@@ -110,7 +110,7 @@ input caps do not add public padding. Fixed-width vectors retain their feature
 axis. Extension output list children must be named `element`.
 Embeddings live in representation records with `path`, `parents`, `output_index`,
 and `embedding`. The pinned contract records the current API source; recorded evidence
-retain their original provenance even when executable output readers are
+retains its original provenance even when executable output readers are
 migrated. A reader migration does not establish fresh learning results. Show
 observation and output examples as one YAML record, nesting repeated values
 under their field names.

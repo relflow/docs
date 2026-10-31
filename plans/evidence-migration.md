@@ -1,7 +1,7 @@
 # Evidence repository and pre-merge execution
 
-Status: implemented and validating integration, October 31, 2026. The evidence repository,
-GitHub report releases, and docs snapshot import are implemented. Primary
+Status: implemented, October 31, 2026. The evidence repository, GitHub report
+releases, docs snapshot import, and required library merge check are configured. Primary
 execution now uses lab over Tailscale; Modal remains an optional backend.
 
 Confirmed decisions: run the full suite before merging; block on execution
@@ -24,14 +24,26 @@ section named Evidence, and a required check on pull requests into
 - First immutable export: [archive-20261031](https://github.com/relflow/evidence/releases/tag/archive-20261031).
 - Imported bundle SHA-256: `3fd9398fa13ad52b3362c6be5b71eb4b81fb4b85fc80c58fc4c90bf826871b89`.
 - The historical archive is byte-identical, and executable ASTs of all 79
-  experiments match the extraction manifest. The evidence tooling has 44
+  experiments match the extraction manifest. The evidence tooling has 50
   passing static tests. Its GitHub validation and publication workflows pass.
 - Docs static validation has 64 passing tests; all 129 pages render with link,
-  anchor, and diagram checks passing. Old Proofs URLs redirect to Evidence.
+  anchor, and diagram checks passing. All 79 historical figure bookmarks were
+  verified against their rendered destinations. Old Proofs URLs redirect to Evidence.
 - Paired two-step lab smoke execution completed without runtime errors. Smoke
   runs correctly fail the required learning gate. Full paired CPU validation completed all 158 tasks on lab against RelFlow main
   at `10c359cf26b54965b56851dc14846eefa2cec3c2`, with no execution errors or
   behavioral regressions. Thirty-three baseline-unmet checks remain visible.
+- GitHub [run 41236008613, attempt 3](https://github.com/relflow/relflow/actions/runs/41236008613)
+  completed the same 158-task paired suite through unattended Tailscale OIDC
+  and SSH, with no errors or regressions. `Evidence / required` passed.
+- [Library PR 63](https://github.com/relflow/relflow/pull/63) merged at
+  `be1e01d4b9540aa3803fbc190fa4a1200629e32d`. Main now requires
+  `Evidence / required` from GitHub Actions and an up-to-date base. Existing
+  administrator bypass and review settings were preserved.
+- [The retained CI release](https://github.com/relflow/evidence/releases/tag/ci-41236008613-attempt-3-complete)
+  contains checksummed reports, both tested wheels, runtime requirements,
+  GitHub run/head/base provenance, and a separate static docs export. The docs
+  snapshot in this change deliberately retains the original archive selection.
 - The Modal service-user attempt was blocked by the existing Starter plan;
   no credentials were created or copied to GitHub. Partial Modal validation
   was stopped and retained when primary execution moved to lab.
@@ -245,13 +257,15 @@ The rename and extraction can be adjacent coordinated PRs. Do not remove the
 local canonical source until the new repository and verified snapshot exist.
 Enable the required gate after baseline calibration and failure-path validation.
 
-The Tailscale OIDC identity and noninteractive CI-to-lab SSH rule are configured.
-[Library PR 63](https://github.com/relflow/relflow/pull/63) is running the full
-paired suite through GitHub Actions. Remaining activation work is to complete
-that check, merge the reviewed integration, and enable required protection.
-Artifact retention, bypass policy, and the approved path for fork contributions
-remain explicit operational choices. The public repository, full-catalog gate,
-CPU behavior profile, and checksum-pinned docs snapshots are confirmed.
+The Tailscale OIDC identity and noninteractive CI-to-lab SSH rule are configured
+and verified by the successful GitHub run. Library integration and required
+protection are active. Routine report artifacts are retained for 90 days; input
+wheels and requirements are retained for seven days. Promote selected runs to
+immutable releases before those artifacts expire. The existing administrator
+bypass policy remains unchanged. Fork execution fails closed; a maintainer must
+review a contribution and place it on a trusted repository branch before it can
+use lab. The public repository, full-catalog gate, CPU behavior profile, and
+checksum-pinned docs snapshots are confirmed.
 
 ## Upstream references
 
