@@ -57,8 +57,17 @@ workflow. Dedicated Modal service users require a supported Modal plan.
 Every run produces `manifest.json`, per-task JSON records and logs,
 `summary.json`, `report.html`, and `checksums.json`. GitHub Actions retains the
 bundle for PR review. The publication workflow promotes selected complete runs
-to immutable Release assets and creates a static docs export. This requires only GitHub and the existing lab/Tailscale connection; no AWS
-account is needed.
+to immutable Release assets and creates a static docs export. It also preserves
+both tested wheels, the runtime requirements, and GitHub run/head/base provenance,
+with checksums. This requires only GitHub and the existing lab/Tailscale
+connection; no AWS account is needed.
+
+Promote a selected library run before its Actions artifacts expire:
+
+```sh
+gh workflow run publish.yml --repo relflow/evidence \
+  -f tag=<unique-release-tag> -f library_run_id=<library-actions-run-id>
+```
 
 ```sh
 uv run python export_docs.py /tmp/evidence-export --bundle /tmp/evidence-docs.tar.gz
