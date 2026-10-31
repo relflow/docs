@@ -137,7 +137,11 @@ def run(options: argparse.Namespace) -> None:
                     command, stdout=subprocess.PIPE, stderr=subprocess.STDOUT, text=True, timeout=1850, check=False
                 )
                 record_path = scratch / "record.json"
+                if record_path.is_symlink():
+                    raise ValueError("Container result must not be a symbolic link")
                 if record_path.is_file():
+                    if record_path.stat().st_size > 64 * 1024 * 1024:
+                        raise ValueError("Container result exceeds the 64 MiB record bound")
                     record = json.loads(record_path.read_text())
                     if record.get("task") != task:
                         raise ValueError("Container result identity differs from its planned task")

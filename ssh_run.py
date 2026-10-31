@@ -60,6 +60,8 @@ def run(options: argparse.Namespace) -> None:
                     raise ValueError("Evidence dispatch does not follow source symlinks")
                 archive.add(path, arcname="source/" + name, recursive=False)
         for role, wheel in (("candidate", options.candidate_wheel), ("baseline", options.baseline_wheel)):
+            if wheel.is_symlink() or not wheel.is_file():
+                raise ValueError("Supply regular wheel files for dispatch")
             archive.add(wheel, arcname=f"inputs/{role}/{wheel.name}", recursive=False)
         archive.add(options.requirements, arcname="inputs/requirements.txt", recursive=False)
     destination = shlex.quote(remote)
