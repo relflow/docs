@@ -13,7 +13,7 @@ import pytest
 
 @pytest.fixture(scope="module")
 def source() -> ModuleType:
-    path = Path(__file__).resolve().parents[1] / "scripts/evidence_source.py"
+    path = Path(__file__).resolve().parents[1] / "evidence/experiments/source.py"
     spec = importlib.util.spec_from_file_location("evidence_source", path)
     assert spec is not None and spec.loader is not None
     module = importlib.util.module_from_spec(spec)

@@ -7,11 +7,10 @@ docs/site/
 docs/.quarto/
 docs/assets/diagrams/
 docs/evidence/
-docs/proofs/
-docs/proofs.html
 **/*.quarto_ipynb
 **/*_files/
 **/*_cache/
 *.yaml.lock
 *.ckpt
 .DS_Store
+evidence/runs/

@@ -3,7 +3,7 @@
 Status: active. Implemented coverage is registered by stable ID in
 `catalog.yaml`. Historical results remain in `archive/results.yaml`; new runs
 produce independent JSON records and complete report bundles. [`README.md`](README.md) explains
-execution and compatibility. Sections marked planned describe
+execution. Sections marked planned describe
 hypotheses awaiting implementation and measurement.
 
 Scope: empirical regression proofs for learned model behavior
@@ -179,8 +179,8 @@ evaluation, interleaved with Markdown explanations, a Typst tree, and YAML
 examples. This repository owns the canonical experiments, runtime tests, and
 recorded evidence, indexed by stable IDs. The historical archive remains
 unchanged in `archive/results.yaml`; new measurements are independent records.
-The documentation repository imports verified publication exports and builds
-its local snapshot without importing RelFlow or executing experiments.
+This repository also owns the static website. Rendering reads canonical sources
+and reviewed results directly, without importing RelFlow or executing experiments.
 Only reporting and command-line handling are shared between experiments.
 
 ### Prediction format compatibility
@@ -1830,7 +1830,7 @@ evidence_ci.py
 lab_run.py
 lab_worker.py
 ssh_run.py
-export_docs.py
+record.py
 tests/
   runtime/
 ```
@@ -1862,11 +1862,10 @@ AUC must not be described as classification accuracy. Full runs supply the
 readout; smoke measurements never replace learning evidence. Preserve failed
 checks, source-version warnings, and mixed history in the publication.
 
-`export_docs.py` reads the canonical sources and archived or selected run data
-without importing RelFlow. It produces a checksummed publication bundle. The
-docs importer verifies a pinned bundle, commits its snapshot, and generates
-ignored pages under `docs/evidence/`. Snapshot files are publication artifacts,
-not a second editable experiment source. Source or output-reader migrations do
+`scripts/render_evidence.py` in the repository root reads canonical experiments
+and reviewed `evidence/results.yaml` records, generating ignored pages under
+`docs/evidence/` without importing RelFlow. The site and experiments have one
+source of truth; there are no snapshots, importers, or export bundles. Source or output-reader migrations do
 not establish fresh learning results.
 
 The default static tests protect tooling, metadata, source preservation, and
@@ -1874,15 +1873,16 @@ report integrity. Runtime model and generator tests require a separately
 supplied compatible RelFlow build:
 
 ```sh
-uv run --with /path/to/matching-relflow.whl pytest tests/runtime
-uv run python experiments/run.py --list
-uv run --with /path/to/matching-relflow.whl python experiments/run.py P014 --accelerator cpu
-uv run --with /path/to/matching-relflow.whl python experiments/run.py P014 --steps 2
+uv run --with /path/to/matching-relflow.whl pytest evidence/tests/runtime
+uv run python evidence/experiments/run.py --list
+uv run --with /path/to/matching-relflow.whl python evidence/experiments/run.py P014 --accelerator cpu
+uv run --with /path/to/matching-relflow.whl python evidence/experiments/run.py P014 --steps 2
 ```
 
 Replace the wheel path with the intended package artifact. The ID runner sets
-`PYTHONPATH=experiments` automatically. Direct runs append to
-`runs/local/results.yaml`, preserving the historical archive.
+`PYTHONPATH=evidence/experiments` automatically. Direct runs create independent
+JSON files under `evidence/runs/local/`, preserving the historical archive and
+reviewed publication records.
 
 The required pre-merge workflow uses the exact base and merge-candidate wheels.
 It executes the full catalog twice, using the same locked runtime, CPU profile,
@@ -1898,8 +1898,8 @@ happens to pass or tune thresholds against a candidate's test results.
 Lab executes each task in a disposable, resource-bounded Docker container with
 no network, no host home or Docker socket mount, and a read-only root. GitHub
 joins the tailnet through short-lived OIDC trust bound to the pinned reusable
-workflow. Fork execution is rejected. Modal remains an optional compute backend.
-See `integration/lab.md` for the exact integration and activation requirements.
+workflow. Fork execution is rejected.
+See `lab.md` for the exact integration and activation requirements.
 
 Each full report contains the manifest, independent task records and logs,
 aggregate gate decision, HTML report, checksums, wheels, and environment lock.
@@ -1908,8 +1908,8 @@ seed, budget, measurements, checks, errors, and timing. Archive every attempt;
 workers must never append concurrently to a shared historical YAML file.
 
 GitHub Actions artifacts retain routine CI reports. Selected baseline and
-publication bundles are promoted to immutable GitHub Releases before artifact
+publication bundles are promoted to immutable GitHub Releases in `relflow/docs` before artifact
 retention expires. Reviewed manifests select baselines and publication runs.
-No AWS account or S3 storage is required. Original `proof_revision` fields and
-other legacy provenance retain their meaning; new reports add explicit evidence
-revision, library revision, and wheel digest without rewriting archived records.
+No AWS account or S3 storage is required. Archived provenance retains its
+original meaning; new reports record the evidence revision, library revision,
+and wheel digest without writing old field aliases or rewriting archive records.

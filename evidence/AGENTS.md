@@ -1,22 +1,18 @@
-# RelFlow evidence
+# Canonical RelFlow evidence
 
-This repository owns the canonical experiments and their recorded evidence.
-Preserve stable P identifiers, data generators, seeds, budgets, optimizers,
-model capacities, checks, and archived provenance when maintaining the suite.
-Read SPEC.md before changing experimental semantics. Never rewrite archived
-measurements to make a gate pass.
+Preserve stable P identifiers, generators, seeds, budgets, optimizers, capacities,
+checks, and archived provenance. Read SPEC.md before changing semantics. Never
+rewrite measurements to make a gate pass. The root AGENTS.md also applies.
 
-Run `uv sync --locked`, `uv run ruff check .`, `uv run ruff format --check .`,
-and `uv run pytest` for static tooling. Runtime tests under tests/runtime are
-explicit and require an independently supplied RelFlow wheel. Documentation
-exports require only PyYAML and must never import RelFlow, Torch, or Lightning.
+From the repository root, `make check` validates static docs and evidence tooling.
+Runtime tests under evidence/tests/runtime are explicit and require a separately
+supplied RelFlow wheel; they are excluded from default checks. Builds must never
+import RelFlow, Torch, or Lightning. Execution writes independent immutable JSON
+records; only a reviewed publication change updates evidence/results.yaml.
 
-Lab runs use the exact supplied baseline and candidate wheels and record each
-experiment and seed separately. Smoke or partial suite runs never satisfy the
-required gate. Execution failures, incomplete results, and regressions in checks
-that pass on the baseline must block. Keep credentials out of experiment workers. The lab backend isolates each task
-in a network-disabled Docker container; no host home or Docker socket may be
-mounted into experiment containers. Modal is an optional backend.
-Reports use GitHub Actions artifacts and immutable GitHub Release bundles;
-there must be no AWS account or S3 dependency.
-
+Lab uses exact supplied baseline and candidate wheels, with one bounded,
+network-disabled, read-only Docker container per task. Mount neither the host
+home nor Docker socket into workers. Keep credentials outside worker containers.
+Smoke, partial coverage, invalid provenance, execution failures, and regressions
+of baseline-passing checks cannot satisfy the required gate. Reports use Actions
+artifacts and immutable Releases in relflow/docs, with no AWS dependency.

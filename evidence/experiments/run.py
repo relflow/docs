@@ -1,4 +1,4 @@
-"""Run standalone proofs by their stable IDs, serially by default."""
+"""Run standalone experiments by their stable IDs, serially by default."""
 
 from __future__ import annotations
 
@@ -6,6 +6,7 @@ import argparse
 import os
 import subprocess
 import sys
+import time
 from pathlib import Path
 
 import yaml
@@ -15,25 +16,25 @@ def main() -> None:
     root = Path(__file__).resolve().parents[1]
     entries = yaml.safe_load((root / "catalog.yaml").read_text())["experiments"]
     parser = argparse.ArgumentParser(description=__doc__)
-    parser.add_argument("proofs", nargs="*", help="Proof IDs, such as P014; omit to run all proofs.")
+    parser.add_argument("experiments", nargs="*", help="Evidence IDs, such as P014; omit to run all experiments.")
     parser.add_argument("--list", action="store_true", help="List stable IDs and their scripts without training.")
     parser.add_argument("--seed", type=int)
     parser.add_argument("--steps", type=int)
     parser.add_argument("--accelerator", choices=("cpu", "gpu", "mps", "auto"), default="cpu")
     parser.add_argument("--threads", type=int, default=1)
-    parser.add_argument("--output", type=Path)
+    parser.add_argument("--output-dir", type=Path, help="Directory for independent JSON records.")
     options = parser.parse_args()
-    selected = options.proofs or list(entries)
+    selected = options.experiments or list(entries)
     unknown = sorted(set(selected) - entries.keys())
     if unknown:
-        parser.error(f"Unknown proof IDs: {', '.join(unknown)}. Use --list to see available proofs.")
+        parser.error(f"Unknown evidence IDs: {', '.join(unknown)}. Use --list to see available experiments.")
     if options.list:
         for identifier in selected:
             print(f"{identifier}  {entries[identifier]['script']}")
         return
 
     arguments = []
-    for name in ("seed", "steps", "accelerator", "threads", "output"):
+    for name in ("seed", "steps", "accelerator", "threads"):
         value = getattr(options, name)
         if value is not None:
             arguments.extend([f"--{name}", str(value)])
@@ -44,8 +45,13 @@ def main() -> None:
     )
     for identifier in selected:
         print(f"\nRunning {identifier}: {entries[identifier]['script']}", flush=True)
+        output = (
+            ["--output", str(options.output_dir / f"{identifier}-{time.time_ns()}.json")] if options.output_dir else []
+        )
         result = subprocess.run(
-            [sys.executable, str(root / entries[identifier]["script"]), *arguments], check=False, env=environment
+            [sys.executable, str(root / entries[identifier]["script"]), *arguments, *output],
+            check=False,
+            env=environment,
         )
         if result.returncode:
             errors.append(identifier)

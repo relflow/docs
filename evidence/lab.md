@@ -34,7 +34,7 @@ page. Configure:
 | Issuer | GitHub Actions, `https://token.actions.githubusercontent.com` |
 | Subject | `repo:relflow@312307812/relflow@1217201723:*` |
 | Custom claim `repository` | `relflow/relflow` |
-| Custom claim `job_workflow_ref` | `relflow/evidence/.github/workflows/lab.yml@<exact-helper-commit>` |
+| Custom claim `job_workflow_ref` | `relflow/docs/.github/workflows/evidence-lab.yml@<exact-helper-commit>` |
 | Scope | `auth_keys` write, restricted to `tag:relflow-evidence-ci` |
 | Device tag | `tag:relflow-evidence-ci` |
 
@@ -70,8 +70,8 @@ Set these Actions variables in `relflow/relflow`:
   `evidence@lab`.
 - `EVIDENCE_LAB_HOST`: optional connectivity probe target; defaults to `lab`.
 
-Install `integration/evidence.yml` as `.github/workflows/evidence.yml`, replacing
-`__EVIDENCE_REVISION__` with the exact helper commit. The workflow builds wheels
+The library owns `.github/workflows/evidence.yml`, whose reusable workflow
+reference must pin the exact docs helper commit. The workflow builds wheels
 without tailnet credentials, invokes the trusted helper, and always evaluates
 the final `Evidence / required` job. Configure branch protection only after a
 real successful run exists, requiring that check and an up-to-date base or
@@ -86,14 +86,14 @@ Build both wheels from the desired Git revisions and export the candidate's
 locked runtime requirements. From a clean evidence checkout:
 
 ```sh
-uv run python ssh_run.py --target evidence@lab \
+uv run python evidence/ssh_run.py --target evidence@lab \
   --candidate-wheel /path/to/candidate/relflow.whl \
   --baseline-wheel /path/to/baseline/relflow.whl \
   --candidate-sha <candidate-sha> --baseline-sha <base-sha> \
-  --requirements /path/to/requirements.txt --output runs/<unique-run-id>
+  --requirements /path/to/requirements.txt --output evidence/runs/<unique-run-id>
 ```
 
 Supply actual wheel filenames from the build. Add `--ids P001 --steps 2` for a
 smoke test. It produces execution records but deliberately fails the learning
 gate because it is partial and uses a reduced budget. Complete runs produce
-the same JSON/HTML report contract as the optional Modal backend.
+independent JSON records, logs, provenance, and an HTML report.

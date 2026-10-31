@@ -3,9 +3,8 @@
 from copy import deepcopy
 from pathlib import Path
 
-import pytest
-
 import evidence_ci
+import pytest
 from evidence_ci import ROOT, default_seed, evaluate, plan, registry, write_json
 
 

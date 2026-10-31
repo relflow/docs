@@ -3,14 +3,12 @@
 from __future__ import annotations
 
 import argparse
-import fcntl
 import hashlib
 import importlib.metadata
 import json
 import os
 import platform
 import subprocess
-import tempfile
 import time
 import traceback
 from collections.abc import Callable
@@ -18,27 +16,14 @@ from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
-import yaml
 from source import fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "archive/results.yaml"
 Experiment = Callable[[int, int | None, str], tuple[dict[str, Any], dict[str, bool]]]
 
 
-class EvidenceDumper(yaml.SafeDumper):
-    """Keep prose and tracebacks readable in the evidence file."""
-
-
-def represent_string(dumper: yaml.SafeDumper, value: str) -> yaml.ScalarNode:
-    return dumper.represent_scalar("tag:yaml.org,2002:str", value, style="|" if "\n" in value else None)
-
-
-EvidenceDumper.add_representer(str, represent_string)
-
-
 def plain(value: Any) -> Any:
-    """Convert numerical scalars and arrays to portable YAML values."""
+    """Convert numerical scalars and arrays to portable JSON values."""
     if isinstance(value, dict):
         return {str(key): plain(item) for key, item in value.items()}
     if isinstance(value, (tuple, list)):
@@ -47,11 +32,11 @@ def plain(value: Any) -> Any:
         return plain(value.tolist())
     if value is None or isinstance(value, (str, int, float, bool)):
         return value
-    raise TypeError(f"Cannot record {type(value).__name__}; return numerical metrics or ordinary YAML values.")
+    raise TypeError(f"Cannot record {type(value).__name__}; return numerical metrics or ordinary JSON values.")
 
 
 def provenance(script: Path) -> dict[str, Any]:
-    """Identify this proof checkout and the independently installed model source."""
+    """Identify this evidence checkout and the independently installed model source."""
     import relflow
     import torch
 
@@ -77,7 +62,6 @@ def provenance(script: Path) -> dict[str, Any]:
         process = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False)
         revision = process.stdout.strip() or None
     return {
-        "proof_revision": revision,
         "evidence_revision": revision,
         "relflow_revision": os.environ.get("EVIDENCE_RELFLOW_REVISION"),
         "wheel_sha256": os.environ.get("EVIDENCE_WHEEL_SHA256"),
@@ -108,29 +92,12 @@ def provenance(script: Path) -> dict[str, Any]:
     }
 
 
-def save(identifier: str, result: dict[str, Any], output: Path) -> None:
-    """Append one run atomically; lock the read/update for concurrent lab processes."""
-    json_output = os.environ.get("EVIDENCE_JSON_OUTPUT")
-    if json_output:
-        path = Path(json_output)
-        with path.open("x") as handle:
-            json.dump(plain(result), handle, indent=2, allow_nan=False)
-        return
-    output = output.resolve()
+def save(result: dict[str, Any], output: Path) -> None:
+    """Write one immutable JSON record; execution never edits published history."""
     output.parent.mkdir(parents=True, exist_ok=True)
-    with output.with_suffix(output.suffix + ".lock").open("a") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)
-        document = yaml.safe_load((output if output.exists() else RESULTS).read_text())
-        if document.get("schema") != 1 or identifier not in document.get("proofs", {}):
-            raise ValueError(f"{output}: no proof {identifier} in evidence schema 1")
-        document["proofs"][identifier]["runs"].append(plain(result))
-        with tempfile.NamedTemporaryFile(mode="w", dir=output.parent, delete=False) as pending:
-            yaml.dump(document, pending, Dumper=EvidenceDumper, sort_keys=False, allow_unicode=True, width=110)
-            temporary = Path(pending.name)
-        try:
-            temporary.replace(output)
-        finally:
-            temporary.unlink(missing_ok=True)
+    with output.open("x") as handle:
+        json.dump(plain(result), handle, indent=2, allow_nan=False)
+        handle.write("\n")
 
 
 def report(identifier: str, experiment: Experiment, *, seed: int) -> None:
@@ -140,7 +107,7 @@ def report(identifier: str, experiment: Experiment, *, seed: int) -> None:
     parser.add_argument("--steps", type=int, help="Cap each training stage for a smoke run; not capability evidence.")
     parser.add_argument("--accelerator", choices=("cpu", "gpu", "mps", "auto"), default="cpu")
     parser.add_argument("--threads", type=int, default=1)
-    parser.add_argument("--output", type=Path, default=ROOT / "runs/local/results.yaml")
+    parser.add_argument("--output", type=Path, help="New JSON result file; existing files are never overwritten.")
     options = parser.parse_args()
     if options.steps is not None and options.steps < 1:
         parser.error("--steps must be positive")
@@ -176,9 +143,11 @@ def report(identifier: str, experiment: Experiment, *, seed: int) -> None:
         result["outcome"] = "error"
         result["error"] = traceback.format_exc()
     result["duration_seconds"] = round(time.perf_counter() - started, 3)
-    save(identifier, result, options.output)
-    print(json.dumps({"proof": identifier, **result}, indent=2))
-    print(f"Recorded {identifier} in {options.output}")
+    output = Path(os.environ["EVIDENCE_JSON_OUTPUT"]) if "EVIDENCE_JSON_OUTPUT" in os.environ else options.output
+    output = output or ROOT / "runs/local" / f"{identifier}-{time.time_ns()}.json"
+    save(result, output)
+    print(json.dumps({"evidence": identifier, **result}, indent=2))
+    print(f"Recorded {identifier} in {output}")
     if error is not None:
         raise SystemExit(1)
 

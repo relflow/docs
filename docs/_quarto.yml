@@ -2,12 +2,9 @@ project:
   type: website
   output-dir: site
   pre-render:
-    - uv run --project .. python ../scripts/render_evidence.py
+    - uv run --directory .. python -m scripts.render_evidence
   resources:
     - assets/fonts/OFL.txt
-    - proofs.html
-    - proofs/**/*.html
-    - proofs/_generated/*
     - evidence/_generated/results.yaml
     - evidence/_generated/*.py
   render:

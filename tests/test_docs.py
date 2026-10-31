@@ -34,7 +34,7 @@ def markdown(source: Path) -> str:
 def documents() -> dict[Path, str]:
     """Resolve canonical authored sources in their published page directories."""
     pages = {source: markdown(source) for source in [ROOT / "README.md", *DOCS.rglob("*.qmd")]}
-    entries = yaml.safe_load((ROOT / "vendor/evidence/results.yaml").read_text())["evidence"]
+    entries = yaml.safe_load((ROOT / "evidence/results.yaml").read_text())["evidence"]
     pages.update({ROOT / entry["page"]: markdown(ROOT / entry["script"]) for entry in entries.values()})
     return pages
 
@@ -121,7 +121,7 @@ def test_data_examples_are_single_yaml_records() -> None:
 def test_quarto_navigation_and_relative_links_resolve() -> None:
     pages = documents()
     published = {source.with_suffix(".html"): text for source, text in pages.items() if source.is_relative_to(DOCS)}
-    evidence = ROOT / "vendor/evidence/results.yaml"
+    evidence = ROOT / "evidence/results.yaml"
     entries = yaml.safe_load(evidence.read_text())["evidence"]
     downloads = {DOCS / "evidence/_generated/results.yaml": evidence}
     downloads.update(
@@ -180,7 +180,7 @@ def test_datatype_references_cover_public_options_and_states() -> None:
 
 
 def test_every_registered_evidence_has_a_small_readable_overview() -> None:
-    entries = yaml.safe_load((ROOT / "vendor/evidence/results.yaml").read_text())["evidence"]
+    entries = yaml.safe_load((ROOT / "evidence/results.yaml").read_text())["evidence"]
     documented: Counter[str] = Counter()
     for entry in entries.values():
         page = ROOT / entry["script"]
@@ -195,7 +195,7 @@ def test_every_registered_evidence_has_a_small_readable_overview() -> None:
         assert metadata.get("title") and metadata.get("description"), page
         assert metadata.get("categories"), f"{page}: missing evidence family"
         assert "evidence-source" not in metadata and "evidence-status" not in metadata, (
-            f"{page}: source and status belong in vendor/evidence/results.yaml"
+            f"{page}: source and status belong in evidence/results.yaml"
         )
         sections = set(re.findall(r"\{\{<\s*evidence\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
         expected = {(identifier, part) for part in ("status", "evidence", "script")}

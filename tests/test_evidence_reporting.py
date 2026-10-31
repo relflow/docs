@@ -55,7 +55,7 @@ def append_result(identifier: str, recorded: dict, output: Path) -> None:
 def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleType, ModuleType, Path]:
     reporting = None
     renderer = load(ROOT / "scripts/render_evidence.py")
-    scripts = tmp_path / "vendor/evidence"
+    scripts = tmp_path / "evidence"
     pages = tmp_path / "docs/evidence/family"
     scripts.mkdir(parents=True)
     pages.mkdir(parents=True)
@@ -110,7 +110,7 @@ def test_statuses_match_catalog_callouts_legend_and_colors(
     evidence: tuple[ModuleType, ModuleType, Path], historical: str, outcome: str | None, expected: str, kind: str
 ) -> None:
     _, renderer, root = evidence
-    source = root / "vendor/evidence/results.yaml"
+    source = root / "evidence/results.yaml"
     document = yaml.safe_load(source.read_text())
     entry = document["evidence"]["P001"]
     entry["historical"]["status"] = historical
@@ -136,7 +136,7 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     reporting, renderer, root = evidence
-    source = root / "vendor/evidence/results.yaml"
+    source = root / "evidence/results.yaml"
     generated = root / "docs/evidence/_generated"
     renderer.render(root)
     notice = (generated / "P001-status.md").read_text()
@@ -167,7 +167,7 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
     assert "Historical" not in text and "https://example.com/signal" not in text
     assert (generated / "results.yaml").read_bytes() == source.read_bytes()
     assert len(yaml.safe_load((generated / "results.yaml").read_text())["evidence"]["P001"]["runs"]) == 2
-    script = (root / "vendor/evidence/signal.py").read_text()
+    script = (root / "evidence/signal.py").read_text()
     listing = (generated / "P001-script.md").read_text()
     assert (root / "docs/evidence/family/signal.py").read_text() == script
     assert (generated / "P001.py").read_text() == script
@@ -189,7 +189,7 @@ def test_render_preserves_unchanged_input_timestamps(evidence: tuple[ModuleType,
     renderer.render(root)
     assert all(path.stat().st_mtime_ns == timestamp for path in files)
 
-    script = root / "vendor/evidence/signal.py"
+    script = root / "evidence/signal.py"
     script.write_text(script.read_text().replace("# title: Signal", "# title: Updated signal"))
     renderer.render(root)
     changed = {path.relative_to(generated).as_posix() for path in files if path.stat().st_mtime_ns != timestamp}
@@ -200,7 +200,7 @@ def test_render_preserves_unchanged_input_timestamps(evidence: tuple[ModuleType,
 
 def test_docs_reject_enabled_experiments_before_staging(evidence: tuple[ModuleType, ModuleType, Path]) -> None:
     _, renderer, root = evidence
-    script = root / "vendor/evidence/signal.py"
+    script = root / "evidence/signal.py"
     script.write_text(script.read_text().replace("enabled: false", "enabled: true"))
     with pytest.raises(ValueError, match="requires execute.enabled: false"):
         renderer.render(root)
@@ -222,9 +222,9 @@ def test_docs_cleanup_preserves_authored_sources_results_and_published_files(
     published = root / "docs/site/evidence/_generated"
     published.mkdir(parents=True)
     (published / "results.yaml").write_text("Published evidence\n")
-    source = root / "vendor/evidence/results.yaml"
+    source = root / "evidence/results.yaml"
     before = source.read_bytes()
-    script = (root / "vendor/evidence/signal.py").read_bytes()
+    script = (root / "evidence/signal.py").read_bytes()
     renderer.render(root)
     (docs / "_generated/P001-insights.md").write_text("Obsolete fragment\n")
     (docs / "family/signal.quarto_ipynb").write_text("Temporary notebook\n")
@@ -239,7 +239,7 @@ def test_docs_cleanup_preserves_authored_sources_results_and_published_files(
     assert (notes / "draft.md").read_text() == "Authored notes\n"
     assert (published / "results.yaml").read_text() == "Published evidence\n"
     assert source.read_bytes() == before
-    assert (root / "vendor/evidence/signal.py").read_bytes() == script
+    assert (root / "evidence/signal.py").read_bytes() == script
     (notes / "draft.md").unlink()
     renderer.clean(root)
     renderer.clean(root)
@@ -250,21 +250,21 @@ def test_docs_cleanup_rejects_paths_outside_generated_families(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     _, renderer, root = evidence
-    source = root / "vendor/evidence/results.yaml"
+    source = root / "evidence/results.yaml"
     document = yaml.safe_load(source.read_text())
     document["evidence"]["P001"]["page"] = "evidence/signal.py"
     source.write_text(yaml.safe_dump(document))
     with pytest.raises(ValueError, match="Cannot clean evidence page outside"):
         renderer.clean(root)
-    assert (root / "vendor/evidence/signal.py").is_file()
+    assert (root / "evidence/signal.py").is_file()
 
 
 def test_changed_script_warns_without_rewriting_recorded_results(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     reporting, renderer, root = evidence
-    source = root / "vendor/evidence/results.yaml"
-    script = root / "vendor/evidence/signal.py"
+    source = root / "evidence/results.yaml"
+    script = root / "evidence/signal.py"
     measured = result(seed=43)
     measured["provenance"]["code_sha256"] = renderer.fingerprint(script.read_text())
     append_result("P001", measured, source)
@@ -332,8 +332,8 @@ def test_overview_retains_mixed_history_and_ignores_smoke_metrics(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     reporting, renderer, root = evidence
-    source = root / "vendor/evidence/results.yaml"
-    script = root / "vendor/evidence/signal.py"
+    source = root / "evidence/results.yaml"
+    script = root / "evidence/signal.py"
     script.write_text(
         script.read_text().replace(
             "# description: signal",
@@ -367,29 +367,11 @@ def test_static_evidence_publication_imports_no_model_runtime(evidence, monkeypa
 
     monkeypatch.setattr(builtins, "__import__", guarded)
     renderer = load(ROOT / "scripts/render_evidence.py")
-    append_result("P001", result(), root / "vendor/evidence/results.yaml")
+    append_result("P001", result(), root / "evidence/results.yaml")
     renderer.render(root)
     assert (root / "docs/evidence/_generated/P001-status.md").is_file()
     assert not (root / "executed").exists()
     listing = (root / "docs/evidence/_generated/P001-script.md").read_text()
     assert "separate from building this site" in listing
     assert "matching-relflow.whl" in listing
-    assert "relflow/evidence repository" in listing
-
-
-def test_historical_routes_follow_stable_ids_and_cleanup(evidence):
-    import json
-
-    _, renderer, root = evidence
-    contracts = root / "contracts"
-    contracts.mkdir()
-    (contracts / "evidence-redirects.json").write_text(
-        json.dumps({"schema": 1, "routes": {"proofs/family/old-signal.html": "evidence/family/signal.html"}})
-    )
-    renderer.render(root)
-    page = root / "docs/proofs/family/old-signal.html"
-    assert "../../evidence/family/signal.html" in page.read_text()
-    assert 'location.hash.replace("fig-proof-", "fig-evidence-")' in page.read_text()
-    renderer.clean(root)
-    assert not (root / "docs/proofs").exists()
-    assert not (root / "docs/proofs.html").exists()
+    assert "relflow/docs repository" in listing

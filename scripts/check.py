@@ -42,7 +42,7 @@ def documents(root: Path = ROOT) -> dict[Path, str]:
         for source in [root / "README.md", *docs.rglob("*.qmd")]
         if source.is_file() and not source.is_relative_to(docs / "site")
     }
-    registry = root / "vendor/evidence/results.yaml"
+    registry = root / "evidence/results.yaml"
     if registry.is_file():
         entries = yaml.safe_load(registry.read_text())["evidence"]
         pages.update({(root / entry["page"]).resolve(): markdown(root / entry["script"]) for entry in entries.values()})

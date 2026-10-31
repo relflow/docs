@@ -4,7 +4,6 @@ import io
 import tarfile
 
 import pytest
-
 from ssh_run import connection, extract_reports
 
 

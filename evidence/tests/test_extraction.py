@@ -15,3 +15,14 @@ def test_historical_archive_and_executable_experiments_are_preserved():
         source = (ROOT / entry["destination"]).read_text()
         current = hashlib.sha256(ast.dump(ast.parse(source), include_attributes=False).encode()).hexdigest()
         assert current == entry["original_ast_sha256"], identifier
+
+
+def test_canonical_publication_preserves_all_archived_measurements():
+    import yaml
+
+    original = yaml.safe_load((ROOT / "archive/results.yaml").read_text())["proofs"]
+    current = yaml.safe_load((ROOT / "results.yaml").read_text())["evidence"]
+    assert set(original) == set(current)
+    for identifier, entry in original.items():
+        assert json.dumps(current[identifier]["runs"], sort_keys=True) == json.dumps(entry["runs"], sort_keys=True)
+        assert current[identifier]["historical"] == entry["historical"]
