@@ -102,7 +102,7 @@ vector and count signals relate to each transaction's dispute target.
 
 This mechanism supplies information that a normalized average can discard. It
 does not make the model an exact calculator or guarantee extrapolation to
-longer histories. Use the [canonical proofs](../proofs.qmd) to inspect
+longer histories. Use the [canonical evidence](../evidence.qmd) to inspect
 recorded evidence, and validate the reduction choice on the application's
 held-out observations.
 

@@ -83,7 +83,7 @@ Exact business arithmetic also stays outside the model. A learned summary of a
 history is not a ledger, and calendar parts are not elapsed time. When a rule
 needs an exact value, compute it in a
 [preprocessor](../guides/preprocessing.qmd) and let the model read it as
-another field. The [proofs](../proofs.qmd) record what the architecture can
+another field. The [evidence](../evidence.qmd) record what the architecture can
 learn and where it loses information.
 
 ## How to judge the value

@@ -6,8 +6,9 @@ Published at [relflow.github.io/docs](https://relflow.github.io/docs/).
 
 The saved [API contract](contracts/relflow.json) records the source used to
 review the public API.
-The site, assets, proof experiments, and recorded results live here and have
-their own release history. Building does not require the RelFlow package or
+The site and its assets live here. Canonical experiments and report archives
+live in [relflow/evidence](https://github.com/relflow/evidence); this checkout
+contains a verified publication snapshot. Building does not require the RelFlow package or
 another checkout.
 
 ## Work locally
@@ -29,7 +30,7 @@ make check-docs
 make render
 ```
 
-`make check` checks static examples and links, the saved API contract, and proof
+`make check` checks static examples and links, the saved API contract, and evidence
 reporting. `make check-docs` also renders all pages and checks their links,
 anchors, and Typst diagrams. HTML output goes to `docs/site/`.
 
@@ -55,28 +56,27 @@ value states, and attention modes used by reference checks. Refresh it when
 targeting a new package version; tests do not import RelFlow to discover options.
 [migration.json](migration.json) records the documentation extraction.
 
-## Proof experiments
+## Evidence
 
-Canonical experiments, their runner, and their recorded results live in
-[proofs](proofs/SPEC.md). `proofs/render.py` reads those local sources and
-results to generate static pages under `docs/proofs/`. It never imports or runs
-the experiments. Generated pages are ignored; edit canonical proof scripts and
-recorded results through the proof workflow. `make clean` removes only generated
-publication files and site output.
+Canonical experiments, their protocol, runtime tests, and report archives live
+in [relflow/evidence](https://github.com/relflow/evidence). This repository owns
+the website presentation and a checked-in snapshot under `vendor/evidence/`.
+[contracts/evidence.json](contracts/evidence.json) pins the source revision,
+selected results, and file digests. `scripts/render_evidence.py` verifies the
+snapshot and generates ignored pages under `docs/evidence/` without importing
+or executing experiments. Preserve archived provenance when importing reports.
 
-Running a proof is an explicit, separate task requiring RelFlow and its runtime
-dependencies. Supply a matching RelFlow wheel or available package release;
-for example, replace the wheel path below with your own build:
+To import a selected GitHub Release export, supply its reviewed SHA-256:
 
-```bash
-uv run --with /path/to/relflow.whl python proofs/run.py P001 --steps 2
-uv run --with /path/to/relflow.whl pytest tests/proofs
+```sh
+uv run python scripts/import_evidence.py --release <release-tag> --sha256 <bundle-sha256>
 ```
 
-The default test suite checks documentation and static proof reporting; runtime
-proof tests are opt-in. Preserve the source fingerprints and recorded provenance
-when updating evidence. Do not change measurements to make a documentation
-check pass.
+The import downloads `evidence-docs.tar.gz` from `relflow/evidence`, verifies
+it, and replaces the local publication snapshot. Review the snapshot and
+contract changes together. A local bundle can be supplied with `--bundle`.
+Ordinary checks, preview, and rendering read local files and require no GitHub
+or Modal credentials. Historical Proofs URLs redirect to Evidence pages.
 
 ## Publication
 

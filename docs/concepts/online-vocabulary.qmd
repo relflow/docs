@@ -189,7 +189,7 @@ known and unseen input groups.
 how often a category will be missing at deployment. Increasing it can improve
 the fallback while weakening use of known identity. Select it on a separate
 development split; do not learn a vocabulary from validation to conceal OOVs.
-[P061](../proofs/vocabulary/cold-start-confidence.py) measures both regimes and
+[P061](../evidence/vocabulary/cold-start-confidence.py) measures both regimes and
 includes decisive-context controls. Its synthetic missing-ID population does
 not establish robustness to arbitrary new-population effects.
 
@@ -207,7 +207,7 @@ values. It changes neither predictions nor losses. This includes sanity
 validation during fitting, but not direct `model.predict(payments)` calls.
 Ten exposures are a diagnostic threshold, not a guarantee of learning.
 
-[P066](../proofs/vocabulary/rolling-input-admission.py) measures how admitting
+[P066](../evidence/vocabulary/rolling-input-admission.py) measures how admitting
 input labels changes reconstruction quality across successive training cohorts.
 For pretraining targets, see
 [coverage-aware evaluation](../learn/pretraining-and-fine-tuning.qmd#evaluate-vocabulary-coverage).
@@ -234,7 +234,7 @@ Labels append in encounter order without evicting or renumbering existing ones.
 With DDP, each batch's labels are gathered in rank order, preserving encounter
 order within each rank. Record order, shuffling, and rank layout can change the
 assigned IDs, but early rare labels do not exclude later common labels.
-[P057](../proofs/vocabulary/capacity-admission-order.py) checks admission and
+[P057](../evidence/vocabulary/capacity-admission-order.py) checks admission and
 learning across encounter orders.
 
 Automatic growth still consumes memory and increases decoder cost. In particular,
@@ -278,7 +278,7 @@ Prefetching alone does not admit labels or record training exposures. Integer
 slots are local to a trained model; preserve its artifact and inspect its mapping
 when reusing it.
 
-The [Vocabulary and OOV proofs](../proofs.qmd)
+The [Vocabulary and OOV evidence](../evidence.qmd)
 exercise unknown inputs and targets, vocabulary growth, set membership, and
 checkpoint/continued-training behavior. They distinguish learned fallback
 from information that a frozen evaluation vocabulary cannot represent.

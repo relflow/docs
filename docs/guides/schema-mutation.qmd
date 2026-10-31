@@ -120,19 +120,19 @@ artifact you intend to use.
 
 ## Evidence for learned behavior
 
-The mutation proofs start with trained models, evaluate immediately after an
+The mutation evidence start with trained models, evaluate immediately after an
 edit, and measure adaptation separately:
 
-- [Neutral edits](../proofs/mutations/neutral-edits-preserve-learning.py)
+- [Neutral edits](../evidence/mutations/neutral-edits-preserve-learning.py)
   check prediction, normalization, and vocabulary retention.
-- [Adding a hidden target](../proofs/mutations/extend-prediction-target.py)
+- [Adding a hidden target](../evidence/mutations/extend-prediction-target.py)
   checks immediate retention and learning with continuation and scratch controls.
-- [Selective reset](../proofs/mutations/reset-prediction-target.py)
+- [Selective reset](../evidence/mutations/reset-prediction-target.py)
   checks localized loss and relearning of one hidden output.
-- [Deactivation and restoration](../proofs/mutations/deactivate-and-restore-input.py)
+- [Deactivation and restoration](../evidence/mutations/deactivate-and-restore-input.py)
   removes an informative input, then checks updates, override exits, and
   reactivation from an inactive checkpoint.
-- [Deletion and adaptation](../proofs/mutations/delete-input-and-adapt.py)
+- [Deletion and adaptation](../evidence/mutations/delete-input-and-adapt.py)
   compares retraining with inactive, scratch, and continuation controls against
   the best prediction possible from the remaining information.
 

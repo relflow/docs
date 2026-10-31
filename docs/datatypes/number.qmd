@@ -119,11 +119,11 @@ Prediction `content` is a `float64` scalar, even
 when the most likely predicted state is not `valued`; read it alongside
 `state` and `inferred` in the [prediction envelope](../reference/prediction-output.qmd).
 
-The [number lanes proof](../proofs/representation/number-lanes.html) checks that
+The [number lanes evidence](../evidence/representation/number-lanes.html) checks that
 the raw and log lanes with the log-scale readout stay within a tenth of the
 best single representation across additive, moderate, heavy-tailed, and
 far-from-zero targets. The
-[null-versus-zero proof](../proofs/state/null-versus-zero.html) isolates the
-information in validity state. The [weighted-sum proof](../proofs/aggregation/raw-value-weight-sum.html)
+[null-versus-zero evidence](../evidence/state/null-versus-zero.html) isolates the
+information in validity state. The [weighted-sum evidence](../evidence/aggregation/raw-value-weight-sum.html)
 tests learned interaction between visible numeric fields, with controls for
 their pairing and order.

@@ -112,14 +112,14 @@ its learned context as vectors for any other predictor.
 ### Change a trained model without starting over
 
 Add a target, drop an input, or extend a branch on a model that has already
-learned. State that still fits is kept, and the mutation proofs record exactly
+learned. State that still fits is kept, and the mutation evidence record exactly
 what survives each edit.
 :::
 
 :::
 :::
 
-Each promise has receipts. The [proofs](proofs.qmd) are small recorded
+Each promise has receipts. The [evidence](evidence.qmd) are small recorded
 experiments on the mechanisms behind them: what the architecture can learn,
 where it loses information, and the controls that tell the two apart.
 
@@ -187,7 +187,7 @@ Then extend the same model, in this order:
   [training options](guides/training-options.qmd).
 - **Reference** holds the [datatypes](datatypes/index.qmd),
   [model presets](reference/model-presets.qmd), the
-  [API map](reference/api-map.qmd), and the [proofs](proofs.qmd).
+  [API map](reference/api-map.qmd), and the [evidence](evidence.qmd).
 
 The examples use payments and accounts. The same field and branch definitions
 work with other kinds of tabular and nested records.

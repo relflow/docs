@@ -153,7 +153,7 @@ An ablation shows dependence under this experiment, not causation.
 `override` restores schema attributes on exit, not a snapshot of all learned
 state. See [Schema mutation](../guides/schema-mutation.qmd) for its boundaries.
 
-The [modeling proofs](../proofs.qmd) give worked examples of held-out
+The [modeling evidence](../evidence.qmd) give worked examples of held-out
 metrics, corrupted-input controls, and deliberately lossy representations.
 Each scenario includes its model tree and the current evidence for its claim.
 

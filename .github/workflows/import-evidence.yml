@@ -1,0 +1,51 @@
+name: Import a selected evidence release
+
+on:
+  workflow_dispatch:
+    inputs:
+      release:
+        description: Exact relflow/evidence release tag
+        required: true
+      sha256:
+        description: Reviewed SHA-256 of evidence-docs.tar.gz
+        required: true
+
+permissions:
+  contents: write
+  pull-requests: write
+
+jobs:
+  import:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: main
+          persist-credentials: false
+      - uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+      - uses: astral-sh/setup-uv@v5
+        with:
+          enable-cache: true
+      - run: uv sync --locked
+      - name: Import the pinned report bundle
+        env:
+          GH_TOKEN: ${{ github.token }}
+          RELEASE_TAG: ${{ inputs.release }}
+          BUNDLE_SHA256: ${{ inputs.sha256 }}
+        run: uv run python scripts/import_evidence.py --release "$RELEASE_TAG" --sha256 "$BUNDLE_SHA256"
+      - run: make check check-docs
+      - name: Open a reviewable snapshot update
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email 'github-actions[bot]@users.noreply.github.com'
+          git add vendor/evidence contracts/evidence.json
+          if git diff --cached --quiet; then exit 0; fi
+          git switch -c "automation/evidence-$GITHUB_RUN_ID"
+          git commit -m 'docs: import selected evidence release'
+          gh auth setup-git
+          git push origin HEAD
+          gh pr create --base main --title 'Import selected evidence release' --body 'Import the checksum-pinned evidence snapshot. Static sources and the complete rendered site passed validation.'

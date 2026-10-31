@@ -104,8 +104,8 @@ An empty denominator yields `NaN`, not perfect reconstruction. Bit accuracy
 alone can still be misleading for sparse sets; examine F1, exact-set accuracy,
 and coverage together. Output `threshold` does not change these metrics.
 
-[P063](../proofs/vocabulary/set-reconstruction-coverage.py) tests probability
-preservation and coverage; [P064](../proofs/vocabulary/set-unavailable-fallback.py)
+[P063](../evidence/vocabulary/set-reconstruction-coverage.py) tests probability
+preservation and coverage; [P064](../evidence/vocabulary/set-unavailable-fallback.py)
 tests learning the empty/unknown distinction.
 
 ## Prediction

@@ -1,0 +1,68 @@
+---
+engine: markdown
+title: Evidence
+description: Small experiments about what a model can learn and where it loses information.
+format:
+  html:
+    css: assets/stylesheets/evidence.css
+    include-after-body: assets/evidence-status.html
+    tbl-colwidths: false
+listing:
+  id: evidence
+  contents: "evidence/catalog.yaml"
+  type: table
+  fields: [id, title, group, evidence-status]
+  field-links: [title]
+  field-display-names:
+    id: ID
+    title: Question
+    group: Group
+    evidence-status: Result
+  filter-ui: [id, title, group, evidence-status]
+  sort-ui: [id, title, group, evidence-status]
+  categories: false
+---
+
+These are small learning experiments, each asking one question. Open a page
+for an example, a comparison, and the recorded result. Details and runnable
+code are available in a foldout.
+
+Start with [adding six numbers](evidence/structure/attention-learns-fixed-width-sum.html),
+[matching unfamiliar IDs](evidence/identity/unseen-identity-equality.html), or
+[distinguishing missing values from zero](evidence/state/null-versus-zero.html).
+
+
+The catalog is ordered by group, from simple aggregation to calibration and
+anomaly detection. Search or sort by question, group, result, or ID, such as
+`P021`.
+
+::: {#evidence}
+:::
+
+<details>
+<summary>How to read the results</summary>
+
+These experiments measure behavior on controlled synthetic data. Each result
+applies to its recorded setup. A successful run can be provisional. Some experiments are
+designed to demonstrate a limitation. Short execution checks, called smoke
+runs, do not replace full learning results.
+
+| Result | Meaning |
+| --- | --- |
+| [Passing]{.evidence-status data-evidence-status="Passing"} | The latest full run meets its stated checks. |
+| [Limited]{.evidence-status data-evidence-status="Limited"} | The experiment reproduces an expected limitation. |
+| [Partial]{.evidence-status data-evidence-status="Partial"} | Part of the broader claim remains untested or inconsistent. |
+| [Failing]{.evidence-status data-evidence-status="Failing"} | The latest full run misses at least one required check. |
+| [Error]{.evidence-status data-evidence-status="Error"} | The latest full run could not complete. |
+| [Missing]{.evidence-status data-evidence-status="Missing"} | No full run has been recorded. |
+
+Each page shows selected measurements from its latest full run. Its history
+can include repeated seeds and earlier source versions; the foldout and
+[complete results](evidence/_generated/results.yaml) retain that context.
+Experiments with more seeds provide stronger evidence about repeatability.
+
+Learned arithmetic is approximate. Use
+[preprocessing](guides/preprocessing.qmd) for business rules that require exact results.
+Each page includes its reproduction command and a downloadable script.
+
+</details>

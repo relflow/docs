@@ -67,11 +67,11 @@ Use `reduction=None` on a transaction-history branch when the root needs its
 individual tokens for comparison; see
 [Branch reduction](branch.qmd#reduce-branch-memory).
 
-Compare the [unseen-identity equality proof](../proofs/identity/unseen-identity-equality.html)
-with the [sibling-collection overlap boundary](../proofs/relational/direct-sibling-hash-overlap.html).
+Compare the [unseen-identity equality evidence](../evidence/identity/unseen-identity-equality.html)
+with the [sibling-collection overlap boundary](../evidence/relational/direct-sibling-hash-overlap.html).
 Their trees show why a working equality representation alone does not establish
 successful comparison across collections.
-The [retrieval capacity proof](../proofs/relational/retrieval-capacity.html)
+The [retrieval capacity evidence](../evidence/relational/retrieval-capacity.html)
 extends this evaluation to distractors, larger collections, and a separately
 trained two-hop task, with a separate result for each condition.
 

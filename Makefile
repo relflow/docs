@@ -9,8 +9,8 @@ PORT ?= 4200
 help: ## Show available targets.
 	@awk 'BEGIN {FS = ":.*##"; print "Targets:"} /^[a-zA-Z_-]+:.*##/ {printf "  %-14s %s\n", $$1, $$2}' $(MAKEFILE_LIST)
 
-prepare: ## Generate static proof pages from local source and recorded results.
-	uv run python proofs/render.py
+prepare: ## Generate static evidence pages from local source and recorded results.
+	uv run python scripts/render_evidence.py
 
 dev: ## Preview the static site with live reload.
 	$(QUARTO) preview docs --no-browser --host $(HOST) --port $(PORT)
@@ -20,15 +20,15 @@ preview: dev ## Alias for dev.
 render: ## Render static HTML and Typst diagrams into docs/site/.
 	$(QUARTO) render docs --no-execute
 
-check: prepare ## Check static authoring, API references, and proof reporting.
-	uv run ruff format --check scripts tests proofs
-	uv run ruff check scripts tests proofs
+check: prepare ## Check static authoring, API references, and evidence reporting.
+	uv run ruff format --check scripts tests
+	uv run ruff check scripts tests
 	uv run pytest
 	uv run python -m scripts.check
 
 check-docs: render ## Validate the complete rendered site.
 	uv run python -m scripts.check --rendered
 
-clean: ## Remove generated proof pages and site output.
-	uv run python proofs/render.py --clean
+clean: ## Remove generated evidence pages and site output.
+	uv run python scripts/render_evidence.py --clean
 	rm -rf docs/site docs/.quarto docs/assets/diagrams
