@@ -72,10 +72,13 @@ def provenance(script: Path) -> dict[str, Any]:
         if name.startswith("src/relflow/"):
             model_digest.update(name.encode())
             model_digest.update(content)
-    revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False)
+    revision = os.environ.get("EVIDENCE_REVISION")
+    if not revision:
+        process = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False)
+        revision = process.stdout.strip() or None
     return {
-        "proof_revision": revision.stdout.strip() or None,
-        "evidence_revision": os.environ.get("EVIDENCE_REVISION") or revision.stdout.strip() or None,
+        "proof_revision": revision,
+        "evidence_revision": revision,
         "relflow_revision": os.environ.get("EVIDENCE_RELFLOW_REVISION"),
         "wheel_sha256": os.environ.get("EVIDENCE_WHEEL_SHA256"),
         "relflow_source_sha256": model_digest.hexdigest(),

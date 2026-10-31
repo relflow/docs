@@ -203,12 +203,8 @@ def test_every_registered_proof_has_a_small_readable_overview() -> None:
         sections = set(re.findall(r"\{\{<\s*evidence\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
         expected = {(identifier, part) for part in ("status", "evidence", "script")}
         assert sections == expected, f"{page}: render recorded evidence and reproduction commands for {identifier}"
-        assert ARCHIVE[identifier]["historical"][
-            "insights"
-        ].strip(), f"{identifier}: missing recorded interpretation"
-        assert ARCHIVE[identifier]["historical"][
-            "evidence"
-        ].strip(), f"{identifier}: missing historical evidence"
+        assert ARCHIVE[identifier]["historical"]["insights"].strip(), f"{identifier}: missing recorded interpretation"
+        assert ARCHIVE[identifier]["historical"]["evidence"].strip(), f"{identifier}: missing historical evidence"
         overview, details = text.split('<details class="evidence-details">', maxsplit=1)
         assert "<summary>Experiment details and code</summary>" in details, page
         assert f"{{{{< evidence {identifier} evidence >}}}}" in details, page

@@ -1,0 +1,35 @@
+name: Validate evidence tooling
+
+on:
+  push:
+  pull_request:
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  static:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: astral-sh/setup-uv@v5
+        with:
+          python-version: '3.12'
+          enable-cache: true
+      - run: uv sync --locked
+      - run: uv run ruff check .
+      - run: uv run ruff format --check .
+      - run: uv run pytest
+      - name: Verify static publication without model dependencies
+        run: uv run python export_docs.py export --bundle evidence-docs.tar.gz
+      - uses: actions/upload-artifact@v4
+        with:
+          name: evidence-docs
+          path: |
+            evidence-docs.tar.gz
+            evidence-docs.tar.gz.sha256
+          retention-days: 30
+

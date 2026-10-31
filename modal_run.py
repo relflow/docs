@@ -4,6 +4,7 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import subprocess
 from pathlib import Path
 
@@ -28,6 +29,11 @@ def run(options: argparse.Namespace) -> None:
     )
     manifest["requirements_sha256"] = digest(options.requirements)
     write_json(output / "manifest.json", manifest)
+    for role, wheel in (("candidate", options.candidate_wheel), ("baseline", options.baseline_wheel)):
+        destination = output / "artifacts" / role / wheel.name
+        destination.parent.mkdir(parents=True, exist_ok=True)
+        shutil.copy2(wheel, destination)
+    shutil.copy2(options.requirements, output / "artifacts/requirements.txt")
     app = modal.App("relflow-evidence")
     # Preinstall CPU Torch so the exact public version in the lock uses its CPU build.
     torch_version = None
