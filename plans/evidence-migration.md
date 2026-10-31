@@ -127,7 +127,10 @@ must not depend on a sibling docs checkout.
   GitHub, verifies its digest, and updates `vendor/evidence/` and
   `contracts/evidence.json` in a docs PR. The render step reads that committed
   snapshot. Public releases support public download; private releases require
-  appropriate GitHub read access for the importer.
+  appropriate GitHub read access for the importer. The manual Actions importer
+  validates the full site and returns a checksummed snapshot and patch for a
+  normal review PR. It keeps read-only repository permissions; bot-created PRs
+  would require a broader repository permission that was not enabled.
 
 Preserve the existing historical `results.yaml` in Git during extraction. New
 runs write independent JSON records within each bundle, preserving every retry

@@ -2,7 +2,7 @@
 
 The standalone documentation for [RelFlow](https://github.com/relflow/relflow).
 Examples start with payments, then add account history and larger workflows.
-Published at [relflow.github.io/docs](https://relflow.github.io/docs/).
+Published at [relflow.ai](https://relflow.ai/).
 
 The saved [API contract](contracts/relflow.json) records the source used to
 review the public API.
@@ -75,6 +75,13 @@ uv run python scripts/import_evidence.py --release <release-tag> --sha256 <bundl
 The import downloads `evidence-docs.tar.gz` from `relflow/evidence`, verifies
 it, and replaces the local publication snapshot. Review the snapshot and
 contract changes together. A local bundle can be supplied with `--bundle`.
+The manual `import-evidence.yml` Actions workflow also accepts an exact release
+and digest. It validates every page and uploads a checksummed snapshot, a
+patch, the docs base revision, and a rendered preview. Download the
+`evidence-snapshot-update` artifact, apply `evidence-update.patch` to a branch
+at that base, and open a normal review PR. The workflow needs only read access
+and does not change bot review permissions.
+
 Ordinary checks, preview, and rendering read local files and require no GitHub
 or Modal credentials. Historical Proofs URLs redirect to Evidence pages.
 

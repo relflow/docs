@@ -11,8 +11,7 @@ on:
         required: true
 
 permissions:
-  contents: write
-  pull-requests: write
+  contents: read
 
 jobs:
   import:
@@ -36,16 +35,36 @@ jobs:
           BUNDLE_SHA256: ${{ inputs.sha256 }}
         run: uv run python scripts/import_evidence.py --release "$RELEASE_TAG" --sha256 "$BUNDLE_SHA256"
       - run: make check check-docs
-      - name: Open a reviewable snapshot update
-        env:
-          GH_TOKEN: ${{ github.token }}
+      - name: Prepare a reviewable snapshot update
         run: |
-          git config user.name 'github-actions[bot]'
-          git config user.email 'github-actions[bot]@users.noreply.github.com'
           git add vendor/evidence contracts/evidence.json
-          if git diff --cached --quiet; then exit 0; fi
-          git switch -c "automation/evidence-$GITHUB_RUN_ID"
-          git commit -m 'docs: import selected evidence release'
-          gh auth setup-git
-          git push origin HEAD
-          gh pr create --base main --title 'Import selected evidence release' --body 'Import the checksum-pinned evidence snapshot. Static sources and the complete rendered site passed validation.'
+          git diff --cached --binary > evidence-update.patch
+          git rev-parse HEAD > docs-base.txt
+          tar -czf evidence-snapshot.tar.gz vendor/evidence contracts/evidence.json
+          sha256sum evidence-update.patch evidence-snapshot.tar.gz docs-base.txt > SHA256SUMS
+          cat <<'EOF' >> "$GITHUB_STEP_SUMMARY"
+          The selected release passed static validation and the complete rendered-site checks.
+          Download `evidence-snapshot-update` for the pinned snapshot, patch, base revision, and checksums.
+
+          In a clean checkout at the recorded docs base, review and apply the patch with
+          `git apply --index evidence-update.patch`, then commit it on a branch and open a normal PR.
+          An empty patch means the selected snapshot is already imported.
+          EOF
+      - name: Upload validated snapshot and patch
+        uses: actions/upload-artifact@v4
+        with:
+          name: evidence-snapshot-update
+          path: |
+            evidence-update.patch
+            evidence-snapshot.tar.gz
+            docs-base.txt
+            SHA256SUMS
+          if-no-files-found: error
+          retention-days: 30
+      - name: Upload rendered review site
+        uses: actions/upload-artifact@v4
+        with:
+          name: documentation-site
+          path: docs/site
+          if-no-files-found: error
+          retention-days: 7
