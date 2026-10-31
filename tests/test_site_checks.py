@@ -42,7 +42,7 @@ def test_static_checks_resolve_the_site_inside_its_own_repository(project: Path)
         ("```python\nvalue = (\n```", "invalid python example"),
         ("```python\naddress = rf.Address('history/amount')\n```", "one child name"),
         ("```yaml\n- amount: 1\n```", "YAML examples must show one record"),
-        ("{{< proof P999 evidence >}}", "missing proof fragment"),
+        ("{{< evidence P999 evidence >}}", "missing evidence fragment"),
     ],
 )
 def test_static_checks_reject_broken_authoring(project: Path, content: str, message: str) -> None:
@@ -77,7 +77,7 @@ def test_rendered_checks_resolve_github_pages_base_paths_and_real_anchors(projec
         ('<a href="#missing">Missing</a>', "missing rendered anchor"),
         ('<h1 id="duplicate"></h1><p id="duplicate"></p>', "duplicate anchors"),
         ('<div class="typst-render-error">Failure</div>', "rendering failed"),
-        ("{{< proof P001 status >}}", "shortcode remains unresolved"),
+        ("{{< evidence P001 status >}}", "shortcode remains unresolved"),
     ],
 )
 def test_rendered_checks_reject_broken_output(project: Path, content: str, message: str) -> None:

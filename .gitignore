@@ -6,10 +6,12 @@ __pycache__/
 docs/site/
 docs/.quarto/
 docs/assets/diagrams/
+docs/evidence/
 docs/proofs/
+docs/proofs.html
 **/*.quarto_ipynb
 **/*_files/
 **/*_cache/
-proofs/*.yaml.lock
+*.yaml.lock
 *.ckpt
 .DS_Store

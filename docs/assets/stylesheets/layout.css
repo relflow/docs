@@ -36,34 +36,34 @@
   overflow-wrap: normal;
 }
 
-#quarto-document-content .proof-diagram {
+#quarto-document-content .evidence-diagram {
   display: block;
   max-width: 100%;
   overflow-x: auto;
 }
 
-#quarto-document-content .proof-diagram:focus-visible {
+#quarto-document-content .evidence-diagram:focus-visible {
   outline: 2px solid currentColor;
   outline-offset: -2px;
 }
 
 @media (max-width: 767.98px) {
-  #quarto-document-content .proof-diagram {
+  #quarto-document-content .evidence-diagram {
     text-align: left;
   }
 
-  #quarto-document-content .proof-diagram > img {
+  #quarto-document-content .evidence-diagram > img {
     max-width: none;
   }
 }
 
-#quarto-document-content .proof-result {
+#quarto-document-content .evidence-result {
   border-left: 3px solid var(--bs-border-color);
   padding-left: 1rem;
   margin-bottom: 1rem;
 }
 
-#quarto-document-content .proof-result-warning {
+#quarto-document-content .evidence-result-warning {
   border-color: var(--bs-warning);
 }
 

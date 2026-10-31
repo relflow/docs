@@ -34,7 +34,7 @@ def markdown(source: Path) -> str:
 def documents() -> dict[Path, str]:
     """Resolve canonical authored sources in their published page directories."""
     pages = {source: markdown(source) for source in [ROOT / "README.md", *DOCS.rglob("*.qmd")]}
-    entries = yaml.safe_load((ROOT / "proofs/results.yaml").read_text())["proofs"]
+    entries = yaml.safe_load((ROOT / "vendor/evidence/results.yaml").read_text())["evidence"]
     pages.update({ROOT / entry["page"]: markdown(ROOT / entry["script"]) for entry in entries.values()})
     return pages
 
@@ -121,11 +121,11 @@ def test_data_examples_are_single_yaml_records() -> None:
 def test_quarto_navigation_and_relative_links_resolve() -> None:
     pages = documents()
     published = {source.with_suffix(".html"): text for source, text in pages.items() if source.is_relative_to(DOCS)}
-    evidence = ROOT / "proofs/results.yaml"
-    entries = yaml.safe_load(evidence.read_text())["proofs"]
-    downloads = {DOCS / "proofs/_generated/results.yaml": evidence}
+    evidence = ROOT / "vendor/evidence/results.yaml"
+    entries = yaml.safe_load(evidence.read_text())["evidence"]
+    downloads = {DOCS / "evidence/_generated/results.yaml": evidence}
     downloads.update(
-        {DOCS / f"proofs/_generated/{identifier}.py": ROOT / entry["script"] for identifier, entry in entries.items()}
+        {DOCS / f"evidence/_generated/{identifier}.py": ROOT / entry["script"] for identifier, entry in entries.items()}
     )
     navigation = (DOCS / "_quarto.yml").read_text()
     hrefs = re.findall(r"^\s*-?\s*(?:href|logo|favicon|image):\s+([^\s]+)", navigation, flags=re.MULTILINE)
@@ -179,45 +179,45 @@ def test_datatype_references_cover_public_options_and_states() -> None:
     assert all(mode in branch for mode in contract["attention_modes"])
 
 
-def test_every_registered_proof_has_a_small_readable_overview() -> None:
-    entries = yaml.safe_load((ROOT / "proofs/results.yaml").read_text())["proofs"]
+def test_every_registered_evidence_has_a_small_readable_overview() -> None:
+    entries = yaml.safe_load((ROOT / "vendor/evidence/results.yaml").read_text())["evidence"]
     documented: Counter[str] = Counter()
     for entry in entries.values():
         page = ROOT / entry["script"]
         text = markdown(page)
         header = re.match(r"\A---\s*\n(.*?)\n---(?:\n|\Z)", text, flags=re.DOTALL)
-        assert header, f"{page}: missing proof metadata"
+        assert header, f"{page}: missing evidence metadata"
         metadata = yaml.safe_load(header[1])
-        identifier = metadata["proof-id"]
-        assert identifier in entries, f"{page}: unregistered proof ID {identifier}"
+        identifier = metadata["evidence-id"]
+        assert identifier in entries, f"{page}: unregistered evidence ID {identifier}"
         documented[identifier] += 1
         assert ROOT / entries[identifier]["script"] == page, f"{page}: registered script does not match {identifier}"
         assert metadata.get("title") and metadata.get("description"), page
-        assert metadata.get("categories"), f"{page}: missing proof family"
-        assert "proof-source" not in metadata and "proof-status" not in metadata, (
-            f"{page}: source and status belong in proofs/results.yaml"
+        assert metadata.get("categories"), f"{page}: missing evidence family"
+        assert "evidence-source" not in metadata and "evidence-status" not in metadata, (
+            f"{page}: source and status belong in vendor/evidence/results.yaml"
         )
-        sections = set(re.findall(r"\{\{<\s*proof\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
+        sections = set(re.findall(r"\{\{<\s*evidence\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
         expected = {(identifier, part) for part in ("status", "evidence", "script")}
         assert sections == expected, f"{page}: render recorded evidence and reproduction commands for {identifier}"
         assert entry["historical"]["insights"].strip(), f"{identifier}: missing recorded interpretation"
         assert entry["historical"]["evidence"].strip(), f"{identifier}: missing historical evidence"
-        overview, details = text.split('<details class="proof-details">', maxsplit=1)
+        overview, details = text.split('<details class="evidence-details">', maxsplit=1)
         assert "<summary>Experiment details and code</summary>" in details, page
-        assert f"{{{{< proof {identifier} evidence >}}}}" in details, page
-        assert f"{{{{< proof {identifier} script >}}}}" in details, page
+        assert f"{{{{< evidence {identifier} evidence >}}}}" in details, page
+        assert f"{{{{< evidence {identifier} script >}}}}" in details, page
         assert metadata["toc"] is False, f"{page}: optional details must not fill the contents menu"
         assert re.findall(r"^## (.+)$", overview, flags=re.MULTILINE) == ["Example", "Comparison", "Result"], page
         result = overview.split("## Result\n", maxsplit=1)[1]
         insight = re.sub(r"\{\{<.*?>\}\}", "", result).strip()
         assert insight, f"{page}: interpret the result and name its limits in the authored script"
-        assert 1 <= len(metadata["proof-readout"]) <= 3, f"{page}: keep the result comparison small"
+        assert 1 <= len(metadata["evidence-readout"]) <= 3, f"{page}: keep the result comparison small"
         assert "```{typst}" in text and "#tree(" in text, f"{page}: missing model tree"
         assert "//| fig-alt:" in text, f"{page}: missing tree description"
         assert len(re.findall(r"^```yaml\s*$", text, flags=re.MULTILINE)) == 1, f"{page}: show one example record"
         assert "#tree(" not in details, f"{page}: keep one diagram beside the example"
 
     assert set(documented) == set(entries), (
-        f"proofs missing documentation: {sorted(entries.keys() - documented.keys())}"
+        f"evidence missing documentation: {sorted(entries.keys() - documented.keys())}"
     )
-    assert all(count == 1 for count in documented.values()), "each proof ID must have exactly one docs page"
+    assert all(count == 1 for count in documented.values()), "each evidence ID must have exactly one docs page"

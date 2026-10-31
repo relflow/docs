@@ -75,7 +75,7 @@ DateParts has no decoded public content and does not generate timestamps.
 Use `embed=True` for a contextual embedding; see
 [shared leaf options](index.qmd#shared-leaf-options).
 
-The [month-inference proof](../proofs/temporal/month-from-day-of-year.html)
+The [month-inference evidence](../evidence/temporal/month-from-day-of-year.html)
 tests a recurring relationship on withheld dates and years. The
-[leap-boundary proof](../proofs/temporal/leap-boundary-requires-context.html)
+[leap-boundary evidence](../evidence/temporal/leap-boundary-requires-context.html)
 shows how selecting too few calendar coordinates can make the answer ambiguous.

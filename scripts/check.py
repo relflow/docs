@@ -16,7 +16,7 @@ ROOT = Path(__file__).resolve().parents[1]
 
 
 def markdown(source: Path) -> str:
-    """Read ordinary pages and Markdown cells from generated proof listings."""
+    """Read ordinary pages and Markdown cells from generated evidence listings."""
     text = source.read_text()
     if source.suffix != ".py":
         return text
@@ -29,22 +29,22 @@ def markdown(source: Path) -> str:
                 lines.append("")
         elif active:
             if line.strip() and not line.startswith("#"):
-                raise ValueError(f"Proof Markdown cell must contain comments: {source}")
+                raise ValueError(f"Evidence Markdown cell must contain comments: {source}")
             lines.append(line.removeprefix("#").removeprefix(" "))
     return "\n".join(lines).strip()
 
 
 def documents(root: Path = ROOT) -> dict[Path, str]:
-    """Read authored pages and registered canonical proof Markdown."""
+    """Read authored pages and registered canonical evidence Markdown."""
     docs = root / "docs"
     pages = {
         source.resolve(): markdown(source)
         for source in [root / "README.md", *docs.rglob("*.qmd")]
         if source.is_file() and not source.is_relative_to(docs / "site")
     }
-    registry = root / "proofs/results.yaml"
+    registry = root / "vendor/evidence/results.yaml"
     if registry.is_file():
-        entries = yaml.safe_load(registry.read_text())["proofs"]
+        entries = yaml.safe_load(registry.read_text())["evidence"]
         pages.update({(root / entry["page"]).resolve(): markdown(root / entry["script"]) for entry in entries.values()})
     return pages
 
@@ -103,9 +103,9 @@ def source_checks(root: Path = ROOT) -> list[str]:
                         errors.append(f"{label}: YAML examples must show one record")
                 except (SyntaxError, yaml.YAMLError) as error:
                     errors.append(f"{label}: invalid {language} example: {error}")
-        for identifier, part in re.findall(r"\{\{<\s*proof\s+(\S+)\s+(\S+)\s*>\}\}", text):
-            if not (root / f"docs/proofs/_generated/{identifier}-{part}.md").is_file():
-                errors.append(f"{label}: missing proof fragment {identifier}-{part}")
+        for identifier, part in re.findall(r"\{\{<\s*evidence\s+(\S+)\s+(\S+)\s*>\}\}", text):
+            if not (root / f"docs/evidence/_generated/{identifier}-{part}.md").is_file():
+                errors.append(f"{label}: missing evidence fragment {identifier}-{part}")
         for target in re.findall(r"\[[^\]]+\]\(([^)]+)\)", text):
             link = urlsplit(target)
             if link.scheme or link.netloc:
@@ -172,8 +172,8 @@ def rendered_checks(root: Path = ROOT) -> list[str]:
         page = Page()
         page.feed(text)
         pages[source.resolve()] = page
-        if 'class="typst-render-error"' in text or "{{< proof " in text:
-            errors.append(f"{source.relative_to(root)}: rendering failed or a proof shortcode remains unresolved")
+        if 'class="typst-render-error"' in text or "{{< evidence " in text:
+            errors.append(f"{source.relative_to(root)}: rendering failed or a evidence shortcode remains unresolved")
         duplicates = [name for name, count in page.anchors.items() if count > 1]
         if duplicates:
             errors.append(f"{source.relative_to(root)}: duplicate anchors {duplicates}")

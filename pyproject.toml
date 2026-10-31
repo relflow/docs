@@ -18,5 +18,5 @@ norecursedirs = ["proofs"]
 
 [tool.ruff]
 line-length = 120
-extend-exclude = ["docs/_extensions", "docs/proofs", "docs/site"]
+extend-exclude = ["docs/_extensions", "docs/evidence", "docs/site"]
 lint.extend-select = ["I"]

@@ -196,7 +196,7 @@ with each leaf's `weight` scaling its contribution.
 
 [Pretraining and fine-tuning](pretraining-and-fine-tuning.qmd) shows how to transfer
 reconstruction training to a labeled task. The
-[reconstruction transfer proof](../proofs/representation/reconstruction-transfer.html)
+[reconstruction transfer evidence](../evidence/representation/reconstruction-transfer.html)
 compares frozen root embeddings with raw features, an untrained encoder, and
 training on independently permuted views.
 

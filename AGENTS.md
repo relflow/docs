@@ -1,12 +1,14 @@
 # RelFlow documentation guide
 
-This repository owns the static RelFlow documentation, its assets, and its
-canonical proof experiments. It must build from this checkout alone.
+This repository owns the static RelFlow documentation, its assets, and a
+verified publication snapshot of evidence maintained in relflow/evidence. It must build from this checkout alone.
 
 ## Scope and build
 
 - Authored website pages, assets, extensions, and `_quarto.yml` live in `docs/`.
-  Canonical proof source, runner, and results live in `proofs/`. Page folders
+  Canonical experiments, runners, and results live in the separate
+  `relflow/evidence` repository. The local snapshot lives in `vendor/evidence/`
+  and is pinned by `contracts/evidence.json`. Page folders
   mirror the sidebar groups (`learn/`, `guides/`, `concepts/`, `datatypes/`,
   `reference/`) and
   file names match page titles; when a page moves or is renamed, update every
@@ -20,9 +22,9 @@ canonical proof experiments. It must build from this checkout alone.
 - Python examples are static illustrations. Use ordinary `python` fences and
   the Markdown engine. Never execute examples, train models, read application
   data, or download model weights during a build.
-- Proof execution is a separate, explicit task in an environment containing
-  the target RelFlow version. Runtime proof tests live in `tests/proofs/` and
-  are excluded from default static validation.
+- Evidence execution is a separate, explicit task in an environment containing
+  the target RelFlow version. Runtime tests live in the evidence repository; they are not part of docs
+  validation.
 
 ## Teach in order
 
@@ -107,8 +109,8 @@ Repeated records always use variable Arrow lists, including bounded branches;
 input caps do not add public padding. Fixed-width vectors retain their feature
 axis. Extension output list children must be named `element`.
 Embeddings live in representation records with `path`, `parents`, `output_index`,
-and `embedding`. The pinned contract records the current API source; recorded proofs
-retain their original provenance even when executable output readers are
+and `embedding`. The pinned contract records the current API source; recorded evidence
+retains its original provenance even when executable output readers are
 migrated. A reader migration does not establish fresh learning results. Show
 observation and output examples as one YAML record, nesting repeated values
 under their field names.
@@ -126,7 +128,7 @@ Verify API claims against pinned upstream source and `contracts/relflow.json`;
 existing prose alone is not evidence. Update the contract deliberately when
 targeting another package version.
 
-## Visuals and proofs
+## Visuals and evidence
 
 Use the shared `node` and `tree` Typst functions in
 `docs/assets/typst/model-tree.typ`; read `docs/assets/typst/README.md` before
@@ -136,9 +138,10 @@ masking policies, use `flow`, `timeline`, `tokens`, and `policies` from
 rather than hyperparameters. Keep nearby code, YAML, labels, captions, and text
 alternatives consistent. Preserve bundled extension and font licenses.
 
-`proofs/render.py` publishes the local canonical sources and recorded results
-without executing them. Generated proof pages and fragments under `docs/proofs/`
-are ignored; never edit them as a second source. Follow `proofs/SPEC.md` when
-changing experiments. Preserve results, source fingerprints, and provenance;
+`scripts/render_evidence.py` publishes the verified local snapshot and recorded results
+without executing them. Generated evidence pages and fragments under `docs/evidence/`
+are ignored; never edit them as a second source. Follow `SPEC.md` in relflow/evidence when changing experiments. Import a
+reviewed report bundle through `scripts/import_evidence.py`; never edit vendor
+files as a second canonical source. Preserve results, source fingerprints, and provenance;
 never alter measurements to make a documentation check pass. Clean only generated
 publication output, retaining all canonical experiments and results.

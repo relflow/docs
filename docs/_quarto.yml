@@ -2,15 +2,18 @@ project:
   type: website
   output-dir: site
   pre-render:
-    - uv run --project .. python ../proofs/render.py
+    - uv run --project .. python ../scripts/render_evidence.py
   resources:
     - assets/fonts/OFL.txt
-    - proofs/_generated/results.yaml
-    - proofs/_generated/*.py
+    - proofs.html
+    - proofs/**/*.html
+    - proofs/_generated/*
+    - evidence/_generated/results.yaml
+    - evidence/_generated/*.py
   render:
     - index.qmd
     - "**/*.qmd"
-    - "proofs/*/*.py"
+    - "evidence/*/*.py"
 
 website:
   site-url: https://relflow.github.io/docs/
@@ -137,8 +140,8 @@ website:
             text: API map
           - href: reference/troubleshooting.qmd
             text: Troubleshooting
-      - href: proofs.qmd
-        text: Proofs
+      - href: evidence.qmd
+        text: Evidence
   page-footer:
     border: true
     left: Grantham Taylor
@@ -183,10 +186,10 @@ execute:
 
 filters:
   - typst-render
-  - path: assets/filters/proof-diagrams.lua
+  - path: assets/filters/evidence-diagrams.lua
     at: post-quarto
   - path: assets/filters/tables.lua
-    # Include evidence tables inserted by proof shortcodes.
+    # Include evidence tables inserted by evidence shortcodes.
     at: post-quarto
 
 extensions:

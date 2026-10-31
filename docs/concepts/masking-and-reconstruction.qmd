@@ -293,10 +293,10 @@ Use each coordinate's `inferred` flag to identify requested outputs. See
 [Prediction output](../reference/prediction-output.qmd) for the Arrow contract.
 
 [Pretraining and fine-tuning](../learn/pretraining-and-fine-tuning.qmd) shows how to change
-objectives between training stages. The [proof catalog](../proofs.qmd)
+objectives between training stages. The [evidence catalog](../evidence.qmd)
 includes sampled reconstruction, nested selectors, branch ablation, and
 prefix-only sequence prediction in P051–P054. The
-[incomplete-evidence proof](../proofs/representation/incomplete-evidence.html)
-and [contextual-consistency proof](../proofs/anomaly/contextual-consistency.html)
+[evidence from incomplete observations](../evidence/representation/incomplete-evidence.html)
+and [contextual-consistency evidence](../evidence/anomaly/contextual-consistency.html)
 study missing evidence and reconstruction-based anomaly scores, with their
 controls and limitations.

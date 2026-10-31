@@ -26,7 +26,7 @@ jobs:
           enable-cache: true
       - name: Install documentation tools
         run: uv sync --locked
-      - name: Check sources and proof reporting
+      - name: Check sources and evidence publication
         run: make check
       - name: Render and validate every page
         run: make check-docs

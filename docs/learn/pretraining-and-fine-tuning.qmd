@@ -300,19 +300,19 @@ it does not freeze vocabulary growth or make unknown answers learnable.
 Keep any held-out calibration set separate from model selection, and evaluate
 downstream confidence separately for familiar and unseen input identities.
 
-[P062](../proofs/vocabulary/pretraining-coverage.py) isolates vocabulary
+[P062](../evidence/vocabulary/pretraining-coverage.py) isolates vocabulary
 coverage with fixed query-selected masks and checks that rebatching the same
 targets cannot change the reported counts or conditional scores.
-[P065](../proofs/vocabulary/cluster-pretraining-coverage.py) tests Cluster coverage.
+[P065](../evidence/vocabulary/cluster-pretraining-coverage.py) tests Cluster coverage.
 
-[P066](../proofs/vocabulary/rolling-input-admission.py) separately checks cold
+[P066](../evidence/vocabulary/rolling-input-admission.py) separately checks cold
 Category inputs across successive training cohorts. It currently exposes a
 remaining failure: admitting an input identity can change reconstruction NLL
 without an optimizer step, even at complete target coverage. Target coverage
 does not measure input familiarity. Keep input cohorts separate when assessing
 pretraining stability; fixed masks alone cannot remove this source of drift.
 Initialization alternatives that pass the admission check have failed other
-learning proofs and are not enabled in the model.
+learning evidence and are not enabled in the model.
 
 [Set metrics](../datatypes/set.qmd#vocabulary-and-learning) count positive
 memberships rather than scalar targets. A partial-OOV Set retains its known
