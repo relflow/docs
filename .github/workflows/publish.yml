@@ -34,13 +34,16 @@ jobs:
         env:
           GH_TOKEN: ${{ github.token }}
           LIBRARY_RUN_ID: ${{ inputs.library_run_id }}
-        run: gh run download "$LIBRARY_RUN_ID" --repo relflow/relflow --name relflow-evidence --dir retained
+        run: |
+          gh run download "$LIBRARY_RUN_ID" --repo relflow/relflow --name relflow-evidence --dir retained
+          gh api "repos/relflow/relflow/actions/runs/$LIBRARY_RUN_ID" --jq '{run_id:.id,run_attempt,head_sha,head_branch,event,html_url,pull_requests:[.pull_requests[]|{number,head_sha:.head.sha,base_sha:.base.sha}]}' > github-run.json
+          shasum -a 256 github-run.json > github-run.json.sha256
       - name: Export publication and preserve raw report
         env:
           LIBRARY_RUN_ID: ${{ inputs.library_run_id }}
         run: |
           if [ -n "$LIBRARY_RUN_ID" ]; then
-            uv run python export_docs.py export --reports retained --bundle evidence-docs.tar.gz
+            uv run python export_docs.py export --reports retained --github-run github-run.json --bundle evidence-docs.tar.gz
             uv run python evidence_ci.py bundle retained evidence-reports.tar.gz
             shasum -a 256 evidence-reports.tar.gz > evidence-reports.tar.gz.sha256
           else
@@ -55,6 +58,7 @@ jobs:
           gh release upload "$RELEASE_TAG" evidence-docs.tar.gz evidence-docs.tar.gz.sha256
           if [ -f evidence-reports.tar.gz ]; then
             gh release upload "$RELEASE_TAG" evidence-reports.tar.gz evidence-reports.tar.gz.sha256
+            gh release upload "$RELEASE_TAG" github-run.json github-run.json.sha256
           fi
           gh release edit "$RELEASE_TAG" --draft=false
 
