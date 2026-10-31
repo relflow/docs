@@ -1,6 +1,6 @@
 # Evidence repository and pre-merge execution
 
-Status: implementation in progress, October 31, 2026. The evidence repository,
+Status: implemented and validating integration, October 31, 2026. The evidence repository,
 GitHub report releases, and docs snapshot import are implemented. Primary
 execution now uses lab over Tailscale; Modal remains an optional backend.
 
@@ -26,12 +26,12 @@ section named Evidence, and a required check on pull requests into
 - The historical archive is byte-identical, and executable ASTs of all 79
   experiments match the extraction manifest. The evidence tooling has 44
   passing static tests. Its GitHub validation and publication workflows pass.
-- Docs static validation has 63 passing tests; all 129 pages render with link,
+- Docs static validation has 64 passing tests; all 129 pages render with link,
   anchor, and diagram checks passing. Old Proofs URLs redirect to Evidence.
 - Paired two-step lab smoke execution completed without runtime errors. Smoke
-  runs correctly fail the required learning gate. Full paired CPU validation
-  is in progress on lab against RelFlow main at
-  `10c359cf26b54965b56851dc14846eefa2cec3c2`.
+  runs correctly fail the required learning gate. Full paired CPU validation completed all 158 tasks on lab against RelFlow main
+  at `10c359cf26b54965b56851dc14846eefa2cec3c2`, with no execution errors or
+  behavioral regressions. Thirty-three baseline-unmet checks remain visible.
 - The Modal service-user attempt was blocked by the existing Starter plan;
   no credentials were created or copied to GitHub. Partial Modal validation
   was stopped and retained when primary execution moved to lab.
@@ -245,8 +245,10 @@ The rename and extraction can be adjacent coordinated PRs. Do not remove the
 local canonical source until the new repository and verified snapshot exist.
 Enable the required gate after baseline calibration and failure-path validation.
 
-Remaining activation work: configure the Tailscale OIDC trust and noninteractive
-SSH rule, validate a real library PR end to end, then enable required protection.
+The Tailscale OIDC identity and noninteractive CI-to-lab SSH rule are configured.
+[Library PR 63](https://github.com/relflow/relflow/pull/63) is running the full
+paired suite through GitHub Actions. Remaining activation work is to complete
+that check, merge the reviewed integration, and enable required protection.
 Artifact retention, bypass policy, and the approved path for fork contributions
 remain explicit operational choices. The public repository, full-catalog gate,
 CPU behavior profile, and checksum-pinned docs snapshots are confirmed.
