@@ -1,0 +1,482 @@
+{
+  "schema": 1,
+  "source_repository": "https://github.com/relflow/docs",
+  "source_commit": "827dd98eb567bdd765e47fdcbec83668ecd29ff1",
+  "archive_sha256": "907a42ce5e007991576786af54e684716abbd6ac6f279a5326c44b78980e568f",
+  "experiments": {
+    "P001": {
+      "source": "proofs/aggregation/attention_sum_in_range.py",
+      "destination": "experiments/aggregation/attention_sum_in_range.py",
+      "original_sha256": "524a802bdac3501f37a979b1e6c36b26273ede48641e01e2caf4fcf669aa5716",
+      "original_ast_sha256": "65a5e601f33eb9e0bf0bc6a616c149731ab3dea3b8eba45e398f93a0de2d229b"
+    },
+    "P002": {
+      "source": "proofs/aggregation/attention_sum_unseen_lengths.py",
+      "destination": "experiments/aggregation/attention_sum_unseen_lengths.py",
+      "original_sha256": "440cfbf94626befbceb357bdc3f41d569501f3e3933f92bdceff78779483414a",
+      "original_ast_sha256": "e45d9b8128fb9fd022fbe4f970b0f718529d3a8d6ec47ae8ee7cfa7d97f2b9eb"
+    },
+    "P003": {
+      "source": "proofs/aggregation/mean_duplicate_invariance.py",
+      "destination": "experiments/aggregation/mean_duplicate_invariance.py",
+      "original_sha256": "f8efcd1be0a4a9d910caf38f91ecfaf15969d389871af37ef142e0de91fd88c5",
+      "original_ast_sha256": "3d947fcad36c332871d74f477418c0d2a5ca6b1199530463bc08608f9499ec14"
+    },
+    "P004": {
+      "source": "proofs/aggregation/visible_count_sum.py",
+      "destination": "experiments/aggregation/visible_count_sum.py",
+      "original_sha256": "0cc71907e6ca9c4db307c7d35d330776cbf0e793c95c0e88d211d7099fbbb12f",
+      "original_ast_sha256": "633dffcd696d16b408968a14146da17488193b04919ea9ec5306e1b9a6e1e828"
+    },
+    "P005": {
+      "source": "proofs/aggregation/visible_count_unseen_lengths.py",
+      "destination": "experiments/aggregation/visible_count_unseen_lengths.py",
+      "original_sha256": "86e96a39b58ce8fa5c58a3c68f7796810187c64d55b0b28c2f743ca4c543ad63",
+      "original_ast_sha256": "1a62202d8b5a063cd295f44a5c1f3093274da373fb5c3863af5c8ef22caf70fa"
+    },
+    "P006": {
+      "source": "proofs/aggregation/aligned_pair_covariance.py",
+      "destination": "experiments/aggregation/aligned_pair_covariance.py",
+      "original_sha256": "f90158c2efc3ac92981dbcda844a1a354b31312bd7124b4c3b71a14db50228e3",
+      "original_ast_sha256": "2fbc37c24ad4f536bcb5443230a96fcb9751872211e94828a892f4b620a3c0b8"
+    },
+    "P007": {
+      "source": "proofs/aggregation/raw_value_variance.py",
+      "destination": "experiments/aggregation/raw_value_variance.py",
+      "original_sha256": "a38389611e4370d52ee2df96cc5c960dfaa88fedeb6b54f42dd6a2cf77da01a5",
+      "original_ast_sha256": "e54167db567260086cdcd0e5e104d7c41cf25ae626ff8c8cec245d49d30688a0"
+    },
+    "P008": {
+      "source": "proofs/aggregation/supplied_cross_deviations.py",
+      "destination": "experiments/aggregation/supplied_cross_deviations.py",
+      "original_sha256": "644cb82fe380b8e7b9baba5619085b07eac6ebc9e6f7372ef45b67ab883e3436",
+      "original_ast_sha256": "c55062466efa917c1541c6467b0a51d57442904cb1bc50839a630bdcb9370833"
+    },
+    "P009": {
+      "source": "proofs/aggregation/supplied_squared_deviations.py",
+      "destination": "experiments/aggregation/supplied_squared_deviations.py",
+      "original_sha256": "ab9a9df974e3515247da3fbb87ee2842dd1c77c0cb2d0f885179c0139274343e",
+      "original_ast_sha256": "3fbc0578397be881a8502d628e1b6f2d70deef37ff67e88619cd02bd47e86d43"
+    },
+    "P010": {
+      "source": "proofs/aggregation/selected_group_raw_weighted_sum.py",
+      "destination": "experiments/aggregation/selected_group_raw_weighted_sum.py",
+      "original_sha256": "37854e48086593bc41d4603c676caa96422372412719ab249e9b983500e7ee5f",
+      "original_ast_sha256": "eafde5265e2cf72a9a464119c742f33695218128c63474481290f988e187b8f6"
+    },
+    "P011": {
+      "source": "proofs/aggregation/selected_group_supplied_contribution_sum.py",
+      "destination": "experiments/aggregation/selected_group_supplied_contribution_sum.py",
+      "original_sha256": "6933a5fffb77085dff2e494c4f80fd7130da1a8a0fbef7af422d9e69b0ab29c7",
+      "original_ast_sha256": "f0d0a1f2840a9970169c5c1246ff38b3089d41e32b8483ed905a72881d032dd1"
+    },
+    "P012": {
+      "source": "proofs/aggregation/requested_rank_values.py",
+      "destination": "experiments/aggregation/requested_rank_values.py",
+      "original_sha256": "1e08a1e5667724f8126ce1039909a72778024149fbe299cda0382aaf26b3f732",
+      "original_ast_sha256": "e23498794d1efafe57473aa92e50cd551464fd21f6c8bd93465e292a96d50fec"
+    },
+    "P013": {
+      "source": "proofs/aggregation/mean_keeps_contribution_count.py",
+      "destination": "experiments/aggregation/mean_keeps_contribution_count.py",
+      "original_sha256": "c4be77d7a921b826f77cd66be7ff62b57aa5fb63f9bbc7eac8679318500f483d",
+      "original_ast_sha256": "b3c52e8948d749fc7f5fe84754c87a54c42bbfbb9ad0fd6d7ac2a51284dd6965"
+    },
+    "P014": {
+      "source": "proofs/aggregation/raw_value_weight_sum.py",
+      "destination": "experiments/aggregation/raw_value_weight_sum.py",
+      "original_sha256": "45a0e2aba42cec922b248a3a4bf2b621579b6947b4b877c8bff77a6fabe9b135",
+      "original_ast_sha256": "d4279637f225f341458bee035a3b1fcd0a849725fff29b7b98a9cc5e666eb8cd"
+    },
+    "P015": {
+      "source": "proofs/aggregation/supplied_contribution_sum.py",
+      "destination": "experiments/aggregation/supplied_contribution_sum.py",
+      "original_sha256": "2d551976e796bb8ef4ed66706c75c130803b4c0496960a2a882dba221ad27e9b",
+      "original_ast_sha256": "4156e1e4da013e39223d9620c4803e843bb2b8075333370761ba6ce659bd22cd"
+    },
+    "P016": {
+      "source": "proofs/aggregation/variable_cardinality_weighted_mean.py",
+      "destination": "experiments/aggregation/variable_cardinality_weighted_mean.py",
+      "original_sha256": "47b03e1016cef6248af0cf5622d2dd49df20a981ae47b2063e5e87ab2be388b0",
+      "original_ast_sha256": "4cc006a267997780a2f53b7ec48eb515d2b88f37d97192b1894b2b28bd20ba5a"
+    },
+    "P017": {
+      "source": "proofs/calibration/signal_vs_noise.py",
+      "destination": "experiments/calibration/signal_vs_noise.py",
+      "original_sha256": "d4474cc9cb4ff810265e84db7188f590aa1618166fbe81b210f72208ebd42657",
+      "original_ast_sha256": "919ff96a0ddf31c8ca1f70be0d4faf981f8826d2d853a3889eb82bde953b6de9"
+    },
+    "P018": {
+      "source": "proofs/cluster/hidden_regression_regimes.py",
+      "destination": "experiments/cluster/hidden_regression_regimes.py",
+      "original_sha256": "b2f67af4db014652d1d05b498ad0986cd3349cf3feccc8dfadb470a41625dbe0",
+      "original_ast_sha256": "42a32d908802db5bb01ae0abe406eb8d6dc531c69cbeb244807dd983f2015637"
+    },
+    "P019": {
+      "source": "proofs/cluster/plain_input_is_dormant.py",
+      "destination": "experiments/cluster/plain_input_is_dormant.py",
+      "original_sha256": "8b3bca7f650b43b70f94dbd31c15d4559e701891ac250ca56073966ca33af8dc",
+      "original_ast_sha256": "9bd13e83632e3979869446c74c2194261687896006172a10998215e4f1ffc04d"
+    },
+    "P020": {
+      "source": "proofs/cluster/reconstructing_category_labels.py",
+      "destination": "experiments/cluster/reconstructing_category_labels.py",
+      "original_sha256": "e55bb68638d18316e8767a16133089dbe1f28fea4f5820f33f68ad769a0f3130",
+      "original_ast_sha256": "457383d3163f0f2bdb642b078b0e0fd27ecaaf7b192cc5f352710fdbfd73abd4"
+    },
+    "P021": {
+      "source": "proofs/identity/unseen_identity_equality.py",
+      "destination": "experiments/identity/unseen_identity_equality.py",
+      "original_sha256": "19294498d2da76a794f549ff1dbf34a2fe01f38ab604c1bde9f25a5b649caa97",
+      "original_ast_sha256": "bd5c3c04edc0f5240a4677fd609bd2bdc3d48b661521032d09c403bd5c81c983"
+    },
+    "P022": {
+      "source": "proofs/relational/attention_number_payload.py",
+      "destination": "experiments/relational/attention_number_payload.py",
+      "original_sha256": "41f381bfe04b0026d016b3b90a6a2baf00152004ecdf9deb63c94b9c90af5292",
+      "original_ast_sha256": "4a9c323274863bffa2585091cd2def3f7b4dc8014d6dd624db1ad2a50e73ac7e"
+    },
+    "P023": {
+      "source": "proofs/relational/pass_through_number_payload.py",
+      "destination": "experiments/relational/pass_through_number_payload.py",
+      "original_sha256": "de20f1074dc291aa6865ca65661053e2dd0ebb23050921bc5f544b525aad3139",
+      "original_ast_sha256": "0a1ffb64daf386a1981442e4fcbfb4a270c627709eb0b68eaef3e54f93fb7bfe"
+    },
+    "P024": {
+      "source": "proofs/relational/aligned_position_control.py",
+      "destination": "experiments/relational/aligned_position_control.py",
+      "original_sha256": "de095f5a377a3be91fcfb0f514ac7d986f91a6955bff07f275d4d7982bb423fd",
+      "original_ast_sha256": "53ad8260b404253160952072bb12a450b0d6df32d6192f4a65bd7c5f4f7a98eb"
+    },
+    "P025": {
+      "source": "proofs/relational/hash_recall.py",
+      "destination": "experiments/relational/hash_recall.py",
+      "original_sha256": "d7c988cdb2975515aa231e28f8aba30b12467e5946f3848eecbb6c3dfa9da55c",
+      "original_ast_sha256": "47897136c68014b2b6f05ac4792428cfd059acd054b9f9791c6ff63941000255"
+    },
+    "P026": {
+      "source": "proofs/relational/filtered_mean.py",
+      "destination": "experiments/relational/filtered_mean.py",
+      "original_sha256": "335bb571ffb4a04b4ba02fd1a0d7199b4aae71b720e6546591a7c9fccd4e176c",
+      "original_ast_sha256": "b5d1aab4e1ffd0d8da23848c58d3057567a1cfedc2b2a7725a1d8020b3ccca7a"
+    },
+    "P027": {
+      "source": "proofs/relational/group_operation_composition.py",
+      "destination": "experiments/relational/group_operation_composition.py",
+      "original_sha256": "f55098a4a5eb3d5135648ebfaa85aa8a7cfbb9b193584d698b599b064ae0a142",
+      "original_ast_sha256": "a252610989beb880a57873643d062754d3d98490d69abede7e46d4d4468a5c5e"
+    },
+    "P028": {
+      "source": "proofs/relational/direct_sibling_hash_overlap.py",
+      "destination": "experiments/relational/direct_sibling_hash_overlap.py",
+      "original_sha256": "58ef9441c92d38d65e8eff513b168e258c80165c9ade86408d915f6e97ade588",
+      "original_ast_sha256": "688951bebf95cf9abf09ab239d7d47691aa6b15b77becac2d1a2d2ea5482871c"
+    },
+    "P029": {
+      "source": "proofs/relational/flat_unseen_hash_equality_control.py",
+      "destination": "experiments/relational/flat_unseen_hash_equality_control.py",
+      "original_sha256": "0270a853285ac236ac3f44cdf4efd044ba49fbf046cab80a68228f21f0033b5a",
+      "original_ast_sha256": "030e418ee02008cf8752161f2ea51fb6a31198466bbd33c68c922a578d941dd3"
+    },
+    "P030": {
+      "source": "proofs/relational/repeated_subtotal_reconstruction.py",
+      "destination": "experiments/relational/repeated_subtotal_reconstruction.py",
+      "original_sha256": "4584297a14a6d921a059eb4f93231e9386e1c1882fa088cf81266331d68be97c",
+      "original_ast_sha256": "c965b8fccf7d01de5712e0b942740f4b7b4435689123ca9277224ca13cbd37f6"
+    },
+    "P031": {
+      "source": "proofs/relational/fixed_length.py",
+      "destination": "experiments/relational/fixed_length.py",
+      "original_sha256": "be5633366a44dde31a15e219d085f3910086e6d19fc6011d9628726eb9a21a6d",
+      "original_ast_sha256": "261cdefe0422a418461fd4cbf42eb1c1300bcfed16a0c6aae7e21c9d20bb84d7"
+    },
+    "P032": {
+      "source": "proofs/relational/grouped_peer_deviation.py",
+      "destination": "experiments/relational/grouped_peer_deviation.py",
+      "original_sha256": "7131d06d14bc45408563a830ca4e0211e971d3ca583925577bc4a011378958f6",
+      "original_ast_sha256": "9b88c9953b2be8ab42c17867a6c762200d7a7fc13d0ca426d816cff322479513"
+    },
+    "P033": {
+      "source": "proofs/relational/single_query_preserves_group_membership.py",
+      "destination": "experiments/relational/single_query_preserves_group_membership.py",
+      "original_sha256": "92341cf9be1bf4e39c7956e0250830fbb7b3466f05485814da36ddb1dd28934f",
+      "original_ast_sha256": "126cbfe66349407db67808c7b00f10c1ded83adfbb72f44d6c131bae596aaee7"
+    },
+    "P034": {
+      "source": "proofs/relational/supplied_peer_mean_control.py",
+      "destination": "experiments/relational/supplied_peer_mean_control.py",
+      "original_sha256": "32aae0ec5d3f78db3335f6c5aa1bf692cb62e47fc6c24da42e635f6e8a5bc212",
+      "original_ast_sha256": "6fc72e3f92b33400c643808017b5b4a54b3dd443c5167e31c0aca80b5bb95e53"
+    },
+    "P035": {
+      "source": "proofs/relational/ungrouped_peer_deviation.py",
+      "destination": "experiments/relational/ungrouped_peer_deviation.py",
+      "original_sha256": "ae39c15f62aec9f320e76f093d453f82e2201e242ea74265aa6997b795fddd51",
+      "original_ast_sha256": "f5bea0518d91abec222f96d8c2283ad9a8b64e467a0ddfc296f382bae9202188"
+    },
+    "P036": {
+      "source": "proofs/relational/category_identity.py",
+      "destination": "experiments/relational/category_identity.py",
+      "original_sha256": "e3453bf12282169843f810c8c93a57db5f089a69217a1296df3937ab45055253",
+      "original_ast_sha256": "07c809e110c1fb7f226e307ce02fc0553d450b66f787eeda1399c0999be2be0f"
+    },
+    "P037": {
+      "source": "proofs/relational/hash_identity.py",
+      "destination": "experiments/relational/hash_identity.py",
+      "original_sha256": "59537c8883de83d97d6e686da0085e449e2b28ebb1606cf4114467b29883f1c7",
+      "original_ast_sha256": "1093be31b1fc06f20485354b9c2b2163750fe41833c38920dcfa373bd405615a"
+    },
+    "P038": {
+      "source": "proofs/state/null_versus_zero.py",
+      "destination": "experiments/state/null_versus_zero.py",
+      "original_sha256": "5ea6f353a4b617acbcbbf86402fd5c8684d824e85cb2d93b6e5e4082fa6bb0d2",
+      "original_ast_sha256": "af827d6177c6448f76ecf7d5b24778519a941b4e55ef909adccec516663b6fa1"
+    },
+    "P039": {
+      "source": "proofs/structure/attention_learns_fixed_width_sum.py",
+      "destination": "experiments/structure/attention_learns_fixed_width_sum.py",
+      "original_sha256": "a33b79ef8f4a5b935694398a2ea43ba4f4d9a84dea39f923eb2afe4cdb5fd5c0",
+      "original_ast_sha256": "7afe6db365453b1f98f918eec33372cac240249aa2f4085850cdec3a6db2ef3f"
+    },
+    "P040": {
+      "source": "proofs/structure/attention_preserves_nested_cardinality.py",
+      "destination": "experiments/structure/attention_preserves_nested_cardinality.py",
+      "original_sha256": "821cdcc75d27a2936a9a67a9587f66710f213554cb43f3e4540db9362ff7e981",
+      "original_ast_sha256": "6815df82b77f5c64829e1da572223f4bb27c4d10f8bd5321dba0ce8e8e5512ec"
+    },
+    "P041": {
+      "source": "proofs/structure/mean_keeps_cardinality.py",
+      "destination": "experiments/structure/mean_keeps_cardinality.py",
+      "original_sha256": "53a59d7a821cd34b1f1fb6b82e58ae9ab145bed0ac98d8af24baf01449704c66",
+      "original_ast_sha256": "9cbf7ca86ebf1cca056ae1ec0a6fdfba5585ea0683be658221358c0760281f70"
+    },
+    "P042": {
+      "source": "proofs/temporal/business_window_requires_composition.py",
+      "destination": "experiments/temporal/business_window_requires_composition.py",
+      "original_sha256": "3c39d5dc8c91e96f9cbce2b007d70609626df920f0c0441dafe8c2165b1a5ec5",
+      "original_ast_sha256": "3f74f2e5ca20108ec239838aefa854ffb18ab75781fa2c9a4d470efa3fb4d6ac"
+    },
+    "P043": {
+      "source": "proofs/temporal/leap_boundary_requires_context.py",
+      "destination": "experiments/temporal/leap_boundary_requires_context.py",
+      "original_sha256": "aac4735e4cc4772abce171cd9b416812cad402b2ee2cc5c85d97fcbfb462f260",
+      "original_ast_sha256": "d4776427888fc84cdf369c240c4f49aa622dd081dfa20913ec924665828f9787"
+    },
+    "P044": {
+      "source": "proofs/temporal/month_from_day_of_year.py",
+      "destination": "experiments/temporal/month_from_day_of_year.py",
+      "original_sha256": "32391b42ff53aeefe8cc8a5b82372df16c114f63026cc99b91a71c3501cf8039",
+      "original_ast_sha256": "b44b9c5bbe327eae6295bb6caf5f91ca58af34aa65784efcff81fec72d478193"
+    },
+    "P045": {
+      "source": "proofs/temporal/weekday_requires_year_context.py",
+      "destination": "experiments/temporal/weekday_requires_year_context.py",
+      "original_sha256": "797f9f2b459f29a61c81640f5c28aae194d0a70ee23f3765550b2141c59b184d",
+      "original_ast_sha256": "3a24dc4bbe82e1da897b9c5c029eea8ebc138d6958acd0e582f7a1dd84b9ed70"
+    },
+    "P046": {
+      "source": "proofs/mutations/neutral_edits_preserve_learning.py",
+      "destination": "experiments/mutations/neutral_edits_preserve_learning.py",
+      "original_sha256": "d787d6c88e4dd224b6925d7446f3dbcc2f9890046b34903fe65656b6add23d7e",
+      "original_ast_sha256": "a8e8c255181b72039b7147deba8b80d29ff42afa460a9f53c2dd64f36f1a1cf3"
+    },
+    "P047": {
+      "source": "proofs/mutations/extend_prediction_target.py",
+      "destination": "experiments/mutations/extend_prediction_target.py",
+      "original_sha256": "5a620e60f718dd686638c03c48b4aa19e925911ebdd983293460653364b79ead",
+      "original_ast_sha256": "992f3fde60b86f53c391e56bc75d09b7611948f8a7ea1f400344f2ba8c6f43b7"
+    },
+    "P048": {
+      "source": "proofs/mutations/reset_prediction_target.py",
+      "destination": "experiments/mutations/reset_prediction_target.py",
+      "original_sha256": "812bc914a64b81e94dbb925f40fe8d07df3eb7ce11adcca46e85a963c4ce257d",
+      "original_ast_sha256": "38ba15dca45ae4193572bbdffc2e9102f836a9f131de47a6567891b108f331b4"
+    },
+    "P049": {
+      "source": "proofs/mutations/deactivate_and_restore_input.py",
+      "destination": "experiments/mutations/deactivate_and_restore_input.py",
+      "original_sha256": "11327aefb06ebebdd010134092f81b4ba10d8e24174915520a123785afed2fdd",
+      "original_ast_sha256": "c465a35305a939cafa70f21d6093df873085f849b21f97e928d824dde994b5c0"
+    },
+    "P050": {
+      "source": "proofs/mutations/delete_input_and_adapt.py",
+      "destination": "experiments/mutations/delete_input_and_adapt.py",
+      "original_sha256": "60f27e336048e72e5e0ed723e6864216039e2cf35f6f4b1699942efe37551c59",
+      "original_ast_sha256": "42fda1ddfe34891c6cf0458179baeb50991da2c463dd3bf0bc614fa296ed5f88"
+    },
+    "P051": {
+      "source": "proofs/masking/sampled_reconstruction.py",
+      "destination": "experiments/masking/sampled_reconstruction.py",
+      "original_sha256": "ec3a718b37d8e623e9341ab51f36e4d92db513526f4bc7ef057ea0d17158917a",
+      "original_ast_sha256": "262db4ceaf6d159f69ca4a1fffd1b999295459d5e04cd74519b1b1450ad6476a"
+    },
+    "P052": {
+      "source": "proofs/masking/query_reconstruction.py",
+      "destination": "experiments/masking/query_reconstruction.py",
+      "original_sha256": "4f1359b29becaabb1f709bc4427c5f5589b864718a88f0a4dd3453e3c264ccc9",
+      "original_ast_sha256": "5a15e0cf978147d8608eb12ba3466da3028a152707c63c664fbc886d0af43e36"
+    },
+    "P053": {
+      "source": "proofs/masking/branch_ablation.py",
+      "destination": "experiments/masking/branch_ablation.py",
+      "original_sha256": "a6933333cf480f41fbb9456e53d0d2da5c1863dbfb7b31147672765f776e24e7",
+      "original_ast_sha256": "c2471d582c3ff05c20efb49da64a96a9c7da0d4d5e3ca213393cc4867cc7826b"
+    },
+    "P054": {
+      "source": "proofs/masking/prefix_generation.py",
+      "destination": "experiments/masking/prefix_generation.py",
+      "original_sha256": "e62c816fbf1af91f35ace190524795fd369192cd016a8df7a10180684025e5b1",
+      "original_ast_sha256": "f87c7f5b8f5e5aab9f0c8fb5194845a6cca1589ff85b5496e534a89e5311851b"
+    },
+    "P055": {
+      "source": "proofs/vocabulary/unknown_input_fallback.py",
+      "destination": "experiments/vocabulary/unknown_input_fallback.py",
+      "original_sha256": "41289261157fbe2b094386f6628751f579e88a2aa6f505f23a05a31f06b9371f",
+      "original_ast_sha256": "60e583a1467a9138b29f742d72a34db51fd88f491f5c11c51e2ebcbb946f392d"
+    },
+    "P056": {
+      "source": "proofs/vocabulary/unknown_target_coverage.py",
+      "destination": "experiments/vocabulary/unknown_target_coverage.py",
+      "original_sha256": "660d4bfe792e40be4c9780ec0a308065a8674a0c2c398f7d712ac98e6423637e",
+      "original_ast_sha256": "13ff1ca2ab23b333d10f4b37452305f325ba5fe09a26b186fa2be6abe6230392"
+    },
+    "P057": {
+      "source": "proofs/vocabulary/capacity_admission_order.py",
+      "destination": "experiments/vocabulary/capacity_admission_order.py",
+      "original_sha256": "1ee65415c15146132894690f1edd8d77425eb1b97b5e51c4b1c12bcd9e6fbae7",
+      "original_ast_sha256": "9ec854441801b075150fe6f709ffe5e65fffd29faae93b6fe98f015cc0353d89"
+    },
+    "P058": {
+      "source": "proofs/vocabulary/unknown_set_members.py",
+      "destination": "experiments/vocabulary/unknown_set_members.py",
+      "original_sha256": "da34b5cfb57b45659dd601a410156ff7b529d443585146f2fa11865a4afb06be",
+      "original_ast_sha256": "11097c729f34dbcb9e6a6e5afca73a245226bd63f0f13c91426d1dd7f7b10f54"
+    },
+    "P059": {
+      "source": "proofs/vocabulary/admission_and_continued_training.py",
+      "destination": "experiments/vocabulary/admission_and_continued_training.py",
+      "original_sha256": "cea9c77d13cfbbef7e85d4025640b07a7192045c51ddb97636ec118e9c840b1d",
+      "original_ast_sha256": "1fc9339c3fb4d36dc96fc723987494ba61217106bc246aac4a90df6125655d79"
+    },
+    "P060": {
+      "source": "proofs/calibration/categorical_prior.py",
+      "destination": "experiments/calibration/categorical_prior.py",
+      "original_sha256": "e96df02e2c71b802cfd202bfaa1816692da502df9c6f39a1ed8323ce93ddeba6",
+      "original_ast_sha256": "563840f2eabed8b426e608be2bfe733d903104b23e1802c9f71596d5e4d3d4e4"
+    },
+    "P061": {
+      "source": "proofs/vocabulary/cold_start_confidence.py",
+      "destination": "experiments/vocabulary/cold_start_confidence.py",
+      "original_sha256": "abd3cfe72d2cf541e101ecbe16f2f8d5fa0d79c2865b8962bdd994b7f24d294f",
+      "original_ast_sha256": "59d0294b92debef0b8e862c7a4f55242c270e7bc6a6414348aa8c05771f9a1d0"
+    },
+    "P062": {
+      "source": "proofs/vocabulary/pretraining_coverage.py",
+      "destination": "experiments/vocabulary/pretraining_coverage.py",
+      "original_sha256": "01d79c455be2fcc08fbe660bdc54c7dcbeb87b3bbecb4b40cf3ccf9f74838bfc",
+      "original_ast_sha256": "70b400280ee63cdbb14fb2bf2246b271f71cb8a2e8ef315f2b9a3ef5f3e9dbd7"
+    },
+    "P063": {
+      "source": "proofs/vocabulary/set_reconstruction_coverage.py",
+      "destination": "experiments/vocabulary/set_reconstruction_coverage.py",
+      "original_sha256": "7793218f7b7730b28c6770c449836f48ad93f7a86603785056a6d8bced6c837b",
+      "original_ast_sha256": "c7a14d38b146ca8fbd3ce5a29d68f5aad89b8cc6d45138625a16d0d0c5089a20"
+    },
+    "P064": {
+      "source": "proofs/vocabulary/set_unavailable_fallback.py",
+      "destination": "experiments/vocabulary/set_unavailable_fallback.py",
+      "original_sha256": "46ea70fad8e565acf3ff2172ff4f8dad606b7da3e73a5790d02ec4b42888afc1",
+      "original_ast_sha256": "3a72da78b8052d12b4bdb7965d0b9a55a0d8ea21293310e9974d6502f2875aab"
+    },
+    "P065": {
+      "source": "proofs/vocabulary/cluster_pretraining_coverage.py",
+      "destination": "experiments/vocabulary/cluster_pretraining_coverage.py",
+      "original_sha256": "d3466732dc84e37cfd31ce5dab4ebdb0fda1073ab9f53726cfa9101dda50dda7",
+      "original_ast_sha256": "51db7839f859a0c107f3a00cd2cb039e6b481033110353215488e1646c39395a"
+    },
+    "P066": {
+      "source": "proofs/vocabulary/rolling_input_admission.py",
+      "destination": "experiments/vocabulary/rolling_input_admission.py",
+      "original_sha256": "b0765c77cb1c1deaf64a5b827639dc35cdbf84fce726dd94377f69112b9278be",
+      "original_ast_sha256": "275b84fb0628596489ac62f3ba8790a495aef7da3ed756c942b5ba61a2f04e34"
+    },
+    "P067": {
+      "source": "proofs/quantile/rank_regression.py",
+      "destination": "experiments/quantile/rank_regression.py",
+      "original_sha256": "83821b071a0f6f65e2b62bff1574caa63db8411b423dadac2adc9ae488014041",
+      "original_ast_sha256": "75bc8e4e7a214f13dad4df909687c133dab44779810f85f3953a05fc275d33e9"
+    },
+    "P068": {
+      "source": "proofs/quantile/clipped_extrapolation.py",
+      "destination": "experiments/quantile/clipped_extrapolation.py",
+      "original_sha256": "39b96994c52b5842c24bef0c5492914f2108644759711204c3cb2c1fb58a1354",
+      "original_ast_sha256": "830c0b9f2e9c5223003f8dd63cc59fb36fd457bf7caeb1e845528874d909a55f"
+    },
+    "P069": {
+      "source": "proofs/enum/fixed_class_learning.py",
+      "destination": "experiments/enum/fixed_class_learning.py",
+      "original_sha256": "96314c1a9fa2da8b35a6336ad3452a8d42f511f75bcaedff2569cfcbc1b4f15d",
+      "original_ast_sha256": "c0d49561f49f8503cd6e9ecab2b1374d918e1354da3b0d8db69308300cef8ec8"
+    },
+    "P070": {
+      "source": "proofs/enum/declared_without_examples.py",
+      "destination": "experiments/enum/declared_without_examples.py",
+      "original_sha256": "8f6a837920a6f2e2ede8b9482c346a0084d8eab681c57db2b951b1296f9421d6",
+      "original_ast_sha256": "7043cf182648b5d0bb8831df62a2ebb6067fb6f5caea76dd8ad618da6c2787ab"
+    },
+    "P071": {
+      "source": "proofs/composition/held_out_requests.py",
+      "destination": "experiments/composition/held_out_requests.py",
+      "original_sha256": "1a9f9a17c19d8657ad9564a18ac4cde2d3aebb35c76c4053605a49722de90ed9",
+      "original_ast_sha256": "1e1d421e0ee2492b916cb92b989876fd5f91dc3d76a2a1494c85f6ff0c413c32"
+    },
+    "P072": {
+      "source": "proofs/composition/context_examples.py",
+      "destination": "experiments/composition/context_examples.py",
+      "original_sha256": "806d603beef67cc156f9da207d6fa754cb99260b4083edae6e7711961124354c",
+      "original_ast_sha256": "6f22ddf16a211935a98a2e87a67d383f6feaa84120ebb404b8d394c44f6f7633"
+    },
+    "P073": {
+      "source": "proofs/representation/reconstruction_transfer.py",
+      "destination": "experiments/representation/reconstruction_transfer.py",
+      "original_sha256": "9cbf1e2ad1ac2374efa16720142d91c361d12f1758c004e5534e3498eb6161c9",
+      "original_ast_sha256": "ec459ce426ada228a606edf3b69c04c23f912aa769250d1e1dfe9bcba6160f07"
+    },
+    "P074": {
+      "source": "proofs/representation/incomplete_evidence.py",
+      "destination": "experiments/representation/incomplete_evidence.py",
+      "original_sha256": "73142d2eedff70df03c5089d57e5ad9f23447cb669b3b89ee9c7cd1e0921c2f7",
+      "original_ast_sha256": "a801f5c0d5c3aaa2911cb96af024f05cbe6640c9609eec891991bb4b3eaf3acd"
+    },
+    "P075": {
+      "source": "proofs/relational/retrieval_capacity.py",
+      "destination": "experiments/relational/retrieval_capacity.py",
+      "original_sha256": "6e7c7af0ba05bcd39653699dc68b75ea87331a4b62802bc9fc9c5450d4da88f1",
+      "original_ast_sha256": "0d18acc72bfc694c7a0f05e07a60af122ead46d0d6d3ae74bb0f9209b0a5d2cc"
+    },
+    "P076": {
+      "source": "proofs/anomaly/contextual_consistency.py",
+      "destination": "experiments/anomaly/contextual_consistency.py",
+      "original_sha256": "f51f2905666b68ef252940638b723adcdc0982dc0cb35003845f8b953fd67f60",
+      "original_ast_sha256": "afe0d6c5c8edf926b0764a0dd2725dcd2376da26dfaa2876b719521abe2ac327"
+    },
+    "P077": {
+      "source": "proofs/quantile/representation_tradeoffs.py",
+      "destination": "experiments/quantile/representation_tradeoffs.py",
+      "original_sha256": "be0c96f06ee4401c374deddb7b578f4bc42197d1b0f017d8cab9e5afe4258e10",
+      "original_ast_sha256": "a0c88a124d8bf6e11c0e4d10311b88141a3fbe971299b6284dcd38babb5cea8f"
+    },
+    "P078": {
+      "source": "proofs/cluster/regime_recovery.py",
+      "destination": "experiments/cluster/regime_recovery.py",
+      "original_sha256": "0dec1000c49d6dde03a840f14ddd64dd99804f217abbbbe1e2800d0d7809cd03",
+      "original_ast_sha256": "c1471e20b511911620c8eec7a929c81280f23623c9431b756cfd5fe282ab943e"
+    },
+    "P079": {
+      "source": "proofs/representation/number_lanes.py",
+      "destination": "experiments/representation/number_lanes.py",
+      "original_sha256": "88142fd43dee1c5891ec3764eb943c5a6e3e3b0b671b7227e07e4922d7145bed",
+      "original_ast_sha256": "ac220ea14f44d43e81d06d7812db6c73cb2aebe9601efa3a45ac4dc4b5ea0dd2"
+    }
+  }
+}
