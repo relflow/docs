@@ -11,10 +11,12 @@ and `uv run pytest` for static tooling. Runtime tests under tests/runtime are
 explicit and require an independently supplied RelFlow wheel. Documentation
 exports require only PyYAML and must never import RelFlow, Torch, or Lightning.
 
-Modal runs use the exact supplied baseline and candidate wheels and record each
+Lab runs use the exact supplied baseline and candidate wheels and record each
 experiment and seed separately. Smoke or partial suite runs never satisfy the
 required gate. Execution failures, incomplete results, and regressions in checks
-that pass on the baseline must block. Keep credentials out of experiment workers.
+that pass on the baseline must block. Keep credentials out of experiment workers. The lab backend isolates each task
+in a network-disabled Docker container; no host home or Docker socket may be
+mounted into experiment containers. Modal is an optional backend.
 Reports use GitHub Actions artifacts and immutable GitHub Release bundles;
 there must be no AWS account or S3 dependency.
 

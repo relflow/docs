@@ -25,30 +25,40 @@ uv run --with /path/to/relflow.whl pytest tests/runtime
 `--steps 2` is a smoke run and does not establish learning. Local executions
 append to `runs/local/results.yaml`, preserving the historical archive.
 
-## Modal and the required merge check
+## Lab and the required merge check
 
-`modal_run.py` runs every registered experiment against both the baseline wheel
-and the candidate wheel, on CPU, in the same locked environment. The wheels
-must be built from the exact GitHub event revisions. Every baseline-passing
+The primary backend runs on `lab` over Tailscale SSH. `ssh_run.py` sends the
+pinned suite and both wheels to the host; `lab_run.py` runs each experiment in a
+separate disposable Docker container. Experiments have no network, no host home
+mount, no Docker socket, a read-only root filesystem, and bounded CPU/memory.
+The host needs Docker and Python 3.10+ with PyYAML. Runtime packages are installed
+in an isolated Python 3.12 image; RelFlow is never installed on the host.
+
+The gate runs every registered experiment against both the baseline wheel and
+the candidate wheel in the same locked environment. Every baseline-passing
 check must also pass on the candidate. Baseline capability misses remain visible;
-errors on either side, missing results, smoke runs, and partial suites fail the
-required gate. Each experiment keeps its original default seed and budget;
-experiments that implement an internal seed panel retain it.
+errors on either side, missing results, smoke runs, and partial suites fail.
+Each experiment retains its declared default seed and budget, including any
+internal seed panel. A one-seed experiment remains provisional evidence.
 
-The library integration is provided by `integration/evidence.yml`. It pins this
-repository to a full commit SHA, builds wheels without Modal credentials, and
-launches the isolated workers from a trusted job. Add dedicated GitHub Actions
-secrets `MODAL_TOKEN_ID` and `MODAL_TOKEN_SECRET` to the calling repository.
-Fork PRs fail closed until an approved trusted execution path is configured.
-The workflow includes `merge_group` and an always-evaluated final gate.
+The library integration is provided by `integration/evidence.yml`. It calls a
+pinned reusable workflow that checks the caller repository and excludes fork
+PR execution. Tailscale workload identity federation ties short-lived access
+to that exact workflow. See [the setup guide](integration/lab.md) for the
+repository variables and tailnet trust rules. No AWS account, Modal CI token,
+or self-hosted GitHub runner is required.
+
+The optional `modal_run.py` backend remains available with `uv sync --extra modal`.
+`integration/modal.yml` is its alternative CI template; it is not the primary
+workflow. Dedicated Modal service users require a supported Modal plan.
 
 ## Reports and docs
 
 Every run produces `manifest.json`, per-task JSON records and logs,
 `summary.json`, `report.html`, and `checksums.json`. GitHub Actions retains the
 bundle for PR review. The publication workflow promotes selected complete runs
-to immutable Release assets and creates a static docs export. This requires
-only GitHub and Modal; no AWS account is needed.
+to immutable Release assets and creates a static docs export. This requires only GitHub and the existing lab/Tailscale connection; no AWS
+account is needed.
 
 ```sh
 uv run python export_docs.py /tmp/evidence-export --bundle /tmp/evidence-docs.tar.gz

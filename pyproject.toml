@@ -1,7 +1,7 @@
 [project]
 name = "relflow-evidence"
 version = "0.1.0"
-description = "Controlled empirical evidence and regression gates for RelFlow"
+description = "Controlled empirical evidence and isolated regression gates for RelFlow"
 requires-python = ">=3.12"
 dependencies = ["pyyaml==6.0.3"]
 
