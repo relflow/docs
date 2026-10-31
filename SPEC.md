@@ -1,7 +1,8 @@
-# relflow Modeling Proof Specification
+# RelFlow evidence protocol
 
-Status: active. Recorded results live in `results.yaml`, with implemented
-coverage registered by proof ID in that file. [`README.md`](README.md) explains
+Status: active. Implemented coverage is registered by stable ID in
+`catalog.yaml`. Historical results remain in `archive/results.yaml`; new runs
+produce independent JSON records and complete report bundles. [`README.md`](README.md) explains
 execution and compatibility. Sections marked planned describe
 hypotheses awaiting implementation and measurement.
 
@@ -175,10 +176,11 @@ which is also the source of its documentation page:
 
 Each standalone script contains its complete generator, schema, training, and
 evaluation, interleaved with Markdown explanations, a Typst tree, and YAML
-examples. `proofs/results.yaml` owns historical reports and new measurements,
-indexed by stable proof IDs. This documentation repository owns those scripts,
-their tests, and recorded evidence. Its site build reads them without importing
-RelFlow or executing experiments.
+examples. This repository owns the canonical experiments, runtime tests, and
+recorded evidence, indexed by stable IDs. The historical archive remains
+unchanged in `archive/results.yaml`; new measurements are independent records.
+The documentation repository imports verified publication exports and builds
+its local snapshot without importing RelFlow or executing experiments.
 Only reporting and command-line handling are shared between experiments.
 
 ### Prediction format compatibility
@@ -190,7 +192,7 @@ lists, and requested embeddings use `representations` records with `path`,
 records rather than reconstructing them from leaf values or value-state logits.
 
 Updating a reader is a source migration, not a new learning measurement. Keep
-`results.yaml`, historical package versions, run fingerprints, budgets, seeds,
+`archive/results.yaml`, historical package versions, run fingerprints, budgets, seeds,
 and measurements unchanged. Fresh runs must record their own provenance and
 quality gates; the static site must continue to show when archived evidence
 comes from an earlier source or package version.
@@ -290,7 +292,7 @@ The numeric gates below are provisional starting points. For each new proof:
 1. run at least ten seeds for the intended model and its negative control;
 2. inspect the result distributions without changing the generator;
 3. place the gate in the gap between them with room for numerical variation;
-4. record the raw summary and rationale in `proofs/results.yaml`; and
+4. record the raw summary and rationale in the run report bundle; and
 5. treat a later threshold change as a modeling-contract change requiring an
    explanation, not routine test maintenance.
 
@@ -1382,7 +1384,7 @@ using complementary context rather than one accidentally dominant field.
 ## Mutation Proofs
 
 **Status: P046–P050 implement five experiments; the remaining
-scenarios below are planned.** Recorded outcomes live in `results.yaml`.
+scenarios below are planned.** Recorded outcomes live in `archive/results.yaml`.
 
 The original 45 scenarios measure models with fixed schemas. Mutation has unit
 coverage for selection, validation, graph rebuilding, compatible state,
@@ -1491,7 +1493,7 @@ seeds; use the ten-seed protocol before freezing new thresholds.
 
 ### Proposed experiments
 
-Each row becomes its own annotated script under `proofs/mutations/`. Assign
+Each row becomes its own annotated script under `experiments/mutations/`. Assign
 permanent IDs when the scripts and registry entries are added. Design labels
 below describe hypotheses, not existing catalog entries.
 
@@ -1593,7 +1595,7 @@ obtained while its true value is visible is not evidence of predictive skill.
 ### Ablate, restore, and delete
 
 Implemented separately as **P049** (deactivate and restore) and **P050**
-(delete and adapt). Their measured outcomes are recorded in `results.yaml`.
+(delete and adapt). Their measured outcomes are recorded in `archive/results.yaml`.
 
 Train `y = a + b` with two independent visible inputs. In a read-only prediction
 phase, override `b` with `active=False`; compare against the full model and
@@ -1806,156 +1808,108 @@ No architecture alternative should be declared better from its training loss,
 parameter count, or throughput alone. Use the same synthetic process and report
 the quality/resource tradeoff.
 
-## Suite Layout And Execution
+## Suite layout and execution
 
-Each experiment is one annotated Python script under `proofs/<category>/`, with
-a permanent ID such as `P014`. `results.yaml` maps that ID to its script and
-published page route; do not reuse IDs when filenames or titles change. Keep descriptive
-filenames for readers and use IDs in automation and result references.
+Each experiment is one annotated Python script under `experiments/<category>/`,
+with a permanent ID such as `P014`. `catalog.yaml` maps each ID to its script and
+published route. Never reuse IDs when filenames or titles change. Historical
+paths, source fingerprints, measurements, and package versions remain unchanged
+in `archive/results.yaml` and the extracted Git history.
 
 ```text
-proofs/
-├── SPEC.md
-├── results.yaml
-├── reporting.py
-├── render.py
-├── source.py
-├── run.py
-├── aggregation/
-│   └── raw_value_weight_sum.py
-├── calibration/
-├── cluster/
-├── identity/
-├── relational/
-│   └── hash_recall.py
-├── state/
-├── structure/
-└── temporal/
+catalog.yaml
+SPEC.md
+archive/results.yaml
+experiments/
+  reporting.py
+  source.py
+  run.py
+  aggregation/raw_value_weight_sum.py
+  relational/hash_recall.py
+evidence_ci.py
+lab_run.py
+lab_worker.py
+ssh_run.py
+export_docs.py
+tests/
+  runtime/
 ```
-
-Choose the directory for the broad behavior being examined; the script's page
-metadata names its more specific catalog family. Keep shared tooling and the
-results registry at the root. Moving a script updates its registry path without
-changing its ID, published URL, or recorded run history.
 
 Each script owns its seeded record generator, model, training, metrics, and
 controls. Use `rf.SyntheticDataModule` with restartable generator factories.
-Keep Arrow conversion inside relflow. Materialize held-out records only when
-it makes paired evaluation clearer. Do not share dataset or model helpers
-between experiments: the reader should be able to understand one file on its
-own. `reporting.py` owns CLI handling and result recording; `source.py` reads
-page metadata and fingerprints Python syntax without importing the experiment.
+Keep Arrow conversion inside RelFlow. Materialize held-out records only when
+it makes paired evaluation clearer. Dataset or model helpers must not be shared
+between experiments: readers should understand an experiment in one file.
+Shared reporting handles command-line options, provenance, and output records.
 
 Each script exposes `run(seed, steps, accelerator)`, returning measured metrics
-and named Boolean checks. Run it through an ordinary `__main__` guard. Report
-all checks, even when some are not met; a learning outcome is data, not a pytest
-assertion. Preserve dataset, corruption, and shape invariants with ordinary
-validation errors. Defaults keep the full experiment budget; a `--steps`
-override is explicitly recorded as a smoke run.
+and named Boolean checks, and invokes the reporter under a `__main__` guard.
+Record every check, including unmet checks and execution errors. Defaults keep
+the declared full budget; `--steps` always identifies a smoke run.
 
 Author prose in `# %% [markdown]` comment cells and Python in `# %%` code cells.
-The first Markdown cell contains the page metadata, including `proof-id`,
-`code-fold: true`, and `execute: {enabled: false, eval: false}`. Quarto's native
-script rendering in the documentation repository needs no Jupyter environment.
-Its build also disables execution globally.
+The first Markdown cell contains `evidence-id`, `code-fold: true`, and
+`execute: {enabled: false, eval: false}`. The docs repository uses Quarto's
+Markdown engine with execution disabled and no Jupyter environment.
 
-Write for a reader with little modeling experience. Give each page a question
-title, a short purpose, one YAML record, one schema-faithful Typst tree, a plain
-comparison, and an interpretation with a concrete limit. Define unfamiliar
-terms when they are needed. Keep the visible explanation brief; parameter
-counts, training settings, raw metric dumps, and implementation mechanics
-belong in one closed **Experiment details and code** foldout. Set `toc: false`
-so optional technical headings do not fill the contents menu.
+Give each page a question title, one YAML record, a schema-faithful Typst tree,
+a plain comparison, and an interpretation with a concrete limit. Keep training
+settings, raw measurements, implementation details, and reproduction commands
+inside the closed **Experiment details and code** foldout. Set `toc: false`.
+Use `evidence-readout` to select one to three recorded measurements, each with
+a label, metric path, and format (`number`, `percent`, `error`, or `auc`).
+AUC must not be described as classification accuracy. Full runs supply the
+readout; smoke measurements never replace learning evidence. Preserve failed
+checks, source-version warnings, and mixed history in the publication.
 
-Use `proof-readout` metadata to select one to three recorded measurements with
-readable labels. Each selection declares a `metric` path and a `format`:
-`number`, `percent` for fractions, `error` for constant-baseline error ratios,
-or `auc` for ranking scores. Never present AUC as classification accuracy.
-Values come from the latest full run, not authored prose or shortened smoke
-runs. Keep unsuccessful checks, source-version warnings, and mixed run history
-visible in the result. The foldout retains full measurements, checks, protocol,
-remaining work, reproduction commands, and complete experiment code.
+`export_docs.py` reads the canonical sources and archived or selected run data
+without importing RelFlow. It produces a checksummed publication bundle. The
+docs importer verifies a pinned bundle, commits its snapshot, and generates
+ignored pages under `docs/evidence/`. Snapshot files are publication artifacts,
+not a second editable experiment source. Source or output-reader migrations do
+not establish fresh learning results.
 
-Keep the overview, optional explanation, and Python in that same script.
-`proofs/render.py` reads local scripts and recorded results to generate ignored
-publication inputs under `docs/proofs/`. Quarto builds the site from those
-inputs without executing experiments. The canonical scripts and evidence stay
-under `proofs/`; generated pages are never a second source of truth.
-Do not maintain a second authored proof page. Shortcodes insert status, evidence,
-and reproduction commands with a script download.
+The default static tests protect tooling, metadata, source preservation, and
+report integrity. Runtime model and generator tests require a separately
+supplied compatible RelFlow build:
 
-Measurements remain in `results.yaml`; gates are criteria, not measured
-results. Historical interpretations stay archived there while current insights
-are authored in the script. Full file hashes retain provenance, and a Python
-AST fingerprint detects code changes without invalidating results for Markdown
-or formatting edits. Retain the original recorded hashes when reorganizing
-scripts; those hashes identify the source used for each measured run.
-
-The default `uv run pytest` suite checks static documentation, metadata, and
-evidence handling with PyYAML. Model and generator checks under `tests/proofs/`
-require a separate environment with a compatible installed RelFlow build:
-
-```bash
-uv run --with /path/to/matching-relflow.whl pytest tests/proofs
+```sh
+uv run --with /path/to/matching-relflow.whl pytest tests/runtime
+uv run python experiments/run.py --list
+uv run --with /path/to/matching-relflow.whl python experiments/run.py P014 --accelerator cpu
+uv run --with /path/to/matching-relflow.whl python experiments/run.py P014 --steps 2
 ```
 
-Proof execution is also explicit. Replace the wheel path with a RelFlow artifact
-matching the intended source version; building the site installs no model runtime.
+Replace the wheel path with the intended package artifact. The ID runner sets
+`PYTHONPATH=experiments` automatically. Direct runs append to
+`runs/local/results.yaml`, preserving the historical archive.
 
-```bash
-uv run python proofs/run.py --list
-uv run --with /path/to/matching-relflow.whl python proofs/run.py P014 --accelerator gpu
-uv run --with /path/to/matching-relflow.whl python proofs/run.py P014 --steps 2
-```
+The required pre-merge workflow uses the exact base and merge-candidate wheels.
+It executes the full catalog twice, using the same locked runtime, CPU profile,
+data/model seeds, and declared budgets. Existing internal seed panels remain
+part of their experiment. Single-seed experiments remain provisional; the
+stability and promotion requirements earlier in this protocol still apply.
+The candidate must retain every check that passes on the paired baseline.
+Baseline misses remain visible; an error on either side, changed or missing
+checks, missing records, invalid provenance, partial coverage, or smoke budgets
+must prevent a successful required gate. Never retry new seeds until a run
+happens to pass or tune thresholds against a candidate's test results.
 
-Prefer the ID command. To execute a script directly from a prepared proof
-environment, use `PYTHONPATH=proofs python proofs/aggregation/raw_value_weight_sum.py`
-from this repository root. The runner sets that import path itself.
+Lab executes each task in a disposable, resource-bounded Docker container with
+no network, no host home or Docker socket mount, and a read-only root. GitHub
+joins the tailnet through short-lived OIDC trust bound to the pinned reusable
+workflow. Fork execution is rejected. Modal remains an optional compute backend.
+See `integration/lab.md` for the exact integration and activation requirements.
 
-New reports identify the documentation/proof checkout as `proof_revision` and
-fingerprint the independently installed library as `relflow_source_sha256`.
-`source_sha256` covers both proof tooling and model code. Preserve older records
-and their original field names; their revisions refer to the repositories that
-owned the proofs when those experiments ran.
+Each full report contains the manifest, independent task records and logs,
+aggregate gate decision, HTML report, checksums, wheels, and environment lock.
+Record the evidence and library revisions, package/source digests, hardware,
+seed, budget, measurements, checks, errors, and timing. Archive every attempt;
+workers must never append concurrently to a shared historical YAML file.
 
-Run serially by default. Record seeds, budgets, environment, source fingerprints,
-metrics, and every check in YAML. Failed execution is separate from unmet
-behavioral gates. Shortened smoke runs never update the capability status.
-
-## Failure Reports
-
-A proof failure should print:
-
-- claim name and seed;
-- model and data configuration relevant to the hypothesis;
-- train, validation, test, and baseline metrics;
-- terminal metric trajectory or selected checkpoint step;
-- vocabulary size, unavailable rate, committed K, or branch occupancy when
-  relevant; and
-- the negative-control result.
-
-Do not dump full prediction tables. Include a small deterministic sample only
-when it explains the failure.
-
-## Order Of Implementation
-
-Build the suite in this order:
-
-1. Harness calibration.
-2. Flat mixed supervision and explicit value state.
-3. Item alignment and order dependence.
-4. Unconditional and operation-conditioned reduction, then weighted and
-   category-conditioned reduction.
-5. Unseen Hash equality, Category's OOV boundary, and same-branch associative
-   recall.
-6. Shared-context recall, then direct sibling entity transfer.
-7. Entity-keyed aggregation, retrieval, peer-relative inference, collection
-   overlap, temporal alignment, and multi-hop candidates.
-8. Complete cluster partition and held-out gates.
-9. Nested context, Set invariance, and hierarchical statistics.
-10. Contextual reconstruction and embedding utility.
-11. Calendar recurrence, cross-DatePart inference, Vector geometry, and field
-    reliance.
-
-This sequence establishes simple learning and leakage controls before using the
-same harness to judge more complex structure or representation claims.
+GitHub Actions artifacts retain routine CI reports. Selected baseline and
+publication bundles are promoted to immutable GitHub Releases before artifact
+retention expires. Reviewed manifests select baselines and publication runs.
+No AWS account or S3 storage is required. Original `proof_revision` fields and
+other legacy provenance retain their meaning; new reports add explicit evidence
+revision, library revision, and wheel digest without rewriting archived records.
