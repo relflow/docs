@@ -32,11 +32,15 @@ page. Configure:
 | Setting | Value |
 | --- | --- |
 | Issuer | GitHub Actions, `https://token.actions.githubusercontent.com` |
-| Subject | `repo:relflow/relflow:*` |
+| Subject | `repo:relflow@312307812/relflow@1217201723:*` |
 | Custom claim `repository` | `relflow/relflow` |
 | Custom claim `job_workflow_ref` | `relflow/evidence/.github/workflows/lab.yml@<exact-helper-commit>` |
 | Scope | `auth_keys` write, restricted to `tag:relflow-evidence-ci` |
 | Device tag | `tag:relflow-evidence-ci` |
+
+The subject above matches the ID-qualified subject observed from GitHub for
+this repository. Use the issuer-reported format; a repository-name-only subject
+does not match it.
 
 The helper commit is the complete SHA in the library workflow's `uses:` line.
 Keep the custom workflow claim exact; do not replace it with a wildcard. The
