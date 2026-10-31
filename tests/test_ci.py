@@ -5,15 +5,18 @@ from pathlib import Path
 
 import pytest
 
+import evidence_ci
 from evidence_ci import ROOT, default_seed, evaluate, plan, registry, write_json
 
 
 @pytest.fixture
-def paired():
+def paired(monkeypatch):
+    entries = registry()
+    monkeypatch.setattr(evidence_ci, "registry", lambda *args: {"P001": entries["P001"]})
     manifest = plan(
         run_id="test",
-        candidate={"revision": "candidate"},
-        baseline={"revision": "base"},
+        candidate={"revision": "candidate", "wheel_sha256": "candidate-wheel"},
+        baseline={"revision": "base", "wheel_sha256": "baseline-wheel"},
         evidence_sha="suite",
         identifiers=["P001"],
     )
@@ -32,6 +35,14 @@ def paired():
         }
         for task in manifest["tasks"]
     ]
+    for record in records:
+        task = record["task"]
+        record["result"]["provenance"] = {
+            "evidence_revision": "suite",
+            "relflow_revision": manifest[task["role"]]["revision"],
+            "wheel_sha256": manifest[task["role"]]["wheel_sha256"],
+            "script_sha256": task["script_sha256"],
+        }
     return manifest, records
 
 

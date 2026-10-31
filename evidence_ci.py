@@ -171,6 +171,16 @@ def evaluate(manifest: dict, records: list[dict]) -> dict:
     expected = {task_key(task): task for task in manifest["tasks"]}
     seen = {}
     errors = []
+    catalog = registry()
+    if len(expected) != len(manifest["tasks"]):
+        errors.append("Manifest contains duplicate tasks")
+    if {task["id"] for task in manifest["tasks"]} != set(catalog):
+        errors.append("Manifest does not cover the complete registered catalog")
+    if len(expected) != 2 * len(catalog):
+        errors.append("Every experiment needs both baseline and candidate execution")
+    for identifier in catalog:
+        if {task["role"] for task in manifest["tasks"] if task["id"] == identifier} != {"baseline", "candidate"}:
+            errors.append(f"Missing baseline or candidate task: {identifier}")
     for record in records:
         key = task_key(record["task"])
         if key not in expected or key in seen or record["task"] != expected.get(key):
@@ -188,6 +198,17 @@ def evaluate(manifest: dict, records: list[dict]) -> dict:
             errors.append(f"Run identity differs from task: {key}")
         if result.get("mode") != manifest["mode"]:
             errors.append(f"Run budget differs from manifest: {key}")
+        task = record["task"]
+        identity = manifest.get(task["role"], {})
+        provenance = result.get("provenance", {})
+        for field, wanted in (
+            ("evidence_revision", manifest["evidence_sha"]),
+            ("relflow_revision", identity.get("revision")),
+            ("wheel_sha256", identity.get("wheel_sha256")),
+            ("script_sha256", task["script_sha256"]),
+        ):
+            if wanted is None or provenance.get(field) != wanted:
+                errors.append(f"Provenance differs from manifest: {key}: {field}")
     errors += [f"Missing result: {key}" for key in sorted(expected.keys() - seen.keys())]
     regressions = []
     limitations = []
