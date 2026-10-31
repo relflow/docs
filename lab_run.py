@@ -9,6 +9,7 @@ import json
 import os
 import shlex
 import shutil
+import signal
 import subprocess
 import tempfile
 from pathlib import Path
@@ -58,7 +59,7 @@ def run(options: argparse.Namespace) -> None:
     if not version:
         raise ValueError("The runtime requirements must pin Torch")
     image = "relflow-evidence:" + digest(options.requirements)[:20]
-    label = hashlib.sha256(str(output).encode()).hexdigest()[:20]
+    label = hashlib.sha256(output.name.encode()).hexdigest()[:20]
     try:
         with tempfile.TemporaryDirectory(prefix="evidence-image-") as temporary:
             context = Path(temporary)
@@ -180,6 +181,11 @@ def run(options: argparse.Namespace) -> None:
 
 
 def main() -> None:
+    def interrupted(signum, frame):
+        raise KeyboardInterrupt
+
+    for signum in (signal.SIGHUP, signal.SIGTERM):
+        signal.signal(signum, interrupted)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--candidate-wheel", required=True, type=Path)
     parser.add_argument("--baseline-wheel", required=True, type=Path)
