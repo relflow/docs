@@ -14,7 +14,7 @@ import tarfile
 import tempfile
 import time
 import traceback
-from datetime import UTC, datetime
+from datetime import datetime, timezone
 from pathlib import Path
 
 import yaml
@@ -79,7 +79,7 @@ def plan(
     return {
         "schema": 1,
         "run_id": run_id,
-        "created_at": datetime.now(UTC).isoformat(),
+        "created_at": datetime.now(timezone.utc).isoformat(),  # noqa: UP017 - lab host runs Python 3.10
         "evidence_sha": evidence_sha,
         "policy": "paired-passing-checks-v1",
         "candidate": candidate,
