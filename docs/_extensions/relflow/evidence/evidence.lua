@@ -10,7 +10,7 @@ return {
     local path = quarto.project.directory .. "/evidence/_generated/" .. identifier .. "-" .. section .. ".md"
     local file, reason = io.open(path, "r")
     if not file then
-      error("Cannot read evidence evidence " .. path .. ": " .. reason)
+      error("Cannot read evidence fragment " .. path .. ": " .. reason)
     end
     local content = file:read("*a")
     file:close()

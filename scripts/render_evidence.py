@@ -1,4 +1,4 @@
-"""Render recorded evidence evidence and source listings without running experiments."""
+"""Render recorded evidence and source listings without running experiments."""
 
 from __future__ import annotations
 
