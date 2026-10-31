@@ -206,7 +206,7 @@ GROUP_ORDER = list(dict.fromkeys(GROUPS.values()))
 
 
 def group(script: Path) -> str:
-    """Catalog group for a evidence, from its folder; unknown folders keep their own name."""
+    """Catalog group for an evidence experiment, from its folder; unknown folders keep their own name."""
     return GROUPS.get(script.parent.name, script.parent.name.capitalize())
 
 
@@ -216,7 +216,7 @@ def render(root: Path) -> None:
     recorded = source.read_text()
     document = yaml.safe_load(recorded)
     if document.get("schema") != 2:
-        raise ValueError(f"{source}: expected evidence schema 1")
+        raise ValueError(f"{source}: expected evidence schema 2")
     entries = document["evidence"]
     output = docs / "_generated"
     output.mkdir(parents=True, exist_ok=True)
@@ -236,7 +236,7 @@ def render(root: Path) -> None:
         if page.parent.parent != docs or page.suffix != ".py":
             raise ValueError(f"{identifier}: expected a generated script page under docs/evidence/<family>/")
         if page in pages:
-            raise ValueError(f"{identifier}: another evidence already uses page {page}")
+            raise ValueError(f"{identifier}: another experiment already uses page {page}")
         pages.add(page)
         page.parent.mkdir(exist_ok=True)
         write(page, code)
