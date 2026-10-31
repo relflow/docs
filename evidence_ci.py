@@ -113,6 +113,7 @@ def execute(task: dict, *, root: Path = ROOT, timeout: int = 1800) -> dict:
                 MKL_NUM_THREADS="1",
                 POLARS_MAX_THREADS="2",
                 TOKENIZERS_PARALLELISM="false",
+                PYTHONHASHSEED=str(task["seed"]),
             )
             command = [
                 sys.executable,
