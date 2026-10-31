@@ -123,7 +123,7 @@ def run(options: argparse.Namespace) -> None:
                 "sh",
                 "-c",
                 "python -m venv --system-site-packages /tmp/runtime && "
-                "/tmp/runtime/bin/pip install --no-deps "
+                "/tmp/runtime/bin/python -m pip install --no-deps "
                 + shlex.quote("/wheels/" + wheel.name)
                 + " && exec /tmp/runtime/bin/python /evidence/lab_worker.py /results/task.json",
             ]
