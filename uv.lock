@@ -830,8 +830,12 @@ name = "relflow-evidence"
 version = "0.1.0"
 source = { virtual = "." }
 dependencies = [
-    { name = "modal" },
     { name = "pyyaml" },
+]
+
+[package.optional-dependencies]
+modal = [
+    { name = "modal" },
 ]
 
 [package.dev-dependencies]
@@ -842,9 +846,10 @@ dev = [
 
 [package.metadata]
 requires-dist = [
-    { name = "modal", specifier = "==1.6.2" },
+    { name = "modal", marker = "extra == 'modal'", specifier = "==1.6.2" },
     { name = "pyyaml", specifier = "==6.0.3" },
 ]
+provides-extras = ["modal"]
 
 [package.metadata.requires-dev]
 dev = [

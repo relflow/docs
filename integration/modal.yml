@@ -66,6 +66,7 @@ jobs:
           path: inputs
       - name: Run and collect every experiment
         env:
+          MODAL_ENVIRONMENT: relflow-evidence-ci
           MODAL_TOKEN_ID: ${{ secrets.MODAL_TOKEN_ID }}
           MODAL_TOKEN_SECRET: ${{ secrets.MODAL_TOKEN_SECRET }}
           CANDIDATE_SHA: ${{ github.sha }}
