@@ -10,11 +10,11 @@ import pytest
 import relflow as rf
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "proofs"))
+sys.path.insert(0, str(ROOT / "experiments"))
 
 
 def load(family, name):
-    spec = importlib.util.spec_from_file_location(f"confidence_{name}", ROOT / "proofs" / family / f"{name}.py")
+    spec = importlib.util.spec_from_file_location(f"confidence_{name}", ROOT / "experiments" / family / f"{name}.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

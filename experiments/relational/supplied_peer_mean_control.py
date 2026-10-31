@@ -3,14 +3,14 @@
 # title: Can it subtract an average supplied as input?
 # categories:
 # - Peer-relative inference
-# proof-id: P034
+# evidence-id: P034
 # description: Give each item both its value and its peer average, then predict their difference.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Difference prediction
 #   metric:
 #   - intact_nrmse
@@ -32,7 +32,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-supplied-peer-mean-control
+# //| label: fig-evidence-supplied-peer-mean-control
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with collection, items, value, peer_mean, deviation. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("collection", kind: "root", width: 120pt, children: (
@@ -50,18 +50,18 @@
 #
 # ## Result
 #
-# {{< proof P034 status >}}
+# {{< evidence P034 status >}}
 #
 # Local subtraction works when both numbers are supplied. This does not show that the model can calculate the average or choose the right peers.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P034 evidence >}}
+# {{< evidence P034 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P034 script >}}
+# {{< evidence P034 script >}}
 #
 # ### How it works
 #

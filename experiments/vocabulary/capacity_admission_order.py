@@ -3,14 +3,14 @@
 # title: Does label encounter order limit vocabulary coverage?
 # categories:
 # - Vocabulary
-# proof-id: P057
+# evidence-id: P057
 # description: Train on common and rare labels, changing which labels appear first.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Common-label coverage, rare first
 #   metric:
 #   - arms
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-capacity-admission-order
+# //| label: fig-evidence-capacity-admission-order
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, code, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -50,18 +50,18 @@
 #
 # ## Result
 #
-# {{< proof P057 status >}}
+# {{< evidence P057 status >}}
 #
 # Storage grows and retains earlier labels in both orders. This single-consumer experiment does not test distributed encounter order.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P057 evidence >}}
+# {{< evidence P057 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P057 script >}}
+# {{< evidence P057 script >}}
 #
 # ### Data and model
 #

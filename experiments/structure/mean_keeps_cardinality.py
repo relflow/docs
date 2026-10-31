@@ -3,7 +3,7 @@
 # title: Can an average lose the total?
 # categories:
 # - Hierarchical statistics
-# proof-id: P041
+# evidence-id: P041
 # description: Predict both average and total after an average-only branch with item attention disabled;
 #   the branch's count lane keeps the total recoverable.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Average prediction
 #   metric:
 #   - mean_nrmse
@@ -39,7 +39,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-structure-mean-keeps-cardinality
+# //| label: fig-evidence-structure-mean-keeps-cardinality
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, transactions, amount, mean_amount, global_total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", children: (
@@ -57,18 +57,18 @@
 #
 # ## Result
 #
-# {{< proof P041 status >}}
+# {{< evidence P041 status >}}
 #
 # The summary keeps the count: one and six copies produce different totals that track the correct values, while the average stays shared.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P041 evidence >}}
+# {{< evidence P041 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P041 script >}}
+# {{< evidence P041 script >}}
 #
 # ### How it works
 #

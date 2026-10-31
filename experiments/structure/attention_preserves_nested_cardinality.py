@@ -3,14 +3,14 @@
 # title: Does the grouping of values matter?
 # categories:
 # - Hierarchical statistics
-# proof-id: P040
+# evidence-id: P040
 # description: Predict the largest session total when the same six amounts are divided into different sessions.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Model error
 #   metric:
 #   - test_rmse
@@ -41,7 +41,7 @@
 # largest_session_total is hidden. global_total is an explanatory value, not a model input.
 #
 # ```{typst}
-# //| label: fig-proof-structure-attention-preserves-nested-cardinality
+# //| label: fig-evidence-structure-attention-preserves-nested-cardinality
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, sessions, transactions, amount, largest_session_total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -60,18 +60,18 @@
 #
 # ## Result
 #
-# {{< proof P040 status >}}
+# {{< evidence P040 status >}}
 #
 # The model retains useful information about the hierarchy. Only two arrangements of equal amounts are tested; general nested arithmetic remains a larger task.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P040 evidence >}}
+# {{< evidence P040 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P040 script >}}
+# {{< evidence P040 script >}}
 #
 # ### How it works
 #

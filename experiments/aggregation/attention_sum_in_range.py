@@ -3,14 +3,14 @@
 # title: Can it add a list of numbers?
 # categories:
 # - Cardinality generalization
-# proof-id: P001
+# evidence-id: P001
 # description: Predict the total of a list whose length varies within the range used in training.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: New lists
 #   metric:
 #   - measured
@@ -31,7 +31,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-attention-sum-in-range
+# //| label: fig-evidence-attention-sum-in-range
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, amount, total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -48,18 +48,18 @@
 #
 # ## Result
 #
-# {{< proof P001 status >}}
+# {{< evidence P001 status >}}
 #
 # The model learns an approximate total in this range. Longer lists need a separate test.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P001 evidence >}}
+# {{< evidence P001 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P001 script >}}
+# {{< evidence P001 script >}}
 #
 # ### How it works
 #

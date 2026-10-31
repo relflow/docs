@@ -3,7 +3,7 @@
 # title: Does reconstruction accuracy include unfamiliar answers?
 # categories:
 # - Vocabulary
-# proof-id: P062
+# evidence-id: P062
 # description: Hide a categorical answer and reconstruct it from numeric context, while varying how many
 #   test answers belong to the learned vocabulary.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Known-answer accuracy, low coverage
 #   metric:
 #   - known_102
@@ -40,7 +40,7 @@
 # code is hidden wherever hide is true. Unknown code names cannot be emitted by the learned output vocabulary.
 #
 # ```{typst}
-# //| label: fig-proof-pretraining-coverage
+# //| label: fig-evidence-pretraining-coverage
 # //| fig-cap: "Selector notes identify hidden values. hide chooses which code answers are hidden."
 # //| fig-alt: "Model tree with record, x, code. Selector notes identify hidden values. hide chooses which code answers are hidden."
 # #tree(node("record", kind: "root", children: (
@@ -55,18 +55,18 @@
 #
 # ## Result
 #
-# {{< proof P062 status >}}
+# {{< evidence P062 status >}}
 #
 # Known-only accuracy stays high even as coverage falls. Excluding unfamiliar answers from the content score does not mean they were recovered.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P062 evidence >}}
+# {{< evidence P062 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P062 script >}}
+# {{< evidence P062 script >}}
 #
 # ### Training and controls
 #

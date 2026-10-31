@@ -3,14 +3,14 @@
 # title: Can it infer an average and compare each item?
 # categories:
 # - Peer-relative inference
-# proof-id: P035
+# evidence-id: P035
 # description: Predict each item’s difference from the list average without supplying that average.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Original lists
 #   metric:
 #   - intact_nrmse
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-ungrouped-peer-deviation
+# //| label: fig-evidence-ungrouped-peer-deviation
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with collection, items, value, deviation. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("collection", kind: "root", width: 120pt, children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P035 status >}}
+# {{< evidence P035 status >}}
 #
 # The model approximately combines list information with each item’s value. This result covers six-item lists, rather than arbitrary lengths or exact arithmetic.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P035 evidence >}}
+# {{< evidence P035 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P035 script >}}
+# {{< evidence P035 script >}}
 #
 # ### How it works
 #

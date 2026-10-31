@@ -3,7 +3,7 @@
 # title: How confident should it be about a new identity?
 # categories:
 # - Vocabulary
-# proof-id: P061
+# evidence-id: P061
 # description: Predict a yes/no outcome using a numeric signal and an identity-specific effect. New identities
 #   remove only the latter information.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Weak signal, new identity, 20% training rate
 #   metric:
 #   - '0.2'
@@ -37,7 +37,7 @@
 # The outcome is hidden and randomly sampled. Scores compare predicted probabilities with the generator’s known probabilities.
 #
 # ```{typst}
-# //| label: fig-proof-cold-start-confidence
+# //| label: fig-evidence-cold-start-confidence
 # //| fig-cap: "Amber cards are hidden prediction targets. The numeric signal remains available for unfamiliar identities."
 # //| fig-alt: "Model tree with record, x, entity, label. Amber cards are hidden prediction targets. The numeric signal remains available for unfamiliar identities."
 # #tree(node("record", kind: "root", children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P061 status >}}
+# {{< evidence P061 status >}}
 #
 # A new identity does not always imply a 50% prediction: strong remaining context can still justify confidence. Neither unavailability rate is claimed to be best for every dataset.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P061 evidence >}}
+# {{< evidence P061 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P061 script >}}
+# {{< evidence P061 script >}}
 #
 # ### Training and controls
 #

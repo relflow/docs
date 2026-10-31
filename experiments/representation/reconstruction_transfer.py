@@ -3,7 +3,7 @@
 # title: Do reconstruction embeddings help a new small-label task?
 # categories:
 # - Representation
-# proof-id: P073
+# evidence-id: P073
 # description: Learn to reconstruct three noisy views of a hidden class, then freeze the encoder and classify
 #   using eight labeled examples per class.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Reconstruction embedding
 #   metric:
 #   - arms
@@ -41,7 +41,7 @@
 # The hidden class is used only for the later classifier. During reconstruction, parts of the three visible views are sampled for hiding.
 #
 # ```{typst}
-# //| label: fig-proof-reconstruction-transfer
+# //| label: fig-evidence-reconstruction-transfer
 # //| fig-cap: "Selector notes identify hidden values. Each view is sometimes hidden; the downstream class is absent."
 # //| fig-alt: "Model tree with record, first, second, geometry. Selector notes identify hidden values. Each view is sometimes hidden; the downstream class is absent."
 # #tree(node("record", kind: "root", body: [Export frozen embedding], children: (
@@ -57,18 +57,18 @@
 #
 # ## Result
 #
-# {{< proof P073 status >}}
+# {{< evidence P073 status >}}
 #
 # Only two of three seeds pass every check. Reconstruction can help, but raw features are stronger in two seeds; exporting an embedding alone does not make it useful.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P073 evidence >}}
+# {{< evidence P073 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P073 script >}}
+# {{< evidence P073 script >}}
 #
 # ### Process and observability
 #

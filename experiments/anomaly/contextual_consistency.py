@@ -3,7 +3,7 @@
 # title: Can it spot an ordinary value in the wrong context?
 # categories:
 # - Anomaly detection
-# proof-id: P076
+# evidence-id: P076
 # description: Learn to reconstruct a numeric answer from its context. Use a large reconstruction error
 #   as a warning that the value does not fit.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Learned context
 #   metric:
 #   - informative
@@ -40,7 +40,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-contextual-consistency
+# //| label: fig-evidence-contextual-consistency
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, group, x, y. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -56,18 +56,18 @@
 #
 # ## Result
 #
-# {{< proof P076 status >}}
+# {{< evidence P076 status >}}
 #
 # All three seeds detect this constructed inconsistency. The warning score is not a calibrated anomaly probability, and rare valid values need their own false-alarm check.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P076 evidence >}}
+# {{< evidence P076 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P076 script >}}
+# {{< evidence P076 script >}}
 #
 # ### Process, examples, and observability
 #

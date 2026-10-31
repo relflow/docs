@@ -3,7 +3,7 @@
 # title: Can it average prepared squared differences?
 # categories:
 # - Distribution statistics
-# proof-id: P009
+# evidence-id: P009
 # description: Supply each value’s squared distance from the average, then predict the average of those
 #   distances.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Average prediction
 #   metric:
 #   - measured
@@ -37,7 +37,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-supplied-squared-deviations
+# //| label: fig-evidence-supplied-squared-deviations
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, squared_deviation, variance. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -54,18 +54,18 @@
 #
 # ## Result
 #
-# {{< proof P009 status >}}
+# {{< evidence P009 status >}}
 #
 # This tests the final averaging step. The inputs already contain the difficult parts of calculating variance.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P009 evidence >}}
+# {{< evidence P009 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P009 script >}}
+# {{< evidence P009 script >}}
 #
 # ### How it works
 #
@@ -76,7 +76,7 @@
 # Mean averages encoded tokens, so the decoder still has to learn their numerical
 # interpretation. Passing this diagnostic supports reduction and decoding of
 # sufficient statistics. It does not prove learned centering or squaring; the
-# [raw-value variance proof](raw-value-variance.html) checks those requirements.
+# [raw-value variance evidence](raw-value-variance.html) checks those requirements.
 #
 # ### Remaining work
 #

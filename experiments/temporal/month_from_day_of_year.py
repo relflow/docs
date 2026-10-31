@@ -3,14 +3,14 @@
 # title: Can it learn the month from the day number?
 # categories:
 # - Calendar reasoning
-# proof-id: P044
+# evidence-id: P044
 # description: Learn month boundaries from day-of-year in non-leap years.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Original dates
 #   metric:
 #   - periodic_accuracy
@@ -31,7 +31,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-temporal-month-from-day-of-year
+# //| label: fig-evidence-temporal-month-from-day-of-year
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with calendar, observed_at, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("calendar", kind: "root", children: (
@@ -46,18 +46,18 @@
 #
 # ## Result
 #
-# {{< proof P044 status >}}
+# {{< evidence P044 status >}}
 #
 # The model learns the restricted calendar relationship. Exact month extraction is simpler in preprocessing, and leap-year ambiguity needs additional information.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P044 evidence >}}
+# {{< evidence P044 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P044 script >}}
+# {{< evidence P044 script >}}
 #
 # ### How it works
 #

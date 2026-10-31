@@ -3,7 +3,7 @@
 # title: Can it combine noisy measurements with missing readings?
 # categories:
 # - Representation
-# proof-id: P074
+# evidence-id: P074
 # description: Predict a signal from three noisy sensors, sometimes hiding one or more readings. An extra
 #   sensor carries no useful information.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Error with all three sensors
 #   metric:
 #   - patterns
@@ -40,7 +40,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-incomplete-evidence
+# //| label: fig-evidence-incomplete-evidence
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, first, second, third, nuisance, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -58,18 +58,18 @@
 #
 # ## Result
 #
-# {{< proof P074 status >}}
+# {{< evidence P074 status >}}
 #
 # Combining readings helps in all three seeds, but only one passes every check. Missing-evidence fallback remains inconsistent, and a corrupted visible sensor can sharply increase error.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P074 evidence >}}
+# {{< evidence P074 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P074 script >}}
+# {{< evidence P074 script >}}
 #
 # ### Process and information boundary
 #

@@ -3,14 +3,14 @@
 # title: Is it copying by position instead of by ID?
 # categories:
 # - Associative recall
-# proof-id: P024
+# evidence-id: P024
 # description: Place source values and questions in matching positions, then ask the model to copy the values.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Matching IDs
 #   metric:
 #   - intact_nrmse
@@ -34,7 +34,7 @@
 # Source values are visible. Query values are the hidden answers, selected by is_query.
 #
 # ```{typst}
-# //| label: fig-proof-aligned-position-control
+# //| label: fig-evidence-aligned-position-control
 # //| fig-cap: "Selector notes identify hidden values. Source values are visible; query values are hidden."
 # //| fig-alt: "Model tree with association, memory, entity_id, role, is_query, value. Selector notes identify hidden values. Source values are visible; query values are hidden."
 # #tree(node("association", kind: "root", width: 120pt, children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P024 status >}}
+# {{< evidence P024 status >}}
 #
 # Accuracy survives the changed IDs. Success on aligned records can therefore hide a positional shortcut.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P024 evidence >}}
+# {{< evidence P024 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P024 script >}}
+# {{< evidence P024 script >}}
 #
 # ### How it works
 #
@@ -75,7 +75,7 @@
 #
 # ### Remaining work
 #
-# Repeat seed calibration and retain this control alongside identity proofs.
+# Repeat seed calibration and retain this control alongside identity evidences.
 # Its successful predictions cannot establish unseen-key lookup: the required
 # information is already available through a fixed position relationship.
 #
@@ -121,7 +121,7 @@ def records(*, rows: int, seed: int, namespace: str, broken_identity: bool = Fal
         source = [{"entity_id": keys[index], "value": float(values[index])} for index in source_order]
         target = [{"entity_id": query_keys[index], "value": float(values[index])} for index in query_order]
         memory = [{**item, "role": "source", "is_query": False} for item in source]
-        memory.extend(({**item, "role": "query", "is_query": True} for item in target))
+        memory.extend({**item, "role": "query", "is_query": True} for item in target)
         yield {"memory": memory}
 
 

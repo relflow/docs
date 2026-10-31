@@ -3,14 +3,14 @@
 # title: Can it choose both a group and an operation?
 # categories:
 # - Category-conditioned reduction
-# proof-id: P027
+# evidence-id: P027
 # description: Ask for a group’s minimum, maximum, average, or total from the same list.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Group A, maximum
 #   metric:
 #   - intact/max/A/nrmse
@@ -50,7 +50,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-group-operation-composition
+# //| label: fig-evidence-group-operation-composition
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, items, value, group, answer, operation, selected_group. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", width: 120pt, children: (
@@ -70,18 +70,18 @@
 #
 # ## Result
 #
-# {{< proof P027 status >}}
+# {{< evidence P027 status >}}
 #
 # All tested combinations learn. This exact experiment does not corrupt either request, so stronger evidence that both instructions are used remains needed.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P027 evidence >}}
+# {{< evidence P027 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P027 script >}}
+# {{< evidence P027 script >}}
 #
 # ### How it works
 #

@@ -3,7 +3,7 @@
 # title: Can Cluster reconstruction hide missing coverage too?
 # categories:
 # - Vocabulary
-# proof-id: P065
+# evidence-id: P065
 # description: Reconstruct a Cluster answer from a categorical cue while reducing the share of test identities
 #   seen in training.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Known-answer accuracy, low coverage
 #   metric:
 #   - known_102
@@ -40,7 +40,7 @@
 # code is hidden wherever hide is true. Unfamiliar answer identities are counted in coverage separately.
 #
 # ```{typst}
-# //| label: fig-proof-cluster-pretraining-coverage
+# //| label: fig-evidence-cluster-pretraining-coverage
 # //| fig-cap: "Selector notes identify hidden values. hide chooses which code answers are hidden."
 # //| fig-alt: "Model tree with record, x, code. Selector notes identify hidden values. hide chooses which code answers are hidden."
 # #tree(node("record", kind: "root", children: (
@@ -55,18 +55,18 @@
 #
 # ## Result
 #
-# {{< proof P065 status >}}
+# {{< evidence P065 status >}}
 #
 # Coverage and recovery are different questions. The latest run also misses the required known-answer accuracy, so its reconstruction result remains incomplete.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P065 evidence >}}
+# {{< evidence P065 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P065 script >}}
+# {{< evidence P065 script >}}
 #
 # ### Training and controls
 #

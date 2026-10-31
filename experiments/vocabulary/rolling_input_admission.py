@@ -3,7 +3,7 @@
 # title: Can admitting a new input change predictions before learning?
 # categories:
 # - Vocabulary
-# proof-id: P066
+# evidence-id: P066
 # description: Introduce a new cohort of input identities while keeping output labels and hidden-answer
 #   selection fixed.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Largest probability change, second cohort
 #   metric:
 #   - '1'
@@ -36,7 +36,7 @@
 # label is hidden where hide is true. Each new cohort has unrelated identity effects.
 #
 # ```{typst}
-# //| label: fig-proof-rolling-input-admission
+# //| label: fig-evidence-rolling-input-admission
 # //| fig-cap: "Amber cards are hidden prediction targets. hide chooses which label answers are hidden."
 # //| fig-alt: "Model tree with record, entity, context, label. Amber cards are hidden prediction targets. hide chooses which label answers are hidden."
 # #tree(node("record", kind: "root", children: (
@@ -52,18 +52,18 @@
 #
 # ## Result
 #
-# {{< proof P066 status >}}
+# {{< evidence P066 status >}}
 #
 # Admission can change predictions because a new Category slot activates untrained content. The preservation checks fail; removing that jump alone would not establish a better representation.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P066 evidence >}}
+# {{< evidence P066 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P066 script >}}
+# {{< evidence P066 script >}}
 #
 # ### Training and controls
 #

@@ -3,7 +3,7 @@
 # title: Does repeating a list preserve its average?
 # categories:
 # - Cardinality generalization
-# proof-id: P003
+# evidence-id: P003
 # description: Predict the average amount, using a branch that averages its encoded items without item
 #   attention; the branch's count lane sees the repetition, the average must not.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Average prediction
 #   metric:
 #   - measured
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mean-duplicate-invariance
+# //| label: fig-evidence-mean-duplicate-invariance
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, amount, mean_amount. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -52,18 +52,18 @@
 #
 # ## Result
 #
-# {{< proof P003 status >}}
+# {{< evidence P003 status >}}
 #
 # This setup learns the average and keeps it under repetition to within a thousandth of the target spread. The summary itself is no longer identical: Mean carries a count lane, so the same summary can also tell a total apart.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P003 evidence >}}
+# {{< evidence P003 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P003 script >}}
+# {{< evidence P003 script >}}
 #
 # ### How it works
 #
@@ -80,7 +80,7 @@
 # lane, and the test bounds the remaining drift at five percent of the target
 # spread. The same lane is what lets a total be recovered from this route, which
 # the [contribution count](mean-keeps-contribution-count.html) and
-# [cardinality](../structure/mean-keeps-cardinality.html) proofs measure.
+# [cardinality](../structure/mean-keeps-cardinality.html) evidences measure.
 #
 # ### Remaining work
 #
@@ -137,7 +137,7 @@ def random_records(*, rows: int, seed: int, minimum: int = 1, maximum: int = TRA
 def duplicate(observations: list[dict]) -> list[dict]:
     """Duplicate every complete bag and update its algebraic targets."""
     rows = deepcopy(observations)
-    if any((len(row["items"]) * 2 > CAPACITY for row in rows)):
+    if any(len(row["items"]) * 2 > CAPACITY for row in rows):
         raise ValueError(f"duplicated collection exceeds configured capacity {CAPACITY}")
     for row in rows:
         row["items"] = [*row["items"], *row["items"]]

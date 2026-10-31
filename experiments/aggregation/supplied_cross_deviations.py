@@ -3,14 +3,14 @@
 # title: Can it average prepared contributions to covariance?
 # categories:
 # - Distribution statistics
-# proof-id: P008
+# evidence-id: P008
 # description: Supply the centered products used to calculate covariance, then ask for their average.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Average prediction
 #   metric:
 #   - measured
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-supplied-cross-deviations
+# //| label: fig-evidence-supplied-cross-deviations
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, cross_deviation, covariance. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P008 status >}}
+# {{< evidence P008 status >}}
 #
 # The final averaging step works here. Centering and multiplication were already done by the data generator, so they were not learned in this test.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P008 evidence >}}
+# {{< evidence P008 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P008 script >}}
+# {{< evidence P008 script >}}
 #
 # ### How it works
 #

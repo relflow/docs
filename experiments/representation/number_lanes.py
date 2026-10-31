@@ -3,7 +3,7 @@
 # title: Can one number representation serve additive and multiplicative structure?
 # categories:
 # - Representation
-# proof-id: P079
+# evidence-id: P079
 # description: Compare Number, which embeds raw and log lanes and reads out standardized log-scale
 #   deviations, with Quantile ranks on additive, moderate-tail, heavy-tail, and far-from-zero targets.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Heavy tails, Number
 #   metric:
 #   - heavy
@@ -43,7 +43,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-number-lanes
+# //| label: fig-evidence-number-lanes
 # //| fig-cap: "Amber cards are hidden prediction targets. Each arm changes only how numbers are represented."
 # //| fig-alt: "Model tree with customer, price, rate, ltv. Amber cards are hidden prediction targets. Each arm changes only how numbers are represented."
 # #tree(node("customer", kind: "root", children: (
@@ -65,7 +65,7 @@
 #
 # ## Result
 #
-# {{< proof P079 status >}}
+# {{< evidence P079 status >}}
 #
 # Number has no scale option. Its two lanes make additive and multiplicative
 # structure both readable: with moderate tails they are interchangeable, and
@@ -81,14 +81,14 @@
 # continues linearly past the learned support and a slightly high rank
 # becomes an enormous source value.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P079 evidence >}}
+# {{< evidence P079 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P079 script >}}
+# {{< evidence P079 script >}}
 #
 # ### Synthetic processes and oracles
 #

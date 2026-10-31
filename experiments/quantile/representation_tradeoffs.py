@@ -3,7 +3,7 @@
 # title: Should a number be represented by size or percentile?
 # categories:
 # - Quantile
-# proof-id: P077
+# evidence-id: P077
 # description: Compare Number and Quantile on rank and amount tasks, with clean training and rare corrupt
 #   measurements.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Corrupt training, Number
 #   metric:
 #   - input_tasks
@@ -37,7 +37,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-numeric-tradeoffs
+# //| label: fig-evidence-numeric-tradeoffs
 # //| fig-cap: "Amber cards are hidden prediction targets. Separate models predict rank or amount."
 # //| fig-alt: "Model tree with measurement, x, target. Amber cards are hidden prediction targets. Separate models predict rank or amount."
 # #tree(node("measurement", kind: "root", children: (
@@ -52,18 +52,18 @@
 #
 # ## Result
 #
-# {{< proof P077 status >}}
+# {{< evidence P077 status >}}
 #
 # Neither representation wins every comparison. Percentiles can reduce some contamination effects while worsening tail error; changing output units can also change which answer the loss prefers.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P077 evidence >}}
+# {{< evidence P077 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P077 script >}}
+# {{< evidence P077 script >}}
 #
 # ### Input representation experiment
 #

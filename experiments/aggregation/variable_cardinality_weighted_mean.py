@@ -3,14 +3,14 @@
 # title: Can it learn a weighted average?
 # categories:
 # - Weighted aggregation
-# proof-id: P016
+# evidence-id: P016
 # description: Predict an average in which each value contributes according to its own positive weight.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct pairs
 #   metric:
 #   - intact
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-variable-cardinality-weighted-mean
+# //| label: fig-evidence-variable-cardinality-weighted-mean
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, value, weight, weighted_mean. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -54,18 +54,18 @@
 #
 # ## Result
 #
-# {{< proof P016 status >}}
+# {{< evidence P016 status >}}
 #
 # The model uses relative weights and approximately preserves these equal-answer changes. Zero or negative weights and much longer lists are not covered.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P016 evidence >}}
+# {{< evidence P016 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P016 script >}}
+# {{< evidence P016 script >}}
 #
 # ### How it works
 #

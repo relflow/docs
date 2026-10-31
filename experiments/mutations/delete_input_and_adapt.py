@@ -3,14 +3,14 @@
 # title: Can it adapt after losing an input?
 # categories:
 # - Schema mutation
-# proof-id: P050
+# evidence-id: P050
 # description: Delete b from a model trained on y = a + b, then continue training with only a.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: After deletion and adaptation
 #   metric:
 #   - arms
@@ -43,7 +43,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mutations-delete-input
+# //| label: fig-evidence-mutations-delete-input
 # //| fig-alt: "Model tree with record, a, b, y. Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -59,18 +59,18 @@
 #
 # ## Result
 #
-# {{< proof P050 status >}}
+# {{< evidence P050 status >}}
 #
 # The edited model approaches the best remaining-information prediction, a. Re-adding the name creates fresh state; it does not restore what was deleted.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P050 evidence >}}
+# {{< evidence P050 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P050 script >}}
+# {{< evidence P050 script >}}
 #
 # ### Remaining work
 #

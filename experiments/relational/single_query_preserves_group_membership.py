@@ -3,14 +3,14 @@
 # title: Can one summary support comparisons within groups?
 # categories:
 # - Peer-relative inference
-# proof-id: P033
+# evidence-id: P033
 # description: Compress a list into one summary, then predict each item’s difference from its group average.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct groups
 #   metric:
 #   - intact_nrmse
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-single-query-preserves-group-membership
+# //| label: fig-evidence-single-query-preserves-group-membership
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with collection, items, value, group, deviation. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("collection", kind: "root", width: 120pt, children: (
@@ -54,18 +54,18 @@
 #
 # ## Result
 #
-# {{< proof P033 status >}}
+# {{< evidence P033 status >}}
 #
 # The summary and local item information together support the task. This does not show that one summary preserves every detail of an arbitrary list.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P033 evidence >}}
+# {{< evidence P033 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P033 script >}}
+# {{< evidence P033 script >}}
 #
 # ### How it works
 #

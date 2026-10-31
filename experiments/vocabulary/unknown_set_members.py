@@ -3,7 +3,7 @@
 # title: What happens to Set members never seen in training?
 # categories:
 # - Vocabulary
-# proof-id: P058
+# evidence-id: P058
 # description: Train a Set field on known members without ever teaching it how unavailable members should
 #   affect prediction.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Prediction for empty input
 #   metric:
 #   - boundary_predictions
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-unknown-set-members
+# //| label: fig-evidence-unknown-set-members
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, tags, labels, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P058 status >}}
+# {{< evidence P058 status >}}
 #
 # The untrained fallback treats all-unknown input like empty input here. Unknown output members also cannot be named. The next fallback test shows how training can distinguish nonempty input.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P058 evidence >}}
+# {{< evidence P058 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P058 script >}}
+# {{< evidence P058 script >}}
 #
 # ### Data and model
 #

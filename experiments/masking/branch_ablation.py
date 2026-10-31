@@ -3,14 +3,14 @@
 # title: Can it recover when a whole branch is hidden?
 # categories:
 # - Masking
-# proof-id: P053
+# evidence-id: P053
 # description: Provide two redundant measurements of the same signal and sometimes hide an entire branch.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: First view hidden
 #   metric:
 #   - patterns
@@ -43,7 +43,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-branch-ablation
+# //| label: fig-evidence-branch-ablation
 # //| fig-cap: "Amber cards are hidden prediction targets. hidden skips a whole view and its descendants."
 # //| fig-alt: "Model tree with record, views, reading, backup, target. Amber cards are hidden prediction targets. hidden skips a whole view and its descendants."
 # #tree(node("record", kind: "root", children: (
@@ -61,18 +61,18 @@
 #
 # ## Result
 #
-# {{< proof P053 status >}}
+# {{< evidence P053 status >}}
 #
 # Either view supports prediction. When both are hidden, the model falls back near the constant baseline; the test shows redundancy, rather than causal attribution.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P053 evidence >}}
+# {{< evidence P053 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P053 script >}}
+# {{< evidence P053 script >}}
 #
 # ### Data and model
 #

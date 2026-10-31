@@ -3,7 +3,7 @@
 # title: Can familiar instructions work in new combinations?
 # categories:
 # - Compositional generalization
-# proof-id: P071
+# evidence-id: P071
 # description: Train on group and operation requests, deliberately leaving out three combinations, such
 #   as coral’s maximum.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Withheld coral maximum, restricted training
 #   metric:
 #   - restricted
@@ -46,7 +46,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-held-out-requests
+# //| label: fig-evidence-held-out-requests
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, selected_group, operation, items, group, value, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", children: (
@@ -65,18 +65,18 @@
 #
 # ## Result
 #
-# {{< proof P071 status >}}
+# {{< evidence P071 status >}}
 #
 # Only two of three seeds meet every check. Familiar requests learn, but one withheld combination can fail even when both instructions are used.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P071 evidence >}}
+# {{< evidence P071 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P071 script >}}
+# {{< evidence P071 script >}}
 #
 # ### Synthetic process and split
 #

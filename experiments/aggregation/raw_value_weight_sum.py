@@ -3,14 +3,14 @@
 # title: Does each value keep its own weight?
 # categories:
 # - Weighted aggregation
-# proof-id: P014
+# evidence-id: P014
 # description: Predict a weighted total from values and weights stored together on each item.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct pairs
 #   metric:
 #   - intact
@@ -39,7 +39,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-raw-value-weight-sum
+# //| label: fig-evidence-raw-value-weight-sum
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, value, weight, weighted_sum. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -57,18 +57,18 @@
 #
 # ## Result
 #
-# {{< proof P014 status >}}
+# {{< evidence P014 status >}}
 #
 # The model uses the pairing: swapping weights worsens accuracy. This is approximate learned arithmetic on fixed-length lists.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P014 evidence >}}
+# {{< evidence P014 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P014 script >}}
+# {{< evidence P014 script >}}
 #
 # ### How it works
 #

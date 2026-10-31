@@ -3,7 +3,7 @@
 # title: Can it look up a value using a new ID?
 # categories:
 # - Associative recall
-# proof-id: P025
+# evidence-id: P025
 # description: Mix source values and questions in different positions. Use unfamiliar IDs to connect each
 #   question to its source, and judge the result over a panel of three seeds.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Matching IDs, median of three seeds
 #   metric:
 #   - median
@@ -42,7 +42,7 @@
 # Source values are visible. Query values are hidden wherever is_query is true.
 #
 # ```{typst}
-# //| label: fig-proof-hash-recall
+# //| label: fig-evidence-hash-recall
 # //| fig-cap: "Selector notes identify hidden values. Source values are visible; query values are hidden."
 # //| fig-alt: "Model tree with association, memory, entity_id, role, is_query, value. Selector notes identify hidden values. Source values are visible; query values are hidden."
 # #tree(node("association", kind: "root", width: 120pt, children: (
@@ -61,18 +61,18 @@
 #
 # ## Result
 #
-# {{< proof P025 status >}}
+# {{< evidence P025 status >}}
 #
 # Three paired seeds train and score the same task, and the gates read their medians, so one lucky or unlucky draw cannot decide the outcome. Only two source values are tested; missing IDs and larger memories need separate checks.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P025 evidence >}}
+# {{< evidence P025 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P025 script >}}
+# {{< evidence P025 script >}}
 #
 # ### How it works
 #
@@ -143,7 +143,7 @@ def records(*, rows: int, seed: int, namespace: str, broken_identity: bool = Fal
         source = [{"entity_id": keys[index], "value": float(values[index])} for index in source_order]
         target = [{"entity_id": query_keys[index], "value": float(values[index])} for index in query_order]
         memory = [{**item, "role": "source", "is_query": False} for item in source]
-        memory.extend(({**item, "role": "query", "is_query": True} for item in target))
+        memory.extend({**item, "role": "query", "is_query": True} for item in target)
         rng.shuffle(memory)
         yield {"memory": memory}
 

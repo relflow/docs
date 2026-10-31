@@ -3,7 +3,7 @@
 # title: Can an average reveal how many items there were?
 # categories:
 # - Weighted aggregation
-# proof-id: P013
+# evidence-id: P013
 # description: Use an average-only branch, with item attention disabled, to predict both an average and
 #   a total; the branch's count lane carries the multiplicity a plain average erases.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Average prediction
 #   metric:
 #   - mean_score
@@ -46,7 +46,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mean-keeps-contribution-count
+# //| label: fig-evidence-mean-keeps-contribution-count
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, contribution, mean_contribution, weighted_sum. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -64,18 +64,18 @@
 #
 # ## Result
 #
-# {{< proof P013 status >}}
+# {{< evidence P013 status >}}
 #
 # The model learns both the average and a total that scales with the count. Mean's count lane preserves the multiplicity its plain average would erase.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P013 evidence >}}
+# {{< evidence P013 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P013 script >}}
+# {{< evidence P013 script >}}
 #
 # ### How it works
 #

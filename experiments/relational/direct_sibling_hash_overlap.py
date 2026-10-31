@@ -3,14 +3,14 @@
 # title: Can it find a shared ID across two lists?
 # categories:
 # - Collection overlap
-# proof-id: P028
+# evidence-id: P028
 # description: Predict whether two lists have any ID in common, using IDs absent from training.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Original lists
 #   metric:
 #   - intact_auc
@@ -37,7 +37,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-direct-sibling-hash-overlap
+# //| label: fig-evidence-direct-sibling-hash-overlap
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with overlap, left, entity_id, right, entity_id, has_overlap. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("overlap", kind: "root", width: 120pt, children: (
@@ -57,18 +57,18 @@
 #
 # ## Result
 #
-# {{< proof P028 status >}}
+# {{< evidence P028 status >}}
 #
 # This model stays near chance and barely responds to removing the match. The result describes this setup and budget, rather than proving that overlap can never be learned.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P028 evidence >}}
+# {{< evidence P028 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P028 script >}}
+# {{< evidence P028 script >}}
 #
 # ### How it works
 #
@@ -181,7 +181,7 @@ def break_overlaps(rows: list[dict]) -> Iterator[dict]:
         left_set = set(left_ids)
         replacements = {
             value: f"broken-{row_index:06d}-{index}"
-            for index, value in enumerate((item["entity_id"] for item in row["right"]))
+            for index, value in enumerate(item["entity_id"] for item in row["right"])
             if value in left_set
         }
         right_ids = [replacements.get(item["entity_id"], item["entity_id"]) for item in row["right"]]

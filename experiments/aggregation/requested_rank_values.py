@@ -3,7 +3,7 @@
 # title: Can it find a requested value in an unsorted list?
 # categories:
 # - Order statistics
-# proof-id: P012
+# evidence-id: P012
 # description: Ask for the smallest, largest, middle, or quarter-position value without sorting the input
 #   first.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: All requests
 #   metric:
 #   - intact
@@ -44,7 +44,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-requested-rank-values
+# //| label: fig-evidence-requested-rank-values
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, rank, items, value, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", width: 120pt, children: (
@@ -62,18 +62,18 @@
 #
 # ## Result
 #
-# {{< proof P012 status >}}
+# {{< evidence P012 status >}}
 #
 # The model learns all five tested requests. These lists have an odd length; other lengths and rules for interpolating between values need separate tests.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P012 evidence >}}
+# {{< evidence P012 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P012 script >}}
+# {{< evidence P012 script >}}
 #
 # ### How it works
 #
@@ -191,7 +191,7 @@ def validate_request_families(observations: list[dict]) -> set[str]:
         ranks = {str(row["rank"]) for row in family}
         if len(family) != len(RANKS) or ranks != set(RANKS):
             raise ValueError(f"bag {bag!r} does not contain exactly one request for every rank: {ranks!r}")
-        if any((row["items"] != family[0]["items"] for row in family[1:])):
+        if any(row["items"] != family[0]["items"] for row in family[1:]):
             raise ValueError(f"bag {bag!r} changes item evidence between rank requests")
     return set(families)
 
@@ -310,15 +310,15 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
             *(score["baseline_rmse"] for score in by_shape.values()),
         ]
     )
-    endpoint_passes = max((by_rank[rank]["nrmse"] for rank in ("minimum", "maximum"))) < 0.3
-    interior_passes = max((by_rank[rank]["nrmse"] for rank in ("q25", "median", "q75"))) < 0.35
-    shape_passes = all((by_shape[shape]["nrmse"] < 0.45 for shape in SHAPES))
+    endpoint_passes = max(by_rank[rank]["nrmse"] for rank in ("minimum", "maximum")) < 0.3
+    interior_passes = max(by_rank[rank]["nrmse"] for rank in ("q25", "median", "q75")) < 0.35
+    shape_passes = all(by_shape[shape]["nrmse"] < 0.45 for shape in SHAPES)
     controls_pass = (
         permutation_drift < 0.1
         and cycled["nrmse"] >= 0.8
         and (cycled["nrmse"] >= intact["nrmse"] + 0.35)
-        and all((hidden[rank]["nrmse"] >= 0.65 for rank in ("minimum", "maximum")))
-        and (sum((score["nrmse"] >= 0.65 for score in hidden.values())) >= 3)
+        and all(hidden[rank]["nrmse"] >= 0.65 for rank in ("minimum", "maximum"))
+        and (sum(score["nrmse"] >= 0.65 for score in hidden.values()) >= 3)
     )
     metrics = {
         "intact": intact,
@@ -339,8 +339,8 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
         "Validation bags separate from test": bool(validate_bags.isdisjoint(test_bags)),
         "All measurements finite": bool(np.isfinite(calibration).all()),
         "Target SD above 0.80": bool(target_scale > 0.8),
-        "Per-rank baseline RMSE above 0.60": bool(min((score["baseline_rmse"] for score in by_rank.values())) > 0.6),
-        "Per-shape baseline RMSE above 0.80": bool(min((score["baseline_rmse"] for score in by_shape.values())) > 0.8),
+        "Per-rank baseline RMSE above 0.60": bool(min(score["baseline_rmse"] for score in by_rank.values()) > 0.6),
+        "Per-shape baseline RMSE above 0.80": bool(min(score["baseline_rmse"] for score in by_shape.values()) > 0.8),
         "Hidden requests yield identical predictions": bool(hidden_family_spread <= 1e-06),
         "Endpoint, interior-rank, shape, and causal-control gates": bool(
             endpoint_passes and interior_passes and shape_passes and controls_pass

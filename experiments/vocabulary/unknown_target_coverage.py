@@ -3,14 +3,14 @@
 # title: Can perfect accuracy hide answers it cannot name?
 # categories:
 # - Vocabulary
-# proof-id: P056
+# evidence-id: P056
 # description: Ask a Category output to predict a mix of familiar and unfamiliar target labels.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Known-label accuracy
 #   metric:
 #   - known_accuracy
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-unknown-target-coverage
+# //| label: fig-evidence-unknown-target-coverage
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, x, hint, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -52,18 +52,18 @@
 #
 # ## Result
 #
-# {{< proof P056 status >}}
+# {{< evidence P056 status >}}
 #
 # Known-only accuracy can look perfect while half the answers are impossible to emit. Report coverage and all-row accuracy alongside it; confidence need not warn about the missing labels.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P056 evidence >}}
+# {{< evidence P056 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P056 script >}}
+# {{< evidence P056 script >}}
 #
 # ### Data and model
 #

@@ -3,7 +3,7 @@
 # title: Can it predict the next value without seeing the future?
 # categories:
 # - Masking
-# proof-id: P054
+# evidence-id: P054
 # description: Expose the beginning of a simple numeric sequence, hide its remaining events, and predict
 #   the next value.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Next value after two events
 #   metric:
 #   - prefixes
@@ -39,7 +39,7 @@
 # Events marked future are hidden. next selects the single value to predict.
 #
 # ```{typst}
-# //| label: fig-proof-prefix-generation
+# //| label: fig-evidence-prefix-generation
 # //| fig-cap: "Selector notes identify hidden values. future hides events; next chooses the answer."
 # //| fig-alt: "Model tree with record, events, value. Selector notes identify hidden values. future hides events; next chooses the answer."
 # #tree(node("record", kind: "root", children: (
@@ -55,18 +55,18 @@
 #
 # ## Result
 #
-# {{< proof P054 status >}}
+# {{< evidence P054 status >}}
 #
 # Next-value prediction and the short rollout work on these sequences. This does not establish language generation or general forecasting.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P054 evidence >}}
+# {{< evidence P054 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P054 script >}}
+# {{< evidence P054 script >}}
 #
 # ### Data and model
 #

@@ -3,14 +3,14 @@
 # title: Can an input be disabled and restored?
 # categories:
 # - Schema mutation
-# proof-id: P049
+# evidence-id: P049
 # description: Train on y = a + b, temporarily disable b, then enable it again.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Original model
 #   metric:
 #   - source
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mutations-deactivate-input
+# //| label: fig-evidence-mutations-deactivate-input
 # //| fig-alt: "Model tree with record, a, b, y. Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P049 status >}}
+# {{< evidence P049 status >}}
 #
 # Disabling b removes useful information; enabling it restores the trained predictions. This tests an input field, rather than disabling a learned output decoder.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P049 evidence >}}
+# {{< evidence P049 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P049 script >}}
+# {{< evidence P049 script >}}
 #
 # ### Remaining work
 #

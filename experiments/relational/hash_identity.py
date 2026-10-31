@@ -3,14 +3,14 @@
 # title: Can new IDs connect two lists?
 # categories:
 # - Sibling entity transfer
-# proof-id: P037
+# evidence-id: P037
 # description: Transfer values between separately ordered lists using IDs that were absent from training.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Items retained
 #   metric:
 #   - preserved_nrmse
@@ -39,7 +39,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-hash-identity
+# //| label: fig-evidence-hash-identity
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with association, source, entity_id, value, target, entity_id, value. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("association", kind: "root", width: 120pt, children: (
@@ -60,18 +60,18 @@
 #
 # ## Result
 #
-# {{< proof P037 status >}}
+# {{< evidence P037 status >}}
 #
 # Keeping items works better here, and changed IDs break the lookup. This small learned example does not guarantee an exact join or define missing and duplicate-ID behavior.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P037 evidence >}}
+# {{< evidence P037 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P037 script >}}
+# {{< evidence P037 script >}}
 #
 # ### How it works
 #

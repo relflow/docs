@@ -3,7 +3,7 @@
 # title: Can it follow IDs through larger lists and a second lookup?
 # categories:
 # - Sibling entity transfer
-# proof-id: P075
+# evidence-id: P075
 # description: Retrieve a source value by ID with increasing numbers of distractors, then add an intermediate
 #   ID link for a two-step lookup.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Direct lookup, four sources
 #   metric:
 #   - hops_1
@@ -46,7 +46,7 @@
 # Target values are hidden. This example shows a direct lookup; the two-step arm adds a separate links collection.
 #
 # ```{typst}
-# //| label: fig-proof-retrieval-capacity
+# //| label: fig-evidence-retrieval-capacity
 # //| fig-cap: "Amber cards are hidden prediction targets. The links collection is used only for the two-step lookup."
 # //| fig-alt: "Model tree with lookup, source, entity_id, value, links, entity_id, source_id, target, entity_id, value. Amber cards are hidden prediction targets. The links collection is used only for the two-step lookup."
 # #tree(node("lookup", kind: "root", children: (
@@ -71,18 +71,18 @@
 #
 # ## Result
 #
-# {{< proof P075 status >}}
+# {{< evidence P075 status >}}
 #
 # Direct lookup works in one of three seeds; the two-step lookup fails in all three. The capability checks remain failed, rather than being redefined as an expected limitation.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P075 evidence >}}
+# {{< evidence P075 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P075 script >}}
+# {{< evidence P075 script >}}
 #
 # ### Process and split unit
 #

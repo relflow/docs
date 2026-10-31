@@ -3,14 +3,14 @@
 # title: Can each item choose which value to hide?
 # categories:
 # - Masking
-# proof-id: P052
+# evidence-id: P052
 # description: Use an item’s selected flag to hide its value and predict it from x.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct visible x
 #   metric:
 #   - nrmse
@@ -32,7 +32,7 @@
 # value is hidden and scored only where selected is true; the other item remains visible.
 #
 # ```{typst}
-# //| label: fig-proof-query-reconstruction
+# //| label: fig-evidence-query-reconstruction
 # //| fig-cap: "Selector notes identify hidden values. selected chooses which item values are hidden."
 # //| fig-alt: "Model tree with record, items, x, value. Selector notes identify hidden values. selected chooses which item values are hidden."
 # #tree(node("record", kind: "root", children: (
@@ -49,18 +49,18 @@
 #
 # ## Result
 #
-# {{< proof P052 status >}}
+# {{< evidence P052 status >}}
 #
 # Per-item selection works, including padded positions. This tests aligned local reconstruction, rather than retrieval across unrelated lists.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P052 evidence >}}
+# {{< evidence P052 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P052 script >}}
+# {{< evidence P052 script >}}
 #
 # ### Data and model
 #

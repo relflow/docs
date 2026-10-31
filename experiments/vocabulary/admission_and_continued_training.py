@@ -3,14 +3,14 @@
 # title: Does admitting a label teach it to predict that label?
 # categories:
 # - Vocabulary
-# proof-id: P059
+# evidence-id: P059
 # description: Introduce new output labels to a model trained on an earlier pair of classes.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: New labels, just admitted
 #   metric:
 #   - new_accuracy_immediately_after_admission
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-vocabulary-admission-training
+# //| label: fig-evidence-vocabulary-admission-training
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, x, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -50,18 +50,18 @@
 #
 # ## Result
 #
-# {{< proof P059 status >}}
+# {{< evidence P059 status >}}
 #
 # Admission creates storage; further training teaches the new distinctions. Old-label retention here depends on continued examples of the old classes.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P059 evidence >}}
+# {{< evidence P059 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P059 script >}}
+# {{< evidence P059 script >}}
 #
 # ### Data and model
 #

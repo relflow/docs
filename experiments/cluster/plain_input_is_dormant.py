@@ -3,14 +3,14 @@
 # title: Does a Cluster input group itself automatically?
 # categories:
 # - Cluster
-# proof-id: P019
+# evidence-id: P019
 # description: Use a Cluster field only as an input beside a hidden prediction target.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Groups at the final epoch
 #   metric:
 #   - committed
@@ -33,7 +33,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-cluster-plain-input-is-dormant
+# //| label: fig-evidence-cluster-plain-input-is-dormant
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with event, merchant_id, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("event", kind: "root", children: (
@@ -48,18 +48,18 @@
 #
 # ## Result
 #
-# {{< proof P019 status >}}
+# {{< evidence P019 status >}}
 #
 # Its grouping state stays dormant in this setup. Add a reconstructing mask when adaptive grouping is intended; then test whether the groups are useful.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P019 evidence >}}
+# {{< evidence P019 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P019 script >}}
+# {{< evidence P019 script >}}
 #
 # ### How it works
 #

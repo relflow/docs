@@ -3,7 +3,7 @@
 # title: What happens beyond the learned percentile range?
 # categories:
 # - Quantile
-# proof-id: P068
+# evidence-id: P068
 # description: Train a Quantile relationship within a bounded amount range, then supply much smaller and
 #   larger amounts.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: In-range error, original units
 #   metric:
 #   - in_range_rmse
@@ -38,7 +38,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-quantile-clipped-extrapolation
+# //| label: fig-evidence-quantile-clipped-extrapolation
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with order, amount, cost. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("order", kind: "root", children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P068 status >}}
+# {{< evidence P068 status >}}
 #
 # Outside the learned support, percentile inputs and outputs hit their boundaries. Tail predictions become constant; accepting a number does not guarantee extrapolation.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P068 evidence >}}
+# {{< evidence P068 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P068 script >}}
+# {{< evidence P068 script >}}
 #
 # ### Synthetic process and paired observations
 #
@@ -95,7 +95,7 @@
 # ### Remaining work
 #
 # The ten-seed calibration retained the predeclared gates and fixed training
-# budget. This proof establishes the boundary of this Quantile schema, not the
+# budget. This evidence establishes the boundary of this Quantile schema, not the
 # extrapolation ability of Number or models with additional informative fields.
 # Accepting an out-of-support value gives no OOD warning or calibrated uncertainty.
 #

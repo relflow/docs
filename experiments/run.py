@@ -13,7 +13,7 @@ import yaml
 
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
-    entries = yaml.safe_load((root / "proofs/results.yaml").read_text())["proofs"]
+    entries = yaml.safe_load((root / "catalog.yaml").read_text())["experiments"]
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("proofs", nargs="*", help="Proof IDs, such as P014; omit to run all proofs.")
     parser.add_argument("--list", action="store_true", help="List stable IDs and their scripts without training.")
@@ -39,7 +39,9 @@ def main() -> None:
             arguments.extend([f"--{name}", str(value)])
     errors = []
     environment = os.environ.copy()
-    environment["PYTHONPATH"] = os.pathsep.join(filter(None, (str(root / "proofs"), environment.get("PYTHONPATH"))))
+    environment["PYTHONPATH"] = os.pathsep.join(
+        filter(None, (str(root / "experiments"), environment.get("PYTHONPATH")))
+    )
     for identifier in selected:
         print(f"\nRunning {identifier}: {entries[identifier]['script']}", flush=True)
         result = subprocess.run(

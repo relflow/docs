@@ -3,7 +3,7 @@
 # title: Do five clusters mean five behaviors were found?
 # categories:
 # - Cluster
-# proof-id: P018
+# evidence-id: P018
 # description: Repeated identities follow five hidden numerical rules. Watch how the Cluster field groups
 #   them during training.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Groups at the final epoch
 #   metric:
 #   - final_committed
@@ -30,7 +30,7 @@
 # The numeric answer is hidden. Identity reconstruction activates grouping; the generating rule is not a model input.
 #
 # ```{typst}
-# //| label: fig-proof-cluster-hidden-regression-regimes
+# //| label: fig-evidence-cluster-hidden-regression-regimes
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with obs, id, x, y. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("obs", kind: "root", children: (
@@ -46,18 +46,18 @@
 #
 # ## Result
 #
-# {{< proof P018 status >}}
+# {{< evidence P018 status >}}
 #
 # The number settles near five, but that does not show the correct identities share a group. Training and validation reuse the same records; independent prediction and grouping quality remain untested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P018 evidence >}}
+# {{< evidence P018 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P018 script >}}
+# {{< evidence P018 script >}}
 #
 # ### How it works
 #
@@ -83,7 +83,7 @@
 # and replace internal instrumentation with a public diagnostic when available.
 #
 # Repeat all behavioral and partition gates across three core seeds and at least
-# ten calibration seeds before promoting this proof.
+# ten calibration seeds before promoting this evidence.
 #
 # ### Complete experiment code
 #

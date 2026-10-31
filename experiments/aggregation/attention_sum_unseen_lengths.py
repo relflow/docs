@@ -3,14 +3,14 @@
 # title: Can it add longer lists than it saw in training?
 # categories:
 # - Cardinality generalization
-# proof-id: P002
+# evidence-id: P002
 # description: Train on short lists, then ask for totals of longer lists.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Familiar lengths
 #   metric:
 #   - in_range_score
@@ -41,7 +41,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-attention-sum-unseen-lengths
+# //| label: fig-evidence-attention-sum-unseen-lengths
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, amount, total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -58,18 +58,18 @@
 #
 # ## Result
 #
-# {{< proof P002 status >}}
+# {{< evidence P002 status >}}
 #
 # The learned total extends to the tested longer lists. This does not establish exact addition or unlimited length.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P002 evidence >}}
+# {{< evidence P002 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P002 script >}}
+# {{< evidence P002 script >}}
 #
 # ### How it works
 #
@@ -138,7 +138,7 @@ def random_records(*, rows: int, seed: int, minimum: int = 1, maximum: int = TRA
 def duplicate(observations: list[dict]) -> list[dict]:
     """Duplicate every complete bag and update its algebraic targets."""
     rows = deepcopy(observations)
-    if any((len(row["items"]) * 2 > CAPACITY for row in rows)):
+    if any(len(row["items"]) * 2 > CAPACITY for row in rows):
         raise ValueError(f"duplicated collection exceeds configured capacity {CAPACITY}")
     for row in rows:
         row["items"] = [*row["items"], *row["items"]]

@@ -3,7 +3,7 @@
 # title: Can it learn a 90% probability without a useful input?
 # categories:
 # - Calibration
-# proof-id: P060
+# evidence-id: P060
 # description: Generate yes answers 90% of the time, independently of the input. The right probability is
 #   therefore 90%.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: True yes probability
 #   metric:
 #   - prior
@@ -39,7 +39,7 @@
 # yes or no is a sampled hidden answer. A single answer does not determine the true probability.
 #
 # ```{typst}
-# //| label: fig-proof-categorical-prior
+# //| label: fig-evidence-categorical-prior
 # //| fig-cap: "Amber cards are hidden prediction targets. The answer is sampled; its population probability is 90%."
 # //| fig-alt: "Model tree with record, x, entity, label. Amber cards are hidden prediction targets. The answer is sampled; its population probability is 90%."
 # #tree(node("record", kind: "root", children: (
@@ -55,22 +55,22 @@
 #
 # ## Result
 #
-# {{< proof P060 status >}}
+# {{< evidence P060 status >}}
 #
 # The latest model learns probabilities near the population rate. Accuracy alone would not reveal whether its confidence was appropriate; this does not establish general probability calibration.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P060 evidence >}}
+# {{< evidence P060 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P060 script >}}
+# {{< evidence P060 script >}}
 #
 # ### Training and evaluation
 #
-# The proof forces internal output allocations of 2 and 128 as experimental
+# The evidence forces internal output allocations of 2 and 128 as experimental
 # controls; users do not configure storage. Both use the `xs` preset, identical
 # 32,768-row training streams, and 400 updates. Validation has its own seed.
 # Each held-out evaluation has 8,192
@@ -82,7 +82,7 @@
 # ### Remaining work
 #
 # A ten-seed calibration panel and feature-dependent imbalanced populations
-# remain necessary. This two-label proof does not establish rare-label recall
+# remain necessary. This two-label evidence does not establish rare-label recall
 # or calibration of other tensorfield losses.
 #
 # ### Complete experiment code

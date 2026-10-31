@@ -3,7 +3,7 @@
 # title: Can it learn separate probabilities for Set members?
 # categories:
 # - Vocabulary
-# proof-id: P063
+# evidence-id: P063
 # description: With no useful context, red appears in 90% of answer sets and blue in 20%. Predict each member’s
 #   probability.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Predicted red membership
 #   metric:
 #   - capacity_2
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-set-reconstruction-coverage
+# //| label: fig-evidence-set-reconstruction-coverage
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, x, labels. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P063 status >}}
+# {{< evidence P063 status >}}
 #
 # The member probabilities recover their population rates. Unknown members still reduce coverage and cannot be emitted; annotations here are complete sets, not partially supplied labels.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P063 evidence >}}
+# {{< evidence P063 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P063 script >}}
+# {{< evidence P063 script >}}
 #
 # ### Training and controls
 #

@@ -9,12 +9,12 @@ import pyarrow as pa
 import pytest
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "proofs"))
+sys.path.insert(0, str(ROOT / "experiments"))
 NAMES = ("sampled_reconstruction", "query_reconstruction", "branch_ablation", "prefix_generation")
 
 
 def load(name):
-    spec = importlib.util.spec_from_file_location(f"masking_proof_{name}", ROOT / "proofs/masking" / f"{name}.py")
+    spec = importlib.util.spec_from_file_location(f"masking_proof_{name}", ROOT / "experiments/masking" / f"{name}.py")
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

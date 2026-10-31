@@ -3,14 +3,14 @@
 # title: Can it distinguish missing values from zero?
 # categories:
 # - Value state
-# proof-id: P038
+# evidence-id: P038
 # description: Predict a label from whether a number is missing, even though every present number is zero.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Nulls preserved
 #   metric:
 #   - state_accuracy
@@ -31,7 +31,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-state-null-versus-zero
+# //| label: fig-evidence-state-null-versus-zero
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with state, measurement, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("state", kind: "root", children: (
@@ -46,18 +46,18 @@
 #
 # ## Result
 #
-# {{< proof P038 status >}}
+# {{< evidence P038 status >}}
 #
 # The model can use the difference between missing and zero. Filling nulls with zeros erases that signal; whether missingness helps in real data depends on the application.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P038 evidence >}}
+# {{< evidence P038 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P038 script >}}
+# {{< evidence P038 script >}}
 #
 # ### How it works
 #

@@ -3,7 +3,7 @@
 # title: Can a summary retain the winning item’s value?
 # categories:
 # - Argmax retrieval
-# proof-id: P022
+# evidence-id: P022
 # description: Predict the value attached to the highest-scoring candidate after compressing the candidates
 #   into learned summaries.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct pairs
 #   metric:
 #   - intact_nrmse
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-attention-number-payload
+# //| label: fig-evidence-attention-number-payload
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with retrieval, items, score, payload, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("retrieval", kind: "root", width: 120pt, children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P022 status >}}
+# {{< evidence P022 status >}}
 #
 # The tested summaries retain useful score–value relationships. Exact retrieval, larger lists, and speed or memory savings are not established.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P022 evidence >}}
+# {{< evidence P022 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P022 script >}}
+# {{< evidence P022 script >}}
 #
 # ### How it works
 #
@@ -79,7 +79,7 @@
 # Calibrate across three core seeds and ten calibration seeds. Sweep reduction
 # width and candidate count before treating summary capacity as established;
 # argmin, category payloads, and group-filtered retrieval remain unimplemented.
-# The [pass-through proof](pass-through-number-payload.html) provides the simpler
+# The [pass-through evidence](pass-through-number-payload.html) provides the simpler
 # route comparison. Use exact preprocessing when retrieval must be exact.
 #
 # ### Complete experiment code

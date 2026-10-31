@@ -3,14 +3,14 @@
 # title: Can it total prepared contributions for one group?
 # categories:
 # - Grouped weighted aggregation
-# proof-id: P011
+# evidence-id: P011
 # description: Supply already calculated contributions and ask for the total belonging to one group.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct groups
 #   metric:
 #   - intact
@@ -40,7 +40,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-selected-group-supplied-contribution-sum
+# //| label: fig-evidence-selected-group-supplied-contribution-sum
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, selected_group, items, group, contribution, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", width: 120pt, children: (
@@ -59,18 +59,18 @@
 #
 # ## Result
 #
-# {{< proof P011 status >}}
+# {{< evidence P011 status >}}
 #
 # The model uses group membership to select contributions. Because the products are supplied, this does not test learned multiplication.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P011 evidence >}}
+# {{< evidence P011 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P011 script >}}
+# {{< evidence P011 script >}}
 #
 # ### How it works
 #
@@ -83,7 +83,7 @@
 # while retaining all label counts and numerical values. The control keeps the
 # original answer, so a group-sensitive model should score worse. Permuting
 # complete items should leave predictions stable. The
-# [raw-pair proof](selected-group-raw-weighted-sum.html) adds the multiplication
+# [raw-pair evidence](selected-group-raw-weighted-sum.html) adds the multiplication
 # requirement that this diagnostic deliberately supplies.
 #
 # ### Remaining work
@@ -249,7 +249,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     }
     checks = {
         "All measurements finite": bool(
-            all((np.isfinite(value) for value in (intact["nrmse"], corrupted["nrmse"], permutation_drift)))
+            all(np.isfinite(value) for value in (intact["nrmse"], corrupted["nrmse"], permutation_drift))
         ),
         "Intact calibration nRMSE below 1.60": bool(intact["nrmse"] < 1.6),
         "Corrupt calibration nRMSE below 1.80": bool(corrupted["nrmse"] < 1.8),

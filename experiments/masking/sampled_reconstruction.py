@@ -3,7 +3,7 @@
 # title: Can hiding values teach a relationship in both directions?
 # categories:
 # - Masking
-# proof-id: P051
+# evidence-id: P051
 # description: Sometimes hide x or y during training, then ask the model to recover the missing value from
 #   the other.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Recover y from x
 #   metric:
 #   - directions
@@ -38,7 +38,7 @@
 # Values marked for reconstruction are hidden. During training, the selection is sampled separately for each field.
 #
 # ```{typst}
-# //| label: fig-proof-sampled-reconstruction
+# //| label: fig-evidence-sampled-reconstruction
 # //| fig-cap: "Selector notes identify hidden values. Each field is sometimes hidden during training."
 # //| fig-alt: "Model tree with record, x, y. Selector notes identify hidden values. Each field is sometimes hidden during training."
 # #tree(node("record", kind: "root", children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P051 status >}}
+# {{< evidence P051 status >}}
 #
 # The model learns both directions. When both values are hidden, the original answer cannot be identified; this is a small relationship test, not general imputation evidence.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P051 evidence >}}
+# {{< evidence P051 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P051 script >}}
+# {{< evidence P051 script >}}
 #
 # ### Data and model
 #

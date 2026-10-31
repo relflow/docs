@@ -3,14 +3,14 @@
 # title: Does each subtotal stay with its own item?
 # categories:
 # - Item alignment
-# proof-id: P030
+# evidence-id: P030
 # description: Predict quantity times price separately for every real item in an order.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct item answers
 #   metric:
 #   - aligned_nrmse
@@ -32,7 +32,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-repeated-subtotal-reconstruction
+# //| label: fig-evidence-repeated-subtotal-reconstruction
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with order, items, quantity, unit_price, subtotal. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("order", kind: "root", width: 120pt, children: (
@@ -50,18 +50,18 @@
 #
 # ## Result
 #
-# {{< proof P030 status >}}
+# {{< evidence P030 status >}}
 #
 # Predictions follow the correct items, and empty orders stay empty. The arithmetic is approximate and should not replace exact billing calculations.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P030 evidence >}}
+# {{< evidence P030 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P030 script >}}
+# {{< evidence P030 script >}}
 #
 # ### How it works
 #
@@ -76,7 +76,7 @@
 # ### Remaining work
 #
 # Report accuracy separately by nonempty length and repeat three paired core
-# seeds plus ten calibration seeds. The proof guide also flags a mismatch between
+# seeds plus ten calibration seeds. The evidence guide also flags a mismatch between
 # its exact-product generator and the noisy-product proposal; that broader noisy
 # task has not been established by this case.
 #

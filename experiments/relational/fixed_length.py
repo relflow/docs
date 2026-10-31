@@ -3,14 +3,14 @@
 # title: Can an instruction change the calculation?
 # categories:
 # - Operation-conditioned reduction
-# proof-id: P031
+# evidence-id: P031
 # description: Ask for a list’s minimum, maximum, average, or total by changing a visible operation field.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Total, instruction visible
 #   metric:
 #   - intact/sum/nrmse
@@ -41,7 +41,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-fixed-length
+# //| label: fig-evidence-fixed-length
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, items, value, answer, operation. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", width: 120pt, children: (
@@ -59,18 +59,18 @@
 #
 # ## Result
 #
-# {{< proof P031 status >}}
+# {{< evidence P031 status >}}
 #
 # The operation matters: hiding it makes predictions collapse to the same answer. All lists have eight items, so new lengths remain untested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P031 evidence >}}
+# {{< evidence P031 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P031 script >}}
+# {{< evidence P031 script >}}
 #
 # ### How it works
 #

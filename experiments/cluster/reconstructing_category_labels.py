@@ -3,7 +3,7 @@
 # title: Do stable labels produce the right groups?
 # categories:
 # - Cluster
-# proof-id: P020
+# evidence-id: P020
 # description: Repeated identities carry stable labels. Ask the Cluster field to reconstruct identities
 #   while predicting their labels.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Groups at the final epoch
 #   metric:
 #   - final_committed
@@ -29,7 +29,7 @@
 # The label is hidden; identities are sometimes hidden for reconstruction during training.
 #
 # ```{typst}
-# //| label: fig-proof-cluster-reconstructing-category-labels
+# //| label: fig-evidence-cluster-reconstructing-category-labels
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with event, merchant_id, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("event", kind: "root", children: (
@@ -44,18 +44,18 @@
 #
 # ## Result
 #
-# {{< proof P020 status >}}
+# {{< evidence P020 status >}}
 #
 # The model reaches roughly five groups, but count and usage do not measure whether grouping is correct. Reused validation records also leave independent predictive quality untested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P020 evidence >}}
+# {{< evidence P020 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P020 script >}}
+# {{< evidence P020 script >}}
 #
 # ### How it works
 #

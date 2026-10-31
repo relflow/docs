@@ -3,7 +3,7 @@
 # title: Can a visible count help recover a total?
 # categories:
 # - Cardinality generalization
-# proof-id: P004
+# evidence-id: P004
 # description: Every item has the same amount. Give the model the item count as an extra input and ask for
 #   the total.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Total prediction
 #   metric:
 #   - measured
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-visible-count-sum
+# //| label: fig-evidence-visible-count-sum
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, item_count, items, amount, total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -54,18 +54,18 @@
 #
 # ## Result
 #
-# {{< proof P004 status >}}
+# {{< evidence P004 status >}}
 #
 # The extra count supplies information the average loses. This test uses repeated equal amounts, rather than arbitrary mixed lists.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P004 evidence >}}
+# {{< evidence P004 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P004 script >}}
+# {{< evidence P004 script >}}
 #
 # ### How it works
 #
@@ -77,14 +77,14 @@
 # Train and test lengths are one through six. Matched probes repeat 0.7 once or
 # six times, requiring totals 0.7 and 4.2. Their predictions must separate by more
 # than 2.5 and stay close to those targets. This isolates learning from a supplied
-# count; [the count-free Attention proof](attention-sum-in-range.html) tests
+# count; [the count-free Attention evidence](attention-sum-in-range.html) tests
 # structural recovery of multiplicity.
 #
 # ### Remaining work
 #
 # Repeat across seeds and test nonidentical bags, missing items, and nested
 # collections. [Unseen visible counts](visible-count-unseen-lengths.html) have a
-# separate proof; this case checks only the trained count range.
+# separate evidence; this case checks only the trained count range.
 #
 # The family’s promotion target is at least three core seeds and ten lightweight
 # calibration seeds.

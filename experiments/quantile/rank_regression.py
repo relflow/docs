@@ -3,7 +3,7 @@
 # title: Can percentile-based predictions return useful original values?
 # categories:
 # - Quantile
-# proof-id: P067
+# evidence-id: P067
 # description: Represent amounts and costs by their positions in the training distribution, then convert
 #   predicted costs back to their original units.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Original amounts
 #   metric:
 #   - normalized_rmse
@@ -32,7 +32,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-quantile-rank-regression
+# //| label: fig-evidence-quantile-rank-regression
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with order, amount, cost. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("order", kind: "root", children: (
@@ -47,18 +47,18 @@
 #
 # ## Result
 #
-# {{< proof P067 status >}}
+# {{< evidence P067 status >}}
 #
 # The learned relationship remains useful after conversion back. Shuffling removes accuracy; this does not establish behavior beyond the learned numerical range.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P067 evidence >}}
+# {{< evidence P067 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P067 script >}}
+# {{< evidence P067 script >}}
 #
 # ### Synthetic process and observability
 #

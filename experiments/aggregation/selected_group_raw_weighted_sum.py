@@ -3,14 +3,14 @@
 # title: Can it total weighted values for one group?
 # categories:
 # - Grouped weighted aggregation
-# proof-id: P010
+# evidence-id: P010
 # description: Ask for a group’s total after multiplying each of its values by its own weight.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct data
 #   metric:
 #   - intact
@@ -45,7 +45,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-selected-group-raw-weighted-sum
+# //| label: fig-evidence-selected-group-raw-weighted-sum
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, selected_group, items, group, value, weight, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", width: 120pt, children: (
@@ -65,18 +65,18 @@
 #
 # ## Result
 #
-# {{< proof P010 status >}}
+# {{< evidence P010 status >}}
 #
 # The model uses both membership and value–weight pairing. The groups are familiar and equally sized; unfamiliar or missing groups are not tested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P010 evidence >}}
+# {{< evidence P010 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P010 script >}}
+# {{< evidence P010 script >}}
 #
 # ### How it works
 #
@@ -279,12 +279,7 @@ def run(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
     }
     checks = {
         "All measurements finite": bool(
-            all(
-                (
-                    np.isfinite(value)
-                    for value in (intact["nrmse"], labels["nrmse"], pairing["nrmse"], permutation_drift)
-                )
-            )
+            all(np.isfinite(value) for value in (intact["nrmse"], labels["nrmse"], pairing["nrmse"], permutation_drift))
         ),
         "Raw grouped sum nRMSE below 0.50": bool(intact["nrmse"] < 0.5),
         "Rotated labels raise nRMSE by at least 0.20": bool(labels["nrmse"] >= intact["nrmse"] + 0.2),

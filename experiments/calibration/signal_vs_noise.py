@@ -3,14 +3,14 @@
 # title: Can it learn a signal without inventing one?
 # categories:
 # - Calibration
-# proof-id: P017
+# evidence-id: P017
 # description: Predict a yes/no answer from a visible yes/no input.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Matching answers
 #   metric:
 #   - signal_auc
@@ -36,7 +36,7 @@
 # leak is the visible yes/no signal; the other inputs are unrelated. target is hidden.
 #
 # ```{typst}
-# //| label: fig-proof-calibration-signal-vs-noise
+# //| label: fig-evidence-calibration-signal-vs-noise
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with calibration, x, segment, tags, leak, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("calibration", kind: "root", children: (
@@ -54,18 +54,18 @@
 #
 # ## Result
 #
-# {{< proof P017 status >}}
+# {{< evidence P017 status >}}
 #
 # The real signal is learned; unrelated answers remain near chance. This basic check makes harder learning results easier to interpret.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P017 evidence >}}
+# {{< evidence P017 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P017 script >}}
+# {{< evidence P017 script >}}
 #
 # ### How it works
 #
@@ -83,7 +83,7 @@
 #
 # Run three paired core seeds and a calibration panel of at least ten seeds.
 # Record the resulting distributions before freezing the gates, and reconcile
-# the implemented 2,048 test rows with the proof plan's 4,096-row requirement.
+# the implemented 2,048 test rows with the evidence plan's 4,096-row requirement.
 #
 # ### Complete experiment code
 #

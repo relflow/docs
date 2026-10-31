@@ -3,7 +3,7 @@
 # title: Do harmless schema edits preserve predictions?
 # categories:
 # - Schema mutation
-# proof-id: P046
+# evidence-id: P046
 # description: Train a useful predictor, then make edits that should not alter its visible information or
 #   learned state.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Trained model
 #   metric:
 #   - source
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mutations-neutral-edits
+# //| label: fig-evidence-mutations-neutral-edits
 # //| fig-alt: "Model tree with record, x, code, y, unused. Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P046 status >}}
+# {{< evidence P046 status >}}
 #
 # These edits preserve predictions; a reset loses the learned relationship. Changes to visible context or model size need separate checks.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P046 evidence >}}
+# {{< evidence P046 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P046 script >}}
+# {{< evidence P046 script >}}
 #
 # ### Remaining work
 #

@@ -12,7 +12,7 @@ import relflow as rf
 import torch
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "proofs"))
+sys.path.insert(0, str(ROOT / "experiments"))
 NAMES = (
     "unknown_input_fallback",
     "unknown_target_coverage",
@@ -23,7 +23,9 @@ NAMES = (
 
 
 def load(name):
-    spec = importlib.util.spec_from_file_location(f"vocabulary_proof_{name}", ROOT / "proofs/vocabulary" / f"{name}.py")
+    spec = importlib.util.spec_from_file_location(
+        f"vocabulary_proof_{name}", ROOT / "experiments/vocabulary" / f"{name}.py"
+    )
     module = importlib.util.module_from_spec(spec)
     spec.loader.exec_module(module)
     return module

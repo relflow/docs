@@ -3,14 +3,14 @@
 # title: Can it distinguish an unknown set from an empty set?
 # categories:
 # - Vocabulary
-# proof-id: P064
+# evidence-id: P064
 # description: Predict whether a set is nonempty, including sets whose member names were absent from training.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Unknown-input error, fallback trained
 #   metric:
 #   - augmented_unknown
@@ -31,7 +31,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-set-unavailable-fallback
+# //| label: fig-evidence-set-unavailable-fallback
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, tags, nonempty. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -46,18 +46,18 @@
 #
 # ## Result
 #
-# {{< proof P064 status >}}
+# {{< evidence P064 status >}}
 #
 # The trained fallback distinguishes unknown nonempty input from empty input. It preserves the presence of members, rather than learning their individual meanings.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P064 evidence >}}
+# {{< evidence P064 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P064 script >}}
+# {{< evidence P064 script >}}
 #
 # ### Training and controls
 #

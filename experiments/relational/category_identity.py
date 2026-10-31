@@ -3,7 +3,7 @@
 # title: Can familiar IDs connect two lists?
 # categories:
 # - Sibling entity transfer
-# proof-id: P036
+# evidence-id: P036
 # description: Use matching category IDs to transfer changing values from a source list to a separately
 #   ordered target list.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Compressed route
 #   metric:
 #   - compressed_nrmse
@@ -40,7 +40,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-category-identity
+# //| label: fig-evidence-category-identity
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with association, source, entity_id, value, target, entity_id, value. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("association", kind: "root", width: 120pt, children: (
@@ -61,18 +61,18 @@
 #
 # ## Result
 #
-# {{< proof P036 status >}}
+# {{< evidence P036 status >}}
 #
 # Both routes work in the latest run with two familiar IDs. Earlier runs include failed checks; new IDs and larger vocabularies are separate tasks.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P036 evidence >}}
+# {{< evidence P036 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P036 script >}}
+# {{< evidence P036 script >}}
 #
 # ### How it works
 #

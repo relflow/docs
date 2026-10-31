@@ -3,14 +3,14 @@
 # title: Can one prediction target be reset and relearned?
 # categories:
 # - Schema mutation
-# proof-id: P048
+# evidence-id: P048
 # description: Reset the learned predictor for u while preserving its sibling target v.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Reset target, before retraining
 #   metric:
 #   - arms
@@ -49,7 +49,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mutations-reset-target
+# //| label: fig-evidence-mutations-reset-target
 # //| fig-alt: "Model tree with record, a, b, u, v. Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -66,18 +66,18 @@
 #
 # ## Result
 #
-# {{< proof P048 status >}}
+# {{< evidence P048 status >}}
 #
 # The selected target loses its learned prediction and then relearns; its sibling survives the reset. Resetting a shared branch is a different case.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P048 evidence >}}
+# {{< evidence P048 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P048 script >}}
+# {{< evidence P048 script >}}
 #
 # ### Remaining work
 #

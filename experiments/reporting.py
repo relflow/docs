@@ -14,7 +14,7 @@ import tempfile
 import time
 import traceback
 from collections.abc import Callable
-from datetime import datetime, timezone
+from datetime import UTC, datetime
 from pathlib import Path
 from typing import Any
 
@@ -22,7 +22,7 @@ import yaml
 from source import fingerprint
 
 ROOT = Path(__file__).resolve().parents[1]
-RESULTS = ROOT / "proofs/results.yaml"
+RESULTS = ROOT / "archive/results.yaml"
 Experiment = Callable[[int, int | None, str], tuple[dict[str, Any], dict[str, bool]]]
 
 
@@ -75,6 +75,9 @@ def provenance(script: Path) -> dict[str, Any]:
     revision = subprocess.run(["git", "rev-parse", "HEAD"], cwd=ROOT, capture_output=True, text=True, check=False)
     return {
         "proof_revision": revision.stdout.strip() or None,
+        "evidence_revision": os.environ.get("EVIDENCE_REVISION") or revision.stdout.strip() or None,
+        "relflow_revision": os.environ.get("EVIDENCE_RELFLOW_REVISION"),
+        "wheel_sha256": os.environ.get("EVIDENCE_WHEEL_SHA256"),
         "relflow_source_sha256": model_digest.hexdigest(),
         "source_sha256": digest.hexdigest(),
         "script_sha256": hashlib.sha256(script.read_bytes()).hexdigest(),
@@ -104,6 +107,12 @@ def provenance(script: Path) -> dict[str, Any]:
 
 def save(identifier: str, result: dict[str, Any], output: Path) -> None:
     """Append one run atomically; lock the read/update for concurrent lab processes."""
+    json_output = os.environ.get("EVIDENCE_JSON_OUTPUT")
+    if json_output:
+        path = Path(json_output)
+        with path.open("x") as handle:
+            json.dump(plain(result), handle, indent=2, allow_nan=False)
+        return
     output = output.resolve()
     output.parent.mkdir(parents=True, exist_ok=True)
     with output.with_suffix(output.suffix + ".lock").open("a") as lock:
@@ -128,7 +137,7 @@ def report(identifier: str, experiment: Experiment, *, seed: int) -> None:
     parser.add_argument("--steps", type=int, help="Cap each training stage for a smoke run; not capability evidence.")
     parser.add_argument("--accelerator", choices=("cpu", "gpu", "mps", "auto"), default="cpu")
     parser.add_argument("--threads", type=int, default=1)
-    parser.add_argument("--output", type=Path, default=RESULTS)
+    parser.add_argument("--output", type=Path, default=ROOT / "runs/local/results.yaml")
     options = parser.parse_args()
     if options.steps is not None and options.steps < 1:
         parser.error("--steps must be positive")
@@ -142,7 +151,7 @@ def report(identifier: str, experiment: Experiment, *, seed: int) -> None:
     script = Path(experiment.__code__.co_filename).resolve()
     started = time.perf_counter()
     result: dict[str, Any] = {
-        "started_at": datetime.now(timezone.utc).isoformat(),
+        "started_at": datetime.now(UTC).isoformat(),
         "mode": "full" if options.steps is None else "smoke",
         "seed": options.seed,
         "steps_override": options.steps,

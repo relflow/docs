@@ -3,7 +3,7 @@
 # title: Can it infer a new rule from examples in the record?
 # categories:
 # - Learning from context
-# proof-id: P072
+# evidence-id: P072
 # description: Each record supplies four examples of a fresh straight-line rule and asks for the answer
 #   at a new input.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Familiar rules
 #   metric:
 #   - context
@@ -48,7 +48,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-context-examples
+# //| label: fig-evidence-context-examples
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with task, examples, x, y, query, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("task", kind: "root", children: (
@@ -66,18 +66,18 @@
 #
 # ## Result
 #
-# {{< proof P072 status >}}
+# {{< evidence P072 status >}}
 #
 # Examples help in familiar regions, but only one of three seeds passes every check. Reliable transfer to the excluded rule region remains unestablished.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P072 evidence >}}
+# {{< evidence P072 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P072 script >}}
+# {{< evidence P072 script >}}
 #
 # ### Rules, observations, and splits
 #

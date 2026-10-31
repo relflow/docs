@@ -3,14 +3,14 @@
 # title: Can it tell how spread out a list is?
 # categories:
 # - Distribution statistics
-# proof-id: P007
+# evidence-id: P007
 # description: Predict variance, a measure of how far the values lie from their average.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Variance prediction
 #   metric:
 #   - measured
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-raw-value-variance
+# //| label: fig-evidence-raw-value-variance
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, value, variance. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P007 status >}}
+# {{< evidence P007 status >}}
 #
 # The model learns more than the average alone. These results cover the tested list length and do not establish exact variance calculation.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P007 evidence >}}
+# {{< evidence P007 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P007 script >}}
+# {{< evidence P007 script >}}
 #
 # ### How it works
 #

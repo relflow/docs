@@ -3,14 +3,14 @@
 # title: Can it total contributions already calculated?
 # categories:
 # - Weighted aggregation
-# proof-id: P015
+# evidence-id: P015
 # description: Supply each item’s contribution to a total, instead of its separate value and weight.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Total prediction
 #   metric:
 #   - measured
@@ -34,7 +34,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-supplied-contribution-sum
+# //| label: fig-evidence-supplied-contribution-sum
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, contribution, weighted_sum. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P015 status >}}
+# {{< evidence P015 status >}}
 #
 # The simpler summation task works. Fixed length means averaging and a fixed multiplier could also solve it; varying lengths are not tested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P015 evidence >}}
+# {{< evidence P015 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P015 script >}}
+# {{< evidence P015 script >}}
 #
 # ### How it works
 #
@@ -71,14 +71,14 @@
 # and root combine six contributions into the masked sum target.
 #
 # This is a diagnostic control for the
-# [raw-pair proof](raw-value-weight-sum.html). Success establishes fixed-length
+# [raw-pair evidence](raw-value-weight-sum.html). Success establishes fixed-length
 # summation of supplied products. It does not establish that the model learned
 # multiplication or same-item value–weight binding.
 #
 # ### Remaining work
 #
 # Repeat the control across seeds and test variable lengths and complete-item
-# duplication. Keep the raw-pair proof alongside it so that supplying products does
+# duplication. Keep the raw-pair evidence alongside it so that supplying products does
 # not conceal a missing learned interaction.
 #
 # The family’s promotion target is at least three core seeds and ten lightweight

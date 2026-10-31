@@ -3,7 +3,7 @@
 # title: Can it learn how two measurements vary together?
 # categories:
 # - Distribution statistics
-# proof-id: P006
+# evidence-id: P006
 # description: 'Predict covariance: whether paired measurements tend to rise together or move in opposite
 #   directions.'
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct pairs
 #   metric:
 #   - intact
@@ -42,7 +42,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-aligned-pair-covariance
+# //| label: fig-evidence-aligned-pair-covariance
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, items, x, y, covariance. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -60,18 +60,18 @@
 #
 # ## Result
 #
-# {{< proof P006 status >}}
+# {{< evidence P006 status >}}
 #
 # Accuracy depends on keeping each pair together. This tests covariance, not correlation, which also accounts for each measurement’s spread.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P006 evidence >}}
+# {{< evidence P006 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P006 script >}}
+# {{< evidence P006 script >}}
 #
 # ### How it works
 #

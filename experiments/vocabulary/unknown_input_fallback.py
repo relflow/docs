@@ -3,7 +3,7 @@
 # title: Is an unfamiliar category the same as a null?
 # categories:
 # - Vocabulary
-# proof-id: P055
+# evidence-id: P055
 # description: Compare familiar labels, new labels, and missing values in a task where identity and numeric
 #   context both matter.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Error on paired new identities
 #   metric:
 #   - unknown
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-unknown-input-fallback
+# //| label: fig-evidence-unknown-input-fallback
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, x, code, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P055 status >}}
+# {{< evidence P055 status >}}
 #
 # Different new labels share unavailable identity content, while null remains distinct. Other context can support a fallback, but the model cannot infer the new label’s individual effect.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P055 evidence >}}
+# {{< evidence P055 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P055 script >}}
+# {{< evidence P055 script >}}
 #
 # ### Data and model
 #

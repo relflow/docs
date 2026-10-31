@@ -3,7 +3,7 @@
 # title: Can it compare two unfamiliar IDs directly?
 # categories:
 # - Collection overlap
-# proof-id: P029
+# evidence-id: P029
 # description: Ask whether two individual IDs match, as a simpler comparison beside the two-list overlap
 #   test.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Original pairs
 #   metric:
 #   - intact_auc
@@ -33,7 +33,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-flat-unseen-hash-equality-control
+# //| label: fig-evidence-flat-unseen-hash-equality-control
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with pair, left_id, right_id, equal. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("pair", kind: "root", width: 120pt, children: (
@@ -49,18 +49,18 @@
 #
 # ## Result
 #
-# {{< proof P029 status >}}
+# {{< evidence P029 status >}}
 #
 # Direct ID matching works, so the harder overlap failure cannot be blamed solely on the Hash representation. This does not establish comparisons between all pairs in two lists.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P029 evidence >}}
+# {{< evidence P029 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P029 script >}}
+# {{< evidence P029 script >}}
 #
 # ### How it works
 #
@@ -73,7 +73,7 @@
 #
 # ### Remaining work
 #
-# Repeat the primitive control alongside the collection proof across the
+# Repeat the primitive control alongside the collection evidence across the
 # promotion seed matrix. Retain the broken-equality intervention when changing
 # Hash configuration or testing more difficult schemas, so a collection failure
 # can be distinguished from a failure of scalar identity comparison.

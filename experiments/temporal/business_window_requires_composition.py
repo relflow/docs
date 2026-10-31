@@ -3,14 +3,14 @@
 # title: Does it need both weekday and hour?
 # categories:
 # - Calendar reasoning
-# proof-id: P042
+# evidence-id: P042
 # description: Predict whether a time lies in a weekday business-hours window.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Weekday only
 #   metric:
 #   - day_only_accuracy
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-temporal-business-window-requires-composition
+# //| label: fig-evidence-temporal-business-window-requires-composition
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with calendar, observed_at, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("calendar", kind: "root", children: (
@@ -50,18 +50,18 @@
 #
 # ## Result
 #
-# {{< proof P042 status >}}
+# {{< evidence P042 status >}}
 #
 # Combining the coordinates resolves this constructed task. Holidays, time zones, and daylight-saving rules are not covered.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P042 evidence >}}
+# {{< evidence P042 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P042 script >}}
+# {{< evidence P042 script >}}
 #
 # ### How it works
 #

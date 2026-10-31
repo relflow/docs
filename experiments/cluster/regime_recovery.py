@@ -3,7 +3,7 @@
 # title: Can it discover hidden groups with different behaviors?
 # categories:
 # - Cluster
-# proof-id: P078
+# evidence-id: P078
 # description: Repeated identities follow four hidden numerical rules. Ask the Cluster field to recover
 #   the groups while predicting new observations.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Stable hidden groups
 #   metric:
 #   - stable
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-cluster-regime-recovery
+# //| label: fig-evidence-cluster-regime-recovery
 # //| fig-cap: "Amber cards are hidden prediction targets. Identity is sometimes reconstructed; y is always hidden."
 # //| fig-alt: "Model tree with event, entity, x, y. Amber cards are hidden prediction targets. Identity is sometimes reconstructed; y is always hidden."
 # #tree(node("event", kind: "root", children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P078 status >}}
+# {{< evidence P078 status >}}
 #
 # All three seeds fail the recovery checks at this budget. Some identity information helps prediction, but producing several clusters does not show the right groups were discovered.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P078 evidence >}}
+# {{< evidence P078 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P078 script >}}
+# {{< evidence P078 script >}}
 #
 # ### Process, observability, and split unit
 #

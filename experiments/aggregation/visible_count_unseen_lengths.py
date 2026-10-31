@@ -3,7 +3,7 @@
 # title: Does the count help with longer lists?
 # categories:
 # - Cardinality generalization
-# proof-id: P005
+# evidence-id: P005
 # description: Give the model both a repeated amount and its count, then test larger counts absent from
 #   training.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Larger counts
 #   metric:
 #   - unseen_score
@@ -38,7 +38,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-visible-count-unseen-lengths
+# //| label: fig-evidence-visible-count-unseen-lengths
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, item_count, items, amount, total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -56,18 +56,18 @@
 #
 # ## Result
 #
-# {{< proof P005 status >}}
+# {{< evidence P005 status >}}
 #
 # The model extends the amount-times-count relationship to these larger counts. The count is supplied, so this does not show that it learned to count items.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P005 evidence >}}
+# {{< evidence P005 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P005 script >}}
+# {{< evidence P005 script >}}
 #
 # ### How it works
 #
@@ -84,7 +84,7 @@
 # ### Remaining work
 #
 # Repeat across seeds and broaden the input distributions beyond repeated
-# values. This proof establishes a route with an explicitly supplied count;
+# values. This evidence establishes a route with an explicitly supplied count;
 # [Attention without a count field](attention-sum-unseen-lengths.html) covers the
 # separate structural-cardinality claim.
 #
@@ -137,7 +137,7 @@ def random_records(*, rows: int, seed: int, minimum: int = 1, maximum: int = TRA
 def duplicate(observations: list[dict]) -> list[dict]:
     """Duplicate every complete bag and update its algebraic targets."""
     rows = deepcopy(observations)
-    if any((len(row["items"]) * 2 > CAPACITY for row in rows)):
+    if any(len(row["items"]) * 2 > CAPACITY for row in rows):
         raise ValueError(f"duplicated collection exceeds configured capacity {CAPACITY}")
     for row in rows:
         row["items"] = [*row["items"], *row["items"]]

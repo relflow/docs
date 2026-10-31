@@ -3,14 +3,14 @@
 # title: Can it recognize matching IDs it has never seen?
 # categories:
 # - Identity
-# proof-id: P021
+# evidence-id: P021
 # description: Ask whether two IDs are equal, using IDs absent from training.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Hash inputs
 #   metric:
 #   - hash_auc
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-identity-unseen-identity-equality
+# //| label: fig-evidence-identity-unseen-identity-equality
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with identity, left_id, right_id, equal. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("identity", kind: "root", children: (
@@ -52,18 +52,18 @@
 #
 # ## Result
 #
-# {{< proof P021 status >}}
+# {{< evidence P021 status >}}
 #
 # Hash preserves a useful matching signal for new IDs. This test compares two IDs within one record; larger lookups and joins require their own evidence.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P021 evidence >}}
+# {{< evidence P021 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P021 script >}}
+# {{< evidence P021 script >}}
 #
 # ### How it works
 #

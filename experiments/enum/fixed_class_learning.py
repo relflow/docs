@@ -3,7 +3,7 @@
 # title: Can it learn classes declared in advance?
 # categories:
 # - Enum
-# proof-id: P069
+# evidence-id: P069
 # description: Declare the allowed input and output classes with Enum, then learn which output belongs to
 #   each visible combination.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Informative training
 #   metric:
 #   - informative
@@ -35,7 +35,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-enum-fixed-class-learning
+# //| label: fig-evidence-enum-fixed-class-learning
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, route, channel, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -51,18 +51,18 @@
 #
 # ## Result
 #
-# {{< proof P069 status >}}
+# {{< evidence P069 status >}}
 #
 # The declared classes support reliable learning in this small task. This covers new records of familiar combinations, rather than new identities or meanings inferred from label names.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P069 evidence >}}
+# {{< evidence P069 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P069 script >}}
+# {{< evidence P069 script >}}
 #
 # ### Data and observability
 #

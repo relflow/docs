@@ -3,14 +3,14 @@
 # title: Can day 60 reveal the month in a leap year?
 # categories:
 # - Calendar reasoning
-# proof-id: P043
+# evidence-id: P043
 # description: Distinguish February 29 from March 1 when both can be day 60 of a year.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Day number only
 #   metric:
 #   - day_only_accuracy
@@ -31,7 +31,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-temporal-leap-boundary-requires-context
+# //| label: fig-evidence-temporal-leap-boundary-requires-context
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with calendar, observed_at, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("calendar", kind: "root", children: (
@@ -46,18 +46,18 @@
 #
 # ## Result
 #
-# {{< proof P043 status >}}
+# {{< evidence P043 status >}}
 #
 # Day number alone cannot separate identical inputs with different answers. The added coordinate resolves these cases; general leap-year reasoning is not tested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P043 evidence >}}
+# {{< evidence P043 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P043 script >}}
+# {{< evidence P043 script >}}
 #
 # ### How it works
 #

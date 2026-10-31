@@ -3,14 +3,14 @@
 # title: What happens when a new prediction target is added?
 # categories:
 # - Schema mutation
-# proof-id: P047
+# evidence-id: P047
 # description: Add hidden target w to a model already trained to predict u and v from a and b.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: New target before training
 #   metric:
 #   - arms
@@ -42,7 +42,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-mutations-add-target
+# //| label: fig-evidence-mutations-add-target
 # //| fig-alt: "Model tree with record, a, b, u, v, w. Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -60,18 +60,18 @@
 #
 # ## Result
 #
-# {{< proof P047 status >}}
+# {{< evidence P047 status >}}
 #
 # Adding w shifts old predictions before training, so the preservation check fails. After training, all three tasks learn. This does not establish retention without old labels.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P047 evidence >}}
+# {{< evidence P047 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P047 script >}}
+# {{< evidence P047 script >}}
 #
 # ### Remaining work
 #

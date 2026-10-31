@@ -3,7 +3,7 @@
 # title: Can day-of-year alone identify the weekday?
 # categories:
 # - Calendar reasoning
-# proof-id: P045
+# evidence-id: P045
 # description: Predict weekday from the day number while deliberately balancing different years across all
 #   seven weekday answers.
 # execute:
@@ -11,7 +11,7 @@
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Day number only
 #   metric:
 #   - day_only_accuracy
@@ -32,7 +32,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-temporal-weekday-requires-year-context
+# //| label: fig-evidence-temporal-weekday-requires-year-context
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with calendar, observed_at, target. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("calendar", kind: "root", children: (
@@ -47,18 +47,18 @@
 #
 # ## Result
 #
-# {{< proof P045 status >}}
+# {{< evidence P045 status >}}
 #
 # The day-only model stays near one-in-seven chance. A source timestamp only helps through the coordinates exposed to the model.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P045 evidence >}}
+# {{< evidence P045 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P045 script >}}
+# {{< evidence P045 script >}}
 #
 # ### How it works
 #

@@ -3,14 +3,14 @@
 # title: Can it average only the requested group?
 # categories:
 # - Category-conditioned reduction
-# proof-id: P026
+# evidence-id: P026
 # description: Ask for the average of one named group within a mixed list.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Group A, correct labels
 #   metric:
 #   - intact/A/nrmse
@@ -40,7 +40,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-filtered-mean
+# //| label: fig-evidence-filtered-mean
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with request, items, value, group, answer, operation, selected_group. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("request", kind: "root", width: 120pt, children: (
@@ -60,18 +60,18 @@
 #
 # ## Result
 #
-# {{< proof P026 status >}}
+# {{< evidence P026 status >}}
 #
 # The model uses membership to choose the relevant values. Empty groups and unfamiliar group names are not tested.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P026 evidence >}}
+# {{< evidence P026 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P026 script >}}
+# {{< evidence P026 script >}}
 #
 # ### How it works
 #

@@ -16,7 +16,7 @@ import torch
 import yaml
 
 ROOT = Path(__file__).resolve().parents[2]
-sys.path.insert(0, str(ROOT / "proofs"))
+sys.path.insert(0, str(ROOT / "experiments"))
 
 
 def load(path: Path) -> ModuleType:
@@ -50,9 +50,9 @@ def result(*, seed: int = 11, outcome: str = "met", mode: str = "full") -> dict:
 
 @pytest.fixture
 def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleType, ModuleType, Path]:
-    reporting = load(ROOT / "proofs/reporting.py")
-    renderer = load(ROOT / "proofs/render.py")
-    scripts = tmp_path / "proofs"
+    reporting = load(ROOT / "experiments/reporting.py")
+    renderer = load(ROOT / "experiments/render.py")
+    scripts = tmp_path / "experiments"
     pages = tmp_path / "docs/proofs/family"
     scripts.mkdir()
     pages.mkdir(parents=True)
@@ -88,7 +88,7 @@ def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleTyp
             "runs": [],
         }
     source = scripts / "results.yaml"
-    source.write_text(yaml.safe_dump({"schema": 1, "proofs": entries}, sort_keys=False))
+    source.write_text(yaml.safe_dump({"schema": 1, "experiments": entries}, sort_keys=False))
     monkeypatch.setattr(reporting, "RESULTS", source)
     monkeypatch.setattr(reporting, "provenance", lambda script: deepcopy(result()["provenance"]))
     monkeypatch.setattr(torch, "set_num_threads", lambda threads: None)
@@ -113,7 +113,7 @@ def test_cli_records_actual_metrics_failed_checks_and_options(
         sys, "argv", ["proof.py", "--seed", "23", "--accelerator", "auto", "--threads", "2", "--output", str(output)]
     )
     reporting.report("P001", experiment, seed=11)
-    recorded = yaml.safe_load(output.read_text())["proofs"]["P001"]["runs"][-1]
+    recorded = yaml.safe_load(output.read_text())["experiments"]["P001"]["runs"][-1]
     assert calls == [(23, None, "auto")]
     assert recorded["mode"] == "full"
     assert recorded["seed"] == 23
@@ -131,7 +131,7 @@ def test_cli_records_execution_errors_before_exiting(
     evidence: tuple[ModuleType, ModuleType, Path], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     reporting, renderer, root = evidence
-    output = root / "proofs/results.yaml"
+    output = root / "experiments/results.yaml"
     reporting.save("P001", result(), output)
 
     def experiment(seed: int, steps: int | None, accelerator: str) -> tuple[dict, dict]:
@@ -141,7 +141,7 @@ def test_cli_records_execution_errors_before_exiting(
     with pytest.raises(SystemExit) as caught:
         reporting.report("P001", experiment, seed=19)
     assert caught.value.code == 1
-    entry = yaml.safe_load(output.read_text())["proofs"]["P001"]
+    entry = yaml.safe_load(output.read_text())["experiments"]["P001"]
     assert len(entry["runs"]) == 2
     assert entry["runs"][-1]["outcome"] == "error"
     assert entry["runs"][-1]["seed"] == 19
@@ -155,7 +155,7 @@ def test_smoke_runs_do_not_replace_full_evidence_or_status(
     evidence: tuple[ModuleType, ModuleType, Path], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     reporting, renderer, root = evidence
-    output = root / "proofs/results.yaml"
+    output = root / "experiments/results.yaml"
     full = result(seed=7, outcome="not_met")
     reporting.save("P001", full, output)
 
@@ -165,7 +165,7 @@ def test_smoke_runs_do_not_replace_full_evidence_or_status(
 
     monkeypatch.setattr(sys, "argv", ["proof.py", "--steps", "2", "--output", str(output)])
     reporting.report("P001", experiment, seed=11)
-    entry = yaml.safe_load(output.read_text())["proofs"]["P001"]
+    entry = yaml.safe_load(output.read_text())["experiments"]["P001"]
     assert entry["runs"][-1]["mode"] == "smoke"
     assert entry["runs"][-1]["steps_override"] == 2
     assert renderer.latest(entry) == full
@@ -184,7 +184,7 @@ def test_provenance_failure_is_recorded_and_docs_remain_renderable(
     evidence: tuple[ModuleType, ModuleType, Path], monkeypatch: pytest.MonkeyPatch
 ) -> None:
     reporting, renderer, root = evidence
-    source = root / "proofs/results.yaml"
+    source = root / "experiments/results.yaml"
     reporting.save("P001", result(seed=7), source)
     calls = []
 
@@ -201,7 +201,7 @@ def test_provenance_failure_is_recorded_and_docs_remain_renderable(
         reporting.report("P001", experiment, seed=31)
     assert caught.value.code == 1
     assert calls == []
-    runs = yaml.safe_load(source.read_text())["proofs"]["P001"]["runs"]
+    runs = yaml.safe_load(source.read_text())["experiments"]["P001"]["runs"]
     assert len(runs) == 2 and runs[0]["seed"] == 7
     assert runs[-1]["outcome"] == "error"
     assert runs[-1]["seed"] == 31
@@ -218,7 +218,7 @@ def test_provenance_failure_is_recorded_and_docs_remain_renderable(
 
 
 def test_provenance_distinguishes_proof_revision_from_installed_library(monkeypatch):
-    reporting = load(ROOT / "proofs/reporting.py")
+    reporting = load(ROOT / "experiments/reporting.py")
     calls = []
     original_run = subprocess.run
 
@@ -229,7 +229,7 @@ def test_provenance_distinguishes_proof_revision_from_installed_library(monkeypa
         return subprocess.CompletedProcess(command, 0, stdout="proof-commit\n", stderr="")
 
     monkeypatch.setattr(reporting.subprocess, "run", revision)
-    measured = reporting.provenance(ROOT / "proofs/aggregation/raw_value_weight_sum.py")
+    measured = reporting.provenance(ROOT / "experiments/aggregation/raw_value_weight_sum.py")
     package = Path(measured["relflow_path"])
     expected = hashlib.sha256()
     for path in sorted(package.rglob("*.py")):

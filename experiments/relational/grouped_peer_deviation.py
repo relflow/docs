@@ -3,14 +3,14 @@
 # title: Can it compare an item with its own group?
 # categories:
 # - Peer-relative inference
-# proof-id: P032
+# evidence-id: P032
 # description: Predict how far each value lies above or below the average of its group.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct groups
 #   metric:
 #   - intact_nrmse
@@ -36,7 +36,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-grouped-peer-deviation
+# //| label: fig-evidence-grouped-peer-deviation
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with collection, items, value, group, deviation. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("collection", kind: "root", width: 120pt, children: (
@@ -54,18 +54,18 @@
 #
 # ## Result
 #
-# {{< proof P032 status >}}
+# {{< evidence P032 status >}}
 #
 # The model uses the correct peers and approximately preserves equal group shifts. Every group contains two items, making this simpler than general group averaging.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P032 evidence >}}
+# {{< evidence P032 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P032 script >}}
+# {{< evidence P032 script >}}
 #
 # ### How it works
 #

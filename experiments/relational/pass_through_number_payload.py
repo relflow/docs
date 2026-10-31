@@ -3,14 +3,14 @@
 # title: Can it return the winning item’s value?
 # categories:
 # - Argmax retrieval
-# proof-id: P023
+# evidence-id: P023
 # description: Predict the value attached to the highest score while retaining the encoded candidates.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Correct pairs
 #   metric:
 #   - intact_nrmse
@@ -34,7 +34,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-pass-through-number-payload
+# //| label: fig-evidence-pass-through-number-payload
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with retrieval, items, score, payload, answer. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("retrieval", kind: "root", width: 120pt, children: (
@@ -52,18 +52,18 @@
 #
 # ## Result
 #
-# {{< proof P023 status >}}
+# {{< evidence P023 status >}}
 #
 # Keeping the pairs together supports the learned selection. This test uses three candidates and does not guarantee exact selection.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P023 evidence >}}
+# {{< evidence P023 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P023 script >}}
+# {{< evidence P023 script >}}
 #
 # ### How it works
 #

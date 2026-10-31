@@ -3,14 +3,14 @@
 # title: Can it add six numbers?
 # categories:
 # - Hierarchical statistics
-# proof-id: P039
+# evidence-id: P039
 # description: Predict the total of six independently chosen amounts.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Total prediction
 #   metric:
 #   - test_nrmse
@@ -33,7 +33,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-structure-attention-learns-fixed-width-sum
+# //| label: fig-evidence-structure-attention-learns-fixed-width-sum
 # //| fig-cap: "Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # //| fig-alt: "Model tree with record, transactions, amount, global_total. Amber cards are hidden prediction targets. Repeated collections keep their fields together."
 # #tree(node("record", kind: "root", width: 120pt, children: (
@@ -50,18 +50,18 @@
 #
 # ## Result
 #
-# {{< proof P039 status >}}
+# {{< evidence P039 status >}}
 #
 # The model learns this small sum. This baseline does not test item reordering, varying lengths, deeper nesting, or exact addition.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P039 evidence >}}
+# {{< evidence P039 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P039 script >}}
+# {{< evidence P039 script >}}
 #
 # ### How it works
 #
@@ -81,7 +81,7 @@
 # `largest_session_average` target, broader value patterns, multiple Attention
 # output counts, and nested capacity ranges, followed by repeated-seed gates.
 #
-# The [nested-cardinality proof](attention-preserves-nested-cardinality.html)
+# The [nested-cardinality evidence](attention-preserves-nested-cardinality.html)
 # tests a statistic whose answer changes when those same amounts are regrouped.
 # Use [preprocessing](../../guides/preprocessing.qmd) when a sum must be exact.
 #

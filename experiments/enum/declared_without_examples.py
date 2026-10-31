@@ -3,14 +3,14 @@
 # title: Does declaring a class teach its meaning?
 # categories:
 # - Enum
-# proof-id: P070
+# evidence-id: P070
 # description: Declare all four classes, but leave one out of initial training.
 # execute:
 #   enabled: false
 #   eval: false
 # code-fold: true
 # toc: false
-# proof-readout:
+# evidence-readout:
 # - label: Withheld class, before examples
 #   metric:
 #   - initial_withheld
@@ -38,7 +38,7 @@
 # The answer is shown here for explanation; it is hidden from the model when scored.
 #
 # ```{typst}
-# //| label: fig-proof-enum-declared-without-examples
+# //| label: fig-evidence-enum-declared-without-examples
 # //| fig-cap: "Amber cards are hidden prediction targets. Other fields provide the input."
 # //| fig-alt: "Model tree with record, x, label. Amber cards are hidden prediction targets. Other fields provide the input."
 # #tree(node("record", kind: "root", children: (
@@ -53,18 +53,18 @@
 #
 # ## Result
 #
-# {{< proof P070 status >}}
+# {{< evidence P070 status >}}
 #
 # A declared output slot alone supplies no reliable understanding. Examples teach the withheld class; the old classes are retained with rehearsal.
 #
-# <details class="proof-details">
+# <details class="evidence-details">
 # <summary>Experiment details and code</summary>
 #
-# {{< proof P070 evidence >}}
+# {{< evidence P070 evidence >}}
 #
 # ### Run this experiment
 #
-# {{< proof P070 script >}}
+# {{< evidence P070 script >}}
 #
 # ### Data and observability
 #
