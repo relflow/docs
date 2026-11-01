@@ -30,7 +30,7 @@ jobs:
         uses: actions/checkout@v4
         with:
           repository: relflow/docs
-          ref: e00d336e3dc4a3c3352ab3fe5535ba69d6ac682f
+          ref: d7e7d111c1bfe37f5937de40440ea2f4be5ff0ea
           path: executor
           persist-credentials: false
       - name: Check out experiment sources as data
