@@ -73,8 +73,8 @@ Runtime tests are explicit and excluded from default checks. See
 
 ## Publication
 
-Pull requests and branches render and validate independently, uploading a
-review artifact. Pushes to `main` publish the validated site through GitHub
+Pull requests render and validate once, uploading a review artifact. Use manual
+workflow dispatch to preview a branch without a PR. Pushes to `main` publish the validated site through GitHub
 Pages. This repository enables that deployment with the Actions variable
 `PUBLISH_PAGES=true`; forks leave it unset to build without publishing.
 
