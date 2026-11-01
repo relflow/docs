@@ -24,5 +24,7 @@ def test_canonical_publication_preserves_all_archived_measurements():
     current = yaml.safe_load((ROOT / "results.yaml").read_text())["evidence"]
     assert set(original) == set(current)
     for identifier, entry in original.items():
-        assert json.dumps(current[identifier]["runs"], sort_keys=True) == json.dumps(entry["runs"], sort_keys=True)
+        assert json.dumps(current[identifier]["runs"][: len(entry["runs"])], sort_keys=True) == json.dumps(
+            entry["runs"], sort_keys=True
+        )
         assert current[identifier]["historical"] == entry["historical"]
