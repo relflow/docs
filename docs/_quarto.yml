@@ -13,7 +13,7 @@ project:
     - "evidence/*/*.py"
 
 website:
-  site-url: https://relflow.github.io/docs/
+  site-url: https://relflow.ai/
   title: relflow
   favicon: assets/branding/logos/logo.svg
   image: assets/branding/logos/logo.light.png

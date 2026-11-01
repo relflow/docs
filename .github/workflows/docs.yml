@@ -2,6 +2,7 @@ name: Validate and publish documentation
 
 on:
   push:
+    branches: ["**"]
   pull_request:
   workflow_dispatch:
 
