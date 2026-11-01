@@ -1,14 +1,14 @@
 # RelFlow documentation guide
 
-This repository owns the static RelFlow documentation, its assets, and a
-verified publication snapshot of evidence maintained in relflow/evidence. It must build from this checkout alone.
+This repository owns the static RelFlow documentation, its assets, canonical
+evidence experiments, runners, and recorded results. It must build from this
+checkout alone.
 
 ## Scope and build
 
 - Authored website pages, assets, extensions, and `_quarto.yml` live in `docs/`.
-  Canonical experiments, runners, and results live in the separate
-  `relflow/evidence` repository. The local snapshot lives in `vendor/evidence/`
-  and is pinned by `contracts/evidence.json`. Page folders
+  Canonical experiments, runners, protocol, and results live under `evidence/`.
+  `evidence/results.yaml` is the reviewed publication record. Page folders
   mirror the sidebar groups (`learn/`, `guides/`, `concepts/`, `datatypes/`,
   `reference/`) and
   file names match page titles; when a page moves or is renamed, update every
@@ -23,8 +23,8 @@ verified publication snapshot of evidence maintained in relflow/evidence. It mus
   the Markdown engine. Never execute examples, train models, read application
   data, or download model weights during a build.
 - Evidence execution is a separate, explicit task in an environment containing
-  the target RelFlow version. Runtime tests live in the evidence repository; they are not part of docs
-  validation.
+  the target RelFlow version. Runtime tests live in `evidence/tests/runtime/` and are excluded from default
+  static validation.
 
 ## Teach in order
 
@@ -138,10 +138,11 @@ masking policies, use `flow`, `timeline`, `tokens`, and `policies` from
 rather than hyperparameters. Keep nearby code, YAML, labels, captions, and text
 alternatives consistent. Preserve bundled extension and font licenses.
 
-`scripts/render_evidence.py` publishes the verified local snapshot and recorded results
-without executing them. Generated evidence pages and fragments under `docs/evidence/`
-are ignored; never edit them as a second source. Follow `SPEC.md` in relflow/evidence when changing experiments. Import a
-reviewed report bundle through `scripts/import_evidence.py`; never edit vendor
-files as a second canonical source. Preserve results, source fingerprints, and provenance;
-never alter measurements to make a documentation check pass. Clean only generated
-publication output, retaining all canonical experiments and results.
+`scripts/render_evidence.py` publishes local canonical sources and reviewed
+results without executing them. Generated pages and fragments under
+`docs/evidence/` are ignored; never edit them as a second source. Follow
+`evidence/SPEC.md` when changing experiments. Execution writes independent JSON
+records. Select complete reports with `evidence/record.py` and review updates to
+`evidence/results.yaml`; never alter measurements to make a check pass. Preserve
+source fingerprints and provenance. Clean only generated publication output.
+There are no Proofs redirects, snapshot importers, or optional Modal backend.

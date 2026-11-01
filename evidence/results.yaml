@@ -1,7 +1,7 @@
 schema: 2
 evidence:
   P001:
-    script: vendor/evidence/experiments/aggregation/attention_sum_in_range.py
+    script: evidence/experiments/aggregation/attention_sum_in_range.py
     page: docs/evidence/aggregation/attention-sum-in-range.py
     historical:
       status: Passing
@@ -112,7 +112,7 @@ evidence:
       outcome: met
       duration_seconds: 35.782
   P002:
-    script: vendor/evidence/experiments/aggregation/attention_sum_unseen_lengths.py
+    script: evidence/experiments/aggregation/attention_sum_unseen_lengths.py
     page: docs/evidence/aggregation/attention-sum-unseen-lengths.py
     historical:
       status: Passing
@@ -254,7 +254,7 @@ evidence:
       outcome: met
       duration_seconds: 34.076
   P003:
-    script: vendor/evidence/experiments/aggregation/mean_duplicate_invariance.py
+    script: evidence/experiments/aggregation/mean_duplicate_invariance.py
     page: docs/evidence/aggregation/mean-duplicate-invariance.py
     historical:
       status: Passing
@@ -371,7 +371,7 @@ evidence:
       outcome: met
       duration_seconds: 7.091
   P004:
-    script: vendor/evidence/experiments/aggregation/visible_count_sum.py
+    script: evidence/experiments/aggregation/visible_count_sum.py
     page: docs/evidence/aggregation/visible-count-sum.py
     historical:
       status: Passing
@@ -495,7 +495,7 @@ evidence:
       outcome: met
       duration_seconds: 16.503
   P005:
-    script: vendor/evidence/experiments/aggregation/visible_count_unseen_lengths.py
+    script: evidence/experiments/aggregation/visible_count_unseen_lengths.py
     page: docs/evidence/aggregation/visible-count-unseen-lengths.py
     historical:
       status: Passing
@@ -605,7 +605,7 @@ evidence:
       outcome: met
       duration_seconds: 16.509
   P006:
-    script: vendor/evidence/experiments/aggregation/aligned_pair_covariance.py
+    script: evidence/experiments/aggregation/aligned_pair_covariance.py
     page: docs/evidence/aggregation/aligned-pair-covariance.py
     historical:
       status: Passing
@@ -728,7 +728,7 @@ evidence:
       outcome: met
       duration_seconds: 29.055
   P007:
-    script: vendor/evidence/experiments/aggregation/raw_value_variance.py
+    script: evidence/experiments/aggregation/raw_value_variance.py
     page: docs/evidence/aggregation/raw-value-variance.py
     historical:
       status: Passing
@@ -841,7 +841,7 @@ evidence:
       outcome: met
       duration_seconds: 23.07
   P008:
-    script: vendor/evidence/experiments/aggregation/supplied_cross_deviations.py
+    script: evidence/experiments/aggregation/supplied_cross_deviations.py
     page: docs/evidence/aggregation/supplied-cross-deviations.py
     historical:
       status: Passing
@@ -943,7 +943,7 @@ evidence:
       outcome: met
       duration_seconds: 7.622
   P009:
-    script: vendor/evidence/experiments/aggregation/supplied_squared_deviations.py
+    script: evidence/experiments/aggregation/supplied_squared_deviations.py
     page: docs/evidence/aggregation/supplied-squared-deviations.py
     historical:
       status: Passing
@@ -1046,7 +1046,7 @@ evidence:
       outcome: met
       duration_seconds: 7.135
   P010:
-    script: vendor/evidence/experiments/aggregation/selected_group_raw_weighted_sum.py
+    script: evidence/experiments/aggregation/selected_group_raw_weighted_sum.py
     page: docs/evidence/aggregation/selected-group-raw-weighted-sum.py
     historical:
       status: Passing
@@ -1184,7 +1184,7 @@ evidence:
       outcome: met
       duration_seconds: 34.949
   P011:
-    script: vendor/evidence/experiments/aggregation/selected_group_supplied_contribution_sum.py
+    script: evidence/experiments/aggregation/selected_group_supplied_contribution_sum.py
     page: docs/evidence/aggregation/selected-group-supplied-contribution-sum.py
     historical:
       status: Passing
@@ -1313,7 +1313,7 @@ evidence:
       outcome: met
       duration_seconds: 23.792
   P012:
-    script: vendor/evidence/experiments/aggregation/requested_rank_values.py
+    script: evidence/experiments/aggregation/requested_rank_values.py
     page: docs/evidence/aggregation/requested-rank-values.py
     historical:
       status: Passing
@@ -1586,7 +1586,7 @@ evidence:
       outcome: met
       duration_seconds: 21.578
   P013:
-    script: vendor/evidence/experiments/aggregation/mean_keeps_contribution_count.py
+    script: evidence/experiments/aggregation/mean_keeps_contribution_count.py
     page: docs/evidence/aggregation/mean-keeps-contribution-count.py
     historical:
       status: Passing
@@ -1695,7 +1695,7 @@ evidence:
       outcome: met
       duration_seconds: 7.326
   P014:
-    script: vendor/evidence/experiments/aggregation/raw_value_weight_sum.py
+    script: evidence/experiments/aggregation/raw_value_weight_sum.py
     page: docs/evidence/aggregation/raw-value-weight-sum.py
     historical:
       status: Passing
@@ -1834,7 +1834,7 @@ evidence:
       outcome: met
       duration_seconds: 26.607
   P015:
-    script: vendor/evidence/experiments/aggregation/supplied_contribution_sum.py
+    script: evidence/experiments/aggregation/supplied_contribution_sum.py
     page: docs/evidence/aggregation/supplied-contribution-sum.py
     historical:
       status: Passing
@@ -1936,7 +1936,7 @@ evidence:
       outcome: met
       duration_seconds: 13.0
   P016:
-    script: vendor/evidence/experiments/aggregation/variable_cardinality_weighted_mean.py
+    script: evidence/experiments/aggregation/variable_cardinality_weighted_mean.py
     page: docs/evidence/aggregation/variable-cardinality-weighted-mean.py
     historical:
       status: Passing
@@ -2071,7 +2071,7 @@ evidence:
       outcome: met
       duration_seconds: 38.561
   P017:
-    script: vendor/evidence/experiments/calibration/signal_vs_noise.py
+    script: evidence/experiments/calibration/signal_vs_noise.py
     page: docs/evidence/calibration/signal-vs-noise.py
     historical:
       status: Passing
@@ -2366,7 +2366,7 @@ evidence:
       outcome: met
       duration_seconds: 5.896
   P018:
-    script: vendor/evidence/experiments/cluster/hidden_regression_regimes.py
+    script: evidence/experiments/cluster/hidden_regression_regimes.py
     page: docs/evidence/cluster/hidden-regression-regimes.py
     historical:
       status: Partial
@@ -3292,7 +3292,7 @@ evidence:
       outcome: met
       duration_seconds: 23.162
   P019:
-    script: vendor/evidence/experiments/cluster/plain_input_is_dormant.py
+    script: evidence/experiments/cluster/plain_input_is_dormant.py
     page: docs/evidence/cluster/plain-input-is-dormant.py
     historical:
       status: Limited
@@ -3702,7 +3702,7 @@ evidence:
       outcome: met
       duration_seconds: 2.324
   P020:
-    script: vendor/evidence/experiments/cluster/reconstructing_category_labels.py
+    script: evidence/experiments/cluster/reconstructing_category_labels.py
     page: docs/evidence/cluster/reconstructing-category-labels.py
     historical:
       status: Partial
@@ -4629,7 +4629,7 @@ evidence:
       outcome: met
       duration_seconds: 14.464
   P021:
-    script: vendor/evidence/experiments/identity/unseen_identity_equality.py
+    script: evidence/experiments/identity/unseen_identity_equality.py
     page: docs/evidence/identity/unseen-identity-equality.py
     historical:
       status: Passing
@@ -4746,7 +4746,7 @@ evidence:
       outcome: met
       duration_seconds: 29.041
   P022:
-    script: vendor/evidence/experiments/relational/attention_number_payload.py
+    script: evidence/experiments/relational/attention_number_payload.py
     page: docs/evidence/relational/attention-number-payload.py
     historical:
       status: Passing
@@ -4867,7 +4867,7 @@ evidence:
       outcome: met
       duration_seconds: 19.478
   P023:
-    script: vendor/evidence/experiments/relational/pass_through_number_payload.py
+    script: evidence/experiments/relational/pass_through_number_payload.py
     page: docs/evidence/relational/pass-through-number-payload.py
     historical:
       status: Passing
@@ -4993,7 +4993,7 @@ evidence:
       outcome: met
       duration_seconds: 16.776
   P024:
-    script: vendor/evidence/experiments/relational/aligned_position_control.py
+    script: evidence/experiments/relational/aligned_position_control.py
     page: docs/evidence/relational/aligned-position-control.py
     historical:
       status: Passing
@@ -5113,7 +5113,7 @@ evidence:
       outcome: met
       duration_seconds: 21.143
   P025:
-    script: vendor/evidence/experiments/relational/hash_recall.py
+    script: evidence/experiments/relational/hash_recall.py
     page: docs/evidence/relational/hash-recall.py
     historical:
       status: Passing
@@ -5240,7 +5240,7 @@ evidence:
       outcome: met
       duration_seconds: 18.046
   P026:
-    script: vendor/evidence/experiments/relational/filtered_mean.py
+    script: evidence/experiments/relational/filtered_mean.py
     page: docs/evidence/relational/filtered-mean.py
     historical:
       status: Passing
@@ -5399,7 +5399,7 @@ evidence:
       outcome: met
       duration_seconds: 27.037
   P027:
-    script: vendor/evidence/experiments/relational/group_operation_composition.py
+    script: evidence/experiments/relational/group_operation_composition.py
     page: docs/evidence/relational/group-operation-composition.py
     historical:
       status: Passing
@@ -5629,7 +5629,7 @@ evidence:
       outcome: met
       duration_seconds: 36.59
   P028:
-    script: vendor/evidence/experiments/relational/direct_sibling_hash_overlap.py
+    script: evidence/experiments/relational/direct_sibling_hash_overlap.py
     page: docs/evidence/relational/direct-sibling-hash-overlap.py
     historical:
       status: Limited
@@ -5799,7 +5799,7 @@ evidence:
       outcome: met
       duration_seconds: 24.44
   P029:
-    script: vendor/evidence/experiments/relational/flat_unseen_hash_equality_control.py
+    script: evidence/experiments/relational/flat_unseen_hash_equality_control.py
     page: docs/evidence/relational/flat-unseen-hash-equality-control.py
     historical:
       status: Passing
@@ -5926,7 +5926,7 @@ evidence:
       outcome: met
       duration_seconds: 12.087
   P030:
-    script: vendor/evidence/experiments/relational/repeated_subtotal_reconstruction.py
+    script: evidence/experiments/relational/repeated_subtotal_reconstruction.py
     page: docs/evidence/relational/repeated-subtotal-reconstruction.py
     historical:
       status: Passing
@@ -6098,7 +6098,7 @@ evidence:
       outcome: met
       duration_seconds: 31.363
   P031:
-    script: vendor/evidence/experiments/relational/fixed_length.py
+    script: evidence/experiments/relational/fixed_length.py
     page: docs/evidence/relational/fixed-length.py
     historical:
       status: Passing
@@ -6313,7 +6313,7 @@ evidence:
       outcome: met
       duration_seconds: 22.958
   P032:
-    script: vendor/evidence/experiments/relational/grouped_peer_deviation.py
+    script: evidence/experiments/relational/grouped_peer_deviation.py
     page: docs/evidence/relational/grouped-peer-deviation.py
     historical:
       status: Passing
@@ -6467,7 +6467,7 @@ evidence:
       outcome: met
       duration_seconds: 26.181
   P033:
-    script: vendor/evidence/experiments/relational/single_query_preserves_group_membership.py
+    script: evidence/experiments/relational/single_query_preserves_group_membership.py
     page: docs/evidence/relational/single-query-preserves-group-membership.py
     historical:
       status: Passing
@@ -6607,7 +6607,7 @@ evidence:
       outcome: met
       duration_seconds: 37.115
   P034:
-    script: vendor/evidence/experiments/relational/supplied_peer_mean_control.py
+    script: evidence/experiments/relational/supplied_peer_mean_control.py
     page: docs/evidence/relational/supplied-peer-mean-control.py
     historical:
       status: Passing
@@ -6733,7 +6733,7 @@ evidence:
       outcome: met
       duration_seconds: 17.817
   P035:
-    script: vendor/evidence/experiments/relational/ungrouped_peer_deviation.py
+    script: evidence/experiments/relational/ungrouped_peer_deviation.py
     page: docs/evidence/relational/ungrouped-peer-deviation.py
     historical:
       status: Passing
@@ -6873,7 +6873,7 @@ evidence:
       outcome: met
       duration_seconds: 26.877
   P036:
-    script: vendor/evidence/experiments/relational/category_identity.py
+    script: evidence/experiments/relational/category_identity.py
     page: docs/evidence/relational/category-identity.py
     historical:
       status: Passing
@@ -7251,7 +7251,7 @@ evidence:
       outcome: met
       duration_seconds: 37.823
   P037:
-    script: vendor/evidence/experiments/relational/hash_identity.py
+    script: evidence/experiments/relational/hash_identity.py
     page: docs/evidence/relational/hash-identity.py
     historical:
       status: Passing
@@ -7387,7 +7387,7 @@ evidence:
       outcome: met
       duration_seconds: 37.497
   P038:
-    script: vendor/evidence/experiments/state/null_versus_zero.py
+    script: evidence/experiments/state/null_versus_zero.py
     page: docs/evidence/state/null-versus-zero.py
     historical:
       status: Passing
@@ -7610,7 +7610,7 @@ evidence:
       outcome: met
       duration_seconds: 2.697
   P039:
-    script: vendor/evidence/experiments/structure/attention_learns_fixed_width_sum.py
+    script: evidence/experiments/structure/attention_learns_fixed_width_sum.py
     page: docs/evidence/structure/attention-learns-fixed-width-sum.py
     historical:
       status: Passing
@@ -7731,7 +7731,7 @@ evidence:
       outcome: met
       duration_seconds: 10.593
   P040:
-    script: vendor/evidence/experiments/structure/attention_preserves_nested_cardinality.py
+    script: evidence/experiments/structure/attention_preserves_nested_cardinality.py
     page: docs/evidence/structure/attention-preserves-nested-cardinality.py
     historical:
       status: Passing
@@ -7851,7 +7851,7 @@ evidence:
       outcome: met
       duration_seconds: 2.859
   P041:
-    script: vendor/evidence/experiments/structure/mean_keeps_cardinality.py
+    script: evidence/experiments/structure/mean_keeps_cardinality.py
     page: docs/evidence/structure/mean-keeps-cardinality.py
     historical:
       status: Passing
@@ -7964,7 +7964,7 @@ evidence:
       outcome: met
       duration_seconds: 7.367
   P042:
-    script: vendor/evidence/experiments/temporal/business_window_requires_composition.py
+    script: evidence/experiments/temporal/business_window_requires_composition.py
     page: docs/evidence/temporal/business-window-requires-composition.py
     historical:
       status: Passing
@@ -8095,7 +8095,7 @@ evidence:
       outcome: met
       duration_seconds: 11.27
   P043:
-    script: vendor/evidence/experiments/temporal/leap_boundary_requires_context.py
+    script: evidence/experiments/temporal/leap_boundary_requires_context.py
     page: docs/evidence/temporal/leap-boundary-requires-context.py
     historical:
       status: Limited
@@ -8209,7 +8209,7 @@ evidence:
       outcome: met
       duration_seconds: 3.024
   P044:
-    script: vendor/evidence/experiments/temporal/month_from_day_of_year.py
+    script: evidence/experiments/temporal/month_from_day_of_year.py
     page: docs/evidence/temporal/month-from-day-of-year.py
     historical:
       status: Passing
@@ -8326,7 +8326,7 @@ evidence:
       outcome: met
       duration_seconds: 8.037
   P045:
-    script: vendor/evidence/experiments/temporal/weekday_requires_year_context.py
+    script: evidence/experiments/temporal/weekday_requires_year_context.py
     page: docs/evidence/temporal/weekday-requires-year-context.py
     historical:
       status: Limited
@@ -8440,7 +8440,7 @@ evidence:
       outcome: met
       duration_seconds: 3.722
   P046:
-    script: vendor/evidence/experiments/mutations/neutral_edits_preserve_learning.py
+    script: evidence/experiments/mutations/neutral_edits_preserve_learning.py
     page: docs/evidence/mutations/neutral-edits-preserve-learning.py
     historical:
       status: Passing
@@ -9576,7 +9576,7 @@ evidence:
       outcome: met
       duration_seconds: 8.876
   P047:
-    script: vendor/evidence/experiments/mutations/extend_prediction_target.py
+    script: evidence/experiments/mutations/extend_prediction_target.py
     page: docs/evidence/mutations/extend-prediction-target.py
     historical:
       status: Passing
@@ -14236,7 +14236,7 @@ evidence:
       outcome: not_met
       duration_seconds: 64.355
   P048:
-    script: vendor/evidence/experiments/mutations/reset_prediction_target.py
+    script: evidence/experiments/mutations/reset_prediction_target.py
     page: docs/evidence/mutations/reset-prediction-target.py
     historical:
       status: Passing
@@ -17264,7 +17264,7 @@ evidence:
       outcome: met
       duration_seconds: 44.535
   P049:
-    script: vendor/evidence/experiments/mutations/deactivate_and_restore_input.py
+    script: evidence/experiments/mutations/deactivate_and_restore_input.py
     page: docs/evidence/mutations/deactivate-and-restore-input.py
     historical:
       status: Passing
@@ -18166,7 +18166,7 @@ evidence:
       outcome: met
       duration_seconds: 12.029
   P050:
-    script: vendor/evidence/experiments/mutations/delete_input_and_adapt.py
+    script: evidence/experiments/mutations/delete_input_and_adapt.py
     page: docs/evidence/mutations/delete-input-and-adapt.py
     historical:
       status: Passing
@@ -19673,7 +19673,7 @@ evidence:
       outcome: met
       duration_seconds: 31.192
   P051:
-    script: vendor/evidence/experiments/masking/sampled_reconstruction.py
+    script: evidence/experiments/masking/sampled_reconstruction.py
     page: docs/evidence/masking/sampled-reconstruction.py
     historical:
       status: Passing
@@ -20205,7 +20205,7 @@ evidence:
       outcome: met
       duration_seconds: 5.961
   P052:
-    script: vendor/evidence/experiments/masking/query_reconstruction.py
+    script: evidence/experiments/masking/query_reconstruction.py
     page: docs/evidence/masking/query-reconstruction.py
     historical:
       status: Passing
@@ -20569,7 +20569,7 @@ evidence:
       outcome: met
       duration_seconds: 8.208
   P053:
-    script: vendor/evidence/experiments/masking/branch_ablation.py
+    script: evidence/experiments/masking/branch_ablation.py
     page: docs/evidence/masking/branch-ablation.py
     historical:
       status: Passing
@@ -21045,7 +21045,7 @@ evidence:
       outcome: met
       duration_seconds: 8.297
   P054:
-    script: vendor/evidence/experiments/masking/prefix_generation.py
+    script: evidence/experiments/masking/prefix_generation.py
     page: docs/evidence/masking/prefix-generation.py
     historical:
       status: Passing
@@ -21568,7 +21568,7 @@ evidence:
       outcome: met
       duration_seconds: 21.803
   P055:
-    script: vendor/evidence/experiments/vocabulary/unknown_input_fallback.py
+    script: evidence/experiments/vocabulary/unknown_input_fallback.py
     page: docs/evidence/vocabulary/unknown-input-fallback.py
     historical:
       status: Limited
@@ -22160,7 +22160,7 @@ evidence:
       outcome: met
       duration_seconds: 7.21
   P056:
-    script: vendor/evidence/experiments/vocabulary/unknown_target_coverage.py
+    script: evidence/experiments/vocabulary/unknown_target_coverage.py
     page: docs/evidence/vocabulary/unknown-target-coverage.py
     historical:
       status: Limited
@@ -22782,7 +22782,7 @@ evidence:
       outcome: met
       duration_seconds: 4.507
   P057:
-    script: vendor/evidence/experiments/vocabulary/capacity_admission_order.py
+    script: evidence/experiments/vocabulary/capacity_admission_order.py
     page: docs/evidence/vocabulary/capacity-admission-order.py
     historical:
       status: Limited
@@ -23839,7 +23839,7 @@ evidence:
       outcome: met
       duration_seconds: 4.079
   P058:
-    script: vendor/evidence/experiments/vocabulary/unknown_set_members.py
+    script: evidence/experiments/vocabulary/unknown_set_members.py
     page: docs/evidence/vocabulary/unknown-set-members.py
     historical:
       status: Limited
@@ -24461,7 +24461,7 @@ evidence:
       outcome: met
       duration_seconds: 4.104
   P059:
-    script: vendor/evidence/experiments/vocabulary/admission_and_continued_training.py
+    script: evidence/experiments/vocabulary/admission_and_continued_training.py
     page: docs/evidence/vocabulary/admission-and-continued-training.py
     historical:
       status: Passing
@@ -25193,7 +25193,7 @@ evidence:
       outcome: met
       duration_seconds: 7.142
   P060:
-    script: vendor/evidence/experiments/calibration/categorical_prior.py
+    script: evidence/experiments/calibration/categorical_prior.py
     page: docs/evidence/calibration/categorical-prior.py
     historical:
       status: Passing
@@ -26045,7 +26045,7 @@ evidence:
       outcome: met
       duration_seconds: 12.013
   P061:
-    script: vendor/evidence/experiments/vocabulary/cold_start_confidence.py
+    script: evidence/experiments/vocabulary/cold_start_confidence.py
     page: docs/evidence/vocabulary/cold-start-confidence.py
     historical:
       status: Limited
@@ -26839,7 +26839,7 @@ evidence:
       outcome: met
       duration_seconds: 20.775
   P062:
-    script: vendor/evidence/experiments/vocabulary/pretraining_coverage.py
+    script: evidence/experiments/vocabulary/pretraining_coverage.py
     page: docs/evidence/vocabulary/pretraining-coverage.py
     historical:
       status: Limited
@@ -27497,7 +27497,7 @@ evidence:
       outcome: met
       duration_seconds: 8.757
   P063:
-    script: vendor/evidence/experiments/vocabulary/set_reconstruction_coverage.py
+    script: evidence/experiments/vocabulary/set_reconstruction_coverage.py
     page: docs/evidence/vocabulary/set-reconstruction-coverage.py
     historical:
       status: Passing
@@ -28496,7 +28496,7 @@ evidence:
       outcome: met
       duration_seconds: 6.304
   P064:
-    script: vendor/evidence/experiments/vocabulary/set_unavailable_fallback.py
+    script: evidence/experiments/vocabulary/set_unavailable_fallback.py
     page: docs/evidence/vocabulary/set-unavailable-fallback.py
     historical:
       status: Passing
@@ -28922,7 +28922,7 @@ evidence:
       outcome: met
       duration_seconds: 12.57
   P065:
-    script: vendor/evidence/experiments/vocabulary/cluster_pretraining_coverage.py
+    script: evidence/experiments/vocabulary/cluster_pretraining_coverage.py
     page: docs/evidence/vocabulary/cluster-pretraining-coverage.py
     historical:
       status: Partial
@@ -30053,7 +30053,7 @@ evidence:
       outcome: not_met
       duration_seconds: 13.814
   P066:
-    script: vendor/evidence/experiments/vocabulary/rolling_input_admission.py
+    script: evidence/experiments/vocabulary/rolling_input_admission.py
     page: docs/evidence/vocabulary/rolling-input-admission.py
     historical:
       status: Partial
@@ -32874,7 +32874,7 @@ evidence:
       outcome: not_met
       duration_seconds: 29.984
   P067:
-    script: vendor/evidence/experiments/quantile/rank_regression.py
+    script: evidence/experiments/quantile/rank_regression.py
     page: docs/evidence/quantile/rank-regression.py
     historical:
       status: Passing
@@ -33676,7 +33676,7 @@ evidence:
       outcome: met
       duration_seconds: 4.769
   P068:
-    script: vendor/evidence/experiments/quantile/clipped_extrapolation.py
+    script: evidence/experiments/quantile/clipped_extrapolation.py
     page: docs/evidence/quantile/clipped-extrapolation.py
     historical:
       status: Limited
@@ -34838,7 +34838,7 @@ evidence:
       outcome: met
       duration_seconds: 4.755
   P069:
-    script: vendor/evidence/experiments/enum/fixed_class_learning.py
+    script: evidence/experiments/enum/fixed_class_learning.py
     page: docs/evidence/enum/fixed-class-learning.py
     historical:
       status: Passing
@@ -36649,7 +36649,7 @@ evidence:
       outcome: met
       duration_seconds: 5.316
   P070:
-    script: vendor/evidence/experiments/enum/declared_without_examples.py
+    script: evidence/experiments/enum/declared_without_examples.py
     page: docs/evidence/enum/declared-without-examples.py
     historical:
       status: Passing
@@ -37982,7 +37982,7 @@ evidence:
       outcome: met
       duration_seconds: 5.423
   P071:
-    script: vendor/evidence/experiments/composition/held_out_requests.py
+    script: evidence/experiments/composition/held_out_requests.py
     page: docs/evidence/composition/held-out-requests.py
     historical:
       status: Partial
@@ -39242,7 +39242,7 @@ evidence:
       outcome: not_met
       duration_seconds: 36.592
   P072:
-    script: vendor/evidence/experiments/composition/context_examples.py
+    script: evidence/experiments/composition/context_examples.py
     page: docs/evidence/composition/context-examples.py
     historical:
       status: Partial
@@ -39535,7 +39535,7 @@ evidence:
       outcome: met
       duration_seconds: 19.605
   P073:
-    script: vendor/evidence/experiments/representation/reconstruction_transfer.py
+    script: evidence/experiments/representation/reconstruction_transfer.py
     page: docs/evidence/representation/reconstruction-transfer.py
     historical:
       status: Partial
@@ -39779,7 +39779,7 @@ evidence:
       outcome: met
       duration_seconds: 15.149
   P074:
-    script: vendor/evidence/experiments/representation/incomplete_evidence.py
+    script: evidence/experiments/representation/incomplete_evidence.py
     page: docs/evidence/representation/incomplete-evidence.py
     historical:
       status: Partial
@@ -40190,7 +40190,7 @@ evidence:
       outcome: not_met
       duration_seconds: 7.593
   P075:
-    script: vendor/evidence/experiments/relational/retrieval_capacity.py
+    script: evidence/experiments/relational/retrieval_capacity.py
     page: docs/evidence/relational/retrieval-capacity.py
     historical:
       status: Partial
@@ -40787,7 +40787,7 @@ evidence:
       outcome: not_met
       duration_seconds: 47.842
   P076:
-    script: vendor/evidence/experiments/anomaly/contextual_consistency.py
+    script: evidence/experiments/anomaly/contextual_consistency.py
     page: docs/evidence/anomaly/contextual-consistency.py
     historical:
       status: Passing
@@ -41077,7 +41077,7 @@ evidence:
       outcome: met
       duration_seconds: 11.917
   P077:
-    script: vendor/evidence/experiments/quantile/representation_tradeoffs.py
+    script: evidence/experiments/quantile/representation_tradeoffs.py
     page: docs/evidence/quantile/representation-tradeoffs.py
     historical:
       status: Passing
@@ -41869,7 +41869,7 @@ evidence:
       outcome: met
       duration_seconds: 42.675
   P078:
-    script: vendor/evidence/experiments/cluster/regime_recovery.py
+    script: evidence/experiments/cluster/regime_recovery.py
     page: docs/evidence/cluster/regime-recovery.py
     historical:
       status: Partial
@@ -43399,7 +43399,7 @@ evidence:
       outcome: not_met
       duration_seconds: 17.505
   P079:
-    script: vendor/evidence/experiments/representation/number_lanes.py
+    script: evidence/experiments/representation/number_lanes.py
     page: docs/evidence/representation/number-lanes.py
     historical:
       status: Passing

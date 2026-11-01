@@ -3,20 +3,14 @@
 from __future__ import annotations
 
 import argparse
-import html
-import json
 import math
-import os
 import shutil
 from pathlib import Path
 from typing import Any
 
 import yaml
 
-try:
-    from scripts.evidence_source import fingerprint, metadata
-except ModuleNotFoundError:
-    from evidence_source import fingerprint, metadata
+from evidence.experiments.source import fingerprint, metadata
 
 
 def clean(root: Path) -> None:
@@ -24,7 +18,7 @@ def clean(root: Path) -> None:
     docs = root / "docs/evidence"
     if not docs.exists():
         return
-    entries = yaml.safe_load((root / "vendor/evidence/results.yaml").read_text())["evidence"]
+    entries = yaml.safe_load((root / "evidence/results.yaml").read_text())["evidence"]
     pages = [(root / entry["page"]).resolve() for entry in entries.values()]
     for page in pages:
         if page.parent.parent != docs.resolve() or page.suffix != ".py":
@@ -44,10 +38,6 @@ def clean(root: Path) -> None:
             path.rmdir()
     if not any(docs.iterdir()):
         docs.rmdir()
-    legacy = root / "docs/proofs"
-    if legacy.exists():
-        shutil.rmtree(legacy)
-    (root / "docs/proofs.html").unlink(missing_ok=True)
 
 
 def latest(entry: dict[str, Any]) -> dict[str, Any] | None:
@@ -212,7 +202,7 @@ def group(script: Path) -> str:
 
 def render(root: Path) -> None:
     docs = root / "docs/evidence"
-    source = root / "vendor/evidence/results.yaml"
+    source = root / "evidence/results.yaml"
     recorded = source.read_text()
     document = yaml.safe_load(recorded)
     if document.get("schema") != 2:
@@ -282,10 +272,10 @@ def render(root: Path) -> None:
             output / f"{identifier}-script.md",
             "Evidence execution is optional and separate from building this site. "
             "Use a RelFlow build matching the recorded provenance; replace the wheel path below with that artifact. "
-            "Run from the relflow/evidence repository's root:\n\n"
-            f"```bash\nuv run --with /path/to/matching-relflow.whl python experiments/run.py {identifier}\n```\n\n"
+            "Run from the relflow/docs repository's root:\n\n"
+            f"```bash\nuv run --with /path/to/matching-relflow.whl python evidence/experiments/run.py {identifier}\n```\n\n"
             "Or, from a prepared evidence environment, run the self-contained script directly:\n\n"
-            f"```bash\nPYTHONPATH=experiments python {entry['script'].removeprefix('vendor/evidence/')}\n```\n\n"
+            f"```bash\nPYTHONPATH=evidence/experiments python {entry['script']}\n```\n\n"
             f"Add `--accelerator gpu` for CUDA or `--seed 42` for another seeded experiment. "
             "`--steps 2` checks execution with a short training budget; it is recorded as a smoke run.\n\n"
             f"[Download the complete evidence](../_generated/{identifier}.py).\n",
@@ -313,48 +303,6 @@ def render(root: Path) -> None:
     catalog.sort(key=position)
     write(docs / "catalog.yaml", yaml.safe_dump(catalog, sort_keys=False, allow_unicode=True))
     write(output / "results.yaml", recorded)
-    redirects = {"proofs.html": "evidence.html"}
-    for identifier, entry in entries.items():
-        target = Path(entry["page"]).relative_to("docs").with_suffix(".html").as_posix()
-        redirects[target.replace("evidence/", "proofs/", 1)] = target
-        legacy = root / "docs/proofs/_generated" / f"{identifier}.py"
-        legacy.parent.mkdir(parents=True, exist_ok=True)
-        write(legacy, (root / entry["script"]).read_text())
-    write(root / "docs/proofs/_generated/results.yaml", recorded)
-    aliases = root / "contracts/evidence-redirects.json"
-    if aliases.is_file():
-        contract = json.loads(aliases.read_text())
-        if contract.get("schema") != 1:
-            raise ValueError("Expected evidence redirect schema 1")
-        targets = set(redirects.values())
-        for source, target in contract["routes"].items():
-            path = Path(source)
-            if (
-                path.is_absolute()
-                or ".." in path.parts
-                or path.suffix != ".html"
-                or (source != "proofs.html" and path.parts[0] != "proofs")
-                or target not in targets
-            ):
-                raise ValueError(f"Invalid historical evidence redirect: {source} -> {target}")
-        redirects.update(contract["routes"])
-    for source, target in redirects.items():
-        path = root / "docs" / source
-        path.parent.mkdir(parents=True, exist_ok=True)
-        relative = os.path.relpath(root / "docs" / target, path.parent)
-        escaped = html.escape(relative, quote=True)
-        fragment = 'location.hash.replace("fig-proof-", "fig-evidence-").replace("#proofs", "#evidence")'
-        if Path(source).stem != Path(target).stem:
-            fragment += f".replace({json.dumps(Path(source).stem)}, {json.dumps(Path(target).stem)})"
-        write(
-            path,
-            '<!doctype html><html lang="en"><meta charset="utf-8">'
-            "<title>Evidence has moved</title>"
-            f'<link rel="canonical" href="{escaped}">'
-            f'<meta http-equiv="refresh" content="0;url={escaped}">'
-            f"<script>location.replace({json.dumps(relative)} + {fragment});</script>"
-            f'<a href="{escaped}">Continue to Evidence</a></html>\n',
-        )
 
 
 if __name__ == "__main__":
@@ -362,12 +310,6 @@ if __name__ == "__main__":
     parser.add_argument("--clean", action="store_true", help="Remove generated evidence inputs after rendering.")
     options = parser.parse_args()
     root = Path(__file__).resolve().parents[1]
-    try:
-        from scripts.import_evidence import verify_snapshot
-    except ModuleNotFoundError:
-        from import_evidence import verify_snapshot
-
-    verify_snapshot(root)
     if options.clean:
         clean(root)
     else:

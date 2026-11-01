@@ -6,9 +6,8 @@ Published at [relflow.ai](https://relflow.ai/).
 
 The saved [API contract](contracts/relflow.json) records the source used to
 review the public API.
-The site and its assets live here. Canonical experiments and report archives
-live in [relflow/evidence](https://github.com/relflow/evidence); this checkout
-contains a verified publication snapshot. Building does not require the RelFlow package or
+The site, its assets, canonical experiments, runners, and recorded results all
+live here. Building does not require the RelFlow package or
 another checkout.
 
 ## Work locally
@@ -58,32 +57,27 @@ targeting a new package version; tests do not import RelFlow to discover options
 
 ## Evidence
 
-Canonical experiments, their protocol, runtime tests, and report archives live
-in [relflow/evidence](https://github.com/relflow/evidence). This repository owns
-the website presentation and a checked-in snapshot under `vendor/evidence/`.
-[contracts/evidence.json](contracts/evidence.json) pins the source revision,
-selected results, and file digests. `scripts/render_evidence.py` verifies the
-snapshot and generates ignored pages under `docs/evidence/` without importing
-or executing experiments. Preserve archived provenance when importing reports.
+Canonical experiments, the protocol, lab runner, and results live under
+[`evidence/`](evidence/README.md). `evidence/results.yaml` holds the reviewed
+publication records; `scripts/render_evidence.py` generates ignored pages under
+`docs/evidence/` directly from local canonical sources. There is no vendored
+snapshot or import/export step, and rendering never executes experiments.
 
-To import a selected GitHub Release export, supply its reviewed SHA-256:
+The reusable `evidence-lab.yml` workflow runs all 79 experiments against the
+library's exact base and candidate wheels on lab over Tailscale. The library
+pins that workflow and requires `Evidence / required` before merging into main.
+The [lab guide](evidence/lab.md) describes its OIDC trust and isolation.
 
-```sh
-uv run python scripts/import_evidence.py --release <release-tag> --sha256 <bundle-sha256>
-```
+`publish-evidence.yml` retains a selected complete run in an immutable Release
+in this repository, with JSON results, logs, an HTML report, tested wheels,
+runtime requirements, and checksums. It also validates a candidate update to
+`evidence/results.yaml` and uploads a review patch. Apply the patch on a branch
+at the recorded docs base and open a normal PR to publish those measurements.
+Ordinary builds read the committed results and need no runtime or cloud credentials.
 
-The import downloads `evidence-docs.tar.gz` from `relflow/evidence`, verifies
-it, and replaces the local publication snapshot. Review the snapshot and
-contract changes together. A local bundle can be supplied with `--bundle`.
-The manual `import-evidence.yml` Actions workflow also accepts an exact release
-and digest. It validates every page and uploads a checksummed snapshot, a
-patch, the docs base revision, and a rendered preview. Download the
-`evidence-snapshot-update` artifact, apply `evidence-update.patch` to a branch
-at that base, and open a normal review PR. The workflow needs only read access
-and does not change bot review permissions.
-
-Ordinary checks, preview, and rendering read local files and require no GitHub
-or Modal credentials. Historical Proofs URLs redirect to Evidence pages.
+Runtime tests are explicit and excluded from default checks. See
+[evidence/README.md](evidence/README.md) for execution commands. Archived measurements
+retain their original provenance. Old Proofs routes are no longer published.
 
 ## Publication
 

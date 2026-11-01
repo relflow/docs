@@ -12,9 +12,9 @@ dev = ["pytest==9.0.3", "ruff==0.15.14"]
 package = false
 
 [tool.pytest.ini_options]
-testpaths = ["tests"]
-pythonpath = ["."]
-norecursedirs = ["proofs"]
+testpaths = ["tests", "evidence/tests"]
+pythonpath = [".", "evidence", "evidence/experiments"]
+norecursedirs = ["runtime"]
 
 [tool.ruff]
 line-length = 120
