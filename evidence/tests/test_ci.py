@@ -17,6 +17,7 @@ def paired(monkeypatch):
         candidate={"revision": "candidate", "wheel_sha256": "candidate-wheel"},
         baseline={"revision": "base", "wheel_sha256": "baseline-wheel"},
         evidence_sha="suite",
+        executor_sha="executor",
         identifiers=["P001"],
     )
     manifest["full_catalog"] = True
@@ -78,6 +79,8 @@ def test_existing_capability_miss_is_visible_and_improvement_allowed(paired):
         "wrong-seed",
         "smoke",
         "partial",
+        "executor",
+        "schema",
     ],
 )
 def test_incomplete_or_invalid_execution_never_passes(paired, fault):
@@ -100,13 +103,17 @@ def test_incomplete_or_invalid_execution_never_passes(paired, fault):
         records[1]["result"]["seed"] += 1
     elif fault == "smoke":
         manifest["mode"] = "smoke"
+    elif fault == "executor":
+        manifest["executor_sha"] = "another-executor"
+    elif fault == "schema":
+        manifest["schema"] = 1
     else:
         manifest["full_catalog"] = False
     assert not evaluate(manifest, records)["passed"]
 
 
 def test_full_catalog_plans_each_declared_seed_for_both_wheels():
-    manifest = plan(run_id="full", candidate={}, baseline={}, evidence_sha="suite")
+    manifest = plan(run_id="full", candidate={}, baseline={}, evidence_sha="suite", executor_sha="executor")
     assert manifest["full_catalog"]
     assert len(manifest["tasks"]) == 2 * len(registry())
     for task in manifest["tasks"]:

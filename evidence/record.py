@@ -43,6 +43,7 @@ def select(
         "candidate": manifest["candidate"],
         "baseline": manifest["baseline"],
         "evidence_revision": manifest["evidence_sha"],
+        "executor_revision": manifest["executor_sha"],
         "manifest_sha256": digest(reports / "manifest.json"),
         "passed": summary["passed"],
     }

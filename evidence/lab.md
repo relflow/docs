@@ -70,10 +70,13 @@ Set these Actions variables in `relflow/relflow`:
   `evidence@lab`.
 - `EVIDENCE_LAB_HOST`: optional connectivity probe target; defaults to `lab`.
 
-The library owns `.github/workflows/evidence.yml`, whose reusable workflow
-reference must pin the exact docs helper commit. The workflow builds wheels
-without tailnet credentials, invokes the trusted helper, and always evaluates
-the final `Evidence / required` job. Configure branch protection only after a
+The library owns `ci.yml`, its single entry point for PRs, merge groups, main
+pushes, and explicit manual validation. Reusable `tests.yml` and `evidence.yml`
+run the full library matrix and paired evidence. The latter pins the exact docs
+helper commit. `ci.yml` supplies the reviewed suite SHA. The combined
+`CI / required` job always evaluates their results. Main pushes build package
+distributions alongside tests; release and coverage workflows consume the
+successful main CI run without repeating its test matrix. Configure branch protection only after a
 real successful run exists, requiring that check and an up-to-date base or
 merge queue. Preserve the repository's existing requirements and bypass policy.
 
@@ -83,10 +86,10 @@ turns a skipped or missing evidence run into a successful required check.
 ## Manual validation
 
 Build both wheels from the desired Git revisions and export the candidate's
-locked runtime requirements. From a clean evidence checkout:
+locked runtime requirements. From clean executor and suite checkouts (which may be the same checkout):
 
 ```sh
-uv run python evidence/ssh_run.py --target evidence@lab \
+uv run python evidence/ssh_run.py --suite-root evidence --target evidence@lab \
   --candidate-wheel /path/to/candidate/relflow.whl \
   --baseline-wheel /path/to/baseline/relflow.whl \
   --candidate-sha <candidate-sha> --baseline-sha <base-sha> \
@@ -97,3 +100,22 @@ Supply actual wheel filenames from the build. Add `--ids P001 --steps 2` for a
 smoke test. It produces execution records but deliberately fails the learning
 gate because it is partial and uses a reduced budget. Complete runs produce
 independent JSON records, logs, provenance, and an HTML report.
+
+## Updating or validating the suite
+
+Change the single suite SHA in the library's `ci.yml` through a normal PR.
+For an explicit test of a prospective docs commit against library main, run:
+
+```sh
+gh workflow run ci.yml --repo relflow/relflow --ref main \
+  -f evidence_ref=<full-docs-commit>
+```
+
+This performs the complete paired suite and records both the suite and executor
+revisions. Manual validation does not replace the PR-triggered required check.
+The helper and executor pins change only when their trusted mechanics change;
+then update the exact Tailscale workflow claim as part of that review.
+
+A shared `relflow-evidence-lab` concurrency group uses `queue: max` so different
+PRs wait for lab capacity. The outer CI workflow cancels superseded runs of the
+same PR. No long-lived tailnet credential or self-hosted runner is needed.

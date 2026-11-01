@@ -22,13 +22,19 @@ directory. Execution never edits the reviewed publication selection.
 ## Required lab execution
 
 The library's workflow builds exact baseline and merge-candidate wheels and
-calls .github/workflows/evidence-lab.yml at a reviewed full commit SHA. GitHub
+calls .github/workflows/evidence-lab.yml at a reviewed full commit SHA, passing
+a separate reviewed suite SHA. The helper pins the trusted executor. GitHub
 joins Tailscale using short-lived OIDC and dispatches one experiment per Docker
 container on lab. Containers have bounded CPU/memory, no network, a read-only
 root, and no host home or Docker socket. The full catalog runs for both wheels
 with the original seeds and budgets. Every baseline-passing check must pass on
-the candidate; baseline misses remain reported. Errors, missing records, invalid
-provenance, smoke execution, and partial coverage fail Evidence / required.
+the candidate; baseline misses remain reported. CI queues lab work across PRs
+and cancels superseded attempts within each PR. Errors, missing records, invalid
+provenance, smoke execution, and partial coverage fail CI / required.
+
+The combined CI gate also requires the library test matrix. A new suite can be
+validated explicitly with `gh workflow run ci.yml --repo relflow/relflow --ref main -f evidence_ref=<full-docs-commit>`. This tests the selected suite without changing
+the default suite pin or Tailscale trust.
 
 See [lab.md](lab.md) for trust and repository variables. No AWS account,
 Modal setup, stored Tailscale secret, or self-hosted GitHub runner is required.

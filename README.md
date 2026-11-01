@@ -57,7 +57,8 @@ snapshot or import/export step, and rendering never executes experiments.
 
 The reusable `evidence-lab.yml` workflow runs all 79 experiments against the
 library's exact base and candidate wheels on lab over Tailscale. The library
-pins that workflow and requires `Evidence / required` before merging into main.
+pins the trusted workflow separately from the suite and requires both the full
+library test matrix and evidence through `CI / required` before merging into main.
 The [lab guide](evidence/lab.md) describes its OIDC trust and isolation.
 
 `publish-evidence.yml` retains a selected complete run in an immutable Release

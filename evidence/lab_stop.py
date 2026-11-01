@@ -28,7 +28,18 @@ def stop(output: Path) -> None:
         ["docker", "ps", "--quiet", "--filter", "label=relflow.evidence=" + label], text=True
     ).split()
     if containers:
-        subprocess.run(["docker", "rm", "--force", *containers], check=True)
+        # The coordinator may be removing the same containers after SIGTERM.
+        subprocess.run(
+            ["docker", "rm", "--force", *containers],
+            stdout=subprocess.DEVNULL,
+            stderr=subprocess.DEVNULL,
+            check=False,
+        )
+        remaining = subprocess.check_output(
+            ["docker", "ps", "--quiet", "--filter", "label=relflow.evidence=" + label], text=True
+        ).split()
+        if remaining:
+            raise RuntimeError(f"Evidence containers are still running: {remaining}")
     marker.unlink(missing_ok=True)
 
 

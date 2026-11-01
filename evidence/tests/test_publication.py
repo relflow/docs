@@ -17,6 +17,7 @@ def reports(tmp_path):
         candidate={"revision": "candidate", "wheel_sha256": "candidate-wheel"},
         baseline={"revision": "base", "wheel_sha256": "base-wheel"},
         evidence_sha="tested-suite",
+        executor_sha="tested-executor",
     )
     write_json(root / "manifest.json", manifest)
     for task in manifest["tasks"]:
