@@ -41,8 +41,8 @@ then nested purchases, separate withdrawal history, and targets at transaction
 and account levels. Introduce reconstruction and
 representation reuse after the supervised workflow. Explain the business
 decision and what each addition contributes before its implementation. Adapt
-research use cases and terminology into native examples; keep paper-specific
-attribution and adaptation boundaries in `research/documentation-sources.json`.
+research use cases and terminology into native examples. Attribute specific
+research claims where they are used.
 
 Use coherent financial examples without implying that RelFlow is restricted to
 finance. The first flat payment has `amount`, `merchant`, and

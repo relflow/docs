@@ -1,4 +1,4 @@
-"""Evidence survives repeated runs and drives static evidence documentation."""
+"""Current measured results drive static evidence pages without model imports."""
 
 from __future__ import annotations
 
@@ -45,9 +45,9 @@ def result(*, seed: int = 11, outcome: str = "met", mode: str = "full") -> dict:
     }
 
 
-def append_result(identifier: str, recorded: dict, output: Path) -> None:
+def set_result(identifier: str, recorded: dict, output: Path) -> None:
     document = yaml.safe_load(output.read_text())
-    document["evidence"][identifier]["runs"].append(recorded)
+    document["evidence"][identifier]["run"] = recorded
     output.write_text(yaml.safe_dump(document, sort_keys=False))
 
 
@@ -60,7 +60,7 @@ def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleTyp
     scripts.mkdir(parents=True)
     pages.mkdir(parents=True)
     entries = {}
-    for identifier, slug, state in (("P001", "signal", "Passing"), ("P002", "noise", "Limited")):
+    for identifier, slug in (("P001", "signal"), ("P002", "noise")):
         script = scripts / f"{slug}.py"
         metadata = {
             "evidence-id": identifier,
@@ -81,40 +81,30 @@ def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleTyp
         entries[identifier] = {
             "script": script.relative_to(tmp_path).as_posix(),
             "page": page.relative_to(tmp_path).as_posix(),
-            "historical": {
-                "status": state,
-                "summary": f"Historical summary of {slug}.",
-                "insights": f"The insight for {slug}.",
-                "evidence": f"Historical measurements of {slug}.",
-                "sources": [f"https://example.com/{slug}"],
-            },
-            "runs": [],
+            "run": None,
         }
     source = scripts / "results.yaml"
-    source.write_text(yaml.safe_dump({"schema": 2, "evidence": entries}, sort_keys=False))
+    source.write_text(yaml.safe_dump({"schema": 3, "evidence": entries}, sort_keys=False))
     return reporting, renderer, tmp_path
 
 
 @pytest.mark.parametrize(
-    ("historical", "outcome", "expected", "kind"),
+    ("outcome", "expected", "kind"),
     [
-        ("Passing", "met", "Passing", "note"),
-        ("Limited", "met", "Limited", "warning"),
-        ("Partial", "met", "Partial", "note"),
-        ("Passing", "not_met", "Failing", "warning"),
-        ("Passing", "error", "Error", "warning"),
-        ("Passing", None, "Missing", "note"),
+        ("met", "Passing", "note"),
+        ("not_met", "Failing", "warning"),
+        ("error", "Error", "warning"),
+        (None, "Missing", "note"),
     ],
 )
 def test_statuses_match_catalog_callouts_legend_and_colors(
-    evidence: tuple[ModuleType, ModuleType, Path], historical: str, outcome: str | None, expected: str, kind: str
+    evidence: tuple[ModuleType, ModuleType, Path], outcome: str | None, expected: str, kind: str
 ) -> None:
     _, renderer, root = evidence
     source = root / "evidence/results.yaml"
     document = yaml.safe_load(source.read_text())
     entry = document["evidence"]["P001"]
-    entry["historical"]["status"] = historical
-    entry["runs"] = [result(outcome=outcome)] if outcome is not None else []
+    entry["run"] = result(outcome=outcome) if outcome is not None else None
     source.write_text(yaml.safe_dump(document))
 
     renderer.render(root)
@@ -122,7 +112,7 @@ def test_statuses_match_catalog_callouts_legend_and_colors(
     catalog = yaml.safe_load((root / "docs/evidence/catalog.yaml").read_text())
     assert next(row for row in catalog if row["id"] == "P001")["evidence-status"] == expected
     notice = (root / "docs/evidence/_generated/P001-status.md").read_text()
-    title = f"Latest full run · {expected}" if outcome is not None else expected
+    title = f"Current full run · {expected}" if outcome is not None else expected
     assert f'::: {{.evidence-result .evidence-result-{kind} role="note"}}' in notice
     assert f"**P001 · {title}**" in notice
     legend = (ROOT / "docs/evidence.qmd").read_text()
@@ -146,7 +136,7 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
 
     failed = result(outcome="not_met")
     failed["metrics"] = {"held_out_rmse": 0.875}
-    append_result("P001", failed, source)
+    set_result("P001", failed, source)
     renderer.render(root)
     catalog = yaml.safe_load((root / "docs/evidence/catalog.yaml").read_text())
     assert {row["id"]: row["evidence-status"] for row in catalog} == {
@@ -156,7 +146,7 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
     assert "0 of 1 test checks met" in (generated / "P001-status.md").read_text()
     assert "| held_out_rmse | 0.875 |" in (generated / "P001-evidence.md").read_text()
 
-    append_result("P001", result(seed=29), source)
+    set_result("P001", result(seed=29), source)
     renderer.render(root)
     assert "Passing" in (generated / "P001-status.md").read_text()
     text = (generated / "P001-evidence.md").read_text()
@@ -166,7 +156,7 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
     assert "| Held-out RMSE is below 0.2 | Met |\n\n</details>" in text
     assert "Historical" not in text and "https://example.com/signal" not in text
     assert (generated / "results.yaml").read_bytes() == source.read_bytes()
-    assert len(yaml.safe_load((generated / "results.yaml").read_text())["evidence"]["P001"]["runs"]) == 2
+    assert yaml.safe_load((generated / "results.yaml").read_text())["evidence"]["P001"]["run"]["seed"] == 29
     script = (root / "evidence/signal.py").read_text()
     listing = (generated / "P001-script.md").read_text()
     assert (root / "docs/evidence/family/signal.py").read_text() == script
@@ -267,7 +257,7 @@ def test_changed_script_warns_without_rewriting_recorded_results(
     script = root / "evidence/signal.py"
     measured = result(seed=43)
     measured["provenance"]["code_sha256"] = renderer.fingerprint(script.read_text())
-    append_result("P001", measured, source)
+    set_result("P001", measured, source)
     before = source.read_bytes()
     generated = root / "docs/evidence/_generated"
 
@@ -328,33 +318,11 @@ def test_readout_rejects_non_numerical_selections(
         renderer.readout(header, {"metrics": {"score": measured}})
 
 
-def test_overview_retains_mixed_history_and_ignores_smoke_metrics(
-    evidence: tuple[ModuleType, ModuleType, Path],
-) -> None:
-    reporting, renderer, root = evidence
-    source = root / "evidence/results.yaml"
-    script = root / "evidence/signal.py"
-    script.write_text(
-        script.read_text().replace(
-            "# description: signal",
-            "# evidence-readout:\n# - label: Prediction error\n#   metric: [held_out_rmse]\n#   format: number\n# description: signal",
-        )
-    )
-    append_result("P001", result(seed=7, outcome="not_met"), source)
-    append_result("P001", result(seed=11), source)
-    smoke = result(seed=11, mode="smoke")
-    smoke["metrics"]["held_out_rmse"] = 999
-    append_result("P001", smoke, source)
-    before = source.read_bytes()
-    renderer.render(root)
-    generated = root / "docs/evidence/_generated"
-    text = (generated / "P001-status.md").read_text()
-    assert "History: 1 of 2 full runs met every check, across 2 distinct seeds" in text
-    assert "| Prediction error | 0.125 |" in text and "999" not in text
-    history = (generated / "P001-evidence.md").read_text()
-    assert "| 7 | not met |" in history and "| 11 | met |" in history
-    assert "Repeating a seed is not an independent seed check" in history
-    assert source.read_bytes() == before
+def test_docs_reject_smoke_results(evidence):
+    _, renderer, root = evidence
+    set_result("P001", result(mode="smoke"), root / "evidence/results.yaml")
+    with pytest.raises(ValueError, match="only full runs may be published"):
+        renderer.render(root)
 
 
 def test_static_evidence_publication_imports_no_model_runtime(evidence, monkeypatch):
@@ -367,7 +335,7 @@ def test_static_evidence_publication_imports_no_model_runtime(evidence, monkeypa
 
     monkeypatch.setattr(builtins, "__import__", guarded)
     renderer = load(ROOT / "scripts/render_evidence.py")
-    append_result("P001", result(), root / "evidence/results.yaml")
+    set_result("P001", result(), root / "evidence/results.yaml")
     renderer.render(root)
     assert (root / "docs/evidence/_generated/P001-status.md").is_file()
     assert not (root / "executed").exists()

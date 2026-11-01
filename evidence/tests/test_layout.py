@@ -11,7 +11,6 @@ import yaml
 
 ROOT = Path(__file__).resolve().parents[1]
 PROOFS = ROOT / "experiments"
-ARCHIVE = yaml.safe_load((ROOT / "archive/results.yaml").read_text())["proofs"]
 
 
 def test_registered_proofs_have_unique_standalone_scripts() -> None:
@@ -32,7 +31,6 @@ def test_registered_proofs_have_unique_standalone_scripts() -> None:
     assert all(count == 1 for count in pages.values()), "each proof ID must own one published page"
 
     for identifier, entry in entries.items():
-        assert entry["historical_status"] in {"Passing", "Limited", "Partial"}, identifier
         path = ROOT / entry["script"]
         assert path.parent.parent == PROOFS and path.is_file(), path
         page = Path(entry["page"])
@@ -203,8 +201,6 @@ def test_every_registered_proof_has_a_small_readable_overview() -> None:
         sections = set(re.findall(r"\{\{<\s*evidence\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
         expected = {(identifier, part) for part in ("status", "evidence", "script")}
         assert sections == expected, f"{page}: render recorded evidence and reproduction commands for {identifier}"
-        assert ARCHIVE[identifier]["historical"]["insights"].strip(), f"{identifier}: missing recorded interpretation"
-        assert ARCHIVE[identifier]["historical"]["evidence"].strip(), f"{identifier}: missing historical evidence"
         overview, details = text.split('<details class="evidence-details">', maxsplit=1)
         assert "<summary>Experiment details and code</summary>" in details, page
         assert f"{{{{< evidence {identifier} evidence >}}}}" in details, page

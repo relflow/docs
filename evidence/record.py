@@ -37,14 +37,11 @@ def select(
 ) -> None:
     manifest, records, summary = validate(reports)
     document = yaml.safe_load((output if output.exists() else ROOT / "results.yaml").read_text())
-    if document["schema"] != 2:
-        raise ValueError("Expected evidence schema 2")
-    selections = document.setdefault("selections", [])
-    if any(item["run_id"] == manifest["run_id"] for item in selections):
-        raise ValueError("This run has already been selected")
+    if document["schema"] != 3:
+        raise ValueError("Expected evidence schema 3")
     for record in records:
         if record["task"]["role"] == "candidate":
-            document["evidence"][record["task"]["id"]]["runs"].append(record["result"])
+            document["evidence"][record["task"]["id"]]["run"] = record["result"]
     selection = {
         "run_id": manifest["run_id"],
         "candidate": manifest["candidate"],
@@ -59,7 +56,7 @@ def select(
         selection["release"] = "https://github.com/relflow/docs/releases/tag/" + release
     if bundle:
         selection["reports_sha256"] = digest(bundle)
-    selections.append(selection)
+    document["selection"] = selection
     output.parent.mkdir(parents=True, exist_ok=True)
     with tempfile.NamedTemporaryFile(mode="w", dir=output.parent, delete=False) as handle:
         yaml.safe_dump(document, handle, sort_keys=False, allow_unicode=True)

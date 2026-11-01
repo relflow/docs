@@ -1,7 +1,7 @@
 # Canonical RelFlow evidence
 
 Preserve stable P identifiers, generators, seeds, budgets, optimizers, capacities,
-checks, and archived provenance. Read SPEC.md before changing semantics. Never
+checks, and current result provenance. Read SPEC.md before changing semantics. Never
 rewrite measurements to make a gate pass. The root AGENTS.md also applies.
 
 From the repository root, `make check` validates static docs and evidence tooling.

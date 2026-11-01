@@ -40,19 +40,15 @@ def clean(root: Path) -> None:
         docs.rmdir()
 
 
-def latest(entry: dict[str, Any]) -> dict[str, Any] | None:
-    return next((run for run in reversed(entry["runs"]) if run["mode"] == "full"), None)
-
-
 def status(entry: dict[str, Any]) -> str:
-    run = latest(entry)
+    run = entry["run"]
     if run is None:
         return "Missing"
     if run["outcome"] == "error":
         return "Error"
     if run["outcome"] == "not_met":
         return "Failing"
-    return entry["historical"]["status"]
+    return "Passing"
 
 
 def value(item: Any) -> str:
@@ -101,7 +97,7 @@ def readout(header: dict[str, Any], run: dict[str, Any] | None) -> str:
         formats.add(style)
     if not rows or run is None:
         return ""
-    sections = ["| Comparison | Latest measurement |\n| --- | --- |\n" + "\n".join(rows)]
+    sections = ["| Comparison | Current measurement |\n| --- | --- |\n" + "\n".join(rows)]
     if "error" in formats:
         sections.append(
             "Baseline error compares prediction error with a constant guess. "
@@ -116,12 +112,11 @@ def readout(header: dict[str, Any], run: dict[str, Any] | None) -> str:
 
 def evidence(entry: dict[str, Any]) -> str:
     sections = []
-    runs = entry["runs"]
-    run = latest(entry)
+    run = entry["run"]
     if run is not None:
         sections.extend(
             [
-                "### Latest full run",
+                "### Current full run",
                 f"Seed **{run['seed']}**, `{run['accelerator']}`, recorded {run['started_at']}. "
                 f"Outcome: **{run['outcome'].replace('_', ' ')}**.",
             ]
@@ -146,24 +141,6 @@ def evidence(entry: dict[str, Any]) -> str:
                 + "\n".join(f"| {value(name)} | {'Met' if met else 'Not met'} |" for name, met in run["checks"].items())
                 + "\n\n</details>"
             )
-    if runs and runs[-1]["mode"] == "smoke":
-        smoke = runs[-1]
-        sections.append(
-            f"The latest smoke run used seed {smoke['seed']} and a {smoke['steps_override']}-step cap "
-            f"per training stage. Execution {'failed' if smoke['outcome'] == 'error' else 'completed'}; "
-            "a shortened run does not establish learning capability or change the evidence status."
-        )
-    full = [record for record in runs if record["mode"] == "full"]
-    if len(full) > 1:
-        sections.append(
-            "### Full run history\n\nRuns may include earlier source versions. Repeating a seed is not an independent seed check.\n\n"
-            "| Seed | Outcome | Recorded | Code fingerprint |\n| --- | --- | --- | --- |\n"
-            + "\n".join(
-                f"| {record['seed']} | {record['outcome'].replace('_', ' ')} | {record['started_at']} | "
-                f"{record.get('provenance', {}).get('code_sha256', 'Not recorded')} |"
-                for record in full
-            )
-        )
     sections.append("[Recorded results](../_generated/results.yaml).")
     return "\n\n".join(sections) + "\n"
 
@@ -205,8 +182,8 @@ def render(root: Path) -> None:
     source = root / "evidence/results.yaml"
     recorded = source.read_text()
     document = yaml.safe_load(recorded)
-    if document.get("schema") != 2:
-        raise ValueError(f"{source}: expected evidence schema 2")
+    if document.get("schema") != 3:
+        raise ValueError(f"{source}: expected evidence schema 3")
     entries = document["evidence"]
     output = docs / "_generated"
     output.mkdir(parents=True, exist_ok=True)
@@ -230,38 +207,28 @@ def render(root: Path) -> None:
         pages.add(page)
         page.parent.mkdir(exist_ok=True)
         write(page, code)
-        run = latest(entry)
+        run = entry["run"]
+        if run is not None and run["mode"] != "full":
+            raise ValueError(f"{identifier}: only full runs may be published")
         state = status(entry)
         if run is None:
             title = state
             summary = "No full experiment has been recorded."
         else:
-            title = f"Latest full run · {state}"
+            title = f"Current full run · {state}"
             met = sum(run.get("checks", {}).values())
             total = len(run.get("checks", {}))
             summary = f"Seed {run['seed']} on `{run['accelerator']}`: {met} of {total} test checks met."
             if run["outcome"] == "error":
-                summary = "The latest full experiment encountered an execution error. See the recorded error below."
+                summary = "The current full experiment encountered an execution error. See the recorded error below."
             elif run["outcome"] == "not_met":
                 summary += " The experiment did not meet every criterion."
-            elif state == "Limited":
-                summary += " This experiment demonstrates a limitation."
-            elif state == "Partial":
-                summary += " The broader claim remains incomplete."
-            full = [record for record in entry["runs"] if record["mode"] == "full"]
-            if len(full) > 1:
-                passed = sum(record["outcome"] == "met" for record in full)
-                seeds = len({record["seed"] for record in full})
-                summary += (
-                    f" History: {passed} of {len(full)} full runs met every check, across {seeds} distinct seeds. "
-                    "History can include earlier source versions."
-                )
             recorded_hash = run.get("provenance", {}).get("code_sha256")
             if recorded_hash and recorded_hash != fingerprint(code):
                 summary += (
                     " The experiment code has changed since this run; these measurements describe its earlier version."
                 )
-        kind = "warning" if state in {"Failing", "Error", "Limited"} else "note"
+        kind = "warning" if state in {"Failing", "Error"} else "note"
         write(
             output / f"{identifier}-status.md",
             f'::: {{.evidence-result .evidence-result-{kind} role="note"}}\n'

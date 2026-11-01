@@ -41,16 +41,6 @@
   background-color: #94aa83;
 }
 
-.evidence-status[data-evidence-status="Limited"] {
-  color: #3a2a0f;
-  background-color: #d8b47e;
-}
-
-.evidence-status[data-evidence-status="Partial"] {
-  color: #1b2a33;
-  background-color: #a2bdcb;
-}
-
 .evidence-status[data-evidence-status="Failing"] {
   color: #3d1a15;
   background-color: #d9968c;
@@ -69,16 +59,6 @@
 body.quarto-dark .evidence-status[data-evidence-status="Passing"] {
   color: #1b2621;
   background-color: #94aa83;
-}
-
-body.quarto-dark .evidence-status[data-evidence-status="Limited"] {
-  color: #3a2a0f;
-  background-color: #d8b47e;
-}
-
-body.quarto-dark .evidence-status[data-evidence-status="Partial"] {
-  color: #1b2a33;
-  background-color: #a2bdcb;
 }
 
 body.quarto-dark .evidence-status[data-evidence-status="Failing"] {

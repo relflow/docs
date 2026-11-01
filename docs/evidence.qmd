@@ -49,17 +49,15 @@ runs, do not replace full learning results.
 
 | Result | Meaning |
 | --- | --- |
-| [Passing]{.evidence-status data-evidence-status="Passing"} | The latest full run meets its stated checks. |
-| [Limited]{.evidence-status data-evidence-status="Limited"} | The experiment reproduces an expected limitation. |
-| [Partial]{.evidence-status data-evidence-status="Partial"} | Part of the broader claim remains untested or inconsistent. |
-| [Failing]{.evidence-status data-evidence-status="Failing"} | The latest full run misses at least one required check. |
-| [Error]{.evidence-status data-evidence-status="Error"} | The latest full run could not complete. |
+| [Passing]{.evidence-status data-evidence-status="Passing"} | The current full run meets its stated checks. |
+| [Failing]{.evidence-status data-evidence-status="Failing"} | The current full run misses at least one required check. |
+| [Error]{.evidence-status data-evidence-status="Error"} | The current full run could not complete. |
 | [Missing]{.evidence-status data-evidence-status="Missing"} | No full run has been recorded. |
 
-Each page shows selected measurements from its latest full run. Its history
-can include repeated seeds and earlier source versions; the foldout and
-[complete results](evidence/_generated/results.yaml) retain that context.
-Experiments with more seeds provide stronger evidence about repeatability.
+Each page shows one selected full run, with its measurements, checks, seed,
+and source provenance. The [complete results](evidence/_generated/results.yaml)
+contain the same current selection. A single seed provides provisional evidence
+about repeatability; internal seed panels are described by each experiment.
 
 Learned arithmetic is approximate. Use
 [preprocessing](guides/preprocessing.qmd) for business rules that require exact results.

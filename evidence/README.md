@@ -1,10 +1,10 @@
 # RelFlow evidence
 
 This directory owns the 79 controlled synthetic experiments, their protocol,
-lab runner, runtime tests, historical archive, and reviewed publication results.
-The website and evidence share this repository. Stable P identifiers and original
-provenance are preserved; archive/results.yaml is an immutable historical record,
-while results.yaml is the current reviewed publication selection.
+lab runner, runtime tests, and current publication results.
+The website and evidence share this repository. Stable P identifiers remain
+unchanged. results.yaml contains one selected full run per experiment, including
+its metrics, checks, seed, environment, and source provenance.
 
 Run from the repository root:
 
@@ -17,7 +17,7 @@ uv run --with /path/to/matching-relflow.whl pytest evidence/tests/runtime
 
 Supply an actual wheel. A two-step run checks execution only. Each execution
 writes a new JSON file under evidence/runs/local; --output-dir selects another
-directory. Execution never edits archived or published measurements.
+directory. Execution never edits the reviewed publication selection.
 
 ## Required lab execution
 
@@ -51,5 +51,6 @@ review the patch on a branch at its recorded docs base, and open a normal PR.
 The site's normal build reads the committed records and canonical sources.
 There are no snapshot bundles, importers/exporters, or old Proofs redirects.
 
-Historical release assets and original source history remain preserved in this
-repository. Changes to source or output readers are not fresh learning results.
+Raw report releases retain execution provenance. Updating source or output
+readers does not establish a fresh learning result. The checkout keeps the
+current selection without archived result snapshots or history readers.

@@ -75,8 +75,7 @@ at the recorded docs base and open a normal PR to publish those measurements.
 Ordinary builds read the committed results and need no runtime or cloud credentials.
 
 Runtime tests are explicit and excluded from default checks. See
-[evidence/README.md](evidence/README.md) for execution commands. Archived measurements
-retain their original provenance. Old Proofs routes are no longer published.
+[evidence/README.md](evidence/README.md) for execution commands. Each experiment publishes one selected full run with its complete provenance. Old Proofs routes are no longer published.
 
 ## Publication
 

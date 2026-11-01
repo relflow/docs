@@ -43,12 +43,12 @@ def test_selection_preserves_candidate_and_github_provenance(reports, tmp_path):
     github_run.write_text(json.dumps({"run_id": 123, "run_attempt": 2, "head_sha": "pr-head"}))
     output = tmp_path / "publication"
     select(reports, output, github_run=github_run)
-    selection = yaml.safe_load(output.read_text())["selections"][-1]
+    selection = yaml.safe_load(output.read_text())["selection"]
     assert selection["evidence_revision"] == "tested-suite"
     assert selection["github_run"]["head_sha"] == "pr-head"
     results = yaml.safe_load(output.read_text())["evidence"]
     assert len(results) == 79
-    assert all(entry["runs"][-1]["provenance"]["relflow_revision"] == "candidate" for entry in results.values())
+    assert all(entry["run"]["provenance"]["relflow_revision"] == "candidate" for entry in results.values())
 
 
 @pytest.mark.parametrize("fault", ["missing", "error", "provenance", "smoke", "partial"])

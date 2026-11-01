@@ -1,8 +1,8 @@
 # RelFlow evidence protocol
 
 Status: active. Implemented coverage is registered by stable ID in
-`catalog.yaml`. Historical results remain in `archive/results.yaml`; new runs
-produce independent JSON records and complete report bundles. [`README.md`](README.md) explains
+`catalog.yaml`. `results.yaml` contains the current selected full run for each
+experiment; execution produces independent JSON records and report bundles. [`README.md`](README.md) explains
 execution. Sections marked planned describe
 hypotheses awaiting implementation and measurement.
 
@@ -177,13 +177,13 @@ which is also the source of its documentation page:
 Each standalone script contains its complete generator, schema, training, and
 evaluation, interleaved with Markdown explanations, a Typst tree, and YAML
 examples. This repository owns the canonical experiments, runtime tests, and
-recorded evidence, indexed by stable IDs. The historical archive remains
-unchanged in `archive/results.yaml`; new measurements are independent records.
+recorded evidence, indexed by stable IDs. Publication selects one full run per
+experiment in `results.yaml`; new measurements are independent JSON records.
 This repository also owns the static website. Rendering reads canonical sources
 and reviewed results directly, without importing RelFlow or executing experiments.
 Only reporting and command-line handling are shared between experiments.
 
-### Prediction format compatibility
+### Prediction output
 
 Prediction readers use nested output: decoded fields use
 ordinary child names under `predictions`, repeated branch records are variable
@@ -191,11 +191,10 @@ lists, and requested embeddings use `representations` records with `path`,
 `parents`, `output_index`, and `embedding`. Read structural positions from those
 records rather than reconstructing them from leaf values or value-state logits.
 
-Updating a reader is a source migration, not a new learning measurement. Keep
-`archive/results.yaml`, historical package versions, run fingerprints, budgets, seeds,
-and measurements unchanged. Fresh runs must record their own provenance and
-quality gates; the static site must continue to show when archived evidence
-comes from an earlier source or package version.
+Updating a reader is a source migration, not a new learning measurement. Preserve the measured package versions, fingerprints, budgets, seeds, and
+metrics of the current selected run. Fresh runs must record their own provenance and
+quality gates; the static site must show when the selected measurement comes
+from an earlier source or package version.
 
 A falling training loss is not proof of inference. The primary measurement must
 use held-out data or, for a deliberately mechanistic proof, explicitly say that
@@ -1384,7 +1383,7 @@ using complementary context rather than one accidentally dominant field.
 ## Mutation Proofs
 
 **Status: P046–P050 implement five experiments; the remaining
-scenarios below are planned.** Recorded outcomes live in `archive/results.yaml`.
+scenarios below are planned.** Recorded outcomes live in `results.yaml`.
 
 The original 45 scenarios measure models with fixed schemas. Mutation has unit
 coverage for selection, validation, graph rebuilding, compatible state,
@@ -1595,7 +1594,7 @@ obtained while its true value is visible is not evidence of predictive skill.
 ### Ablate, restore, and delete
 
 Implemented separately as **P049** (deactivate and restore) and **P050**
-(delete and adapt). Their measured outcomes are recorded in `archive/results.yaml`.
+(delete and adapt). Their measured outcomes are recorded in `results.yaml`.
 
 Train `y = a + b` with two independent visible inputs. In a read-only prediction
 phase, override `b` with `active=False`; compare against the full model and
@@ -1814,12 +1813,12 @@ Each experiment is one annotated Python script under `experiments/<category>/`,
 with a permanent ID such as `P014`. `catalog.yaml` maps each ID to its script and
 published route. Never reuse IDs when filenames or titles change. Historical
 paths, source fingerprints, measurements, and package versions remain unchanged
-in `archive/results.yaml` and the extracted Git history.
+in the selected record's provenance.
 
 ```text
 catalog.yaml
 SPEC.md
-archive/results.yaml
+results.yaml
 experiments/
   reporting.py
   source.py
@@ -1881,8 +1880,8 @@ uv run --with /path/to/matching-relflow.whl python evidence/experiments/run.py P
 
 Replace the wheel path with the intended package artifact. The ID runner sets
 `PYTHONPATH=evidence/experiments` automatically. Direct runs create independent
-JSON files under `evidence/runs/local/`, preserving the historical archive and
-reviewed publication records.
+JSON files under `evidence/runs/local/`, without editing reviewed publication
+records.
 
 The required pre-merge workflow uses the exact base and merge-candidate wheels.
 It executes the full catalog twice, using the same locked runtime, CPU profile,
@@ -1905,11 +1904,11 @@ Each full report contains the manifest, independent task records and logs,
 aggregate gate decision, HTML report, checksums, wheels, and environment lock.
 Record the evidence and library revisions, package/source digests, hardware,
 seed, budget, measurements, checks, errors, and timing. Archive every attempt;
-workers must never append concurrently to a shared historical YAML file.
+workers must never edit the shared publication file.
 
 GitHub Actions artifacts retain routine CI reports. Selected baseline and
 publication bundles are promoted to immutable GitHub Releases in `relflow/docs` before artifact
 retention expires. Reviewed manifests select baselines and publication runs.
-No AWS account or S3 storage is required. Archived provenance retains its
-original meaning; new reports record the evidence revision, library revision,
-and wheel digest without writing old field aliases or rewriting archive records.
+No AWS account or S3 storage is required. Reports record the evidence revision,
+library revision, and wheel digest. Publication replaces the current selection;
+there are no archived snapshots or legacy provenance aliases in the checkout.
