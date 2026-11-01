@@ -2,6 +2,11 @@ name: Run evidence on lab
 
 on:
   workflow_call:
+    inputs:
+      suite_ref:
+        description: Reviewed full commit SHA of the evidence suite in relflow/docs
+        type: string
+        required: true
 
 permissions:
   contents: read
@@ -13,17 +18,38 @@ jobs:
     if: github.repository == 'relflow/relflow' && (github.event_name != 'pull_request' || github.event.pull_request.head.repo.full_name == github.repository)
     runs-on: ubuntu-24.04
     timeout-minutes: 120
+    concurrency:
+      group: relflow-evidence-lab
+      queue: max
     steps:
-      - uses: actions/checkout@v4
+      - name: Validate the immutable suite reference
+        env:
+          SUITE_REF: ${{ inputs.suite_ref }}
+        run: '[[ "$SUITE_REF" =~ ^[0-9a-f]{40}$ ]]'
+      - name: Check out the trusted executor
+        uses: actions/checkout@v4
         with:
           repository: relflow/docs
           ref: e00d336e3dc4a3c3352ab3fe5535ba69d6ac682f
+          path: executor
           persist-credentials: false
+      - name: Check out experiment sources as data
+        uses: actions/checkout@v4
+        with:
+          repository: relflow/docs
+          ref: ${{ inputs.suite_ref }}
+          path: suite
+          persist-credentials: false
+      - name: Verify the selected checkout
+        env:
+          SUITE_REF: ${{ inputs.suite_ref }}
+        run: 'test "$(git -C suite rev-parse HEAD)" = "$SUITE_REF"'
       - uses: astral-sh/setup-uv@v5
         with:
           python-version: '3.12'
           enable-cache: true
-      - run: uv sync --locked
+          cache-dependency-glob: executor/uv.lock
+      - run: uv sync --locked --project executor
       - uses: actions/download-artifact@v4
         with:
           name: evidence-inputs
@@ -48,15 +74,15 @@ jobs:
           LAB_TARGET: ${{ vars.EVIDENCE_LAB_TARGET }}
           CANDIDATE_SHA: ${{ github.sha }}
           BASELINE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.sha }}
-        run: uv run python -u evidence/ssh_run.py --transport tailscale --target "$LAB_TARGET" --candidate-wheel inputs/candidate/*.whl --baseline-wheel inputs/baseline/*.whl --candidate-sha "$CANDIDATE_SHA" --baseline-sha "$BASELINE_SHA" --requirements inputs/requirements.txt --output evidence/runs/gh-${{ github.run_id }}-${{ github.run_attempt }}
+        run: uv run --project executor python -u executor/evidence/ssh_run.py --suite-root suite/evidence --transport tailscale --target "$LAB_TARGET" --candidate-wheel inputs/candidate/*.whl --baseline-wheel inputs/baseline/*.whl --candidate-sha "$CANDIDATE_SHA" --baseline-sha "$BASELINE_SHA" --requirements inputs/requirements.txt --output reports/gh-${{ github.run_id }}-${{ github.run_attempt }}
       - name: Stop only this run's lab processes and containers
         if: always() && steps.dispatch.outcome != 'skipped'
         env:
-          PYTHONPATH: evidence
+          PYTHONPATH: executor/evidence
           LAB_TARGET: ${{ vars.EVIDENCE_LAB_TARGET }}
           EVIDENCE_RUN_ID: gh-${{ github.run_id }}-${{ github.run_attempt }}
         run: |
-          uv run python - <<'PY'
+          uv run --project executor python - <<'PY'
           import os
           from ssh_run import cleanup
           cleanup(os.environ["LAB_TARGET"], "tailscale", os.environ["EVIDENCE_RUN_ID"])
@@ -66,6 +92,6 @@ jobs:
         uses: actions/upload-artifact@v4
         with:
           name: relflow-evidence
-          path: evidence/runs/gh-${{ github.run_id }}-${{ github.run_attempt }}/
+          path: reports/gh-${{ github.run_id }}-${{ github.run_attempt }}/
           retention-days: 90
           if-no-files-found: warn

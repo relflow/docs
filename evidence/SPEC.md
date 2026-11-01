@@ -53,8 +53,9 @@ are explicit and excluded from the default static checks.
 
 The library workflow builds wheels from the exact PR merge candidate and base,
 exports the candidate's locked requirements, and calls the docs reusable lab
-workflow at a reviewed full commit SHA. The workflow's implementation is pinned
-independently. Require `Evidence / required` and an up-to-date base so a changed
+workflow at a reviewed full commit SHA. The trusted host executor is pinned independently of the experiment suite.
+The library supplies a reviewed suite commit; host code reads it as data and
+runs experiment code only in isolated containers. Require `CI / required` and an up-to-date base so a changed
 main cannot reuse stale validation.
 
 Run the complete catalog against both wheels in the same CPU environment,
@@ -66,7 +67,8 @@ invalid provenance, cancellation, timeout, partial coverage, or a smoke budget
 must prevent a successful gate. Preserve the named numerical checks unchanged.
 
 Lab uses one disposable Docker container per task, bounded to two CPU cores,
-4 GiB of memory, and 512 PIDs, with eight workers by default. Workers have no
+4 GiB of memory, and 512 PIDs, with eight workers by default. A shared lab queue serializes CI runs, while
+superseded attempts are cancelled per PR. Workers have no
 network, a read-only root, and no host home or Docker socket mount. Install
 runtime packages in the image, never on the host. Keep credentials outside
 workers. Tailscale uses short-lived OIDC bound to the exact workflow and calling
@@ -74,7 +76,7 @@ repository. Fork execution fails closed. See [lab.md](lab.md).
 
 ## Records and publication
 
-Every report identifies the evidence and library revisions, exact wheel and
+Every report identifies the executor, evidence suite, and library revisions, exact wheel and
 script digests, environment lock, image and hardware, seeds, budgets, metrics,
 checks, errors, and timing. The collector writes independent per-task records
 and logs, then checks completeness and provenance before producing the JSON

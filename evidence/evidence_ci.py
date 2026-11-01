@@ -48,6 +48,7 @@ def plan(
     candidate: dict,
     baseline: dict,
     evidence_sha: str,
+    executor_sha: str,
     root: Path = ROOT,
     identifiers: list[str] | None = None,
     steps: int | None = None,
@@ -70,13 +71,15 @@ def plan(
                     "steps": steps,
                     "script": entries[identifier]["script"],
                     "script_sha256": digest(script),
+                    "executor_sha": executor_sha,
                 }
             )
     return {
-        "schema": 1,
+        "schema": 2,
         "run_id": run_id,
         "created_at": datetime.now(timezone.utc).isoformat(),  # noqa: UP017 - lab host runs Python 3.10
         "evidence_sha": evidence_sha,
+        "executor_sha": executor_sha,
         "policy": "paired-passing-checks-v1",
         "candidate": candidate,
         "baseline": baseline,
@@ -164,11 +167,15 @@ def collect(output: Path, record: dict) -> None:
         handle.write(log)
 
 
-def evaluate(manifest: dict, records: list[dict]) -> dict:
+def evaluate(manifest: dict, records: list[dict], *, root: Path = ROOT) -> dict:
     expected = {task_key(task): task for task in manifest["tasks"]}
     seen = {}
     errors = []
-    catalog = registry()
+    catalog = registry(root)
+    if manifest.get("schema") != 2 or not manifest.get("executor_sha"):
+        errors.append("Expected a current manifest with an independently pinned executor")
+    if any(task.get("executor_sha") != manifest.get("executor_sha") for task in manifest["tasks"]):
+        errors.append("Task executor differs from the manifest")
     if len(expected) != len(manifest["tasks"]):
         errors.append("Manifest contains duplicate tasks")
     if {task["id"] for task in manifest["tasks"]} != set(catalog):
@@ -239,10 +246,10 @@ def evaluate(manifest: dict, records: list[dict]) -> dict:
     }
 
 
-def finish(output: Path) -> dict:
+def finish(output: Path, *, root: Path = ROOT) -> dict:
     manifest = json.loads((output / "manifest.json").read_text())
     records = [json.loads(path.read_text()) for path in sorted((output / "results").rglob("*.json"))]
-    summary = evaluate(manifest, records)
+    summary = evaluate(manifest, records, root=root)
     write_json(output / "summary.json", summary)
     rows = []
     for record in records:

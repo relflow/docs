@@ -27,6 +27,7 @@ ENV OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 POLARS_MAX_THREADS=2 HF_HUB_OFFLINE=1 TO
 
 
 def run(options: argparse.Namespace) -> None:
+    suite = options.suite_root.resolve()
     output = options.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
     marker = output.parent / (output.name + ".pid")
@@ -39,6 +40,8 @@ def run(options: argparse.Namespace) -> None:
         candidate=candidate,
         baseline=baseline,
         evidence_sha=options.evidence_sha,
+        executor_sha=options.executor_sha,
+        root=suite,
         identifiers=options.ids,
         steps=options.steps,
     )
@@ -110,7 +113,9 @@ def run(options: argparse.Namespace) -> None:
                 "--tmpfs",
                 "/tmp:rw,nosuid,nodev,size=2g,mode=1777",
                 "--mount",
-                f"type=bind,src={ROOT},dst=/evidence,readonly",
+                f"type=bind,src={ROOT},dst=/executor,readonly",
+                "--mount",
+                f"type=bind,src={suite},dst=/suite,readonly",
                 "--mount",
                 f"type=bind,src={wheel},dst=/wheels/{wheel.name},readonly",
                 "--mount",
@@ -133,7 +138,7 @@ def run(options: argparse.Namespace) -> None:
                 "python -m venv --system-site-packages /tmp/runtime && "
                 "/tmp/runtime/bin/python -m pip install --no-deps "
                 + shlex.quote("/wheels/" + wheel.name)
-                + " && exec /tmp/runtime/bin/python /evidence/lab_worker.py /results/task.json",
+                + " && exec /tmp/runtime/bin/python /executor/lab_worker.py /results/task.json",
             ]
             try:
                 process = subprocess.run(
@@ -182,7 +187,7 @@ def run(options: argparse.Namespace) -> None:
                 subprocess.run(["docker", "rm", "--force", *active], check=False)
     finally:
         try:
-            summary = finish(output)
+            summary = finish(output, root=suite)
             print(json.dumps(summary, indent=2), flush=True)
         finally:
             marker.unlink(missing_ok=True)
@@ -202,6 +207,8 @@ def main() -> None:
     parser.add_argument("--candidate-sha", required=True)
     parser.add_argument("--baseline-sha", required=True)
     parser.add_argument("--evidence-sha", required=True)
+    parser.add_argument("--executor-sha", required=True)
+    parser.add_argument("--suite-root", required=True, type=Path)
     parser.add_argument("--requirements", required=True, type=Path)
     parser.add_argument("--output", required=True, type=Path)
     parser.add_argument("--workers", type=int, default=8)

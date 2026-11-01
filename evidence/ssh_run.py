@@ -46,7 +46,7 @@ def cleanup(target: str, transport: str, run_id: str) -> None:
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", run_id) or run_id in {".", ".."}:
         raise ValueError("Invalid evidence run ID")
     remote = "relflow-evidence/runs/" + run_id
-    script = remote + "/source/lab_stop.py"
+    script = remote + "/executor/lab_stop.py"
     command = (
         "if test -f "
         + shlex.quote(script)
@@ -60,21 +60,25 @@ def cleanup(target: str, transport: str, run_id: str) -> None:
 def run(options: argparse.Namespace) -> None:
     if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", options.output.name) or options.output.name in {".", ".."}:
         raise ValueError("Use a simple unique run directory name")
-    revision = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=ROOT, text=True).strip()
-    dirty = subprocess.check_output(["git", "status", "--porcelain", "--untracked-files=no"], cwd=ROOT, text=True)
-    if dirty:
-        raise ValueError("Commit evidence changes before dispatch so the recorded revision is exact")
+    revisions = {}
+    for role, directory in (("executor", ROOT), ("suite", options.suite_root.resolve())):
+        revisions[role] = subprocess.check_output(["git", "rev-parse", "HEAD"], cwd=directory, text=True).strip()
+        dirty = subprocess.check_output(
+            ["git", "status", "--porcelain", "--untracked-files=no"], cwd=directory, text=True
+        )
+        if dirty:
+            raise ValueError(f"Commit {role} changes before dispatch so its recorded revision is exact")
     command = connection(options.target, options.transport)
     remote = "relflow-evidence/runs/" + options.output.name
-    source_files = subprocess.check_output(["git", "ls-files", "-z"], cwd=ROOT).decode().split("\0")
     payload = io.BytesIO()
     with tarfile.open(fileobj=payload, mode="w:gz") as archive:
-        for name in source_files:
-            if name:
-                path = ROOT / name
-                if path.is_symlink():
-                    raise ValueError("Evidence dispatch does not follow source symlinks")
-                archive.add(path, arcname="source/" + name, recursive=False)
+        for role, directory in (("executor", ROOT), ("suite", options.suite_root.resolve())):
+            files = subprocess.check_output(["git", "ls-files", "-z"], cwd=directory).decode().split("\0")
+            for name in filter(None, files):
+                path = directory / name
+                if path.is_symlink() or not path.is_file():
+                    raise ValueError("Evidence dispatch requires regular tracked source files")
+                archive.add(path, arcname=role + "/" + name, recursive=False)
         for role, wheel in (("candidate", options.candidate_wheel), ("baseline", options.baseline_wheel)):
             if wheel.is_symlink() or not wheel.is_file():
                 raise ValueError("Supply regular wheel files for dispatch")
@@ -89,7 +93,7 @@ def run(options: argparse.Namespace) -> None:
     remote_output = remote + "/results/" + options.output.name
     arguments = [
         "python3",
-        remote + "/source/lab_run.py",
+        remote + "/executor/lab_run.py",
         "--candidate-wheel",
         remote + "/inputs/candidate/" + options.candidate_wheel.name,
         "--baseline-wheel",
@@ -99,7 +103,11 @@ def run(options: argparse.Namespace) -> None:
         "--baseline-sha",
         options.baseline_sha,
         "--evidence-sha",
-        revision,
+        revisions["suite"],
+        "--executor-sha",
+        revisions["executor"],
+        "--suite-root",
+        remote + "/suite",
         "--requirements",
         remote + "/inputs/requirements.txt",
         "--output",
@@ -131,6 +139,7 @@ def main() -> None:
     for signum in (signal.SIGHUP, signal.SIGTERM):
         signal.signal(signum, interrupted)
     parser = argparse.ArgumentParser(description=__doc__)
+    parser.add_argument("--suite-root", required=True, type=Path)
     parser.add_argument("--target", required=True)
     parser.add_argument("--transport", choices=("ssh", "tailscale"), default="ssh")
     parser.add_argument("--candidate-wheel", required=True, type=Path)

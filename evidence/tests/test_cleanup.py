@@ -21,9 +21,10 @@ def test_stop_verifies_pid_ownership_and_limits_container_removal(tmp_path, monk
         Path, "read_bytes", lambda path: command if str(path) == "/proc/54321/cmdline" else original(path)
     )
     signals, commands = [], []
+    responses = iter(["owned-container\n", ""])
     monkeypatch.setattr(lab_stop.os, "kill", lambda pid, value: signals.append((pid, value)))
     monkeypatch.setattr(
-        lab_stop.subprocess, "check_output", lambda command, **kwargs: commands.append(command) or "owned-container\n"
+        lab_stop.subprocess, "check_output", lambda command, **kwargs: commands.append(command) or next(responses)
     )
     monkeypatch.setattr(lab_stop.subprocess, "run", lambda command, **kwargs: commands.append(command))
     lab_stop.stop(output)
@@ -32,6 +33,7 @@ def test_stop_verifies_pid_ownership_and_limits_container_removal(tmp_path, monk
     assert commands == [
         ["docker", "ps", "--quiet", "--filter", "label=relflow.evidence=" + label],
         ["docker", "rm", "--force", "owned-container"],
+        ["docker", "ps", "--quiet", "--filter", "label=relflow.evidence=" + label],
     ]
     assert not marker.exists()
 
