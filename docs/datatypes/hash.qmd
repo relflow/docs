@@ -50,11 +50,13 @@ identifier types upstream. A null has its own state.
 
 Every Hash field shares a salt within one local-rank batch. Matching values of
 the same Arrow family and matching Hash configuration therefore have the same
-representation across fields. Training draws a new salt per batch; validation,
-test, and prediction use zero. Validation uses the same deterministic
-encoding as inference, so checkpoint selection is not perturbed by a newly
-drawn Hash salt. Other stochastic model or masking choices can still affect
-results. Hashes are not durable identifiers across library versions.
+representation across fields. Training derives a new salt for every batch
+from the run seed, the epoch, and the batch ordinal, so a seeded run encodes
+the same batches identically on every repeat; validation, test, and prediction
+use zero. Validation uses the same deterministic encoding as inference, so
+checkpoint selection is not perturbed by the training salt. Other stochastic
+model or masking choices can still affect results. Hashes are not durable
+identifiers across library versions.
 
 Hash lanes become Fourier features directly in model space; there is no learned
 content vocabulary or projection. Non-valued positions use state embeddings.

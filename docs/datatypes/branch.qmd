@@ -130,6 +130,43 @@ model generation for active unbounded branches; the warning enforces no limit.
 No hidden cap is applied to `length=None`.
 :::
 
+## Random training windows {#random-training-windows}
+
+Use a finite `length` with `overflow="random"` to vary the retained history
+during training:
+
+```python
+history = rf.Branch(
+    length=32,
+    overflow="random",
+    amount=rf.Number,
+    merchant=rf.Category,
+)
+```
+
+When a collection exceeds the cap, training selects a contiguous window of
+32 whole records, preserving their order. With 80 records, its starting
+position is drawn uniformly from 0 through 48. Fields and nested children
+remain attached to the same record; null items still count as collection
+slots. Collections at or below the cap are unchanged.
+
+| Loop | Retained records |
+| --- | --- |
+| Training | A randomly selected contiguous window. |
+| Validation, test, prediction | The tail, deterministically. |
+
+The source or preprocessor must supply more than 32 eligible records for
+this example to vary. If an upstream query has already kept only the latest
+32, random overflow has no effect. Supply a larger, separately bounded
+candidate pool while preserving the scoring cutoff and desired ordering.
+The model's cap does not bound the cost of loading or preparing that pool.
+
+Crops repeat for the same data seed, epoch, batch ordinal, branch address,
+and parent position within a batch. Changing batching, worker assignment, or
+row order can change them. A random window can omit the latest payment; keep
+`overflow="tail"` when that payment must always be included. Uniform window
+starts also do not give every item the same inclusion probability.
+
 ## Options
 
 These are the direct `rf.Branch` defaults. A
@@ -141,7 +178,7 @@ These are the direct `rf.Branch` defaults. A
 | `fields` | `None` | Named child mapping, combinable with keyword children; names must be unique. |
 | `query` | `None` | Optional node-relative structural path. |
 | `length` | `None` | Automatic batch width; a positive integer caps retained items per parent coordinate. |
-| `overflow` | `None` | Unbounded branches require `None`. With finite `length`, omission becomes `"head"`; choose `"head"`, `"tail"`, or `"error"`. Order comes from the processed source. |
+| `overflow` | `None` | Unbounded branches require `None`. With finite `length`, omission becomes `"head"`; choose `"head"`, `"tail"`, or `"error"`. The [`"random"` policy](#random-training-windows) samples training windows and keeps the tail for evaluation. Order comes from the processed source. |
 | `attention` | `"mha"` | Encoder mode; see below. |
 | `n_layers` | `1` | Positive sequence-encoder depth. |
 | `n_heads` | `4` | Positive, even encoder head count and fallback for Attention reduction. Active attention requires heads to divide `d_model` with at least two dimensions per head. |
