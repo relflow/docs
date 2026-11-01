@@ -53,7 +53,6 @@ task described in [its README](docs/assets/branding/README.md).
 [contracts/relflow.json](contracts/relflow.json) records the public options,
 value states, and attention modes used by reference checks. Refresh it when
 targeting a new package version; tests do not import RelFlow to discover options.
-[migration.json](migration.json) records the documentation extraction.
 
 ## Evidence
 

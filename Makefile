@@ -29,6 +29,9 @@ check: prepare ## Check static authoring, API references, and evidence reporting
 check-docs: render ## Validate the complete rendered site.
 	uv run python -m scripts.check --rendered
 
-clean: ## Remove generated evidence pages and site output.
+clean: ## Remove generated pages, site output, diagrams, and tool caches.
 	uv run python -m scripts.render_evidence --clean
-	rm -rf docs/site docs/.quarto docs/assets/diagrams
+	rm -rf docs/site docs/.quarto docs/assets/diagrams .pytest_cache .ruff_cache
+	rm -rf scripts/__pycache__ tests/__pycache__ evidence/__pycache__
+	rm -rf evidence/tests/__pycache__ evidence/tests/runtime/__pycache__
+	rm -rf evidence/experiments/__pycache__ evidence/experiments/*/__pycache__

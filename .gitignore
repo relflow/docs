@@ -10,7 +10,6 @@ docs/evidence/
 **/*.quarto_ipynb
 **/*_files/
 **/*_cache/
-*.yaml.lock
 *.ckpt
 .DS_Store
 evidence/runs/
