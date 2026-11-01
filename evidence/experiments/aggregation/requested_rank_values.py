@@ -4,8 +4,7 @@
 # categories:
 # - Order statistics
 # evidence-id: P012
-# description: Ask for the smallest, largest, middle, or quarter-position value without sorting the input
-#   first.
+# description: Ask for the smallest, largest, middle, or quarter-position value without sorting the input first.
 # execute:
 #   enabled: false
 #   eval: false
@@ -22,6 +21,142 @@
 #   - cycled
 #   - nrmse
 #   format: error
+# evidence-group: Aggregation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     All bag shapes represented: true
+#     All measurements finite: true
+#     All ranks represented: true
+#     Endpoint, interior-rank, shape, and causal-control gates: true
+#     Expected number of rank requests: true
+#     Hidden requests yield identical predictions: true
+#     Per-rank baseline RMSE above 0.60: true
+#     Per-shape baseline RMSE above 0.80: true
+#     Target SD above 0.80: true
+#     Training bags separate from validation and test: true
+#     Validation bags separate from test: true
+#   duration_seconds: 114.529
+#   metrics:
+#     by_rank:
+#       maximum:
+#         baseline_rmse: 0.9466038978237984
+#         nrmse: 0.030806227289838364
+#         rmse: 0.029161294829806863
+#       median:
+#         baseline_rmse: 0.8438626855475819
+#         nrmse: 0.0725086661407999
+#         rmse: 0.06118735773504843
+#       minimum:
+#         baseline_rmse: 1.0886907856680468
+#         nrmse: 0.04530158390779701
+#         rmse: 0.04931941697658647
+#       q25:
+#         baseline_rmse: 0.8870723799603668
+#         nrmse: 0.051633233714214806
+#         rmse: 0.04580241551591838
+#       q75:
+#         baseline_rmse: 0.8574627753116424
+#         nrmse: 0.04656273682923559
+#         rmse: 0.03992581354770197
+#     by_shape:
+#       duplicates:
+#         baseline_rmse: 1.2044208081983223
+#         nrmse: 0.03826737751004838
+#         rmse: 0.04609002574828277
+#       left_skewed:
+#         baseline_rmse: 1.2724328485237015
+#         nrmse: 0.03280378602448242
+#         rmse: 0.04174061489349415
+#       right_skewed:
+#         baseline_rmse: 1.1207206271078058
+#         nrmse: 0.03369132140736174
+#         rmse: 0.037758558855749094
+#       symmetric:
+#         baseline_rmse: 1.2584867784356901
+#         nrmse: 0.04552615866688391
+#         rmse: 0.05729406875523881
+#     cycled:
+#       baseline_rmse: 0.9290372023301314
+#       nrmse: 1.454229219898798
+#       rmse: 1.3510330460015088
+#     hidden:
+#       maximum:
+#         baseline_rmse: 0.9466038978237984
+#         nrmse: 2.777319845107183
+#         rmse: 2.629021790881848
+#       median:
+#         baseline_rmse: 0.8438626855475819
+#         nrmse: 1.9600295600930049
+#         rmse: 1.6539958083327286
+#       minimum:
+#         baseline_rmse: 1.0886907856680468
+#         nrmse: 0.6928980221123755
+#         rmse: 0.7543516920813578
+#       q25:
+#         baseline_rmse: 0.8870723799603668
+#         nrmse: 1.427491963066947
+#         rmse: 1.2662886930520927
+#       q75:
+#         baseline_rmse: 0.8574627753116424
+#         nrmse: 2.402822154282153
+#         rmse: 2.0603305529910743
+#     hidden_family_spread: 0.0
+#     intact:
+#       baseline_rmse: 0.9290372023301314
+#       nrmse: 0.04983691370865262
+#       rmse: 0.04630034688465481
+#     permutation_drift: 0.015378312926430257
+#     steps: 800
+#     target_scale: 1.2148096616638178
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: e23498794d1efafe57473aa92e50cd551464fd21f6c8bd93465e292a96d50fec
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 73af77d08c79
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: bd661fa5b69d755fb2b186b03e1d08ce41ab7ceaad8b8853b03070f4358308f0
+#     source_sha256: b43e96d9ae0a69ab8774bff0faf1bea9e412fe589cee4c1e7bc2adebbf249705
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3700
+#   started_at: '2026-11-01T00:06:17.474587+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example
@@ -108,7 +243,7 @@
 
 Require endpoints, quartiles, median, and causal controls together.
 
-Run: uv run python proofs/run.py P012"""
+Run: uv run python evidence/experiments/run.py P012"""
 
 from __future__ import annotations
 

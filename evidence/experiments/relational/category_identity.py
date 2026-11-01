@@ -4,8 +4,8 @@
 # categories:
 # - Sibling entity transfer
 # evidence-id: P036
-# description: Use matching category IDs to transfer changing values from a source list to a separately
-#   ordered target list.
+# description: Use matching category IDs to transfer changing values from a source list to a separately ordered target
+#   list.
 # execute:
 #   enabled: false
 #   eval: false
@@ -24,6 +24,70 @@
 #   metric:
 #   - preserved_broken_nrmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Broken identities nRMSE >= 0.80: true
+#     Compressed Category transfer nRMSE <= 0.25: true
+#     Finite errors: true
+#     Identity corruption increases nRMSE by >= 0.50: true
+#     Preserved transfer calibration nRMSE <= 1.10: true
+#     Preserved transfer nRMSE <= 0.25: true
+#   duration_seconds: 103.253
+#   metrics:
+#     compressed_broken_nrmse: 1.439480419748265
+#     compressed_nrmse: 0.023056464672160288
+#     preserved_broken_nrmse: 1.4445395573041369
+#     preserved_nrmse: 0.005597143693652065
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 07c809e110c1fb7f226e307ce02fc0553d450b66f787eeda1399c0999be2be0f
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 8dee06665dee
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 17c7d2533593a27760970315818e1fbc9be47e46c961fa33339af2fd24aa76f8
+#     source_sha256: 41fdd7876dbb189968962f1f94974651ba902e8a1a7f0e6d702f4e1eee261907
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 17
+#   started_at: '2026-11-01T00:17:42.230680+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

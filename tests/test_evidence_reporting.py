@@ -12,6 +12,8 @@ from types import ModuleType
 import pytest
 import yaml
 
+from evidence.experiments.source import frontmatter, metadata, registry
+
 ROOT = Path(__file__).resolve().parents[1]
 sys.path.insert(0, str(ROOT / "evidence"))
 
@@ -36,7 +38,9 @@ def result(*, seed: int = 11, outcome: str = "met", mode: str = "full") -> dict:
         "provenance": {
             "source_sha256": f"source-{seed}",
             "python": "3.12.0",
-            "packages": {"torch": "2.8.0"},
+            "packages": {"torch": "2.8.0", "relflow": "0.4.1"},
+            "relflow_revision": "tested-library",
+            "evidence_revision": "tested-evidence",
         },
         "metrics": {"held_out_rmse": 0.125},
         "checks": {"Held-out RMSE is below 0.2": outcome == "met"},
@@ -45,25 +49,25 @@ def result(*, seed: int = 11, outcome: str = "met", mode: str = "full") -> dict:
     }
 
 
-def set_result(identifier: str, recorded: dict, output: Path) -> None:
-    document = yaml.safe_load(output.read_text())
-    document["evidence"][identifier]["run"] = recorded
-    output.write_text(yaml.safe_dump(document, sort_keys=False))
+def set_result(identifier: str, recorded: dict, root: Path) -> None:
+    entry = registry(root / "evidence")[identifier]
+    script = root / "evidence" / entry["script"]
+    script.write_text(frontmatter(script.read_text(), dict(entry["header"], **{"evidence-result": recorded})))
 
 
 @pytest.fixture
 def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleType, ModuleType, Path]:
     reporting = None
-    renderer = load(ROOT / "scripts/render_evidence.py")
-    scripts = tmp_path / "evidence"
+    renderer = load(ROOT / "evidence/render.py")
+    scripts = tmp_path / "evidence/experiments/family"
     pages = tmp_path / "docs/evidence/family"
     scripts.mkdir(parents=True)
     pages.mkdir(parents=True)
-    entries = {}
     for identifier, slug in (("P001", "signal"), ("P002", "noise")):
         script = scripts / f"{slug}.py"
         metadata = {
             "evidence-id": identifier,
+            "evidence-group": "Family",
             "title": slug.title(),
             "categories": ["Family"],
             "description": slug,
@@ -77,14 +81,6 @@ def evidence(tmp_path: Path, monkeypatch: pytest.MonkeyPatch) -> tuple[ModuleTyp
             f"Path({str(tmp_path / 'executed')!r}).write_text('executed')\n"
             "raise RuntimeError('a documentation build executed a evidence')\n"
         )
-        page = pages / f"{slug}.py"
-        entries[identifier] = {
-            "script": script.relative_to(tmp_path).as_posix(),
-            "page": page.relative_to(tmp_path).as_posix(),
-            "run": None,
-        }
-    source = scripts / "results.yaml"
-    source.write_text(yaml.safe_dump({"schema": 3, "evidence": entries}, sort_keys=False))
     return reporting, renderer, tmp_path
 
 
@@ -101,16 +97,13 @@ def test_statuses_match_catalog_callouts_legend_and_colors(
     evidence: tuple[ModuleType, ModuleType, Path], outcome: str | None, expected: str, kind: str
 ) -> None:
     _, renderer, root = evidence
-    source = root / "evidence/results.yaml"
-    document = yaml.safe_load(source.read_text())
-    entry = document["evidence"]["P001"]
-    entry["run"] = result(outcome=outcome) if outcome is not None else None
-    source.write_text(yaml.safe_dump(document))
+    if outcome is not None:
+        set_result("P001", result(outcome=outcome), root)
 
     renderer.render(root)
 
-    catalog = yaml.safe_load((root / "docs/evidence/catalog.yaml").read_text())
-    assert next(row for row in catalog if row["id"] == "P001")["evidence-status"] == expected
+    published = metadata((root / "docs/evidence/family/signal.py").read_text())
+    assert published["evidence-status"] == expected
     notice = (root / "docs/evidence/_generated/P001-status.md").read_text()
     title = f"Current full run · {expected}" if outcome is not None else expected
     assert f'::: {{.evidence-result .evidence-result-{kind} role="note"}}' in notice
@@ -126,7 +119,6 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     reporting, renderer, root = evidence
-    source = root / "evidence/results.yaml"
     generated = root / "docs/evidence/_generated"
     renderer.render(root)
     notice = (generated / "P001-status.md").read_text()
@@ -136,30 +128,27 @@ def test_docs_refresh_from_yaml_and_embed_scripts_without_executing(
 
     failed = result(outcome="not_met")
     failed["metrics"] = {"held_out_rmse": 0.875}
-    set_result("P001", failed, source)
+    set_result("P001", failed, root)
     renderer.render(root)
-    catalog = yaml.safe_load((root / "docs/evidence/catalog.yaml").read_text())
-    assert {row["id"]: row["evidence-status"] for row in catalog} == {
-        "P001": "Failing",
-        "P002": "Missing",
-    }
+    assert metadata((root / "docs/evidence/family/signal.py").read_text())["evidence-status"] == "Failing"
+    assert metadata((root / "docs/evidence/family/noise.py").read_text())["evidence-status"] == "Missing"
     assert "0 of 1 test checks met" in (generated / "P001-status.md").read_text()
     assert "| held_out_rmse | 0.875 |" in (generated / "P001-evidence.md").read_text()
 
-    set_result("P001", result(seed=29), source)
+    set_result("P001", result(seed=29), root)
     renderer.render(root)
     assert "Passing" in (generated / "P001-status.md").read_text()
     text = (generated / "P001-evidence.md").read_text()
     assert "Seed **29**" in text and "| held_out_rmse | 0.125 |" in text
+    assert "RelFlow 0.4.1" in text and "tested-library" in text and "tested-evidence" in text
     assert "| held_out_rmse | 0.875 |" not in text
     assert "<details>\n<summary>Behavioral checks</summary>\n\n" in text
     assert "| Held-out RMSE is below 0.2 | Met |\n\n</details>" in text
     assert "Historical" not in text and "https://example.com/signal" not in text
-    assert (generated / "results.yaml").read_bytes() == source.read_bytes()
-    assert yaml.safe_load((generated / "results.yaml").read_text())["evidence"]["P001"]["run"]["seed"] == 29
-    script = (root / "evidence/signal.py").read_text()
+    assert registry(root / "evidence")["P001"]["run"]["seed"] == 29
+    script = (root / "evidence/experiments/family/signal.py").read_text()
     listing = (generated / "P001-script.md").read_text()
-    assert (root / "docs/evidence/family/signal.py").read_text() == script
+    assert renderer.fingerprint((root / "docs/evidence/family/signal.py").read_text()) == renderer.fingerprint(script)
     assert (generated / "P001.py").read_text() == script
     assert "Download the complete evidence" in listing
     assert "experiments/run.py P001" in listing
@@ -179,18 +168,20 @@ def test_render_preserves_unchanged_input_timestamps(evidence: tuple[ModuleType,
     renderer.render(root)
     assert all(path.stat().st_mtime_ns == timestamp for path in files)
 
-    script = root / "evidence/signal.py"
+    script = root / "evidence/experiments/family/signal.py"
     script.write_text(script.read_text().replace("# title: Signal", "# title: Updated signal"))
     renderer.render(root)
     changed = {path.relative_to(generated).as_posix() for path in files if path.stat().st_mtime_ns != timestamp}
-    assert changed == {"family/signal.py", "_generated/P001.py", "catalog.yaml"}
-    assert (generated / "family/signal.py").read_text() == script.read_text()
+    assert changed == {"family/signal.py", "_generated/P001.py"}
+    assert renderer.fingerprint((generated / "family/signal.py").read_text()) == renderer.fingerprint(
+        script.read_text()
+    )
     assert (generated / "_generated/P001.py").read_text() == script.read_text()
 
 
 def test_docs_reject_enabled_experiments_before_staging(evidence: tuple[ModuleType, ModuleType, Path]) -> None:
     _, renderer, root = evidence
-    script = root / "evidence/signal.py"
+    script = root / "evidence/experiments/family/signal.py"
     script.write_text(script.read_text().replace("enabled: false", "enabled: true"))
     with pytest.raises(ValueError, match="requires execute.enabled: false"):
         renderer.render(root)
@@ -211,10 +202,10 @@ def test_docs_cleanup_preserves_authored_sources_results_and_published_files(
     (docs / "retired-family").mkdir()
     published = root / "docs/site/evidence/_generated"
     published.mkdir(parents=True)
-    (published / "results.yaml").write_text("Published evidence\n")
-    source = root / "evidence/results.yaml"
+    (published / "P001.py").write_text("Published evidence\n")
+    source = root / "evidence/experiments/family/signal.py"
     before = source.read_bytes()
-    script = (root / "evidence/signal.py").read_bytes()
+    script = (root / "evidence/experiments/family/signal.py").read_bytes()
     renderer.render(root)
     (docs / "_generated/P001-insights.md").write_text("Obsolete fragment\n")
     (docs / "family/signal.quarto_ipynb").write_text("Temporary notebook\n")
@@ -227,9 +218,9 @@ def test_docs_cleanup_preserves_authored_sources_results_and_published_files(
     assert {path.name for path in docs.iterdir()} == {"notes"}
     assert catalog.read_text() == "# Evidences\n"
     assert (notes / "draft.md").read_text() == "Authored notes\n"
-    assert (published / "results.yaml").read_text() == "Published evidence\n"
+    assert (published / "P001.py").read_text() == "Published evidence\n"
     assert source.read_bytes() == before
-    assert (root / "evidence/signal.py").read_bytes() == script
+    assert (root / "evidence/experiments/family/signal.py").read_bytes() == script
     (notes / "draft.md").unlink()
     renderer.clean(root)
     renderer.clean(root)
@@ -240,25 +231,26 @@ def test_docs_cleanup_rejects_paths_outside_generated_families(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     _, renderer, root = evidence
-    source = root / "evidence/results.yaml"
-    document = yaml.safe_load(source.read_text())
-    document["evidence"]["P001"]["page"] = "evidence/signal.py"
-    source.write_text(yaml.safe_dump(document))
+    outside = root / "outside"
+    outside.mkdir()
+    family = root / "docs/evidence/family"
+    family.rmdir()
+    family.symlink_to(outside, target_is_directory=True)
     with pytest.raises(ValueError, match="Cannot clean evidence page outside"):
         renderer.clean(root)
-    assert (root / "evidence/signal.py").is_file()
+    assert (root / "evidence/experiments/family/signal.py").is_file()
 
 
 def test_changed_script_warns_without_rewriting_recorded_results(
     evidence: tuple[ModuleType, ModuleType, Path],
 ) -> None:
     reporting, renderer, root = evidence
-    source = root / "evidence/results.yaml"
-    script = root / "evidence/signal.py"
+    source = root / "evidence/experiments/family/signal.py"
+    script = root / "evidence/experiments/family/signal.py"
     measured = result(seed=43)
     measured["provenance"]["code_sha256"] = renderer.fingerprint(script.read_text())
-    set_result("P001", measured, source)
-    before = source.read_bytes()
+    set_result("P001", measured, root)
+    before = metadata(source.read_text())["evidence-result"]
     generated = root / "docs/evidence/_generated"
 
     renderer.render(root)
@@ -277,7 +269,7 @@ def test_changed_script_warns_without_rewriting_recorded_results(
     assert "Seed **43**" in evidence_text
     assert "| held_out_rmse | 0.125 |" in evidence_text
     assert "experiment_size = 2048" in (generated / "P001.py").read_text()
-    assert source.read_bytes() == before
+    assert metadata(source.read_text())["evidence-result"] == before
     assert not (root / "executed").exists()
 
 
@@ -320,7 +312,7 @@ def test_readout_rejects_non_numerical_selections(
 
 def test_docs_reject_smoke_results(evidence):
     _, renderer, root = evidence
-    set_result("P001", result(mode="smoke"), root / "evidence/results.yaml")
+    set_result("P001", result(mode="smoke"), root)
     with pytest.raises(ValueError, match="only full runs may be published"):
         renderer.render(root)
 
@@ -334,8 +326,8 @@ def test_static_evidence_publication_imports_no_model_runtime(evidence, monkeypa
         return original(name, *args, **kwargs)
 
     monkeypatch.setattr(builtins, "__import__", guarded)
-    renderer = load(ROOT / "scripts/render_evidence.py")
-    set_result("P001", result(), root / "evidence/results.yaml")
+    renderer = load(ROOT / "evidence/render.py")
+    set_result("P001", result(), root)
     renderer.render(root)
     assert (root / "docs/evidence/_generated/P001-status.md").is_file()
     assert not (root / "executed").exists()

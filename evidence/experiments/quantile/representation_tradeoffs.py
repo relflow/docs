@@ -4,8 +4,7 @@
 # categories:
 # - Quantile
 # evidence-id: P077
-# description: Compare Number and Quantile on rank and amount tasks, with clean training and rare corrupt
-#   measurements.
+# description: Compare Number and Quantile on rank and amount tasks, with clean training and rare corrupt measurements.
 # execute:
 #   enabled: false
 #   eval: false
@@ -24,6 +23,222 @@
 #   - amount_quantile_contaminated
 #   - normalized_rmse
 #   format: error
+# evidence-group: Representation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Learned MSE predictions differ by at least 10 percent of source means: true
+#     Percentile and source-unit MSE population optima differ materially: true
+#     'amount_number_clean: finite measurements': true
+#     'amount_number_clean: normalized RMSE at most 0.35': true
+#     'amount_number_clean: shuffled normalized RMSE at least 0.90': true
+#     'amount_number_contaminated: finite measurements': true
+#     'amount_quantile_clean: finite measurements': true
+#     'amount_quantile_clean: normalized RMSE at most 0.35': true
+#     'amount_quantile_clean: shuffled normalized RMSE at least 0.90': true
+#     'amount_quantile_contaminated: finite measurements': true
+#     'number_mae: predictions are finite': true
+#     'number_mae: relative optimum error at most 0.25': true
+#     'number_mse: predictions are finite': true
+#     'number_mse: relative optimum error at most 0.25': true
+#     'quantile_mae: predictions are finite': true
+#     'quantile_mae: relative optimum error at most 0.25': true
+#     'quantile_mse: predictions are finite': true
+#     'quantile_mse: relative optimum error at most 0.25': true
+#     'rank_number_clean: accuracy reaches 0.90': true
+#     'rank_number_clean: finite measurements': true
+#     'rank_number_clean: shuffled accuracy at most 0.60': true
+#     'rank_number_contaminated: finite measurements': true
+#     'rank_quantile_clean: accuracy reaches 0.90': true
+#     'rank_quantile_clean: finite measurements': true
+#     'rank_quantile_clean: shuffled accuracy at most 0.60': true
+#     'rank_quantile_contaminated: finite measurements': true
+#   duration_seconds: 126.569
+#   metrics:
+#     central_rows: 3901
+#     input_tasks:
+#       amount_number_clean:
+#         baseline_rmse: 2.7796081299264612
+#         central_rmse: 0.1721292415421181
+#         normalized_rmse: 0.06602526107350982
+#         rmse: 0.18352435246044502
+#         shuffled_normalized_rmse: 1.382963800961026
+#         steps: 400
+#         tail_rmse: 0.3387568658027227
+#       amount_number_contaminated:
+#         baseline_rmse: 2.7796081299264612
+#         central_rmse: 0.136498142576108
+#         normalized_rmse: 0.050559243770540496
+#         rmse: 0.14053488502752814
+#         shuffled_normalized_rmse: 1.4042224179493201
+#         steps: 400
+#         tail_rmse: 0.20523646970574982
+#       amount_quantile_clean:
+#         baseline_rmse: 2.7796081299264612
+#         central_rmse: 0.27930527422777673
+#         normalized_rmse: 0.09880637787914434
+#         rmse: 0.2746430112414557
+#         shuffled_normalized_rmse: 1.4119279036557555
+#         steps: 400
+#         tail_rmse: 0.15415085954332416
+#       amount_quantile_contaminated:
+#         baseline_rmse: 2.7796081299264612
+#         central_rmse: 0.1618314563943457
+#         normalized_rmse: 0.05894220751730564
+#         rmse: 0.16383623921091534
+#         shuffled_normalized_rmse: 1.3787370839096826
+#         steps: 400
+#         tail_rmse: 0.19975865800818857
+#       rank_number_clean:
+#         accuracy: 0.9990234375
+#         central_accuracy: 0.9989746218918226
+#         majority_accuracy: 0.5
+#         shuffled_accuracy: 0.52001953125
+#         steps: 400
+#         tail_accuracy: 1.0
+#       rank_number_contaminated:
+#         accuracy: 0.996826171875
+#         central_accuracy: 0.9966675211484235
+#         majority_accuracy: 0.5
+#         shuffled_accuracy: 0.520751953125
+#         steps: 400
+#         tail_accuracy: 1.0
+#       rank_quantile_clean:
+#         accuracy: 0.995361328125
+#         central_accuracy: 0.9951294539861574
+#         majority_accuracy: 0.5
+#         shuffled_accuracy: 0.520263671875
+#         steps: 400
+#         tail_accuracy: 1.0
+#       rank_quantile_contaminated:
+#         accuracy: 0.9990234375
+#         central_accuracy: 0.9989746218918226
+#         majority_accuracy: 0.5
+#         shuffled_accuracy: 0.51953125
+#         steps: 400
+#         tail_accuracy: 1.0
+#     learned_mse_separation_fraction: 0.2669468619846949
+#     noisy_targets:
+#       number_mae:
+#         group_predictions:
+#         - 0.5570969384426183
+#         - 0.9694045143588924
+#         - 1.6236446103080078
+#         mean_relative_optimum_error: 0.04243589225328844
+#         optimum_source_mae: 0.8753664718008379
+#         optimum_source_rmse: 1.6526635866958435
+#         percentile_mae: 0.21478285740935898
+#         percentile_mse: 0.06870025711300654
+#         source_mae: 0.8770206507251517
+#         source_rmse: 1.6614524752627977
+#         steps: 400
+#       number_mse:
+#         group_predictions:
+#         - 0.8366915335441786
+#         - 1.3927435718132786
+#         - 2.4202991944819447
+#         mean_relative_optimum_error: 0.026339137908036755
+#         optimum_source_mae: 0.9374528597987286
+#         optimum_source_rmse: 1.5815915450641407
+#         percentile_mae: 0.23469993561657493
+#         percentile_mse: 0.08302519937491024
+#         source_mae: 0.9550441021562887
+#         source_rmse: 1.5814917957075545
+#         steps: 400
+#       quantile_mae:
+#         group_predictions:
+#         - 0.6084054160837571
+#         - 0.984106792663203
+#         - 1.5461976758268106
+#         mean_relative_optimum_error: 0.027055953892624423
+#         optimum_source_mae: 0.8753664718008379
+#         optimum_source_rmse: 1.6526635866958435
+#         percentile_mae: 0.21453783190908954
+#         percentile_mse: 0.06680493744855936
+#         source_mae: 0.8778764584692968
+#         source_rmse: 1.6692542452317325
+#         steps: 400
+#       quantile_mse:
+#         group_predictions:
+#         - 0.7295130318312212
+#         - 1.0331054901216066
+#         - 1.486275102830487
+#         mean_relative_optimum_error: 0.03869281960393878
+#         optimum_source_mae: 0.8834192118203341
+#         optimum_source_rmse: 1.6798647788753727
+#         percentile_mae: 0.21717363826390337
+#         percentile_mse: 0.06582571929664477
+#         source_mae: 0.8838590016601799
+#         source_rmse: 1.6709552623065143
+#         steps: 400
+#     population_optima:
+#       number_mae:
+#       - 0.6065306597126334
+#       - 1.0
+#       - 1.6487212707001282
+#       number_mse:
+#       - 0.8352702114112721
+#       - 1.3771277643359572
+#       - 2.2704998375324057
+#       quantile_mae:
+#       - 0.6065306597126334
+#       - 1.0
+#       - 1.6487212707001282
+#       quantile_mse:
+#       - 0.6866702972090775
+#       - 0.9999999999999999
+#       - 1.4563029798499054
+#     tail_rows: 195
+#     test_rows: 4096
+#     train_rows: 8192
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: a0c88a124d8bf6e11c0e4d10311b88141a3fbe971299b6284dcd38babb5cea8f
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 9ab9e99a51d4
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 4bf07351dbe41c6347a7eb4470e13cf277fdb138226f964dff4d0334fedd0c5d
+#     source_sha256: 89b209154f7a383fc209e992053fcf50c562e54731e5322cf3f00e73db87b4a3
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7701
+#   started_at: '2026-11-01T00:23:16.240430+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

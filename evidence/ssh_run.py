@@ -6,6 +6,7 @@ import argparse
 import io
 import re
 import shlex
+import signal
 import subprocess
 import tarfile
 from pathlib import Path, PurePosixPath
@@ -39,6 +40,21 @@ def extract_reports(data: bytes, output: Path) -> None:
             target.parent.mkdir(parents=True, exist_ok=True)
             with archive.extractfile(member) as source, target.open("xb") as destination:
                 destination.write(source.read())
+
+
+def cleanup(target: str, transport: str, run_id: str) -> None:
+    if not re.fullmatch(r"[A-Za-z0-9][A-Za-z0-9_.-]*", run_id) or run_id in {".", ".."}:
+        raise ValueError("Invalid evidence run ID")
+    remote = "relflow-evidence/runs/" + run_id
+    script = remote + "/source/lab_stop.py"
+    command = (
+        "if test -f "
+        + shlex.quote(script)
+        + "; then "
+        + shlex.join(["python3", script, remote + "/results/" + run_id])
+        + "; fi"
+    )
+    subprocess.run([*connection(target, transport), command], check=True, timeout=30)
 
 
 def run(options: argparse.Namespace) -> None:
@@ -95,17 +111,25 @@ def run(options: argparse.Namespace) -> None:
         arguments += ["--steps", str(options.steps)]
     if options.ids:
         arguments += ["--ids", *options.ids]
-    result = subprocess.run([*command, shlex.join(arguments)], check=False)
-    reports = subprocess.run(
-        [*command, "tar -cz -C " + shlex.quote(remote_output) + " ."], stdout=subprocess.PIPE, check=True
-    )
-    extract_reports(reports.stdout, options.output)
+    try:
+        result = subprocess.run([*command, shlex.join(arguments)], check=False)
+        reports = subprocess.run(
+            [*command, "tar -cz -C " + shlex.quote(remote_output) + " ."], stdout=subprocess.PIPE, check=True
+        )
+        extract_reports(reports.stdout, options.output)
+    finally:
+        cleanup(options.target, options.transport, options.output.name)
     print("Retrieved evidence reports to", options.output, flush=True)
     if result.returncode:
         raise SystemExit(result.returncode)
 
 
 def main() -> None:
+    def interrupted(signum, frame):
+        raise KeyboardInterrupt
+
+    for signum in (signal.SIGHUP, signal.SIGTERM):
+        signal.signal(signum, interrupted)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("--target", required=True)
     parser.add_argument("--transport", choices=("ssh", "tailscale"), default="ssh")

@@ -5,6 +5,7 @@ __pycache__/
 .ruff_cache/
 docs/site/
 docs/.quarto/
+docs/.gitignore
 docs/assets/diagrams/
 docs/evidence/
 **/*.quarto_ipynb

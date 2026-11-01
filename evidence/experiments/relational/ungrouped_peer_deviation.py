@@ -19,6 +19,75 @@
 #   metric:
 #   - translated_nrmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Baseline RMSE > 0.000001: true
+#     Common-translated nRMSE < 0.45: true
+#     Finite calibration and model metrics: true
+#     Normalized permutation drift < 0.20: true
+#     Permutation preserves the target multiset: true
+#     Training deviations are exactly centered: true
+#     Translation preserves all targets: true
+#     Translation preserves target shape: true
+#     Ungrouped deviation nRMSE < 0.35: true
+#   duration_seconds: 89.87
+#   metrics:
+#     baseline_rmse: 0.731698187191497
+#     intact_nrmse: 0.059908823835349456
+#     intact_rmse: 0.043835177797099945
+#     permutation_drift: 0.008894648616558797
+#     translated_nrmse: 0.14538617005420465
+#     translated_rmse: 0.10637879707137625
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: f5bea0518d91abec222f96d8c2283ad9a8b64e467a0ddfc296f382bae9202188
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 9455b47026a9
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 8656e7affb9fb3c5dbb644887a0e57d780b884c5589f6829c457104d822d88b6
+#     source_sha256: 5596a4f162a27805150191b3bff5aff48463ce06570fd7aee9830a9742de95d6
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3710
+#   started_at: '2026-11-01T00:16:52.749029+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

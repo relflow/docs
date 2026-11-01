@@ -19,6 +19,109 @@
 #   metric:
 #   - hidden/sum/nrmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     At least three hidden operations have nRMSE >= 0.75: true
+#     Hidden operations yield identical predictions within each bag: true
+#     Permutation changes predictions by <= 0.05 target SD: true
+#     max intact nRMSE <= 0.20: true
+#     max permuted nRMSE <= 0.25: true
+#     mean intact nRMSE <= 0.20: true
+#     mean permuted nRMSE <= 0.25: true
+#     min intact nRMSE <= 0.20: true
+#     min permuted nRMSE <= 0.25: true
+#     sum intact nRMSE <= 0.20: true
+#     sum permuted nRMSE <= 0.25: true
+#   duration_seconds: 63.404
+#   metrics:
+#     hidden/max/baseline_rmse: 0.23385342033136094
+#     hidden/max/nrmse: 9.191587736963024
+#     hidden/max/rmse: 2.149484230564597
+#     hidden/mean/baseline_rmse: 0.07489171086510313
+#     hidden/mean/nrmse: 17.047093365894707
+#     hidden/mean/rmse: 1.276685987449004
+#     hidden/min/baseline_rmse: 0.16915466453487707
+#     hidden/min/nrmse: 6.832057840205612
+#     hidden/min/rmse: 1.155674452042857
+#     hidden/sum/baseline_rmse: 0.599133686920825
+#     hidden/sum/nrmse: 3.5990495339513884
+#     hidden/sum/rmse: 2.1563118166869724
+#     hidden_request_spread: 0.0
+#     intact/max/baseline_rmse: 0.23385342033136094
+#     intact/max/nrmse: 0.058413740007171214
+#     intact/max/rmse: 0.013660252895023844
+#     intact/mean/baseline_rmse: 0.07489171086510313
+#     intact/mean/nrmse: 0.07846642545117143
+#     intact/mean/rmse: 0.0058764848475073
+#     intact/min/baseline_rmse: 0.16915466453487707
+#     intact/min/nrmse: 0.05565680791155266
+#     intact/min/rmse: 0.009414608671360783
+#     intact/sum/baseline_rmse: 0.599133686920825
+#     intact/sum/nrmse: 0.04403293518414524
+#     intact/sum/rmse: 0.026381614802822657
+#     permutation_delta: 0.007678211929192353
+#     permuted/max/baseline_rmse: 0.23385342033136094
+#     permuted/max/nrmse: 0.05717259700314421
+#     permuted/max/rmse: 0.013370007358411791
+#     permuted/mean/baseline_rmse: 0.07489171086510313
+#     permuted/mean/nrmse: 0.08003424237414494
+#     permuted/mean/rmse: 0.005993901339192048
+#     permuted/min/baseline_rmse: 0.16915466453487707
+#     permuted/min/nrmse: 0.05667688235228531
+#     permuted/min/rmse: 0.009587159021183516
+#     permuted/sum/baseline_rmse: 0.599133686920825
+#     permuted/sum/nrmse: 0.04579850124129583
+#     permuted/sum/rmse: 0.02743942490414555
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 261cdefe0422a418461fd4cbf42eb1c1300bcfed16a0c6aae7e21c9d20bb84d7
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 144913616f5b
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 06e7776e388338ce8353d074b7e27475a5d1a56eb124277d5ede2e026909fc72
+#     source_sha256: ab8fd8585c3f6a06d01bb27775101c9d0865349fd2bb558ca6ec6ed6fb55bc91
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 15
+#   started_at: '2026-11-01T00:12:38.430666+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

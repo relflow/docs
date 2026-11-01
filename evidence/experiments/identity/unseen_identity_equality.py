@@ -23,6 +23,68 @@
 #   metric:
 #   - shuffled_auc
 #   format: auc
+# evidence-group: Identity
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Category OOV AUC is at most 0.65: true
+#     Hash exceeds shuffled labels by at least 0.35 AUC: true
+#     Shuffled labels remain between 0.42 and 0.58 AUC: true
+#     Unseen Hash equality AUC is at least 0.95: true
+#   duration_seconds: 54.755
+#   metrics:
+#     auc_gap: 0.5059829950332642
+#     category_oov_auc: 0.5
+#     hash_auc: 0.9991424083709717
+#     shuffled_auc: 0.4931594133377075
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: bd5c3c04edc0f5240a4677fd609bd2bdc3d48b661521032d09c403bd5c81c983
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: f05b152c99f8
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 2e2fd9f622a2614651883f819cadadb492140c080b40f0ec496d7c123e785e29
+#     source_sha256: 72d55ec22520d26a74e78ce517992f3bad5747ad223df7c762f8fdb56e44cfff
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 29
+#   started_at: '2026-11-01T00:08:51.364791+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

@@ -4,8 +4,7 @@
 # categories:
 # - Cardinality generalization
 # evidence-id: P004
-# description: Every item has the same amount. Give the model the item count as an extra input and ask for
-#   the total.
+# description: Every item has the same amount. Give the model the item count as an extra input and ask for the total.
 # execute:
 #   enabled: false
 #   eval: false
@@ -17,6 +16,75 @@
 #   - measured
 #   - nrmse
 #   format: error
+# evidence-group: Aggregation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Matched-count RMSE below 0.35: true
+#     Matched-count prediction gap above 2.5: true
+#     Visible-count nRMSE below 0.25: true
+#   duration_seconds: 21.215
+#   metrics:
+#     measured:
+#       baseline_rmse: 2.2334354369152405
+#       nrmse: 0.04427298902836138
+#       rmse: 0.09888086259410195
+#     probe_error: 0.07098732934383868
+#     probe_prediction:
+#     - 0.6470540289043993
+#     - 4.114705650834975
+#     probe_target:
+#     - 0.7
+#     - 4.199999999999999
+#     steps: 700
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 633dffcd696d16b408968a14146da17488193b04919ea9ec5306e1b9a6e1e828
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 999a15da98bd
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: d1a7557ee760ad1ae1ba9637c90849a2369cc0ab318bd5c7d58e8e58e8e91919
+#     source_sha256: 152b9fcc022d3f7137593b51e2b226aaa68b2a939c0b96066f797b5059aabca7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3605
+#   started_at: '2026-11-01T00:04:56.295775+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example
@@ -97,7 +165,7 @@
 
 Learn value times visible cardinality and distinguish matched probes.
 
-Run: uv run python proofs/run.py P004"""
+Run: uv run python evidence/experiments/run.py P004"""
 
 from __future__ import annotations
 

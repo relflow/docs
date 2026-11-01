@@ -9,17 +9,18 @@ format:
     tbl-colwidths: false
 listing:
   id: evidence
-  contents: "evidence/catalog.yaml"
+  contents: "evidence/*/*.py"
+  sort: order
   type: table
-  fields: [id, title, group, evidence-status]
+  fields: [evidence-id, title, evidence-group, evidence-status]
   field-links: [title]
   field-display-names:
-    id: ID
+    evidence-id: ID
     title: Question
-    group: Group
+    evidence-group: Group
     evidence-status: Result
-  filter-ui: [id, title, group, evidence-status]
-  sort-ui: [id, title, group, evidence-status]
+  filter-ui: [evidence-id, title, evidence-group, evidence-status]
+  sort-ui: [evidence-id, title, evidence-group, evidence-status]
   categories: false
 ---
 
@@ -55,8 +56,8 @@ runs, do not replace full learning results.
 | [Missing]{.evidence-status data-evidence-status="Missing"} | No full run has been recorded. |
 
 Each page shows one selected full run, with its measurements, checks, seed,
-and source provenance. The [complete results](evidence/_generated/results.yaml)
-contain the same current selection. A single seed provides provisional evidence
+and source provenance. The [run reports](https://github.com/relflow/docs/releases)
+retain the complete paired execution records. A single seed provides provisional evidence
 about repeatability; internal seed panels are described by each experiment.
 
 Learned arithmetic is approximate. Use

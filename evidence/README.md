@@ -3,8 +3,8 @@
 This directory owns the 79 controlled synthetic experiments, their protocol,
 lab runner, runtime tests, and current publication results.
 The website and evidence share this repository. Stable P identifiers remain
-unchanged. results.yaml contains one selected full run per experiment, including
-its metrics, checks, seed, environment, and source provenance.
+unchanged. Each script's frontmatter records its ID, group, selected full run,
+metrics, checks, seed, environment, source provenance, and retained report link.
 
 Run from the repository root:
 
@@ -46,7 +46,7 @@ gh workflow run publish-evidence.yml --repo relflow/docs \
 
 The workflow verifies completeness, provenance, wheel digests, and the runtime
 lock; preserves reports and inputs with checksums; and generates a validated
-publication patch for evidence/results.yaml. Download evidence-publication-update,
+publication patch for experiment frontmatter. Download evidence-publication-update,
 review the patch on a branch at its recorded docs base, and open a normal PR.
 The site's normal build reads the committed records and canonical sources.
 There are no snapshot bundles, importers/exporters, or old Proofs redirects.

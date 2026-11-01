@@ -91,3 +91,27 @@ def test_reading_source_never_executes_it(source: ModuleType, tmp_path: Path) ->
     unsafe_yaml = "# %% [markdown]\n# ---\n# value: !!python/object/apply:builtins.eval ['1 + 1']\n# ---\n"
     with pytest.raises(ValueError, match="YAML header is invalid"):
         source.metadata(unsafe_yaml)
+
+
+def test_frontmatter_updates_preserve_code_and_nested_results(source):
+    script = "# %% [markdown]\n# ---\n# evidence-id: P001\n# ---\n# %%\nraise RuntimeError('not executed')\n"
+    header = source.metadata(script)
+    header["description"] = "First line\n---\nLast line"
+    header["evidence-result"] = {"seed": 42, "checks": {"signal": True}, "metrics": {"error": 0.125}}
+    updated = source.frontmatter(script, header)
+    assert source.metadata(updated) == header
+    assert source.frontmatter(updated, header) == updated
+    assert source.fingerprint(updated) == source.fingerprint(script)
+    assert updated.endswith("# %%\nraise RuntimeError('not executed')\n")
+
+
+def test_discovery_rejects_duplicate_ids_instead_of_losing_an_experiment(source, tmp_path):
+    import pytest
+
+    family = tmp_path / "experiments/family"
+    family.mkdir(parents=True)
+    text = "# %% [markdown]\n# ---\n# evidence-id: P001\n# ---\n# %%\nraise RuntimeError('not executed')\n"
+    (family / "first.py").write_text(text)
+    (family / "second.py").write_text(text)
+    with pytest.raises(ValueError, match="duplicate evidence ID"):
+        source.registry(tmp_path)

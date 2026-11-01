@@ -4,8 +4,8 @@
 # categories:
 # - Quantile
 # evidence-id: P067
-# description: Represent amounts and costs by their positions in the training distribution, then convert
-#   predicted costs back to their original units.
+# description: Represent amounts and costs by their positions in the training distribution, then convert predicted
+#   costs back to their original units.
 # execute:
 #   enabled: false
 #   eval: false
@@ -20,6 +20,94 @@
 #   metric:
 #   - shuffled_normalized_rmse
 #   format: error
+# evidence-group: Representation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Both digests count exactly the consumed training rows: true
+#     Checkpoint predictions remain within 0.0001 source units: true
+#     Checkpoint preserves both training distributions: true
+#     Evaluation preserves both training distributions: true
+#     Held-out source-unit normalized RMSE below 0.25: true
+#     Hidden target changes do not affect predictions: true
+#     Predictions in original units are finite: true
+#     Shuffled input normalized RMSE above 0.90: true
+#     Shuffling more than triples the RMSE: true
+#   duration_seconds: 10.918
+#   metrics:
+#     baseline_rmse: 776.9811137581387
+#     checkpoint_max_delta: 0.0
+#     noise_rmse: 10.0
+#     normalization:
+#       /amount:
+#         compression: 100
+#         count: 51200
+#         maximum: 953.7937937025279
+#         median: 179.46837479668926
+#         minimum: 0.040904839461332866
+#       /cost:
+#         compression: 100
+#         count: 51200
+#         maximum: 3076.27776699132
+#         median: 739.2840185210714
+#         minimum: 183.10109095427134
+#     normalized_rmse: 0.03212929246094918
+#     rmse: 24.96385344056926
+#     shuffled_normalized_rmse: 1.4069324188954786
+#     shuffled_rmse: 1093.159917815841
+#     steps: 400
+#     target_tampering_max_delta: 0.0
+#     test_rows: 2048
+#     train_rows: 4096
+#     training_mean: 1012.2396942470937
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 75bc8e4e7a214f13dad4df909687c133dab44779810f85f3953a05fc275d33e9
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 00e618dd24b1
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: ac029c08204594c4d92ea51b01a7cc94032bf93c0e185b177b040a023bf1dec2
+#     source_sha256: 9cf04586eb58da9a9e263ddc4fc91bd4da87504aac85bedac974a33c8be2cfa9
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 6701
+#   started_at: '2026-11-01T00:21:32.041577+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

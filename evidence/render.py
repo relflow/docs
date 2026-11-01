@@ -8,9 +8,7 @@ import shutil
 from pathlib import Path
 from typing import Any
 
-import yaml
-
-from evidence.experiments.source import fingerprint, metadata
+from evidence.experiments.source import fingerprint, frontmatter, registry
 
 
 def clean(root: Path) -> None:
@@ -18,7 +16,7 @@ def clean(root: Path) -> None:
     docs = root / "docs/evidence"
     if not docs.exists():
         return
-    entries = yaml.safe_load((root / "evidence/results.yaml").read_text())["evidence"]
+    entries = registry(root / "evidence")
     pages = [(root / entry["page"]).resolve() for entry in entries.values()]
     for page in pages:
         if page.parent.parent != docs.resolve() or page.suffix != ".py":
@@ -32,7 +30,6 @@ def clean(root: Path) -> None:
         path = docs / name
         if path.exists():
             shutil.rmtree(path)
-    (docs / "catalog.yaml").unlink(missing_ok=True)
     for path in docs.iterdir():
         if path.is_dir() and not any(path.iterdir()):
             path.rmdir()
@@ -125,7 +122,10 @@ def evidence(entry: dict[str, Any]) -> str:
         if origin:
             sections.append(
                 f"Source fingerprint: `{origin['source_sha256']}`. "
-                f"Python {origin['python']}; Torch {origin['packages']['torch']}."
+                f"RelFlow {origin['packages']['relflow']}; Python {origin['python']}; "
+                f"Torch {origin['packages']['torch']}. "
+                f"Library revision: `{origin['relflow_revision']}`; "
+                f"evidence revision: `{origin['evidence_revision']}`."
             )
         if run.get("error"):
             sections.append("```text\n" + run["error"] + "\n```")
@@ -141,7 +141,10 @@ def evidence(entry: dict[str, Any]) -> str:
                 + "\n".join(f"| {value(name)} | {'Met' if met else 'Not met'} |" for name, met in run["checks"].items())
                 + "\n\n</details>"
             )
-    sections.append("[Recorded results](../_generated/results.yaml).")
+    report = entry["header"].get("evidence-report", {})
+    report_url = report.get("release") or report.get("github_run", {}).get("html_url")
+    if report_url:
+        sections.append(f"[Complete run report]({report_url}).")
     return "\n\n".join(sections) + "\n"
 
 
@@ -151,48 +154,33 @@ def write(path: Path, content: str) -> None:
         path.write_text(content)
 
 
-GROUPS = {
-    "aggregation": "Aggregation",
-    "structure": "Structure",
-    "state": "State",
-    "identity": "Identity",
-    "relational": "Relational",
-    "representation": "Representation",
-    "quantile": "Representation",
-    "enum": "Representation",
-    "cluster": "Representation",
-    "vocabulary": "Vocabulary",
-    "masking": "Masking",
-    "mutations": "Mutations",
-    "temporal": "Temporal",
-    "composition": "Composition",
-    "calibration": "Calibration",
-    "anomaly": "Anomaly",
-}
-GROUP_ORDER = list(dict.fromkeys(GROUPS.values()))
-
-
-def group(script: Path) -> str:
-    """Catalog group for an evidence experiment, from its folder; unknown folders keep their own name."""
-    return GROUPS.get(script.parent.name, script.parent.name.capitalize())
+GROUP_ORDER = [
+    "Aggregation",
+    "Structure",
+    "State",
+    "Identity",
+    "Relational",
+    "Representation",
+    "Vocabulary",
+    "Masking",
+    "Mutations",
+    "Temporal",
+    "Composition",
+    "Calibration",
+    "Anomaly",
+]
 
 
 def render(root: Path) -> None:
     docs = root / "docs/evidence"
-    source = root / "evidence/results.yaml"
-    recorded = source.read_text()
-    document = yaml.safe_load(recorded)
-    if document.get("schema") != 3:
-        raise ValueError(f"{source}: expected evidence schema 3")
-    entries = document["evidence"]
+    entries = registry(root / "evidence")
     output = docs / "_generated"
     output.mkdir(parents=True, exist_ok=True)
-    catalog = []
     pages = set()
     for identifier, entry in entries.items():
-        script = root / entry["script"]
+        script = root / "evidence" / entry["script"]
         code = script.read_text()
-        header = metadata(code)
+        header = entry["header"]
         if header["evidence-id"] != identifier:
             raise ValueError(f"{script}: evidence ID {header['evidence-id']} does not match {identifier}")
         if header.get("execute", {}).get("enabled") is not False or header.get("execute", {}).get("eval") is not False:
@@ -206,7 +194,6 @@ def render(root: Path) -> None:
             raise ValueError(f"{identifier}: another experiment already uses page {page}")
         pages.add(page)
         page.parent.mkdir(exist_ok=True)
-        write(page, code)
         run = entry["run"]
         if run is not None and run["mode"] != "full":
             raise ValueError(f"{identifier}: only full runs may be published")
@@ -228,6 +215,10 @@ def render(root: Path) -> None:
                 summary += (
                     " The experiment code has changed since this run; these measurements describe its earlier version."
                 )
+        group = header["evidence-group"]
+        group_order = GROUP_ORDER.index(group) if group in GROUP_ORDER else len(GROUP_ORDER)
+        published = dict(header, **{"evidence-status": state, "order": group_order * 10000 + int(identifier[1:])})
+        write(page, frontmatter(code, published))
         kind = "warning" if state in {"Failing", "Error"} else "note"
         write(
             output / f"{identifier}-status.md",
@@ -242,34 +233,15 @@ def render(root: Path) -> None:
             "Run from the relflow/docs repository's root:\n\n"
             f"```bash\nuv run --with /path/to/matching-relflow.whl python evidence/experiments/run.py {identifier}\n```\n\n"
             "Or, from a prepared evidence environment, run the self-contained script directly:\n\n"
-            f"```bash\nPYTHONPATH=evidence/experiments python {entry['script']}\n```\n\n"
+            f"```bash\nPYTHONPATH=evidence/experiments python evidence/{entry['script']}\n```\n\n"
             f"Add `--accelerator gpu` for CUDA or `--seed 42` for another seeded experiment. "
             "`--steps 2` checks execution with a short training budget; it is recorded as a smoke run.\n\n"
             f"[Download the complete evidence](../_generated/{identifier}.py).\n",
         )
         write(output / f"{identifier}.py", code)
-        catalog.append(
-            {
-                "id": identifier,
-                "title": header["title"],
-                "group": group(script),
-                "categories": header["categories"],
-                "path": page.relative_to(root / "docs").with_suffix(".html").as_posix(),
-                "evidence-status": state,
-                "description": header["description"],
-            }
-        )
     for page in docs.glob("*/*.py"):
         if page.parent != output and page not in pages:
             page.unlink()
-
-    def position(row: dict[str, Any]) -> tuple[int, str]:
-        order = GROUP_ORDER.index(row["group"]) if row["group"] in GROUP_ORDER else len(GROUP_ORDER)
-        return (order, row["id"])
-
-    catalog.sort(key=position)
-    write(docs / "catalog.yaml", yaml.safe_dump(catalog, sort_keys=False, allow_unicode=True))
-    write(output / "results.yaml", recorded)
 
 
 if __name__ == "__main__":

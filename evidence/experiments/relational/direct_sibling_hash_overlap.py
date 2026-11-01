@@ -19,6 +19,87 @@
 #   metric:
 #   - broken_auc
 #   format: auc
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Absolute positive break response <= 0.10: true
+#     Broken AUC remains in the chance band: true
+#     Finite metrics: true
+#     Intact AUC remains in the calibrated chance band: true
+#     Intervention removes all overlaps: true
+#     Invariant probability drift <= 0.15: true
+#     Labels are exactly balanced: true
+#     Labels match actual overlap: true
+#     Renamed and permuted AUC remains in the chance band: true
+#     Renaming and permutation preserve overlap: true
+#     invariant generator has balanced truthful labels: true
+#     invariant positive rows have exactly one overlap: true
+#     invariant sides have two to five unique members: true
+#     test generator has balanced truthful labels: true
+#     test positive rows have exactly one overlap: true
+#     test sides have two to five unique members: true
+#     train generator has balanced truthful labels: true
+#     train positive rows have exactly one overlap: true
+#     train sides have two to five unique members: true
+#     validate generator has balanced truthful labels: true
+#     validate positive rows have exactly one overlap: true
+#     validate sides have two to five unique members: true
+#   duration_seconds: 47.779
+#   metrics:
+#     broken_auc: 0.47284698486328125
+#     intact_auc: 0.5601234436035156
+#     invariant_auc: 0.6170501708984375
+#     invariant_drift: 0.12359561448101886
+#     positive_break_drop: 0.03347706462955102
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 688951bebf95cf9abf09ab239d7d47691aa6b15b77becac2d1a2d2ea5482871c
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 4c832cabf6cb
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 0df86956cf17c39b990203d8f93c3c179cca35914d6a6fad6063b61f0a9df614
+#     source_sha256: d3ecabcb11520695f70d619541cc612b1904b7260f47a5cc4d9f3db431e49dc0
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3711
+#   started_at: '2026-11-01T00:11:25.340824+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

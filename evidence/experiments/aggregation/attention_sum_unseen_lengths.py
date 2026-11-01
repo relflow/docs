@@ -21,6 +21,81 @@
 #   - unseen_score
 #   - nrmse
 #   format: error
+# evidence-group: Aggregation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     All measurements finite: true
+#     Seen nRMSE < 0.35, unseen nRMSE < 0.30, duplication and cardinality errors < 0.20: true
+#   duration_seconds: 40.583
+#   metrics:
+#     duplication_error: 0.07085658887561218
+#     in_range_score:
+#       baseline_rmse: 1.0401230906449561
+#       nrmse: 0.015460484500793705
+#       rmse: 0.01608080692183399
+#     probe_error: 0.04737908791419197
+#     probe_prediction:
+#     - 0.663047156025836
+#     - 1.9400064310296836
+#     - 3.7542805325034276
+#     probe_target:
+#     - 0.65
+#     - 1.9500000000000002
+#     - 3.9000000000000004
+#     steps: 1100
+#     unseen_score:
+#       baseline_rmse: 1.7874220810107455
+#       nrmse: 0.07348960132621424
+#       rmse: 0.1313569361351519
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: e45d9b8128fb9fd022fbe4f970b0f718529d3a8d6ec47ae8ee7cfa7d97f2b9eb
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 999c851b0d8f
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: b1df7e132512f7574f52c49afb6ced0635f1d86fc13127b34811dd1d7a7956df
+#     source_sha256: 39752aa0b4f2aa76aaaa992ebceefecf0dbb45484905f875a0e81473d5646813
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3615
+#   started_at: '2026-11-01T00:04:56.243156+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example
@@ -101,7 +176,7 @@
 
 Require unseen-length accuracy and exact complete-bag scaling together.
 
-Run: uv run python proofs/run.py P002"""
+Run: uv run python evidence/experiments/run.py P002"""
 
 from __future__ import annotations
 

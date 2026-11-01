@@ -4,8 +4,6 @@ The standalone documentation for [RelFlow](https://github.com/relflow/relflow).
 Examples start with payments, then add account history and larger workflows.
 Published at [relflow.ai](https://relflow.ai/).
 
-The saved [API contract](contracts/relflow.json) records the source used to
-review the public API.
 The site, its assets, canonical experiments, runners, and recorded results all
 live here. Building does not require the RelFlow package or
 another checkout.
@@ -29,7 +27,7 @@ make check-docs
 make render
 ```
 
-`make check` checks static examples and links, the saved API contract, and evidence
+`make check` checks static examples, links, and evidence
 reporting. `make check-docs` also renders all pages and checks their links,
 anchors, and Typst diagrams. HTML output goes to `docs/site/`.
 
@@ -50,15 +48,10 @@ visuals. Branding, fonts, styles, mobile scrolling behavior, and the vendored
 Typst extension live here. Regenerating branding is an optional maintenance
 task described in [its README](docs/assets/branding/README.md).
 
-[contracts/relflow.json](contracts/relflow.json) records the public options,
-value states, and attention modes used by reference checks. Refresh it when
-targeting a new package version; tests do not import RelFlow to discover options.
-
 ## Evidence
 
 Canonical experiments, the protocol, lab runner, and results live under
-[`evidence/`](evidence/README.md). `evidence/results.yaml` holds the reviewed
-publication records; `scripts/render_evidence.py` generates ignored pages under
+[`evidence/`](evidence/README.md). Each script owns its metadata and current result in frontmatter; `evidence/render.py` generates ignored pages under
 `docs/evidence/` directly from local canonical sources. There is no vendored
 snapshot or import/export step, and rendering never executes experiments.
 
@@ -70,7 +63,7 @@ The [lab guide](evidence/lab.md) describes its OIDC trust and isolation.
 `publish-evidence.yml` retains a selected complete run in an immutable Release
 in this repository, with JSON results, logs, an HTML report, tested wheels,
 runtime requirements, and checksums. It also validates a candidate update to
-`evidence/results.yaml` and uploads a review patch. Apply the patch on a branch
+the experiment frontmatter and uploads a review patch. Apply the patch on a branch
 at the recorded docs base and open a normal PR to publish those measurements.
 Ordinary builds read the committed results and need no runtime or cloud credentials.
 

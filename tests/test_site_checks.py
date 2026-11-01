@@ -4,7 +4,7 @@ from pathlib import Path
 
 import pytest
 
-from scripts.check import documents, rendered_checks, source_checks
+from tests.check_site import documents, rendered_checks, source_checks
 
 
 @pytest.fixture
@@ -94,8 +94,8 @@ def test_build_configuration_has_no_machine_learning_dependencies() -> None:
     config = tomllib.loads((root / "pyproject.toml").read_text())
     assert config["project"]["dependencies"] == ["pyyaml==6.0.3"]
     assert config["tool"]["uv"]["package"] is False
-    for name in ("check.py",):
-        text = (root / "scripts" / name).read_text()
+    for name in ("tests/check_site.py", "evidence/render.py"):
+        text = (root / name).read_text()
         assert "import relflow" not in text and "import torch" not in text
 
 

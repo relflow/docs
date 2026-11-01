@@ -17,7 +17,7 @@ import traceback
 from datetime import datetime, timezone
 from pathlib import Path
 
-import yaml
+from experiments.source import registry
 
 ROOT = Path(__file__).resolve().parent
 
@@ -31,10 +31,6 @@ def write_json(path: Path, value: object) -> None:
     with path.open("x") as handle:
         json.dump(value, handle, indent=2, sort_keys=True, allow_nan=False)
         handle.write("\n")
-
-
-def registry(root: Path = ROOT) -> dict:
-    return yaml.safe_load((root / "catalog.yaml").read_text())["experiments"]
 
 
 def default_seed(path: Path) -> int:

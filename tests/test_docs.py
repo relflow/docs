@@ -1,13 +1,14 @@
 from __future__ import annotations
 
 import ast
-import json
 import re
 from collections import Counter
 from pathlib import Path
 from urllib.parse import unquote, urlsplit
 
 import yaml
+
+from evidence.experiments.source import registry
 
 ROOT = Path(__file__).resolve().parents[1]
 DOCS = ROOT / "docs"
@@ -34,8 +35,8 @@ def markdown(source: Path) -> str:
 def documents() -> dict[Path, str]:
     """Resolve canonical authored sources in their published page directories."""
     pages = {source: markdown(source) for source in [ROOT / "README.md", *DOCS.rglob("*.qmd")]}
-    entries = yaml.safe_load((ROOT / "evidence/results.yaml").read_text())["evidence"]
-    pages.update({ROOT / entry["page"]: markdown(ROOT / entry["script"]) for entry in entries.values()})
+    entries = registry(ROOT / "evidence")
+    pages.update({ROOT / entry["page"]: markdown(ROOT / "evidence" / entry["script"]) for entry in entries.values()})
     return pages
 
 
@@ -121,12 +122,11 @@ def test_data_examples_are_single_yaml_records() -> None:
 def test_quarto_navigation_and_relative_links_resolve() -> None:
     pages = documents()
     published = {source.with_suffix(".html"): text for source, text in pages.items() if source.is_relative_to(DOCS)}
-    evidence = ROOT / "evidence/results.yaml"
-    entries = yaml.safe_load(evidence.read_text())["evidence"]
-    downloads = {DOCS / "evidence/_generated/results.yaml": evidence}
-    downloads.update(
-        {DOCS / f"evidence/_generated/{identifier}.py": ROOT / entry["script"] for identifier, entry in entries.items()}
-    )
+    entries = registry(ROOT / "evidence")
+    downloads = {
+        DOCS / f"evidence/_generated/{identifier}.py": ROOT / "evidence" / entry["script"]
+        for identifier, entry in entries.items()
+    }
     navigation = (DOCS / "_quarto.yml").read_text()
     hrefs = re.findall(r"^\s*-?\s*(?:href|logo|favicon|image):\s+([^\s]+)", navigation, flags=re.MULTILINE)
     missing_navigation = [
@@ -162,28 +162,11 @@ def test_quarto_navigation_and_relative_links_resolve() -> None:
     assert missing_anchors == []
 
 
-def test_datatype_references_cover_public_options_and_states() -> None:
-    contract = json.loads((ROOT / "contracts/relflow.json").read_text())
-    assert contract["schema"] == 1
-    assert contract["upstream"]["repository"] == "https://github.com/relflow/relflow"
-    assert contract["upstream"]["version"] == "0.3.6"
-    assert contract["upstream"]["branch"] == "stage/0.3.6"
-    assert contract["upstream"]["commit"] == "299413375f3c113e6750f75e81cb52736978b643"
-    for name, options in contract["fields"].items():
-        reference = (DOCS / f"datatypes/{name.lower()}.qmd").read_text()
-        for option in options:
-            assert f"`{option}`" in reference, f"{name}.{option} is missing from its reference"
-    data_types = (DOCS / "datatypes/index.qmd").read_text()
-    assert all(f"`{name}`" in data_types for name in contract["tokens"])
-    branch = (DOCS / "datatypes/branch.qmd").read_text()
-    assert all(mode in branch for mode in contract["attention_modes"])
-
-
 def test_every_registered_evidence_has_a_small_readable_overview() -> None:
-    entries = yaml.safe_load((ROOT / "evidence/results.yaml").read_text())["evidence"]
+    entries = registry(ROOT / "evidence")
     documented: Counter[str] = Counter()
     for entry in entries.values():
-        page = ROOT / entry["script"]
+        page = ROOT / "evidence" / entry["script"]
         text = markdown(page)
         header = re.match(r"\A---\s*\n(.*?)\n---(?:\n|\Z)", text, flags=re.DOTALL)
         assert header, f"{page}: missing evidence metadata"
@@ -191,11 +174,13 @@ def test_every_registered_evidence_has_a_small_readable_overview() -> None:
         identifier = metadata["evidence-id"]
         assert identifier in entries, f"{page}: unregistered evidence ID {identifier}"
         documented[identifier] += 1
-        assert ROOT / entries[identifier]["script"] == page, f"{page}: registered script does not match {identifier}"
+        assert ROOT / "evidence" / entries[identifier]["script"] == page, (
+            f"{page}: registered script does not match {identifier}"
+        )
         assert metadata.get("title") and metadata.get("description"), page
         assert metadata.get("categories"), f"{page}: missing evidence family"
         assert "evidence-source" not in metadata and "evidence-status" not in metadata, (
-            f"{page}: source and status belong in evidence/results.yaml"
+            f"{page}: status is derived from the measured result"
         )
         sections = set(re.findall(r"\{\{<\s*evidence\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
         expected = {(identifier, part) for part in ("status", "evidence", "script")}

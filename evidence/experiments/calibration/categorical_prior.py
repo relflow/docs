@@ -4,8 +4,8 @@
 # categories:
 # - Calibration
 # evidence-id: P060
-# description: Generate yes answers 90% of the time, independently of the input. The right probability is
-#   therefore 90%.
+# description: Generate yes answers 90% of the time, independently of the input. The right probability is therefore
+#   90%.
 # execute:
 #   enabled: false
 #   eval: false
@@ -26,6 +26,89 @@
 #   - capacity_2_novel
 #   - mean_probability
 #   format: percent
+# evidence-group: Calibration
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     'capacity_128: evaluation preserves vocabulary and counts': true
+#     'capacity_128_known: excess expected NLL below 0.02': true
+#     'capacity_128_known: probability RMSE below 0.06': true
+#     'capacity_128_novel: excess expected NLL below 0.02': true
+#     'capacity_128_novel: probability RMSE below 0.06': true
+#     'capacity_2: evaluation preserves vocabulary and counts': true
+#     'capacity_2_known: excess expected NLL below 0.02': true
+#     'capacity_2_known: probability RMSE below 0.06': true
+#     'capacity_2_novel: excess expected NLL below 0.02': true
+#     'capacity_2_novel: probability RMSE below 0.06': true
+#   duration_seconds: 24.542
+#   metrics:
+#     capacity_128_known:
+#       excess_nll: 0.003848288849967796
+#       mean_probability: 0.9214600841660285
+#       prior_rmse: 0.023813673134784153
+#     capacity_128_novel:
+#       excess_nll: 0.0008281659894981419
+#       mean_probability: 0.9117669463157654
+#       prior_rmse: 0.01176694631576536
+#     capacity_2_known:
+#       excess_nll: 0.0020148409127090927
+#       mean_probability: 0.9179295238791383
+#       prior_rmse: 0.017960789788258682
+#     capacity_2_novel:
+#       excess_nll: 0.001916919878346579
+#       mean_probability: 0.917550802230835
+#       prior_rmse: 0.017550802230834935
+#     oracle_nll: 0.3250829733914482
+#     prior: 0.9
+#     weighted_optimum: 0.75
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 563840f2eabed8b426e608be2bfe733d903104b23e1802c9f71596d5e4d3d4e4
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: cc4f2c32620c
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 6c6f1b408fc2bb37c78d5769df2be811d11141698802b7c2c10f2766bb693b6b
+#     source_sha256: 188b8be18942b894c5b652549a354de38d3b6d2ed4d0c8029e8be03ac34f2a8f
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7601
+#   started_at: '2026-11-01T00:20:53.344869+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

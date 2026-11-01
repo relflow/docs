@@ -4,8 +4,8 @@
 # categories:
 # - Vocabulary
 # evidence-id: P062
-# description: Hide a categorical answer and reconstruct it from numeric context, while varying how many
-#   test answers belong to the learned vocabulary.
+# description: Hide a categorical answer and reconstruct it from numeric context, while varying how many test answers
+#   belong to the learned vocabulary.
 # execute:
 #   enabled: false
 #   eval: false
@@ -27,6 +27,124 @@
 #   - known_102
 #   - accuracy.all
 #   format: percent
+# evidence-group: Vocabulary
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     '0: coverage matches selected targets': true
+#     '0: exact known and unavailable target counts': true
+#     '1024: all-target accuracy includes unavailable errors': true
+#     '1024: coverage matches selected targets': true
+#     '1024: exact known and unavailable target counts': true
+#     '1024: known accuracy exceeds 0.95': true
+#     '102: all-target accuracy includes unavailable errors': true
+#     '102: coverage matches selected targets': true
+#     '102: exact known and unavailable target counts': true
+#     '102: known accuracy exceeds 0.95': true
+#     '512: all-target accuracy includes unavailable errors': true
+#     '512: coverage matches selected targets': true
+#     '512: exact known and unavailable target counts': true
+#     '512: known accuracy exceeds 0.95': true
+#     All-OOV all-target accuracy is zero: true
+#     All-OOV conditional scores are undefined: true
+#     Rebatching preserves counts and scores: true
+#     Validation leaves mapping and exposures frozen: true
+#   duration_seconds: 8.943
+#   metrics:
+#     batch_partition_drift: 0.0
+#     known_0:
+#       accuracy.all: 0.0
+#       accuracy.content: null
+#       accuracy.state: 1.0
+#       coverage.content: 0.0
+#       loss.content: null
+#       loss.state: 7.992463906703051e-06
+#       nll.content: null
+#       targets.known: 0.0
+#       targets.unavailable: 1024.0
+#       vocabulary.size: 8.0
+#     known_102:
+#       accuracy.all: 0.099609375
+#       accuracy.content: 1.0
+#       accuracy.state: 1.0
+#       coverage.content: 0.099609375
+#       loss.content: 3.7689285818487406e-05
+#       loss.state: 7.992463906703051e-06
+#       nll.content: 3.7689285818487406e-05
+#       targets.known: 102.0
+#       targets.unavailable: 922.0
+#       vocabulary.size: 8.0
+#     known_1024:
+#       accuracy.all: 1.0
+#       accuracy.content: 1.0
+#       accuracy.state: 1.0
+#       coverage.content: 1.0
+#       loss.content: 3.8553673221031204e-05
+#       loss.state: 7.992463906703051e-06
+#       nll.content: 3.8553673221031204e-05
+#       targets.known: 1024.0
+#       targets.unavailable: 0.0
+#       vocabulary.size: 8.0
+#     known_512:
+#       accuracy.all: 0.5
+#       accuracy.content: 1.0
+#       accuracy.state: 1.0
+#       coverage.content: 0.5
+#       loss.content: 3.843376543954946e-05
+#       loss.state: 7.992463906703051e-06
+#       nll.content: 3.843376543954946e-05
+#       targets.known: 512.0
+#       targets.unavailable: 512.0
+#       vocabulary.size: 8.0
+#     reported_content_loss_drift: 0.0
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 70b400280ee63cdbb14fb2bf2246b271f71cb8a2e8ef315f2b9a3ef5f3e9dbd7
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 4193607e0428
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 92cad3c74adbe9d7488b3f0c597451d372a2178683a908b9b1f4fe680f1fad0a
+#     source_sha256: 1e827fbc27359276e3ed2749d8b8e3f882beb1d509eec21b3667affd780fbd50
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7621
+#   started_at: '2026-11-01T00:21:04.103841+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

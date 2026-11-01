@@ -35,6 +35,570 @@
 #   - u
 #   - nrmse
 #   format: error
+# evidence-group: Mutations
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Complete reset loses both learned tasks: true
+#     Hidden target placeholders cannot affect predictions: true
+#     Relearned checkpoint preserves predictions: true
+#     Relearned checkpoint preserves schema and state: true
+#     Reset changes selected learned state: true
+#     Reset head parameters actually relearn: true
+#     Reset preserves every unselected state entry: true
+#     Reset preserves the schema: true
+#     Selected target immediately loses its skill: true
+#     Source learns both targets below 0.25 nRMSE: true
+#     Unselected target immediately preserves predictions: true
+#     'complete_reset: both final targets below 0.25 nRMSE': true
+#     'complete_reset: fresh optimizer covers current parameters': true
+#     'continuation: both final targets below 0.25 nRMSE': true
+#     'continuation: fresh optimizer covers current parameters': true
+#     'selective_reset: both final targets below 0.25 nRMSE': true
+#     'selective_reset: fresh optimizer covers current parameters': true
+#   duration_seconds: 42.294
+#   metrics:
+#     arms:
+#       complete_reset:
+#         after:
+#           u:
+#             baseline_rmse: 1.3095368006346164
+#             nrmse: 0.021974634224565144
+#             rmse: 0.028776592197552985
+#           v:
+#             baseline_rmse: 1.3299997452869836
+#             nrmse: 0.04058309755202279
+#             rmse: 0.05397550940714712
+#         before:
+#           u:
+#             baseline_rmse: 1.3095368006346164
+#             nrmse: 1.0754545900036776
+#             rmse: 1.408347363021229
+#           v:
+#             baseline_rmse: 1.3299997452869836
+#             nrmse: 1.076282389877726
+#             rmse: 1.4314553043942415
+#         changed_state_entries:
+#         - nodes./a.embedder.embeddings.weight
+#         - nodes./a.embedder.counter.counts
+#         - nodes./a.embedder.linear.weight
+#         - nodes./a.embedder.linear.bias
+#         - nodes./a.embedder.scalar.weight
+#         - nodes./a.embedder.normalizers.raw.mean
+#         - nodes./a.embedder.normalizers.raw.var
+#         - nodes./a.embedder.normalizers.raw.count
+#         - nodes./a.embedder.normalizers.log.mean
+#         - nodes./a.embedder.normalizers.log.var
+#         - nodes./a.embedder.normalizers.log.count
+#         - nodes./b.embedder.embeddings.weight
+#         - nodes./b.embedder.counter.counts
+#         - nodes./b.embedder.linear.weight
+#         - nodes./b.embedder.linear.bias
+#         - nodes./b.embedder.scalar.weight
+#         - nodes./b.embedder.normalizers.raw.mean
+#         - nodes./b.embedder.normalizers.raw.var
+#         - nodes./b.embedder.normalizers.raw.count
+#         - nodes./b.embedder.normalizers.log.mean
+#         - nodes./b.embedder.normalizers.log.var
+#         - nodes./b.embedder.normalizers.log.count
+#         - nodes./u.embedder.embeddings.weight
+#         - nodes./u.embedder.counter.counts
+#         - nodes./u.embedder.linear.weight
+#         - nodes./u.embedder.linear.bias
+#         - nodes./u.embedder.scalar.weight
+#         - nodes./u.embedder.normalizers.raw.mean
+#         - nodes./u.embedder.normalizers.raw.var
+#         - nodes./u.embedder.normalizers.raw.count
+#         - nodes./u.embedder.normalizers.log.mean
+#         - nodes./u.embedder.normalizers.log.var
+#         - nodes./u.embedder.normalizers.log.count
+#         - nodes./u.decoder.context_projection.0.weight
+#         - nodes./u.decoder.context_projection.1.weight
+#         - nodes./u.decoder.context_projection.1.bias
+#         - nodes./u.decoder.context_projection.3.weight
+#         - nodes./u.decoder.context_projection.3.bias
+#         - nodes./u.decoder.pool.queries
+#         - nodes./u.decoder.pool.blocks.0.attention_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.head_scale
+#         - nodes./u.decoder.pool.blocks.0.attention.q_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.q_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.k_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.k_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.v_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.v_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.out_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.out_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.q_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.k_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn.0.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn.0.bias
+#         - nodes./u.decoder.pool.blocks.0.ffn.3.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn.3.bias
+#         - nodes./u.decoder.pool.norm.weight
+#         - nodes./u.decoder.classification.weight
+#         - nodes./u.decoder.classification.bias
+#         - nodes./u.decoder.regression.weight
+#         - nodes./u.decoder.regression.bias
+#         - nodes./u.decoder.normalizer.mean
+#         - nodes./u.decoder.normalizer.var
+#         - nodes./u.decoder.normalizer.count
+#         - nodes./v.embedder.embeddings.weight
+#         - nodes./v.embedder.counter.counts
+#         - nodes./v.embedder.linear.weight
+#         - nodes./v.embedder.linear.bias
+#         - nodes./v.embedder.scalar.weight
+#         - nodes./v.embedder.normalizers.raw.mean
+#         - nodes./v.embedder.normalizers.raw.var
+#         - nodes./v.embedder.normalizers.raw.count
+#         - nodes./v.embedder.normalizers.log.mean
+#         - nodes./v.embedder.normalizers.log.var
+#         - nodes./v.embedder.normalizers.log.count
+#         - nodes./v.decoder.context_projection.0.weight
+#         - nodes./v.decoder.context_projection.1.weight
+#         - nodes./v.decoder.context_projection.1.bias
+#         - nodes./v.decoder.context_projection.3.weight
+#         - nodes./v.decoder.context_projection.3.bias
+#         - nodes./v.decoder.pool.queries
+#         - nodes./v.decoder.pool.blocks.0.attention_norm.weight
+#         - nodes./v.decoder.pool.blocks.0.ffn_norm.weight
+#         - nodes./v.decoder.pool.blocks.0.attention.head_scale
+#         - nodes./v.decoder.pool.blocks.0.attention.q_proj.weight
+#         - nodes./v.decoder.pool.blocks.0.attention.q_proj.bias
+#         - nodes./v.decoder.pool.blocks.0.attention.k_proj.weight
+#         - nodes./v.decoder.pool.blocks.0.attention.k_proj.bias
+#         - nodes./v.decoder.pool.blocks.0.attention.v_proj.weight
+#         - nodes./v.decoder.pool.blocks.0.attention.v_proj.bias
+#         - nodes./v.decoder.pool.blocks.0.attention.out_proj.weight
+#         - nodes./v.decoder.pool.blocks.0.attention.out_proj.bias
+#         - nodes./v.decoder.pool.blocks.0.attention.q_norm.weight
+#         - nodes./v.decoder.pool.blocks.0.attention.k_norm.weight
+#         - nodes./v.decoder.pool.blocks.0.ffn.0.weight
+#         - nodes./v.decoder.pool.blocks.0.ffn.0.bias
+#         - nodes./v.decoder.pool.blocks.0.ffn.3.weight
+#         - nodes./v.decoder.pool.blocks.0.ffn.3.bias
+#         - nodes./v.decoder.pool.norm.weight
+#         - nodes./v.decoder.classification.weight
+#         - nodes./v.decoder.classification.bias
+#         - nodes./v.decoder.regression.weight
+#         - nodes./v.decoder.regression.bias
+#         - nodes./v.decoder.normalizer.mean
+#         - nodes./v.decoder.normalizer.var
+#         - nodes./v.decoder.normalizer.count
+#         - nodes./.encoder.encoder.0.attention_norm.weight
+#         - nodes./.encoder.encoder.0.ffn_norm.weight
+#         - nodes./.encoder.encoder.0.attention.head_scale
+#         - nodes./.encoder.encoder.0.attention.q_proj.weight
+#         - nodes./.encoder.encoder.0.attention.q_proj.bias
+#         - nodes./.encoder.encoder.0.attention.k_proj.weight
+#         - nodes./.encoder.encoder.0.attention.k_proj.bias
+#         - nodes./.encoder.encoder.0.attention.v_proj.weight
+#         - nodes./.encoder.encoder.0.attention.v_proj.bias
+#         - nodes./.encoder.encoder.0.attention.out_proj.weight
+#         - nodes./.encoder.encoder.0.attention.out_proj.bias
+#         - nodes./.encoder.encoder.0.attention.q_norm.weight
+#         - nodes./.encoder.encoder.0.attention.k_norm.weight
+#         - nodes./.encoder.encoder.0.ffn.0.weight
+#         - nodes./.encoder.encoder.0.ffn.0.bias
+#         - nodes./.encoder.encoder.0.ffn.3.weight
+#         - nodes./.encoder.encoder.0.ffn.3.bias
+#         - nodes./.encoder.coordinate_encoder.attention_norm.weight
+#         - nodes./.encoder.coordinate_encoder.ffn_norm.weight
+#         - nodes./.encoder.coordinate_encoder.attention.head_scale
+#         - nodes./.encoder.coordinate_encoder.attention.q_proj.weight
+#         - nodes./.encoder.coordinate_encoder.attention.q_proj.bias
+#         - nodes./.encoder.coordinate_encoder.attention.k_proj.weight
+#         - nodes./.encoder.coordinate_encoder.attention.k_proj.bias
+#         - nodes./.encoder.coordinate_encoder.attention.v_proj.weight
+#         - nodes./.encoder.coordinate_encoder.attention.v_proj.bias
+#         - nodes./.encoder.coordinate_encoder.attention.out_proj.weight
+#         - nodes./.encoder.coordinate_encoder.attention.out_proj.bias
+#         - nodes./.encoder.coordinate_encoder.attention.q_norm.weight
+#         - nodes./.encoder.coordinate_encoder.attention.k_norm.weight
+#         - nodes./.encoder.coordinate_encoder.ffn.0.weight
+#         - nodes./.encoder.coordinate_encoder.ffn.0.bias
+#         - nodes./.encoder.coordinate_encoder.ffn.3.weight
+#         - nodes./.encoder.coordinate_encoder.ffn.3.bias
+#         - nodes./.encoder.pool.queries
+#         - nodes./.encoder.pool.mass_direction
+#         - nodes./.encoder.pool.blocks.0.attention_norm.weight
+#         - nodes./.encoder.pool.blocks.0.ffn_norm.weight
+#         - nodes./.encoder.pool.blocks.0.attention.head_scale
+#         - nodes./.encoder.pool.blocks.0.attention.q_proj.weight
+#         - nodes./.encoder.pool.blocks.0.attention.q_proj.bias
+#         - nodes./.encoder.pool.blocks.0.attention.k_proj.weight
+#         - nodes./.encoder.pool.blocks.0.attention.k_proj.bias
+#         - nodes./.encoder.pool.blocks.0.attention.v_proj.weight
+#         - nodes./.encoder.pool.blocks.0.attention.v_proj.bias
+#         - nodes./.encoder.pool.blocks.0.attention.out_proj.weight
+#         - nodes./.encoder.pool.blocks.0.attention.out_proj.bias
+#         - nodes./.encoder.pool.blocks.0.attention.q_norm.weight
+#         - nodes./.encoder.pool.blocks.0.attention.k_norm.weight
+#         - nodes./.encoder.pool.blocks.0.ffn.0.weight
+#         - nodes./.encoder.pool.blocks.0.ffn.0.bias
+#         - nodes./.encoder.pool.blocks.0.ffn.3.weight
+#         - nodes./.encoder.pool.blocks.0.ffn.3.bias
+#         - nodes./.encoder.pool.norm.weight
+#         - nodes./.encoder.pool.mass_projection.weight
+#         initial_prediction_drift:
+#           u: 3.2319892467738436
+#           v: 3.4135874313300847
+#         optimizer_covers_current_parameters: true
+#         steps: 256
+#         validation_curve:
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 1.0717364556897648
+#               rmse: 1.4167276343671031
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 1.0915005748356803
+#               rmse: 1.4204260031786007
+#           step: 0
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.042266329488635034
+#               rmse: 0.05587182993721719
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.11351702289735092
+#               rmse: 0.1477255576810778
+#           step: 32
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.03801136996607654
+#               rmse: 0.050247202066513286
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.03282601049766878
+#               rmse: 0.04271818079300773
+#           step: 128
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.022688586462311863
+#               rmse: 0.029992025796301877
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.04058621802789518
+#               rmse: 0.052816939163020854
+#           step: 256
+#       continuation:
+#         after:
+#           u:
+#             baseline_rmse: 1.3095368006346164
+#             nrmse: 0.009317648261764334
+#             rmse: 0.01220180329414956
+#           v:
+#             baseline_rmse: 1.3299997452869836
+#             nrmse: 0.013346120695056361
+#             rmse: 0.0177503371249943
+#         before:
+#           u:
+#             baseline_rmse: 1.3095368006346164
+#             nrmse: 0.03906345643191986
+#             rmse: 0.05115503375758606
+#           v:
+#             baseline_rmse: 1.3299997452869836
+#             nrmse: 0.021785454454026798
+#             rmse: 0.028974648874816825
+#         changed_state_entries: []
+#         initial_prediction_drift:
+#           u: 0.0
+#           v: 0.0
+#         optimizer_covers_current_parameters: true
+#         steps: 256
+#         validation_curve:
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.038480521940841346
+#               rmse: 0.050867373717704736
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.021636498490811007
+#               rmse: 0.02815669160660699
+#           step: 0
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.05953565449582029
+#               rmse: 0.07870013799248443
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.07286833217002874
+#               rmse: 0.09482731957163336
+#           step: 32
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.011675550315067326
+#               rmse: 0.015433901394306549
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.007781872252997481
+#               rmse: 0.010126951791331601
+#           step: 128
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.00944980231037823
+#               rmse: 0.01249168674009751
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.01330915628352485
+#               rmse: 0.01731989162564808
+#           step: 256
+#       selective_reset:
+#         after:
+#           u:
+#             baseline_rmse: 1.3095368006346164
+#             nrmse: 0.0611153532767438
+#             rmse: 0.0800328041996814
+#           v:
+#             baseline_rmse: 1.3299997452869836
+#             nrmse: 0.015086485446637432
+#             rmse: 0.02006502180130357
+#         before:
+#           u:
+#             baseline_rmse: 1.3095368006346164
+#             nrmse: 1.1079495613817283
+#             rmse: 1.4509007238763552
+#           v:
+#             baseline_rmse: 1.3299997452869836
+#             nrmse: 0.021785454454026798
+#             rmse: 0.028974648874816825
+#         changed_state_entries:
+#         - nodes./u.embedder.embeddings.weight
+#         - nodes./u.embedder.counter.counts
+#         - nodes./u.embedder.linear.weight
+#         - nodes./u.embedder.linear.bias
+#         - nodes./u.embedder.scalar.weight
+#         - nodes./u.embedder.normalizers.raw.mean
+#         - nodes./u.embedder.normalizers.raw.var
+#         - nodes./u.embedder.normalizers.raw.count
+#         - nodes./u.embedder.normalizers.log.mean
+#         - nodes./u.embedder.normalizers.log.var
+#         - nodes./u.embedder.normalizers.log.count
+#         - nodes./u.decoder.context_projection.0.weight
+#         - nodes./u.decoder.context_projection.1.weight
+#         - nodes./u.decoder.context_projection.1.bias
+#         - nodes./u.decoder.context_projection.3.weight
+#         - nodes./u.decoder.context_projection.3.bias
+#         - nodes./u.decoder.pool.queries
+#         - nodes./u.decoder.pool.blocks.0.attention_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.head_scale
+#         - nodes./u.decoder.pool.blocks.0.attention.q_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.q_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.k_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.k_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.v_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.v_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.out_proj.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.out_proj.bias
+#         - nodes./u.decoder.pool.blocks.0.attention.q_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.attention.k_norm.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn.0.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn.0.bias
+#         - nodes./u.decoder.pool.blocks.0.ffn.3.weight
+#         - nodes./u.decoder.pool.blocks.0.ffn.3.bias
+#         - nodes./u.decoder.pool.norm.weight
+#         - nodes./u.decoder.classification.weight
+#         - nodes./u.decoder.classification.bias
+#         - nodes./u.decoder.regression.weight
+#         - nodes./u.decoder.regression.bias
+#         - nodes./u.decoder.normalizer.mean
+#         - nodes./u.decoder.normalizer.var
+#         - nodes./u.decoder.normalizer.count
+#         initial_prediction_drift:
+#           u: 3.297214376243461
+#           v: 0.0
+#         optimizer_covers_current_parameters: true
+#         reset_head_updated_parameters:
+#         - embedder.embeddings.weight
+#         - embedder.linear.weight
+#         - embedder.scalar.weight
+#         - decoder.context_projection.0.weight
+#         - decoder.context_projection.1.weight
+#         - decoder.context_projection.1.bias
+#         - decoder.context_projection.3.weight
+#         - decoder.context_projection.3.bias
+#         - decoder.pool.queries
+#         - decoder.pool.blocks.0.attention_norm.weight
+#         - decoder.pool.blocks.0.ffn_norm.weight
+#         - decoder.pool.blocks.0.attention.head_scale
+#         - decoder.pool.blocks.0.attention.q_proj.weight
+#         - decoder.pool.blocks.0.attention.q_proj.bias
+#         - decoder.pool.blocks.0.attention.k_proj.weight
+#         - decoder.pool.blocks.0.attention.k_proj.bias
+#         - decoder.pool.blocks.0.attention.v_proj.weight
+#         - decoder.pool.blocks.0.attention.v_proj.bias
+#         - decoder.pool.blocks.0.attention.out_proj.weight
+#         - decoder.pool.blocks.0.attention.out_proj.bias
+#         - decoder.pool.blocks.0.attention.q_norm.weight
+#         - decoder.pool.blocks.0.attention.k_norm.weight
+#         - decoder.pool.blocks.0.ffn.0.weight
+#         - decoder.pool.blocks.0.ffn.0.bias
+#         - decoder.pool.blocks.0.ffn.3.weight
+#         - decoder.pool.blocks.0.ffn.3.bias
+#         - decoder.pool.norm.weight
+#         - decoder.classification.weight
+#         - decoder.classification.bias
+#         - decoder.regression.weight
+#         - decoder.regression.bias
+#         steps: 256
+#         validation_curve:
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 1.0969391621473115
+#               rmse: 1.4500430735403174
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.021636498490811007
+#               rmse: 0.02815669160660699
+#           step: 0
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.04596460903108004
+#               rmse: 0.06076058295068473
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.07448751366000878
+#               rmse: 0.09693444397015176
+#           step: 32
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.01737968206476202
+#               rmse: 0.022974188968701154
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.00993420707741747
+#               rmse: 0.01292789612671434
+#           step: 128
+#         - scores:
+#             u:
+#               baseline_rmse: 1.3218992662289384
+#               nrmse: 0.059823203206791825
+#               rmse: 0.07908024842252279
+#             v:
+#               baseline_rmse: 1.3013515850804187
+#               nrmse: 0.015615807338391338
+#               rmse: 0.020321655632126002
+#           step: 256
+#     baseline: Source-training mean for test comparisons; phase-training mean for validation curves
+#     downstream_interpretable: true
+#     mutation: reset /u; complete-reset control resets record with descendants=True
+#     optimizer_policy: New AdamW factory and Trainer for every fit; both hidden labels rehearsed
+#     source:
+#       u:
+#         baseline_rmse: 1.3095368006346164
+#         nrmse: 0.03906345643191986
+#         rmse: 0.05115503375758606
+#       v:
+#         baseline_rmse: 1.3299997452869836
+#         nrmse: 0.021785454454026798
+#         rmse: 0.028974648874816825
+#     source_fit:
+#       optimizer_covers_current_parameters: true
+#       steps: 512
+#       validation_curve:
+#       - scores:
+#           u:
+#             baseline_rmse: 1.3363771131216209
+#             nrmse: 0.9802431086852679
+#             rmse: 1.3099744557421815
+#           v:
+#             baseline_rmse: 1.2518777806823944
+#             nrmse: 1.3070605619809677
+#             rmse: 1.636280075550217
+#         step: 0
+#       - scores:
+#           u:
+#             baseline_rmse: 1.3363771131216209
+#             nrmse: 0.048544761465038895
+#             rmse: 0.06487410818382638
+#           v:
+#             baseline_rmse: 1.2518777806823944
+#             nrmse: 0.05565530129411444
+#             rmse: 0.06967363506728598
+#         step: 32
+#       - scores:
+#           u:
+#             baseline_rmse: 1.3363771131216209
+#             nrmse: 0.012703294783821564
+#             rmse: 0.016976392410336407
+#           v:
+#             baseline_rmse: 1.2518777806823944
+#             nrmse: 0.018296239865371232
+#             rmse: 0.02290465615749369
+#         step: 128
+#       - scores:
+#           u:
+#             baseline_rmse: 1.3363771131216209
+#             nrmse: 0.03879393358536631
+#             rmse: 0.05184332497144372
+#           v:
+#             baseline_rmse: 1.2518777806823944
+#             nrmse: 0.022948694070572005
+#             rmse: 0.028728960202626906
+#         step: 512
+#     source_prerequisite_met: true
+#     test_rows: 1024
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 38ba15dca45ae4193572bbdffc2e9102f836a9f131de47a6567891b108f331b4
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 9903486d1121
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 73c3769484e61244b7e976d24319bef7b188a483e704020236e9ba7144dd83c8
+#     source_sha256: 1a3af41e826ed777d8b46db8e5616e45d2798447e416d15aa0751ae0465e956e
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 4801
+#   started_at: '2026-11-01T00:19:30.951661+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

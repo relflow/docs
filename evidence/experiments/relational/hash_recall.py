@@ -4,8 +4,8 @@
 # categories:
 # - Associative recall
 # evidence-id: P025
-# description: Mix source values and questions in different positions. Use unfamiliar IDs to connect each
-#   question to its source, and judge the result over a panel of three seeds.
+# description: Mix source values and questions in different positions. Use unfamiliar IDs to connect each question
+#   to its source, and judge the result over a panel of three seeds.
 # execute:
 #   enabled: false
 #   eval: false
@@ -27,6 +27,89 @@
 #   - worst
 #   - intact_nrmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Every seed beats the constant baseline (intact nRMSE <= 0.90): true
+#     Every seed is hurt by changed IDs: true
+#     Finite errors on every seed: true
+#     Median broken identities nRMSE >= 0.80: true
+#     Median corruption gap >= 0.50: true
+#     Median identity recall nRMSE <= 0.25: true
+#   duration_seconds: 479.592
+#   metrics:
+#     median:
+#       broken_nrmse: 1.4012215913221622
+#       corruption_gap: 1.3173955027608504
+#       intact_nrmse: 0.10010429050787188
+#     trials:
+#     - broken_nrmse: 1.4012215913221622
+#       corruption_gap: 1.3630558461983964
+#       intact_nrmse: 0.03816574512376591
+#       seed: 17
+#       steps: 800
+#     - broken_nrmse: 1.3491708234554782
+#       corruption_gap: 1.2152835816617311
+#       intact_nrmse: 0.133887241793747
+#       seed: 117
+#       steps: 800
+#     - broken_nrmse: 1.4174997932687223
+#       corruption_gap: 1.3173955027608504
+#       intact_nrmse: 0.10010429050787188
+#       seed: 217
+#       steps: 800
+#     worst:
+#       corruption_gap: 1.2152835816617311
+#       intact_nrmse: 0.133887241793747
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 47897136c68014b2b6f05ac4792428cfd059acd054b9f9791c6ff63941000255
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 2f16e858a23d
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 602820be6dc8ea01e37c0b78b2a5805582e59304d3ae9ce815e74c02abd48c05
+#     source_sha256: 6265d6af009c8c3e71e507fb5a632933c6b04472bac895cb2248719280d516c2
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 17
+#   started_at: '2026-11-01T00:09:57.463471+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

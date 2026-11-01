@@ -4,8 +4,7 @@
 # categories:
 # - Cardinality generalization
 # evidence-id: P005
-# description: Give the model both a repeated amount and its count, then test larger counts absent from
-#   training.
+# description: Give the model both a repeated amount and its count, then test larger counts absent from training.
 # execute:
 #   enabled: false
 #   eval: false
@@ -17,6 +16,68 @@
 #   - unseen_score
 #   - nrmse
 #   format: error
+# evidence-group: Aggregation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     All measurements finite: true
+#     Unseen nRMSE below 0.40 and duplication error below 0.20: true
+#   duration_seconds: 18.662
+#   metrics:
+#     duplication_error: 0.1253142277019298
+#     steps: 700
+#     unseen_score:
+#       baseline_rmse: 4.8922481485064635
+#       nrmse: 0.18511797591621246
+#       rmse: 0.9056430749313544
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 1a62202d8b5a063cd295f44a5c1f3093274da373fb5c3863af5c8ef22caf70fa
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 6c361770e471
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 7db3e5d3eec0e097f794ff7eae276e5d0298f59a8c9ef649b41aac0440fdcd8c
+#     source_sha256: e5d8c6c41d8b9ceed174b1927b73b86fbc88e8882758a02c5d2a792656b80ed5
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3621
+#   started_at: '2026-11-01T00:05:11.253178+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example
@@ -99,7 +160,7 @@
 
 Require count-aware sum accuracy and duplication scaling out of range.
 
-Run: uv run python proofs/run.py P005"""
+Run: uv run python evidence/experiments/run.py P005"""
 
 from __future__ import annotations
 
