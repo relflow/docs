@@ -10,10 +10,9 @@ has one `trxns` branch containing earlier payments and the latest payment.
 Its fields build transaction context, and `disputed=rf.Boolean(mask=True)`
 requests a dispute prediction at every retained transaction coordinate.
 
-This explanation follows the
-[execution plan](https://github.com/relflow/relflow/blob/8d9d6cfd8ce22a7819c2b5392c710d4f2cbe1a7c/src/relflow/architecture/runtime.py)
-introduced in 0.2.4. The current pages are checked against RelFlow 0.3.6
-([pinned source](https://github.com/relflow/relflow/tree/299413375f3c113e6750f75e81cb52736978b643)).
+This explanation follows RelFlow 0.4.1's
+[execution plan](https://github.com/relflow/relflow/blob/1b95c334d5a1251c37ac5323b7dcec750550908e/src/relflow/architecture/runtime.py)
+and [branch encoder](https://github.com/relflow/relflow/blob/1b95c334d5a1251c37ac5323b7dcec750550908e/src/relflow/architecture/encoder.py).
 
 ## Context moves toward the root
 
@@ -39,6 +38,13 @@ branches after those branches have encoded and reduced their own children.
 For this model, `trxns` processes the fields at its transaction positions first.
 The root then receives the branch's output, without duplicate root amount or
 merchant fields. With more nesting, the same rule repeats at each level.
+
+When a parent has its own input fields, context also moves one step down
+before a child branch encodes. A learned projection of the mean of the
+parent's present field embeddings reaches every child token and its reduction
+queries. Account-level inputs can therefore condition transaction
+representations before the history is summarized.
+
 Branches at one depth form a group in the execution plan; this grouping
 describes dependencies, without promising parallel execution.
 
@@ -49,10 +55,14 @@ addresses, see [Model tree](model-tree.qmd).
 ## A decoder reads its path
 
 A target decoder receives the representations retained along its heritage:
-the schema path through its ancestors to the field. A nested target can
-therefore use both local branch context and broader root context. Decoding
-starts after context has been built; it does not reconstruct the input tree
-one parent prediction at a time.
+the schema path through its ancestors to the field. A reduced ancestor branch
+supplies both the summary it sends to its parent and its encoded sequence,
+the tokens after that branch's own layers. A nested target can
+therefore read individual sibling transactions and individual root fields as
+well as their summaries. A reduced branch with no descendant decoder only needs
+its summary; it does not retain a separate decoder sequence. Decoding starts after context
+has been built; it does not reconstruct the input tree one parent prediction at
+a time.
 
 Query pooling uses learned queries shaped for the target's coordinates. Where
 sibling representations align with those coordinates, the decoder can also
@@ -72,7 +82,7 @@ reconstruction objective. These roles have their own explanations in
 
 ## Read the result
 
-Output format 2 returns decoded fields in a `predictions` tree
+Prediction returns decoded fields in a `predictions` tree
 and requested embeddings in a separate `representations` column. Only selected
 columns appear. Repeated decoded siblings share one record collection; branch
 representations retain their own output indices and ancestor coordinates.

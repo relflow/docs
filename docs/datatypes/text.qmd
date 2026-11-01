@@ -48,6 +48,8 @@ separate state. Tokenization pads and truncates at `max_length`.
 | `encoder_batch_size` | `32` | Maximum flattened text values per frozen-encoder call. |
 | `encoder_pooling` | `"cls"` | `"cls"`, `"mean"`, or `"pooler"`; the last requires `pooler_output`. |
 | `cache` | `False` | Reuse pooled frozen-encoder outputs and token rows: `True` keeps every distinct embedding; a positive integer caps retained entries. |
+| `store` | `None` | Directory of persistent frozen-encoder vectors shared by every run, split, and field with the same encoder. |
+| `resident` | `None` | Accelerator memory in MiB a store may occupy for on-device lookups; `None` automatically budgets CUDA up to a quarter of total device memory, capped at 2 GiB; `0` keeps the store on the host. |
 | `objective` | `"l2"` | Embedding reconstruction loss: `"l1"` or `"l2"`. |
 | `jitter` | `rf.Jitter()` | Training noise on the pooled frozen embedding before learned projection. |
 
@@ -85,6 +87,49 @@ Checkpoints retain the `cache` setting but omit cached embeddings and token
 rows; a loaded or copied model starts cold. Under DDP, each process builds its
 own caches. Use a finite cap when inputs contain many distinct descriptions:
 `cache=True` has no embedding limit and can keep growing in host memory.
+
+## Persistent store
+
+Frozen encoder vectors can be reused across tasks, splits, and training
+runs when their encoder configuration and token rows match:
+
+```python
+model = rf.Model.xs(
+    amount=rf.Number,
+    merchant=rf.Category,
+    memo=rf.Text(store="embeddings/payment-memos"),
+    disputed=rf.Boolean(mask=True),
+)
+```
+
+The directory holds memory-mapped shards named by the encoder configuration,
+keyed by token row with the encoder device type and precision. Every split,
+run, and field that names the same directory and encoder reads the same
+vectors. Missing token rows are encoded and appended, with duplicates within
+a batch sharing an encoder result. New vectors wait in memory and are written
+as a new shard at the end of every epoch and phase,
+or after 65,536 new rows. Shards are added without rewriting existing ones.
+Lookups hash whole token rows and binary-search a sorted index, so a batch
+resolves without a Python loop over its rows. When the flushed store fits the
+`resident` budget, its index and vectors are uploaded to the device once per
+index version. Resident hits are answered there without a host round trip;
+larger stores answer from the host
+index over memory-mapped shards, which the page cache keeps in memory after
+first use. The automatic budget applies to CUDA; other devices use the host
+index unless given an explicit resident budget. With a store the in-process
+embedding `cache` is bypassed; the token-row cache still follows `cache`.
+
+To fill a store ahead of training, provide the application-supplied
+`memo_texts` as a string sequence or Arrow column:
+
+```python
+model.nodes[rf.Address("memo")].embedder.warm(memo_texts)
+```
+
+Run the warmer on the device and under the autocast context training will
+use, since precision is part of the key. Nulls are skipped and repeated
+strings count once. The trainable projection and training jitter still run on
+every forward pass.
 
 ## Learning and output
 

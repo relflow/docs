@@ -64,7 +64,10 @@ fine-tuning.
 
 An unknown label stays `valued` but contributes zero categorical content to
 the encoder. Its internal sentinel is not an extra embedding row or decoder
-class. Known labels contribute learned content plus their state embedding.
+class. Known labels contribute learned content plus their state embedding. A
+label admitted while training keeps a zero content row, and so embeds exactly
+like an unknown one, until the next training batch starts the row with a
+normal draw; admission alone never changes a prediction.
 
 Reconstruction uses unweighted state and categorical cross entropy. Class
 frequencies remain observable through `counts`, but do not silently change

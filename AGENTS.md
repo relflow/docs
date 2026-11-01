@@ -79,8 +79,16 @@ on each node; tanh GELU and RMSNorm are fixed.
 
 Child branches default to `length=None, overflow=None`, retaining all selected
 slots with batch-dependent widths. A positive integer length sets a hard cap;
-only bounded branches accept `head`, `tail`, or `error`, with omitted overflow
-resolving to `head`. Prediction format 2 writes every repeated
+only bounded branches accept `head`, `tail`, `random`, or `error`, with omitted
+overflow resolving to `head`. With `overflow="random"`, training selects a
+uniformly drawn contiguous window
+of whole records; validation, test, and prediction retain the tail. Fields
+and nested children stay aligned. Crops repeat within a fixed seeded loader
+plan; batching, worker assignment, and row-order changes can change them.
+Sources or preprocessors must supply more than the cap for sampling to vary,
+with a separate resource bound on the candidate pool. Keep introductory sequence
+examples on
+`overflow="tail"`. Prediction writes every repeated
 record collection as a variable Arrow list of structs, including bounded
 branches; input caps do not add public padding. Fixed-width vectors retain
 their feature axis. Explain memory costs and the warning

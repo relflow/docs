@@ -103,8 +103,7 @@ intervals or coverage estimates.
 The [regression evidence](../evidence/quantile/rank-regression.html) measures held-out
 learning against shuffled inputs. The
 [extrapolation evidence](../evidence/quantile/clipped-extrapolation.html) measures the
-error imposed by the learned support boundary; its recorded result predates the
-outer-decile continuation.
+error imposed by the learned support boundary.
 The [representation tradeoff evidence](../evidence/quantile/representation-tradeoffs.html)
 compares Number and Quantile under contaminated inputs and distinguishes
 percentile-loss predictions from source-unit conditional means and medians.

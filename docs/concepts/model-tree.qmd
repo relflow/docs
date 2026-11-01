@@ -137,7 +137,7 @@ Root encoder settings apply to the root; child branches have their own settings.
 | `ffnx` | Feed-forward hidden width as a multiplier of `d_model`; default `8` on every node. |
 | `reduction` | Context passed to the parent; default `rf.Attention()`. |
 | `length` | `None` by default: retain all records; a positive integer sets a hard limit. |
-| `overflow` | Only with a finite limit: keep first records (`"head"`, the bounded default), last records (`"tail"`), or raise (`"error"`). |
+| `overflow` | Only with a finite limit: keep first records (`"head"`, the bounded default), last records (`"tail"`), or raise (`"error"`). See also [random training windows](../datatypes/branch.qmd#random-training-windows). |
 | `mask` | Inputs to hide or reconstruct; see [Masking and reconstruction](masking-and-reconstruction.qmd). |
 | `embed=True` | Export a representation; see [Reusable representations](../learn/reusable-representations.qmd). |
 
