@@ -4,11 +4,12 @@ from __future__ import annotations
 
 import argparse
 import json
+import shutil
 import tempfile
 from pathlib import Path
 
-import yaml
 from evidence_ci import ROOT, digest, evaluate
+from experiments.source import frontmatter, registry
 
 
 def validate(reports: Path, inputs: Path | None = None) -> tuple[dict, list[dict], dict]:
@@ -29,22 +30,14 @@ def validate(reports: Path, inputs: Path | None = None) -> tuple[dict, list[dict
 
 def select(
     reports: Path,
-    output: Path,
     *,
+    root: Path = ROOT,
     github_run: Path | None = None,
     release: str | None = None,
     bundle: Path | None = None,
 ) -> None:
     manifest, records, summary = validate(reports)
-    document = yaml.safe_load((output if output.exists() else ROOT / "results.yaml").read_text())
-    if document["schema"] != 2:
-        raise ValueError("Expected evidence schema 2")
-    selections = document.setdefault("selections", [])
-    if any(item["run_id"] == manifest["run_id"] for item in selections):
-        raise ValueError("This run has already been selected")
-    for record in records:
-        if record["task"]["role"] == "candidate":
-            document["evidence"][record["task"]["id"]]["runs"].append(record["result"])
+    entries = registry(root)
     selection = {
         "run_id": manifest["run_id"],
         "candidate": manifest["candidate"],
@@ -59,15 +52,22 @@ def select(
         selection["release"] = "https://github.com/relflow/docs/releases/tag/" + release
     if bundle:
         selection["reports_sha256"] = digest(bundle)
-    selections.append(selection)
-    output.parent.mkdir(parents=True, exist_ok=True)
-    with tempfile.NamedTemporaryFile(mode="w", dir=output.parent, delete=False) as handle:
-        yaml.safe_dump(document, handle, sort_keys=False, allow_unicode=True)
-        pending = Path(handle.name)
-    try:
-        pending.replace(output)
-    finally:
-        pending.unlink(missing_ok=True)
+    updates = {}
+    for record in records:
+        if record["task"]["role"] == "candidate":
+            entry = entries[record["task"]["id"]]
+            script = root / entry["script"]
+            header = dict(entry["header"], **{"evidence-result": record["result"], "evidence-report": selection})
+            updates[script] = frontmatter(script.read_text(), header)
+    for script, content in updates.items():
+        with tempfile.NamedTemporaryFile(mode="w", dir=script.parent, delete=False) as handle:
+            handle.write(content)
+            pending = Path(handle.name)
+        try:
+            shutil.copymode(script, pending)
+            pending.replace(script)
+        finally:
+            pending.unlink(missing_ok=True)
 
 
 def main() -> None:
@@ -75,7 +75,6 @@ def main() -> None:
     parser.add_argument("command", choices=("validate", "select"))
     parser.add_argument("reports", type=Path)
     parser.add_argument("--inputs", type=Path)
-    parser.add_argument("--output", type=Path, default=ROOT / "results.yaml")
     parser.add_argument("--github-run", type=Path)
     parser.add_argument("--release")
     parser.add_argument("--bundle", type=Path)
@@ -86,7 +85,6 @@ def main() -> None:
     else:
         select(
             options.reports,
-            options.output,
             github_run=options.github_run,
             release=options.release,
             bundle=options.bundle,

@@ -29,6 +29,87 @@
 #   - hiddenhidden
 #   - nrmse
 #   format: error
+# evidence-group: Masking
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Shuffling available evidence removes accuracy: true
+#     'backup: ancestor and local skips compose': true
+#     'hiddenhidden: expected information boundary': true
+#     'hiddenhidden: skipped values cannot affect predictions': true
+#     'hiddenvisible: expected information boundary': true
+#     'hiddenvisible: skipped values cannot affect predictions': true
+#     'reading: ancestor and local skips compose': true
+#     'visiblehidden: expected information boundary': true
+#     'visiblehidden: skipped values cannot affect predictions': true
+#     'visiblevisible: expected information boundary': true
+#     'visiblevisible: skipped values cannot affect predictions': true
+#   duration_seconds: 15.919
+#   metrics:
+#     baseline_rmse: 0.8548844813618697
+#     patterns:
+#       hiddenhidden:
+#         hidden_value_drift: 0.0
+#         nrmse: 1.0020721030893713
+#       hiddenvisible:
+#         hidden_value_drift: 0.0
+#         nrmse: 0.019111931082546274
+#       visiblehidden:
+#         hidden_value_drift: 0.0
+#         nrmse: 0.019112357378374644
+#       visiblevisible:
+#         hidden_value_drift: 0.0
+#         nrmse: 0.01907755794178149
+#     shuffled_nrmse: 1.4018123645812262
+#     steps: 500
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: c2471d582c3ff05c20efb49da64a96a9c7da0d4d5e3ca213393cc4867cc7826b
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 9e6fb7a3e95b
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: c1d8dd49747adf5f0aa1aedf33fe1d052b3f03ae1edc867e94151058f416c0c3
+#     source_sha256: 24fd55b9f61653b9faf6cb04f09ba76c817f56b20afc4f3d0595e414737fc4cc
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 5301
+#   started_at: '2026-11-01T00:20:18.605574+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

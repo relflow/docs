@@ -23,6 +23,114 @@
 #   - common_first
 #   - common_coverage
 #   format: percent
+# evidence-group: Vocabulary
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     'common_first: all four labels are admitted': true
+#     'common_first: all labels have training exposures': true
+#     'common_first: allocation holds all four labels': true
+#     'common_first: common identities have distinct learned effects': true
+#     'common_first: common-label coverage is complete': true
+#     'common_first: common-label nRMSE below 0.15': true
+#     'common_first: first label IDs are preserved': true
+#     'common_first: prediction does not change admission': true
+#     'common_first: storage grows automatically': true
+#     'rare_first: all four labels are admitted': true
+#     'rare_first: all labels have training exposures': true
+#     'rare_first: allocation holds all four labels': true
+#     'rare_first: common identities have distinct learned effects': true
+#     'rare_first: common-label coverage is complete': true
+#     'rare_first: common-label nRMSE below 0.15': true
+#     'rare_first: first label IDs are preserved': true
+#     'rare_first: prediction does not change admission': true
+#     'rare_first: storage grows automatically': true
+#   duration_seconds: 9.727
+#   metrics:
+#     arms:
+#       common_first:
+#         allocated_size: 4
+#         common_coverage: 1.0
+#         counts:
+#           cold: 9586
+#           hot: 9604
+#           rare-left: 5
+#           rare-right: 5
+#         identity_swap_drift: 2.0175565112843827
+#         initial_size: 1
+#         nrmse: 0.030879157291732663
+#         steps: 300
+#         vocabulary:
+#         - cold
+#         - hot
+#         - rare-left
+#         - rare-right
+#       rare_first:
+#         allocated_size: 4
+#         common_coverage: 1.0
+#         counts:
+#           cold: 9586
+#           hot: 9604
+#           rare-left: 5
+#           rare-right: 5
+#         identity_swap_drift: 1.9995516301333327
+#         initial_size: 1
+#         nrmse: 0.03019800013266001
+#         steps: 300
+#         vocabulary:
+#         - rare-left
+#         - rare-right
+#         - hot
+#         - cold
+#     baseline_rmse: 0.9999224678348755
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 9ec854441801b075150fe6f709ffe5e65fffd29faae93b6fe98f015cc0353d89
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: bd09bafeab4f
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 85c3dca072982f2e72fd94c3fd683a357c732d1ed54f9c9ba672a785a7c71b4d
+#     source_sha256: 32328a1f49b5c5197c99211b8b1b7686fae63d06a4649c6cd932204fc0b4a71a
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 5701
+#   started_at: '2026-11-01T00:20:42.291969+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

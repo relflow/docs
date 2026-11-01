@@ -4,8 +4,8 @@
 # categories:
 # - Representation
 # evidence-id: P074
-# description: Predict a signal from three noisy sensors, sometimes hiding one or more readings. An extra
-#   sensor carries no useful information.
+# description: Predict a signal from three noisy sensors, sometimes hiding one or more readings. An extra sensor carries
+#   no useful information.
 # execute:
 #   enabled: false
 #   eval: false
@@ -22,6 +22,156 @@
 #   metric:
 #   - corrupted_first_sensor_mse
 #   format: number
+# evidence-group: Representation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     '000: finite predictions': true
+#     '000: hidden sensor and target values cannot affect predictions': true
+#     '000: tracks conditional mean': true
+#     '001: finite predictions': true
+#     '001: hidden sensor and target values cannot affect predictions': true
+#     '001: tracks conditional mean': true
+#     '010: finite predictions': true
+#     '010: hidden sensor and target values cannot affect predictions': true
+#     '010: tracks conditional mean': true
+#     '011: finite predictions': true
+#     '011: hidden sensor and target values cannot affect predictions': true
+#     '011: tracks conditional mean': true
+#     '100: finite predictions': true
+#     '100: hidden sensor and target values cannot affect predictions': true
+#     '100: tracks conditional mean': true
+#     '101: finite predictions': true
+#     '101: hidden sensor and target values cannot affect predictions': true
+#     '101: tracks conditional mean': true
+#     '110: finite predictions': true
+#     '110: hidden sensor and target values cannot affect predictions': true
+#     '110: tracks conditional mean': true
+#     '111: finite predictions': true
+#     '111: hidden sensor and target values cannot affect predictions': true
+#     '111: tracks conditional mean': true
+#     Absent evidence returns the zero prior mean: false
+#     Joint evidence improves MSE by at least 15 percent over every single sensor: true
+#     Skipping the corrupted sensor restores the paired two-sensor prediction: true
+#     Unrelated sensor has small prediction influence: true
+#   duration_seconds: 21.972
+#   metrics:
+#     constant_baseline_mse: 0.988053225656172
+#     corrupted_first_sensor_mse: 2.89892233184262
+#     hidden_corruption_max_drift: 0.0
+#     joint_to_best_single_mse: 0.6171874901198882
+#     no_evidence_prediction_mean: 0.15036732231480127
+#     no_evidence_prediction_std: 0.16485731103403406
+#     nuisance_permutation_rms_drift: 0.08661957403981585
+#     patterns:
+#       '000':
+#         distance_to_oracle: 0.049788264621495576
+#         hidden_value_max_drift: 0.0
+#         mse: 1.0338120146130956
+#         oracle_expected_mse: 1.0
+#         oracle_mse: 0.988031778745079
+#         unseen_pattern: false
+#       '001':
+#         distance_to_oracle: 0.0691476408013513
+#         hidden_value_max_drift: 0.0
+#         mse: 0.6577047043944804
+#         oracle_expected_mse: 0.5901639344262295
+#         oracle_mse: 0.590150262266959
+#         unseen_pattern: false
+#       '010':
+#         distance_to_oracle: 0.041033186211170705
+#         hidden_value_max_drift: 0.0
+#         mse: 0.536985135256502
+#         oracle_expected_mse: 0.5
+#         oracle_mse: 0.48948520488805025
+#         unseen_pattern: false
+#       '011':
+#         distance_to_oracle: 0.03549847549272624
+#         hidden_value_max_drift: 0.0
+#         mse: 0.4064668611496632
+#         oracle_expected_mse: 0.37113402061855666
+#         oracle_mse: 0.3678902899425125
+#         unseen_pattern: false
+#       '100':
+#         distance_to_oracle: 0.017858166720857247
+#         hidden_value_max_drift: 0.0
+#         mse: 0.4246168434800212
+#         oracle_expected_mse: 0.3902439024390244
+#         oracle_mse: 0.4061850665424861
+#         unseen_pattern: false
+#       '101':
+#         distance_to_oracle: 0.02178038823645926
+#         hidden_value_max_drift: 0.0
+#         mse: 0.3389138695391476
+#         oracle_expected_mse: 0.3070362473347548
+#         oracle_mse: 0.31400437689019883
+#         unseen_pattern: true
+#       '110':
+#         distance_to_oracle: 0.014695487780777883
+#         hidden_value_max_drift: 0.0
+#         mse: 0.3124629919293869
+#         oracle_expected_mse: 0.2807017543859649
+#         oracle_mse: 0.29230042731279604
+#         unseen_pattern: false
+#       '111':
+#         distance_to_oracle: 0.016865970937507333
+#         hidden_value_max_drift: 0.0
+#         mse: 0.2620682038900637
+#         oracle_expected_mse: 0.23491027732463293
+#         oracle_mse: 0.2416990730468406
+#         unseen_pattern: false
+#     steps: 600
+#     test_rows: 2048
+#     train_rows: 4096
+#     validation_rows: 512
+#   mode: full
+#   outcome: not_met
+#   provenance:
+#     code_sha256: a801f5c0d5c3aaa2911cb96af024f05cbe6640c9609eec891991bb4b3eaf3acd
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 93afe9b30e5d
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: ccdaf8114420725bcb68924e1c2a05665c7ff17f5b587cc44bfe968114671779
+#     source_sha256: f31d7e192cb426f0184db0ba488f5b1008e1e90828b837f74102dd3f67733d83
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7401
+#   started_at: '2026-11-01T00:22:13.970617+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

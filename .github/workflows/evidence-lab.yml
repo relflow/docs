@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: relflow/docs
-          ref: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+          ref: e00d336e3dc4a3c3352ab3fe5535ba69d6ac682f
           persist-credentials: false
       - uses: astral-sh/setup-uv@v5
         with:
@@ -43,11 +43,24 @@ jobs:
           tags: tag:relflow-evidence-ci
           ping: ${{ vars.EVIDENCE_LAB_HOST || 'lab' }}
       - name: Dispatch isolated experiments and retrieve reports
+        id: dispatch
         env:
           LAB_TARGET: ${{ vars.EVIDENCE_LAB_TARGET }}
           CANDIDATE_SHA: ${{ github.sha }}
           BASELINE_SHA: ${{ github.event.pull_request.base.sha || github.event.merge_group.base_sha || github.sha }}
         run: uv run python -u evidence/ssh_run.py --transport tailscale --target "$LAB_TARGET" --candidate-wheel inputs/candidate/*.whl --baseline-wheel inputs/baseline/*.whl --candidate-sha "$CANDIDATE_SHA" --baseline-sha "$BASELINE_SHA" --requirements inputs/requirements.txt --output evidence/runs/gh-${{ github.run_id }}-${{ github.run_attempt }}
+      - name: Stop only this run's lab processes and containers
+        if: always() && steps.dispatch.outcome != 'skipped'
+        env:
+          PYTHONPATH: evidence
+          LAB_TARGET: ${{ vars.EVIDENCE_LAB_TARGET }}
+          EVIDENCE_RUN_ID: gh-${{ github.run_id }}-${{ github.run_attempt }}
+        run: |
+          uv run python - <<'PY'
+          import os
+          from ssh_run import cleanup
+          cleanup(os.environ["LAB_TARGET"], "tailscale", os.environ["EVIDENCE_RUN_ID"])
+          PY
       - name: Attach report on success or failure
         if: always()
         uses: actions/upload-artifact@v4

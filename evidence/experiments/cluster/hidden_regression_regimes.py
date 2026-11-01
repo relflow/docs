@@ -4,8 +4,8 @@
 # categories:
 # - Cluster
 # evidence-id: P018
-# description: Repeated identities follow five hidden numerical rules. Watch how the Cluster field groups
-#   them during training.
+# description: Repeated identities follow five hidden numerical rules. Watch how the Cluster field groups them during
+#   training.
 # execute:
 #   enabled: false
 #   eval: false
@@ -17,6 +17,197 @@
 #   - final_committed
 #   - -1
 #   format: number
+# evidence-group: Representation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Final committed counts remain between 4 and 7: false
+#     Final perplexity remains within 1.5 of five: false
+#     Terminal commitment is above the lower bound: true
+#     Terminal commitment is below the upper bound: true
+#   duration_seconds: 38.133
+#   metrics:
+#     final_committed:
+#     - 8
+#     - 8
+#     - 8
+#     - 8
+#     - 8
+#     final_perplexity:
+#     - 7.921018123626709
+#     - 7.864084720611572
+#     - 7.864062309265137
+#     - 7.8577070236206055
+#     - 7.895829677581787
+#     trajectory:
+#     - adherence: 0.0596262626349926
+#       epoch: 0
+#       n_committed: 4
+#       perplexity: 4.4743194580078125
+#     - adherence: 0.06287430971860886
+#       epoch: 1
+#       n_committed: 5
+#       perplexity: 5.211883068084717
+#     - adherence: 0.004480892792344093
+#       epoch: 2
+#       n_committed: 6
+#       perplexity: 6.449525833129883
+#     - adherence: 0.0044525605626404285
+#       epoch: 3
+#       n_committed: 8
+#       perplexity: 7.820277214050293
+#     - adherence: 0.010754283517599106
+#       epoch: 4
+#       n_committed: 7
+#       perplexity: 6.627710342407227
+#     - adherence: 0.011299673467874527
+#       epoch: 5
+#       n_committed: 7
+#       perplexity: 6.919882297515869
+#     - adherence: 0.010402935557067394
+#       epoch: 6
+#       n_committed: 7
+#       perplexity: 6.963478088378906
+#     - adherence: 0.009252095595002174
+#       epoch: 7
+#       n_committed: 7
+#       perplexity: 6.974049091339111
+#     - adherence: 0.008121979422867298
+#       epoch: 8
+#       n_committed: 7
+#       perplexity: 7.066467761993408
+#     - adherence: 0.007775044068694115
+#       epoch: 9
+#       n_committed: 7
+#       perplexity: 7.114893436431885
+#     - adherence: 0.006880196277052164
+#       epoch: 10
+#       n_committed: 7
+#       perplexity: 7.067854404449463
+#     - adherence: 0.005913118366152048
+#       epoch: 11
+#       n_committed: 7
+#       perplexity: 6.948287010192871
+#     - adherence: 0.0052897571586072445
+#       epoch: 12
+#       n_committed: 7
+#       perplexity: 6.861160755157471
+#     - adherence: 0.004672950133681297
+#       epoch: 13
+#       n_committed: 7
+#       perplexity: 6.929600238800049
+#     - adherence: 0.004071409814059734
+#       epoch: 14
+#       n_committed: 7
+#       perplexity: 6.949246406555176
+#     - adherence: 0.000262480549281463
+#       epoch: 15
+#       n_committed: 8
+#       perplexity: 8.127616882324219
+#     - adherence: 0.0003884865727741271
+#       epoch: 16
+#       n_committed: 8
+#       perplexity: 8.008110046386719
+#     - adherence: 0.0004629143513739109
+#       epoch: 17
+#       n_committed: 8
+#       perplexity: 7.916283130645752
+#     - adherence: 0.0006673262105323374
+#       epoch: 18
+#       n_committed: 8
+#       perplexity: 8.012361526489258
+#     - adherence: 0.0007330988300964236
+#       epoch: 19
+#       n_committed: 8
+#       perplexity: 8.081974983215332
+#     - adherence: 0.0007852783310227096
+#       epoch: 20
+#       n_committed: 8
+#       perplexity: 8.076993942260742
+#     - adherence: 0.0008025173447094858
+#       epoch: 21
+#       n_committed: 8
+#       perplexity: 7.995616436004639
+#     - adherence: 0.0008230764651671052
+#       epoch: 22
+#       n_committed: 8
+#       perplexity: 7.957146644592285
+#     - adherence: 0.0008152077789418399
+#       epoch: 23
+#       n_committed: 8
+#       perplexity: 7.9559550285339355
+#     - adherence: 0.0007473612786270678
+#       epoch: 24
+#       n_committed: 8
+#       perplexity: 7.930139541625977
+#     - adherence: 0.0006774786161258817
+#       epoch: 25
+#       n_committed: 8
+#       perplexity: 7.921018123626709
+#     - adherence: 0.0006148697575554252
+#       epoch: 26
+#       n_committed: 8
+#       perplexity: 7.864084720611572
+#     - adherence: 0.0005607149796560407
+#       epoch: 27
+#       n_committed: 8
+#       perplexity: 7.864062309265137
+#     - adherence: 0.0005023656412959099
+#       epoch: 28
+#       n_committed: 8
+#       perplexity: 7.8577070236206055
+#     - adherence: 0.00046136201126500964
+#       epoch: 29
+#       n_committed: 8
+#       perplexity: 7.895829677581787
+#   mode: full
+#   outcome: not_met
+#   provenance:
+#     code_sha256: 42a32d908802db5bb01ae0abe406eb8d6dc531c69cbeb244807dd983f2015637
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 4fbbf735fe5a
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 5d7b1e1d04899d6814a39909bde4b7d98dba057d66f3becceb779231bf64fe15
+#     source_sha256: 20c73022a5324495bd61bd07e21e4cccb4bbf5cf4e0de3208e02892446f46772
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 0
+#   started_at: '2026-11-01T00:08:18.130112+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

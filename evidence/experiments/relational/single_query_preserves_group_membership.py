@@ -19,6 +19,72 @@
 #   metric:
 #   - corrupted_nrmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Baseline RMSE > 0.000001: true
+#     Corrupted labels nRMSE >= 0.90: true
+#     Finite calibration and model metrics: true
+#     Label corruption changes the oracle by > 0.75 nRMSE: true
+#     Label corruption increases nRMSE by >= 0.75: true
+#     Single-summary grouped nRMSE <= 0.20: true
+#   duration_seconds: 165.109
+#   metrics:
+#     baseline_rmse: 0.7508689291187257
+#     corrupted_nrmse: 1.5560312544331212
+#     corrupted_rmse: 1.168375521691465
+#     intact_nrmse: 0.0546641230810493
+#     intact_rmse: 0.041045591559081704
+#     oracle_corruption_nrmse: 1.8011994379885266
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 126cbfe66349407db67808c7b00f10c1ded83adfbb72f44d6c131bae596aaee7
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 09368cf91b20
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: e921901d2a6ef131949bd8bc48da8deae6beb6a81416567f849dac97b553e97d
+#     source_sha256: 0ba6f8b2d919502ce76065d2e94e0c62c1de8c57813f3f28f78b185bbda64e01
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3720
+#   started_at: '2026-11-01T00:14:00.106206+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

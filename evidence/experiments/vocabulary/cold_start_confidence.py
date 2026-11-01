@@ -4,8 +4,8 @@
 # categories:
 # - Vocabulary
 # evidence-id: P061
-# description: Predict a yes/no outcome using a numeric signal and an identity-specific effect. New identities
-#   remove only the latter information.
+# description: Predict a yes/no outcome using a numeric signal and an identity-specific effect. New identities remove
+#   only the latter information.
 # execute:
 #   enabled: false
 #   eval: false
@@ -24,6 +24,107 @@
 #   - novel
 #   - decisive_confidence
 #   format: percent
+# evidence-group: Vocabulary
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     '0.01: evaluation preserves mapping and exposures': true
+#     '0.01: unseen spelling is uninformative': true
+#     '0.2: evaluation preserves mapping and exposures': true
+#     '0.2: unseen spelling is uninformative': true
+#     Ambiguous unknown IDs retain confidence below 0.70: true
+#     Decisive context retains confidence above 0.90: true
+#     Known-ID probability RMSE below 0.30: true
+#     Unknown-ID predictions beat the constant baseline: true
+#     Unknown-ID probability RMSE below 0.10: true
+#   duration_seconds: 29.281
+#   metrics:
+#     '0.01':
+#       admission_mean_drift: 0.0003071454702876508
+#       known:
+#         accuracy: 0.802978515625
+#         ambiguous_confidence: 0.6822458485209202
+#         brier: 0.13774539864425028
+#         constant_rmse: 0.41307056095828854
+#         decisive_confidence: 0.979890597188566
+#         nll: 0.4295551679401508
+#         oracle_rmse: 0.24325100463038368
+#       novel:
+#         accuracy: 0.7852783203125
+#         ambiguous_confidence: 0.5714815263234233
+#         brier: 0.14561742906462838
+#         constant_rmse: 0.3257906780529331
+#         decisive_confidence: 0.9823842794232616
+#         nll: 0.4490004669477017
+#         oracle_rmse: 0.06678319238509788
+#       renaming_drift: 0.0
+#     '0.2':
+#       admission_mean_drift: 0.0002874272468034178
+#       known:
+#         accuracy: 0.797119140625
+#         ambiguous_confidence: 0.6495810806708707
+#         brier: 0.13915601835738278
+#         constant_rmse: 0.41307056095828854
+#         decisive_confidence: 0.9797623936131904
+#         nll: 0.43151307221366303
+#         oracle_rmse: 0.24652841853289564
+#       novel:
+#         accuracy: 0.77880859375
+#         ambiguous_confidence: 0.5768502663919366
+#         brier: 0.14515934309868395
+#         constant_rmse: 0.3257906780529331
+#         decisive_confidence: 0.9813166697057495
+#         nll: 0.44575804827618704
+#         oracle_rmse: 0.060065833648231204
+#       renaming_drift: 0.0
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 59d0294b92debef0b8e862c7a4f55242c270e7bc6a6414348aa8c05771f9a1d0
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 295268b431fc
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: fb53bc1906a4bf30dd08a1c69d4b3484d67ed49aacd72c93b50a164d7bec5633
+#     source_sha256: c1eb4a7ec4fda1648980d6b65b3d130e43cb6a02c99b125e50ccacd5d08aa352
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7611
+#   started_at: '2026-11-01T00:20:57.267961+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

@@ -22,6 +22,206 @@
 #   - only_a_oracle
 #   - nrmse
 #   format: error
+# evidence-group: Mutations
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Inactive checkpoint preserves predictions: true
+#     Inactive checkpoint preserves schema and state: true
+#     Loaded inactive input can restore its trained function: true
+#     Shuffling b destroys useful signal: true
+#     Source hidden target values cannot affect predictions: true
+#     Source learns both-input relationship below 0.25 nRMSE: true
+#     Unchanged checkpoint preserves predictions: true
+#     'cycle 1 deactivate: all learned state survives': true
+#     'cycle 1 deactivate: b values cannot affect predictions': true
+#     'cycle 1 deactivate: input is inactive': true
+#     'cycle 1 deactivate: removing b loses information': true
+#     'cycle 1 reactivate: all learned state survives': true
+#     'cycle 1 reactivate: original schema is restored': true
+#     'cycle 1 reactivate: trained predictions are restored': true
+#     'cycle 2 deactivate: all learned state survives': true
+#     'cycle 2 deactivate: b values cannot affect predictions': true
+#     'cycle 2 deactivate: input is inactive': true
+#     'cycle 2 deactivate: removing b loses information': true
+#     'cycle 2 reactivate: all learned state survives': true
+#     'cycle 2 reactivate: original schema is restored': true
+#     'cycle 2 reactivate: trained predictions are restored': true
+#     'cycle 3 deactivate: all learned state survives': true
+#     'cycle 3 deactivate: b values cannot affect predictions': true
+#     'cycle 3 deactivate: input is inactive': true
+#     'cycle 3 deactivate: removing b loses information': true
+#     'cycle 3 reactivate: all learned state survives': true
+#     'cycle 3 reactivate: original schema is restored': true
+#     'cycle 3 reactivate: trained predictions are restored': true
+#     'exceptional override exit: all learned state survives': true
+#     'exceptional override exit: original schema is restored': true
+#     'exceptional override exit: trained predictions are restored': true
+#     'normal override exit: all learned state survives': true
+#     'normal override exit: original schema is restored': true
+#     'normal override exit: trained predictions are restored': true
+#     'override before exception: all learned state survives': true
+#     'override before exception: b values cannot affect predictions': true
+#     'override before exception: input is inactive': true
+#     'override before exception: removing b loses information': true
+#     'temporary override: all learned state survives': true
+#     'temporary override: b values cannot affect predictions': true
+#     'temporary override: input is inactive': true
+#     'temporary override: removing b loses information': true
+#   duration_seconds: 14.199
+#   metrics:
+#     controls:
+#       only_a_oracle:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.7119104014052033
+#         rmse: 0.5857724467092484
+#       shuffled_b:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 1.0059826079783953
+#         rmse: 0.82774024997993
+#       zero_filled_b:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.71187244478633
+#         rmse: 0.5857412153331337
+#     downstream_interpretable: true
+#     edits:
+#     - edit: cycle 1 deactivate
+#       inactive: true
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 1.97914895632392
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.9582986834971589
+#         rmse: 0.7885050750801961
+#     - edit: cycle 1 reactivate
+#       inactive: false
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 0.0
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.013208015100434373
+#         rmse: 0.010867788005741579
+#     - edit: cycle 2 deactivate
+#       inactive: true
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 1.97914895632392
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.9582986834971589
+#         rmse: 0.7885050750801961
+#     - edit: cycle 2 reactivate
+#       inactive: false
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 0.0
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.013208015100434373
+#         rmse: 0.010867788005741579
+#     - edit: cycle 3 deactivate
+#       inactive: true
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 1.97914895632392
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.9582986834971589
+#         rmse: 0.7885050750801961
+#     - edit: cycle 3 reactivate
+#       inactive: false
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 0.0
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.013208015100434373
+#         rmse: 0.010867788005741579
+#     - edit: temporary override
+#       inactive: true
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 1.97914895632392
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.9582986834971589
+#         rmse: 0.7885050750801961
+#     - edit: normal override exit
+#       inactive: false
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 0.0
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.013208015100434373
+#         rmse: 0.010867788005741579
+#     - edit: override before exception
+#       inactive: true
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 1.97914895632392
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.9582986834971589
+#         rmse: 0.7885050750801961
+#     - edit: exceptional override exit
+#       inactive: false
+#       learned_state_preserved: true
+#       max_source_prediction_drift: 0.0
+#       scores:
+#         baseline_rmse: 0.8228176545152625
+#         nrmse: 0.013208015100434373
+#         rmse: 0.010867788005741579
+#     mutation: update /b active=False/True three times; override with normal and exceptional exits
+#     optimizer_policy: Fresh AdamW for source; no fitting inside updates or overrides
+#     source:
+#       baseline_rmse: 0.8228176545152625
+#       nrmse: 0.013208015100434373
+#       rmse: 0.010867788005741579
+#     source_prerequisite_met: true
+#     source_steps: 512
+#     test_rows: 2048
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: c465a35305a939cafa70f21d6093df873085f849b21f97e928d824dde994b5c0
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 8743a4dc08a6
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 27e4d67edf94a9287a669a6ed47da17c7689e53c433b8b41abc1d62e27674431
+#     source_sha256: 3ddcb2aae2469e0474161654be249da7d3b5e62ebbac89e5fb94ae350e80ecc2
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 4901
+#   started_at: '2026-11-01T00:19:37.701059+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

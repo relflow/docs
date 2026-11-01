@@ -4,8 +4,8 @@
 # categories:
 # - Schema mutation
 # evidence-id: P046
-# description: Train a useful predictor, then make edits that should not alter its visible information or
-#   learned state.
+# description: Train a useful predictor, then make edits that should not alter its visible information or learned
+#   state.
 # execute:
 #   enabled: false
 #   eval: false
@@ -23,6 +23,170 @@
 #   - complete_reset
 #   - nrmse
 #   format: error
+# evidence-group: Mutations
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Complete reset loses the learned relationship: true
+#     Duplicate-name edit is rejected: true
+#     Edited checkpoint preserves learned state: true
+#     Edited checkpoint preserves predictions: true
+#     Edited checkpoint preserves schema: true
+#     Source learns the relationship below 0.25 nRMSE: true
+#     'cycle 1 inactive deletion: all original state and vocabulary survive': true
+#     'cycle 1 inactive deletion: predictions survive': true
+#     'cycle 1 inactive extension: all original state and vocabulary survive': true
+#     'cycle 1 inactive extension: predictions survive': true
+#     'cycle 1 metadata: all original state and vocabulary survive': true
+#     'cycle 1 metadata: predictions survive': true
+#     'cycle 2 inactive deletion: all original state and vocabulary survive': true
+#     'cycle 2 inactive deletion: predictions survive': true
+#     'cycle 2 inactive extension: all original state and vocabulary survive': true
+#     'cycle 2 inactive extension: predictions survive': true
+#     'cycle 2 metadata: all original state and vocabulary survive': true
+#     'cycle 2 metadata: predictions survive': true
+#     'cycle 3 inactive deletion: all original state and vocabulary survive': true
+#     'cycle 3 inactive deletion: predictions survive': true
+#     'cycle 3 inactive extension: all original state and vocabulary survive': true
+#     'cycle 3 inactive extension: predictions survive': true
+#     'cycle 3 metadata: all original state and vocabulary survive': true
+#     'cycle 3 metadata: predictions survive': true
+#     'equivalent source rebind: all original state and vocabulary survive': true
+#     'equivalent source rebind: predictions survive': true
+#     'rejected duplicate extension: all original state and vocabulary survive': true
+#     'rejected duplicate extension: predictions survive': true
+#     'source rebind restoration: all original state and vocabulary survive': true
+#     'source rebind restoration: predictions survive': true
+#   duration_seconds: 17.129
+#   metrics:
+#     controls:
+#       complete_reset:
+#         baseline_rmse: 0.8103651362027426
+#         nrmse: 0.9959644305458001
+#         rmse: 0.8070948514123343
+#     downstream_interpretable: true
+#     edits:
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 1 metadata
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 1 inactive extension
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 1 inactive deletion
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 2 metadata
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 2 inactive extension
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 2 inactive deletion
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 3 metadata
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 3 inactive extension
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: cycle 3 inactive deletion
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: equivalent source rebind
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: source rebind restoration
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     - changed_or_missing_state_entries: []
+#       edit: rejected duplicate extension
+#       max_prediction_drift: 0.0
+#       nrmse: 0.02379013795466527
+#       vocabulary_preserved: true
+#     optimizer_policy: Fresh AdamW for source training; no post-edit fitting
+#     source:
+#       baseline_rmse: 0.8103651362027426
+#       nrmse: 0.02379013795466527
+#       rmse: 0.01927869838391436
+#     source_prerequisite_met: true
+#     source_steps: 512
+#     source_vocabulary:
+#     - code-1
+#     - code-2
+#     - code-3
+#     - code-0
+#     test_rows: 1024
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: a8e8c255181b72039b7147deba8b80d29ff42afa460a9f53c2dd64f36f1a1cf3
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 2be8b6baf330
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 98d32f76bf6903703e5c962676834cfaebbfd931b0cb81ae0b15e8bb98859918
+#     source_sha256: 0de8ae77caadd93e475f47abb8899875a171978b5623e4f58a79c27431cd47eb
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 4601
+#   started_at: '2026-11-01T00:19:15.241008+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

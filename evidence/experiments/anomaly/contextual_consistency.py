@@ -4,8 +4,8 @@
 # categories:
 # - Anomaly detection
 # evidence-id: P076
-# description: Learn to reconstruct a numeric answer from its context. Use a large reconstruction error
-#   as a warning that the value does not fit.
+# description: Learn to reconstruct a numeric answer from its context. Use a large reconstruction error as a warning
+#   that the value does not fit.
 # execute:
 #   enabled: false
 #   eval: false
@@ -27,6 +27,94 @@
 #   - informative
 #   - normal_false_positive_rate
 #   format: percent
+# evidence-group: Anomaly
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Anomalies preserve the exact target marginal: true
+#     Anomalies preserve visible contexts: true
+#     Anomaly recall reaches 0.75: true
+#     Contextual anomaly AUROC reaches 0.90: true
+#     Informative reconstruction nRMSE below 0.20: true
+#     Marginal deviation baseline has exactly chance AUROC: true
+#     Normal false positive rate at most 0.10: true
+#     Rare valid tail false positive rate at most 0.15: true
+#     Shuffled training anomaly AUROC stays below 0.65: true
+#     'informative: every measurement is finite': true
+#     'shuffled_training: every measurement is finite': true
+#   duration_seconds: 36.604
+#   metrics:
+#     informative:
+#       anomaly_auc: 0.9616631269454956
+#       baseline_rmse: 1.274805492668205
+#       detection_recall: 0.8974609375
+#       normal_false_positive_rate: 0.04638671875
+#       normalized_rmse: 0.0919518293532086
+#       rmse: 0.11722069712035982
+#       steps: 500
+#       tail_false_positive_rate: 0.0732421875
+#       validation_threshold: 0.22753207864955435
+#     marginal_auc: 0.5
+#     shuffled_training:
+#       anomaly_auc: 0.5051983594894409
+#       baseline_rmse: 1.274805492668205
+#       detection_recall: 0.04052734375
+#       normal_false_positive_rate: 0.0478515625
+#       normalized_rmse: 1.013740516610813
+#       rmse: 1.2923219787157683
+#       steps: 500
+#       tail_false_positive_rate: 0.29345703125
+#       validation_threshold: 2.463423328292913
+#     test_rows_per_condition: 2048
+#     train_rows: 4096
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: afe0d6c5c8edf926b0764a0dd2725dcd2376da26dfaa2876b719521abe2ac327
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 5eb0a865a7c5
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 60dfe5cf6af7c3f54efb2278df85d82a78109e7be7f135c0f9d27ac04ee0b211
+#     source_sha256: 2b44efa2751543ab49c922fa6bf0874b16cd85c26052df0c8e8957218da25cab
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7601
+#   started_at: '2026-11-01T00:23:09.122860+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

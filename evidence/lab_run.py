@@ -29,6 +29,9 @@ ENV OMP_NUM_THREADS=1 MKL_NUM_THREADS=1 POLARS_MAX_THREADS=2 HF_HUB_OFFLINE=1 TO
 def run(options: argparse.Namespace) -> None:
     output = options.output.resolve()
     output.mkdir(parents=True, exist_ok=False)
+    marker = output.parent / (output.name + ".pid")
+    with marker.open("x") as handle:
+        handle.write(str(os.getpid()) + "\n")
     candidate = {"revision": options.candidate_sha, "wheel_sha256": digest(options.candidate_wheel)}
     baseline = {"revision": options.baseline_sha, "wheel_sha256": digest(options.baseline_wheel)}
     manifest = plan(
@@ -178,8 +181,11 @@ def run(options: argparse.Namespace) -> None:
             if active:
                 subprocess.run(["docker", "rm", "--force", *active], check=False)
     finally:
-        summary = finish(output)
-        print(json.dumps(summary, indent=2), flush=True)
+        try:
+            summary = finish(output)
+            print(json.dumps(summary, indent=2), flush=True)
+        finally:
+            marker.unlink(missing_ok=True)
     if not summary["passed"]:
         raise SystemExit(1)
 

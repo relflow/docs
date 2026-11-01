@@ -4,8 +4,7 @@
 # categories:
 # - Masking
 # evidence-id: P051
-# description: Sometimes hide x or y during training, then ask the model to recover the missing value from
-#   the other.
+# description: Sometimes hide x or y during training, then ask the model to recover the missing value from the other.
 # execute:
 #   enabled: false
 #   eval: false
@@ -24,6 +23,94 @@
 #   - x
 #   - nrmse
 #   format: error
+# evidence-group: Masking
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     'x: held-out nRMSE below 0.25': true
+#     'x: hidden values cannot affect predictions': true
+#     'x: no context nRMSE above 0.85': true
+#     'x: ordinary prediction requests no reconstruction': true
+#     'x: sampling changes across epochs': true
+#     'x: sampling is partial': true
+#     'x: sampling repeats within an epoch': true
+#     'x: shuffled context nRMSE above 0.85': true
+#     'y: held-out nRMSE below 0.25': true
+#     'y: hidden values cannot affect predictions': true
+#     'y: no context nRMSE above 0.85': true
+#     'y: ordinary prediction requests no reconstruction': true
+#     'y: sampling changes across epochs': true
+#     'y: sampling is partial': true
+#     'y: sampling repeats within an epoch': true
+#     'y: shuffled context nRMSE above 0.85': true
+#   duration_seconds: 10.99
+#   metrics:
+#     directions:
+#       x:
+#         baseline_rmse: 0.57715648701892
+#         both_hidden_nrmse: 1.0062535600441909
+#         hidden_value_drift: 0.0
+#         nrmse: 0.0682944964543327
+#         rmse: 0.03941661165630875
+#         sampled_fraction: 0.3564453125
+#         shuffled_nrmse: 1.3603068436605643
+#       y:
+#         baseline_rmse: 1.15431297403784
+#         both_hidden_nrmse: 1.0059962177876465
+#         hidden_value_drift: 0.0
+#         nrmse: 0.061393759224793926
+#         rmse: 0.07086761279813494
+#         sampled_fraction: 0.3505859375
+#         shuffled_nrmse: 1.4131583560791532
+#     steps: 400
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 262db4ceaf6d159f69ca4a1fffd1b999295459d5e04cd74519b1b1450ad6476a
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 553f688404a0
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: f6a3296a7eee4477e76f9ee4271fb0ac3a332bf5dffbadc1ca064d5aaab04249
+#     source_sha256: e4804fcc088e3d7051dcd0e92774fa88b3db0224c91c8d111c48f84774adb90c
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 5101
+#   started_at: '2026-11-01T00:19:56.914301+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

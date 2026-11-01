@@ -8,17 +8,15 @@ from collections import Counter
 from pathlib import Path
 
 import yaml
+from experiments.source import registry
 
 ROOT = Path(__file__).resolve().parents[1]
 PROOFS = ROOT / "experiments"
-ARCHIVE = yaml.safe_load((ROOT / "archive/results.yaml").read_text())["proofs"]
 
 
 def test_registered_proofs_have_unique_standalone_scripts() -> None:
-    document = yaml.safe_load((ROOT / "catalog.yaml").read_text())
-    assert document["schema"] == 1
-    entries = document["experiments"]
-    assert entries, "register experiments in proofs/results.yaml"
+    entries = registry(ROOT)
+    assert entries, "declare each experiment in its frontmatter"
 
     paths = Counter(entry["script"] for entry in entries.values())
     assert all(count == 1 for count in paths.values()), "each proof ID must own one experiment script"
@@ -32,7 +30,6 @@ def test_registered_proofs_have_unique_standalone_scripts() -> None:
     assert all(count == 1 for count in pages.values()), "each proof ID must own one published page"
 
     for identifier, entry in entries.items():
-        assert entry["historical_status"] in {"Passing", "Limited", "Partial"}, identifier
         path = ROOT / entry["script"]
         assert path.parent.parent == PROOFS and path.is_file(), path
         page = Path(entry["page"])
@@ -50,7 +47,7 @@ def test_registered_proofs_have_unique_standalone_scripts() -> None:
 
 
 def test_experiments_keep_generation_and_modeling_in_their_own_script() -> None:
-    entries = yaml.safe_load((ROOT / "catalog.yaml").read_text())["experiments"]
+    entries = registry(ROOT)
     sibling_modules = {Path(entry["script"]).stem for entry in entries.values()}
     for entry in entries.values():
         path = ROOT / entry["script"]
@@ -101,7 +98,7 @@ def test_experiments_keep_generation_and_modeling_in_their_own_script() -> None:
 
 
 def test_experiments_keep_explicit_training_protocols_on_model_fit() -> None:
-    entries = yaml.safe_load((ROOT / "catalog.yaml").read_text())["experiments"]
+    entries = registry(ROOT)
     for entry in entries.values():
         path = ROOT / entry["script"]
         module = ast.parse(path.read_text(), filename=str(path))
@@ -144,7 +141,7 @@ def test_experiments_keep_explicit_training_protocols_on_model_fit() -> None:
 
 
 def test_experiments_expose_the_shared_reporting_entrypoint() -> None:
-    entries = yaml.safe_load((ROOT / "catalog.yaml").read_text())["experiments"]
+    entries = registry(ROOT)
     for entry in entries.values():
         path = ROOT / entry["script"]
         module = ast.parse(path.read_text(), filename=str(path))
@@ -183,7 +180,7 @@ def markdown(source: Path) -> str:
 
 
 def test_every_registered_proof_has_a_small_readable_overview() -> None:
-    entries = yaml.safe_load((ROOT / "catalog.yaml").read_text())["experiments"]
+    entries = registry(ROOT)
     documented: Counter[str] = Counter()
     for entry in entries.values():
         page = ROOT / entry["script"]
@@ -198,13 +195,11 @@ def test_every_registered_proof_has_a_small_readable_overview() -> None:
         assert metadata.get("title") and metadata.get("description"), page
         assert metadata.get("categories"), f"{page}: missing proof family"
         assert "evidence-source" not in metadata and "evidence-status" not in metadata, (
-            f"{page}: source and status belong in proofs/results.yaml"
+            f"{page}: status is derived from the measured result"
         )
         sections = set(re.findall(r"\{\{<\s*evidence\s+([^\s>]+)\s+([^\s>]+)\s*>\}\}", text))
         expected = {(identifier, part) for part in ("status", "evidence", "script")}
         assert sections == expected, f"{page}: render recorded evidence and reproduction commands for {identifier}"
-        assert ARCHIVE[identifier]["historical"]["insights"].strip(), f"{identifier}: missing recorded interpretation"
-        assert ARCHIVE[identifier]["historical"]["evidence"].strip(), f"{identifier}: missing historical evidence"
         overview, details = text.split('<details class="evidence-details">', maxsplit=1)
         assert "<summary>Experiment details and code</summary>" in details, page
         assert f"{{{{< evidence {identifier} evidence >}}}}" in details, page

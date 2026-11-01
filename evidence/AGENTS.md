@@ -1,14 +1,14 @@
 # Canonical RelFlow evidence
 
 Preserve stable P identifiers, generators, seeds, budgets, optimizers, capacities,
-checks, and archived provenance. Read SPEC.md before changing semantics. Never
+checks, and current result provenance. Read SPEC.md before changing semantics. Never
 rewrite measurements to make a gate pass. The root AGENTS.md also applies.
 
 From the repository root, `make check` validates static docs and evidence tooling.
 Runtime tests under evidence/tests/runtime are explicit and require a separately
 supplied RelFlow wheel; they are excluded from default checks. Builds must never
 import RelFlow, Torch, or Lightning. Execution writes independent immutable JSON
-records; only a reviewed publication change updates evidence/results.yaml.
+records; only a reviewed publication change updates experiment frontmatter.
 
 Lab uses exact supplied baseline and candidate wheels, with one bounded,
 network-disabled, read-only Docker container per task. Mount neither the host

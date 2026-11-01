@@ -23,6 +23,120 @@
 #   metric:
 #   - intact/sum/A/nrmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     max/A finite calibration nRMSE <= 1.60: true
+#     max/A nRMSE <= 0.30: true
+#     max/B finite calibration nRMSE <= 1.60: true
+#     max/B nRMSE <= 0.30: true
+#     max/C finite calibration nRMSE <= 1.60: true
+#     max/C nRMSE <= 0.30: true
+#     mean/A finite calibration nRMSE <= 1.60: true
+#     mean/A nRMSE <= 0.30: true
+#     mean/B finite calibration nRMSE <= 1.60: true
+#     mean/B nRMSE <= 0.30: true
+#     mean/C finite calibration nRMSE <= 1.60: true
+#     mean/C nRMSE <= 0.30: true
+#     min/A finite calibration nRMSE <= 1.60: true
+#     min/A nRMSE <= 0.30: true
+#     min/B finite calibration nRMSE <= 1.60: true
+#     min/B nRMSE <= 0.30: true
+#     min/C finite calibration nRMSE <= 1.60: true
+#     min/C nRMSE <= 0.30: true
+#     sum/A finite calibration nRMSE <= 1.60: true
+#     sum/A nRMSE <= 0.30: true
+#     sum/B finite calibration nRMSE <= 1.60: true
+#     sum/B nRMSE <= 0.30: true
+#     sum/C finite calibration nRMSE <= 1.60: true
+#     sum/C nRMSE <= 0.30: true
+#   duration_seconds: 445.426
+#   metrics:
+#     intact/max/A/baseline_rmse: 0.8798919617581095
+#     intact/max/A/nrmse: 0.04286694995995274
+#     intact/max/A/rmse: 0.03771828469484952
+#     intact/max/B/baseline_rmse: 0.8645386409025352
+#     intact/max/B/nrmse: 0.07849549016814521
+#     intact/max/B/rmse: 0.06786238438694657
+#     intact/max/C/baseline_rmse: 0.8226223328561437
+#     intact/max/C/nrmse: 0.12087299298076683
+#     intact/max/C/rmse: 0.09943282346514269
+#     intact/mean/A/baseline_rmse: 0.8703165895406241
+#     intact/mean/A/nrmse: 0.054073957974311644
+#     intact/mean/A/rmse: 0.04706146268716594
+#     intact/mean/B/baseline_rmse: 0.8474965036769826
+#     intact/mean/B/nrmse: 0.06582768876932737
+#     intact/mean/B/rmse: 0.05578873607714153
+#     intact/mean/C/baseline_rmse: 0.814604977900874
+#     intact/mean/C/nrmse: 0.08347560333332762
+#     intact/mean/C/rmse: 0.06799964200860747
+#     intact/min/A/baseline_rmse: 0.8766077148642057
+#     intact/min/A/nrmse: 0.04489577314753063
+#     intact/min/A/rmse: 0.03935598110591859
+#     intact/min/B/baseline_rmse: 0.8365111183932998
+#     intact/min/B/nrmse: 0.05399844421053883
+#     intact/min/B/rmse: 0.04517029895805604
+#     intact/min/C/baseline_rmse: 0.8391276941102654
+#     intact/min/C/nrmse: 0.05619559117210402
+#     intact/min/C/rmse: 0.047155276839410835
+#     intact/sum/A/baseline_rmse: 3.4812663581624963
+#     intact/sum/A/nrmse: 0.02747081470473052
+#     intact/sum/A/rmse: 0.09563322306289397
+#     intact/sum/B/baseline_rmse: 3.3899860147079304
+#     intact/sum/B/nrmse: 0.03561627651550523
+#     intact/sum/B/rmse: 0.12073867928353324
+#     intact/sum/C/baseline_rmse: 3.258419911603496
+#     intact/sum/C/nrmse: 0.05008986621860497
+#     intact/sum/C/rmse: 0.16321381745625776
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: a252610989beb880a57873643d062754d3d98490d69abede7e46d4d4468a5c5e
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: b24f11abc0b2
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 20da8dab57b8a0102a53a320562b0fd307292f3c35ac0cdb7c950862460f639d
+#     source_sha256: cf2c3771c469616ca330f2106ec3c9541a64494aaef77fa6acc85992afde37cb
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 16
+#   started_at: '2026-11-01T00:10:09.921634+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

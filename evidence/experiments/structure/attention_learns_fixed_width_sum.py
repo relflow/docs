@@ -15,6 +15,67 @@
 #   metric:
 #   - test_nrmse
 #   format: error
+# evidence-group: Structure
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Test normalized RMSE is below 0.25: true
+#   duration_seconds: 14.829
+#   metrics:
+#     baseline_rmse: 1.395327666226233
+#     steps: 400
+#     target_std: 1.3947314823294805
+#     test_nrmse: 0.013546748643388798
+#     test_rmse: 0.01890215316953308
+#     validate_rmse: 0.02033274876095201
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 7afe6db365453b1f98f918eec33372cac240249aa2f4085850cdec3a6db2ef3f
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 3c44cc622f59
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: ee12736ab0d7215c5eda77ee18c6ac779596ae418742c89ee33d618200c411a2
+#     source_sha256: ae9448e86b5408717b0ec176a5d8f2f4be49a4889c1f33b027b88d8f58d08877
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 2600
+#   started_at: '2026-11-01T00:18:28.249741+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

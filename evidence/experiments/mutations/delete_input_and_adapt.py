@@ -30,6 +30,341 @@
 #   - after
 #   - nrmse
 #   format: error
+# evidence-group: Mutations
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Continuation retains full-information accuracy below 0.25 nRMSE: true
+#     Deleted checkpoint preserves adapted predictions: true
+#     Deleted checkpoint preserves schema and learned state: true
+#     Deletion and deactivation initially give the same predictions: true
+#     Deletion immediately loses the selected information: true
+#     Deletion preserves all unselected state entries: true
+#     Deletion removes b from schema and runtime: true
+#     Deletion removes the selected state entries: true
+#     Inactive control preserves all original state: true
+#     Re-added input has fresh normalization: true
+#     Re-adding the same name does not restore its learned state: true
+#     Scratch schema and field order match deletion: true
+#     Source learns both-input relationship below 0.25 nRMSE: true
+#     Source optimizer covers current parameters: true
+#     Unchanged checkpoint restores source predictions: true
+#     'continuation: hidden target values cannot affect predictions': true
+#     'continuation: optimizer covers current parameters': true
+#     'continuation: parameters actually learn': true
+#     'deleted after: removed input values cannot affect predictions': true
+#     'deleted before: removed input values cannot affect predictions': true
+#     'deleted: adapts near the remaining-information limit': true
+#     'deleted: hidden target values cannot affect predictions': true
+#     'deleted: optimizer covers current parameters': true
+#     'deleted: parameters actually learn': true
+#     'inactive after: removed input values cannot affect predictions': true
+#     'inactive before: removed input values cannot affect predictions': true
+#     'inactive: adapts near the remaining-information limit': true
+#     'inactive: hidden target values cannot affect predictions': true
+#     'inactive: optimizer covers current parameters': true
+#     'inactive: parameters actually learn': true
+#     'scratch_restricted after: removed input values cannot affect predictions': true
+#     'scratch_restricted before: removed input values cannot affect predictions': true
+#     'scratch_restricted: adapts near the remaining-information limit': true
+#     'scratch_restricted: hidden target values cannot affect predictions': true
+#     'scratch_restricted: optimizer covers current parameters': true
+#     'scratch_restricted: parameters actually learn': true
+#   duration_seconds: 35.733
+#   metrics:
+#     arms:
+#       continuation:
+#         after:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.019169681079402732
+#           only_a_distance_nrmse: 0.7128238473981036
+#           rmse: 0.015534213953197812
+#         before:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.04690872616664413
+#           only_a_distance_nrmse: 0.6955476101163599
+#           rmse: 0.038012640143897596
+#         optimizer_covers_current_parameters: true
+#         pooling_capacity: 2
+#         steps: 256
+#         updated_parameter_count: 94
+#         validation_curve:
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.045746016186793664
+#             only_a_distance_nrmse: 0.6891507070447545
+#             rmse: 0.03744648062484148
+#           step: 0
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.05706577145937884
+#             only_a_distance_nrmse: 0.664809998078735
+#             rmse: 0.04671253331808515
+#           step: 32
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.010441750662623133
+#             only_a_distance_nrmse: 0.7031202680585448
+#             rmse: 0.008547341309038881
+#           step: 128
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.019132736975576804
+#             only_a_distance_nrmse: 0.7030260545229168
+#             rmse: 0.015661553161933184
+#           step: 256
+#       deleted:
+#         after:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.719567417972882
+#           only_a_distance_nrmse: 0.06714908852544259
+#           rmse: 0.5831038178590885
+#         before:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.9093240576886299
+#           only_a_distance_nrmse: 0.5522490663075059
+#           rmse: 0.7368737333926099
+#         changed_unselected_state_entries: []
+#         optimizer_covers_current_parameters: true
+#         pooling_capacity: 1
+#         removed_state_entries:
+#         - nodes./b.embedder.weights
+#         - nodes./b.embedder.max_fourier_input
+#         - nodes./b.embedder.embeddings.weight
+#         - nodes./b.embedder.counter.counts
+#         - nodes./b.embedder.linear.weight
+#         - nodes./b.embedder.linear.bias
+#         - nodes./b.embedder.scalar.weight
+#         - nodes./b.embedder.normalizers.raw.mean
+#         - nodes./b.embedder.normalizers.raw.var
+#         - nodes./b.embedder.normalizers.raw.count
+#         - nodes./b.embedder.normalizers.log.mean
+#         - nodes./b.embedder.normalizers.log.var
+#         - nodes./b.embedder.normalizers.log.count
+#         steps: 256
+#         updated_parameter_count: 77
+#         validation_curve:
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.8841830369569963
+#             only_a_distance_nrmse: 0.5476132720707423
+#             rmse: 0.7237688813606898
+#           step: 0
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7303437154999871
+#             only_a_distance_nrmse: 0.15018668396591892
+#             rmse: 0.5978400759592325
+#           step: 32
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7092488580939637
+#             only_a_distance_nrmse: 0.07121264687097391
+#             rmse: 0.5805723828356837
+#           step: 128
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7125514110156407
+#             only_a_distance_nrmse: 0.06978506180633609
+#             rmse: 0.5832757654316483
+#           step: 256
+#       inactive:
+#         after:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.719567417972882
+#           only_a_distance_nrmse: 0.06714908852544259
+#           rmse: 0.5831038178590885
+#         before:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.9093240576886299
+#           only_a_distance_nrmse: 0.5522490663075059
+#           rmse: 0.7368737333926099
+#         optimizer_covers_current_parameters: true
+#         pooling_capacity: 1
+#         steps: 256
+#         updated_parameter_count: 77
+#         validation_curve:
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.8841830369569963
+#             only_a_distance_nrmse: 0.5476132720707423
+#             rmse: 0.7237688813606898
+#           step: 0
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7303437154999871
+#             only_a_distance_nrmse: 0.15018668396591892
+#             rmse: 0.5978400759592325
+#           step: 32
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7092488580939637
+#             only_a_distance_nrmse: 0.07121264687097391
+#             rmse: 0.5805723828356837
+#           step: 128
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7125514110156407
+#             only_a_distance_nrmse: 0.06978506180633609
+#             rmse: 0.5832757654316483
+#           step: 256
+#       scratch_restricted:
+#         after:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 0.7204181251238119
+#           only_a_distance_nrmse: 0.07718237016298927
+#           rmse: 0.583793191189783
+#         before:
+#           baseline_rmse: 0.8103532807277047
+#           nrmse: 1.6042761997607558
+#           only_a_distance_nrmse: 1.4276334320692323
+#           rmse: 1.300030481669503
+#         optimizer_covers_current_parameters: true
+#         pooling_capacity: 1
+#         steps: 256
+#         updated_parameter_count: 77
+#         validation_curve:
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 1.5605450089836743
+#             only_a_distance_nrmse: 1.4161397312300665
+#             rmse: 1.2774209278571078
+#           step: 0
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7361348586927745
+#             only_a_distance_nrmse: 0.17174714400543808
+#             rmse: 0.6025805528234671
+#           step: 32
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.721017170554056
+#             only_a_distance_nrmse: 0.15816735849746685
+#             rmse: 0.5902056125955059
+#           step: 128
+#         - scores:
+#             baseline_rmse: 0.8185735883959189
+#             nrmse: 0.7148752203886061
+#             only_a_distance_nrmse: 0.07890003684775426
+#             rmse: 0.5851779744088246
+#           step: 256
+#     downstream_interpretable: true
+#     mutation: delete /b; inactive control updates active=False; separate source fork deletes and re-adds b
+#     only_a_oracle:
+#       baseline_rmse: 0.8103532807277047
+#       nrmse: 0.7146740353052158
+#       only_a_distance_nrmse: 0.0
+#       rmse: 0.5791384491604891
+#     optimizer_policy: New AdamW factory and Trainer per phase; matched adaptation data and updates
+#     readdition:
+#       fresh_normalization:
+#         alpha: null
+#         count: 0
+#         mean: 0.0
+#         std: 1.0
+#         variance: 1.0
+#       readded_field_order:
+#       - /a
+#       - /y
+#       - /b
+#       scores:
+#         baseline_rmse: 0.8103532807277047
+#         nrmse: 0.6670850754403447
+#         only_a_distance_nrmse: 0.5186730092533532
+#         rmse: 0.5405745794075717
+#       source_field_order:
+#       - /a
+#       - /b
+#       - /y
+#       source_normalization:
+#         alpha: null
+#         count: 65536
+#         mean: -0.00040430610009385844
+#         std: 0.5771294791922702
+#         variance: 0.333078435752741
+#     source:
+#       baseline_rmse: 0.8103532807277047
+#       nrmse: 0.04690872616664413
+#       only_a_distance_nrmse: 0.6955476101163599
+#       rmse: 0.038012640143897596
+#     source_fit:
+#       optimizer_covers_current_parameters: true
+#       steps: 512
+#       validation_curve:
+#       - scores:
+#           baseline_rmse: 0.8227835642459033
+#           nrmse: 1.6047738274734205
+#           only_a_distance_nrmse: 1.3347337907024106
+#           rmse: 1.320381529577121
+#         step: 0
+#       - scores:
+#           baseline_rmse: 0.8227835642459033
+#           nrmse: 0.07994827291428727
+#           only_a_distance_nrmse: 0.6784996565794528
+#           rmse: 0.06578012494372149
+#         step: 32
+#       - scores:
+#           baseline_rmse: 0.8227835642459033
+#           nrmse: 0.0252052298977606
+#           only_a_distance_nrmse: 0.682235106345186
+#           rmse: 0.020738448892916872
+#         step: 128
+#       - scores:
+#           baseline_rmse: 0.8227835642459033
+#           nrmse: 0.04553959670577362
+#           only_a_distance_nrmse: 0.6833399299837495
+#           rmse: 0.03746923169189741
+#         step: 512
+#     source_prerequisite_met: true
+#     test_rows: 2048
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 42fda1ddfe34891c6cf0458179baeb50991da2c463dd3bf0bc614fa296ed5f88
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 5b2de66e0a0c
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 374b2dfa8cdae7d59bab86dbf3595baf593f018cb1e754ff217dbbdf4c18718e
+#     source_sha256: a09fe8f1edca5b4298d2eae9c46876d47ede3d483b6e5b838eb42e2aeb679854
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 5001
+#   started_at: '2026-11-01T00:19:46.821212+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

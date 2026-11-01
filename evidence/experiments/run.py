@@ -9,12 +9,12 @@ import sys
 import time
 from pathlib import Path
 
-import yaml
+from source import registry
 
 
 def main() -> None:
     root = Path(__file__).resolve().parents[1]
-    entries = yaml.safe_load((root / "catalog.yaml").read_text())["experiments"]
+    entries = registry(root)
     parser = argparse.ArgumentParser(description=__doc__)
     parser.add_argument("experiments", nargs="*", help="Evidence IDs, such as P014; omit to run all experiments.")
     parser.add_argument("--list", action="store_true", help="List stable IDs and their scripts without training.")

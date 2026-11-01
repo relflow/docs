@@ -58,7 +58,7 @@ jobs:
       - run: make check check-docs
       - name: Prepare the publication patch
         run: |
-          git add evidence/results.yaml
+          git add evidence/experiments
           git diff --cached --binary > evidence-update.patch
           git rev-parse HEAD > docs-base.txt
           sha256sum evidence-update.patch docs-base.txt > publication-SHA256SUMS

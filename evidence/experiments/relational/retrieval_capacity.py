@@ -4,8 +4,8 @@
 # categories:
 # - Sibling entity transfer
 # evidence-id: P075
-# description: Retrieve a source value by ID with increasing numbers of distractors, then add an intermediate
-#   ID link for a two-step lookup.
+# description: Retrieve a source value by ID with increasing numbers of distractors, then add an intermediate ID link
+#   for a two-step lookup.
 # execute:
 #   enabled: false
 #   eval: false
@@ -28,6 +28,218 @@
 #   - intact
 #   - normalized_rmse
 #   format: error
+# evidence-group: Relational
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     '1 hop, 16 sources: beats source-mean RMSE by 20%': false
+#     '1 hop, 16 sources: broken-key nRMSE at least 0.80': true
+#     '1 hop, 16 sources: corruption increases nRMSE by at least 0.30': false
+#     '1 hop, 16 sources: finite source-unit errors': true
+#     '1 hop, 16 sources: intact nRMSE at most 0.50': false
+#     '1 hop, 16 sources: permutation nRMSE delta at most 0.10': true
+#     '1 hop, 16 sources: reordered nRMSE at most 0.50': false
+#     '1 hop, 2 sources: beats source-mean RMSE by 20%': false
+#     '1 hop, 2 sources: broken-key nRMSE at least 0.80': false
+#     '1 hop, 2 sources: corruption increases nRMSE by at least 0.30': false
+#     '1 hop, 2 sources: finite source-unit errors': true
+#     '1 hop, 2 sources: intact nRMSE at most 0.50': false
+#     '1 hop, 2 sources: permutation nRMSE delta at most 0.10': true
+#     '1 hop, 2 sources: reordered nRMSE at most 0.50': false
+#     '1 hop, 4 sources: beats source-mean RMSE by 20%': false
+#     '1 hop, 4 sources: broken-key nRMSE at least 0.80': true
+#     '1 hop, 4 sources: corruption increases nRMSE by at least 0.30': false
+#     '1 hop, 4 sources: finite source-unit errors': true
+#     '1 hop, 4 sources: intact nRMSE at most 0.50': false
+#     '1 hop, 4 sources: permutation nRMSE delta at most 0.10': true
+#     '1 hop, 4 sources: reordered nRMSE at most 0.50': false
+#     '1 hop, 8 sources: beats source-mean RMSE by 20%': false
+#     '1 hop, 8 sources: broken-key nRMSE at least 0.80': true
+#     '1 hop, 8 sources: corruption increases nRMSE by at least 0.30': false
+#     '1 hop, 8 sources: finite source-unit errors': true
+#     '1 hop, 8 sources: intact nRMSE at most 0.50': false
+#     '1 hop, 8 sources: permutation nRMSE delta at most 0.10': true
+#     '1 hop, 8 sources: reordered nRMSE at most 0.50': false
+#     '2 hop, 2 sources: beats source-mean RMSE by 20%': false
+#     '2 hop, 2 sources: broken-key nRMSE at least 0.80': false
+#     '2 hop, 2 sources: corruption increases nRMSE by at least 0.30': false
+#     '2 hop, 2 sources: finite source-unit errors': true
+#     '2 hop, 2 sources: intact nRMSE at most 0.50': false
+#     '2 hop, 2 sources: permutation nRMSE delta at most 0.10': true
+#     '2 hop, 2 sources: reordered nRMSE at most 0.50': false
+#     '2 hop, 4 sources: beats source-mean RMSE by 20%': false
+#     '2 hop, 4 sources: broken-key nRMSE at least 0.80': true
+#     '2 hop, 4 sources: corruption increases nRMSE by at least 0.30': false
+#     '2 hop, 4 sources: finite source-unit errors': true
+#     '2 hop, 4 sources: intact nRMSE at most 0.50': false
+#     '2 hop, 4 sources: permutation nRMSE delta at most 0.10': true
+#     '2 hop, 4 sources: reordered nRMSE at most 0.50': false
+#   duration_seconds: 143.93
+#   metrics:
+#     hops_1:
+#       ladder:
+#         '16':
+#           broken:
+#             baseline_rmse: 0.5801314527604737
+#             normalized_rmse: 0.9705963126403169
+#             rmse: 0.563073448895986
+#             source_mean_rmse: 0.5614836112231819
+#           corruption_gap: 5.980871734201365e-05
+#           intact:
+#             baseline_rmse: 0.5801314527604737
+#             normalized_rmse: 0.9705365039229749
+#             rmse: 0.5630387519779066
+#             source_mean_rmse: 0.5614836112231819
+#           permutation_nrmse_delta: 3.144390845000178e-05
+#           permuted:
+#             baseline_rmse: 0.5801314527604737
+#             normalized_rmse: 0.9705050600145249
+#             rmse: 0.563020510377617
+#             source_mean_rmse: 0.5614836112231819
+#         '2':
+#           broken:
+#             baseline_rmse: 0.5718617051430289
+#             normalized_rmse: 0.7292861279448586
+#             rmse: 0.417050808663704
+#             source_mean_rmse: 0.4090235781310266
+#           corruption_gap: -0.00033347555113139027
+#           intact:
+#             baseline_rmse: 0.5718617051430289
+#             normalized_rmse: 0.72961960349599
+#             rmse: 0.4172415105609975
+#             source_mean_rmse: 0.4090235781310266
+#           permutation_nrmse_delta: 0.00033979819589968763
+#           permuted:
+#             baseline_rmse: 0.5718617051430289
+#             normalized_rmse: 0.7292798053000903
+#             rmse: 0.41704719298528575
+#             source_mean_rmse: 0.4090235781310266
+#         '4':
+#           broken:
+#             baseline_rmse: 0.5809317566310644
+#             normalized_rmse: 0.8700044881996241
+#             rmse: 0.5054132356067178
+#             source_mean_rmse: 0.4995581280248714
+#           corruption_gap: -2.7389132018829088e-05
+#           intact:
+#             baseline_rmse: 0.5809317566310644
+#             normalized_rmse: 0.8700318773316429
+#             rmse: 0.5054291468232941
+#             source_mean_rmse: 0.4995581280248714
+#           permutation_nrmse_delta: 0.001254407015278236
+#           permuted:
+#             baseline_rmse: 0.5809317566310644
+#             normalized_rmse: 0.8687774703163647
+#             rmse: 0.5047004219523782
+#             source_mean_rmse: 0.4995581280248714
+#         '8':
+#           broken:
+#             baseline_rmse: 0.5737306328297297
+#             normalized_rmse: 0.9356796904044065
+#             rmse: 0.5368281009016457
+#             source_mean_rmse: 0.5355304868001156
+#           corruption_gap: 0.0002637142189219066
+#           intact:
+#             baseline_rmse: 0.5737306328297297
+#             normalized_rmse: 0.9354159761854846
+#             rmse: 0.5366767999759374
+#             source_mean_rmse: 0.5355304868001156
+#           permutation_nrmse_delta: 0.0016970246630527708
+#           permuted:
+#             baseline_rmse: 0.5737306328297297
+#             normalized_rmse: 0.9371130008485373
+#             rmse: 0.5376504350097984
+#             source_mean_rmse: 0.5355304868001157
+#       steps: 600
+#       training_mean: 0.0003915084068559229
+#     hops_2:
+#       ladder:
+#         '2':
+#           broken:
+#             baseline_rmse: 0.5779031565075955
+#             normalized_rmse: 0.6902184379714403
+#             rmse: 0.3988794139834374
+#             source_mean_rmse: 0.3975426418411088
+#           corruption_gap: -2.9955464253550446e-07
+#           intact:
+#             baseline_rmse: 0.5779031565075955
+#             normalized_rmse: 0.6902187375260829
+#             rmse: 0.3988795870970108
+#             source_mean_rmse: 0.3975426418411088
+#           permutation_nrmse_delta: 0.0003772206529644162
+#           permuted:
+#             baseline_rmse: 0.5779031565075954
+#             normalized_rmse: 0.6905959581790473
+#             rmse: 0.39909758410305873
+#             source_mean_rmse: 0.3975426418411088
+#         '4':
+#           broken:
+#             baseline_rmse: 0.5775924351979377
+#             normalized_rmse: 0.8737613054833413
+#             rmse: 0.5046779202158522
+#             source_mean_rmse: 0.5025557590002646
+#           corruption_gap: -7.129020028751043e-06
+#           intact:
+#             baseline_rmse: 0.5775924351979377
+#             normalized_rmse: 0.87376843450337
+#             rmse: 0.5046820378838912
+#             source_mean_rmse: 0.5025557590002646
+#           permutation_nrmse_delta: 0.0018377674448326609
+#           permuted:
+#             baseline_rmse: 0.5775924351979377
+#             normalized_rmse: 0.8756062019482027
+#             rmse: 0.5057435184576796
+#             source_mean_rmse: 0.5025557590002646
+#       steps: 600
+#       training_mean: -0.0006106177625085432
+#   mode: full
+#   outcome: not_met
+#   provenance:
+#     code_sha256: 0d18acc72bfc694c7a0f05e07a60af122ead46d0d6d3ae74bb0f9209b0a5d2cc
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 3f68dad2de31
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: a67ec64da449b730b6d80566c649146f02580711d3812fbf92c1378bc25f1c30
+#     source_sha256: 84669cbc977514bbce31e1bce38c15e36e8e32514991a2a92637065dc007559a
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7501
+#   started_at: '2026-11-01T00:22:41.959678+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

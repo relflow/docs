@@ -8,7 +8,7 @@ checkout alone.
 
 - Authored website pages, assets, extensions, and `_quarto.yml` live in `docs/`.
   Canonical experiments, runners, protocol, and results live under `evidence/`.
-  `evidence/results.yaml` is the reviewed publication record. Page folders
+  Each experiment owns its metadata and current result in frontmatter. Page folders
   mirror the sidebar groups (`learn/`, `guides/`, `concepts/`, `datatypes/`,
   `reference/`) and
   file names match page titles; when a page moves or is renamed, update every
@@ -41,8 +41,8 @@ then nested purchases, separate withdrawal history, and targets at transaction
 and account levels. Introduce reconstruction and
 representation reuse after the supervised workflow. Explain the business
 decision and what each addition contributes before its implementation. Adapt
-research use cases and terminology into native examples; keep paper-specific
-attribution and adaptation boundaries in `research/documentation-sources.json`.
+research use cases and terminology into native examples. Attribute specific
+research claims where they are used.
 
 Use coherent financial examples without implying that RelFlow is restricted to
 finance. The first flat payment has `amount`, `merchant`, and
@@ -109,7 +109,7 @@ Repeated records always use variable Arrow lists, including bounded branches;
 input caps do not add public padding. Fixed-width vectors retain their feature
 axis. Extension output list children must be named `element`.
 Embeddings live in representation records with `path`, `parents`, `output_index`,
-and `embedding`. The pinned contract records the current API source; recorded evidence
+and `embedding`. API claims must be verified against the targeted upstream source; recorded evidence
 retains its original provenance even when executable output readers are
 migrated. A reader migration does not establish fresh learning results. Show
 observation and output examples as one YAML record, nesting repeated values
@@ -124,9 +124,9 @@ and postprocesses the combined output once. Omission or `None` preserves direct
 whole-input behavior. Constructor batch size remains the initial/checkpoint
 setting and supports native Trainer/Tuner workflows.
 
-Verify API claims against pinned upstream source and `contracts/relflow.json`;
-existing prose alone is not evidence. Update the contract deliberately when
-targeting another package version.
+Verify API claims against the targeted RelFlow version in upstream source;
+existing prose alone is not evidence. Keep documentation builds independent of
+installed model packages.
 
 ## Visuals and evidence
 
@@ -138,11 +138,11 @@ masking policies, use `flow`, `timeline`, `tokens`, and `policies` from
 rather than hyperparameters. Keep nearby code, YAML, labels, captions, and text
 alternatives consistent. Preserve bundled extension and font licenses.
 
-`scripts/render_evidence.py` publishes local canonical sources and reviewed
+`evidence/render.py` publishes local canonical sources and reviewed
 results without executing them. Generated pages and fragments under
 `docs/evidence/` are ignored; never edit them as a second source. Follow
 `evidence/SPEC.md` when changing experiments. Execution writes independent JSON
 records. Select complete reports with `evidence/record.py` and review updates to
-`evidence/results.yaml`; never alter measurements to make a check pass. Preserve
+the experiment frontmatter; never alter measurements to make a check pass. Preserve
 source fingerprints and provenance. Clean only generated publication output.
 There are no Proofs redirects, snapshot importers, or optional Modal backend.

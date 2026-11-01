@@ -4,8 +4,8 @@
 # categories:
 # - Vocabulary
 # evidence-id: P066
-# description: Introduce a new cohort of input identities while keeping output labels and hidden-answer
-#   selection fixed.
+# description: Introduce a new cohort of input identities while keeping output labels and hidden-answer selection
+#   fixed.
 # execute:
 #   enabled: false
 #   eval: false
@@ -22,6 +22,185 @@
 #   - '1'
 #   - admission_mean_drift
 #   format: number
+# evidence-group: Vocabulary
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     '0: learned predictions beat constant baseline': true
+#     '0: learned probability RMSE below 0.16': true
+#     '0: shuffled identity worsens RMSE by more than 0.08': true
+#     '1: admission actually adds training identities': true
+#     '1: admission preserves predictions': true
+#     '1: admission preserves reconstruction NLL': true
+#     '1: cold evaluation preserves vocabulary': true
+#     '1: cold marginal RMSE below 0.15': false
+#     '1: learned predictions beat constant baseline': true
+#     '1: learned probability RMSE below 0.16': true
+#     '1: output coverage remains complete': true
+#     '1: shuffled identity worsens RMSE by more than 0.08': true
+#     '2: admission actually adds training identities': true
+#     '2: admission preserves predictions': true
+#     '2: admission preserves reconstruction NLL': true
+#     '2: cold evaluation preserves vocabulary': true
+#     '2: cold marginal RMSE below 0.15': true
+#     '2: learned predictions beat constant baseline': true
+#     '2: learned probability RMSE below 0.16': true
+#     '2: output coverage remains complete': true
+#     '2: shuffled identity worsens RMSE by more than 0.08': true
+#   duration_seconds: 33.214
+#   metrics:
+#     '0':
+#       learned:
+#         brier: 0.13016813653281054
+#         constant_rmse: 0.35653856748344714
+#         nll: 0.39009981143772576
+#         oracle_rmse: 0.09881737134570236
+#       shuffled:
+#         brier: 0.2761187454615636
+#         constant_rmse: 0.35653856748344714
+#         nll: 0.9079471927960872
+#         oracle_rmse: 0.40221465714233645
+#       steps: 400
+#     '1':
+#       admission_max_drift: 0.0
+#       admission_mean_drift: 0.0
+#       admitted:
+#         brier: 0.25025677901059445
+#         constant_rmse: 0.1832768630837761
+#         nll: 0.7102360496200697
+#         oracle_rmse: 0.16533115814184496
+#       after_validation:
+#         accuracy.all: 0.68603515625
+#         accuracy.content: 0.68603515625
+#         accuracy.state: 1.0
+#         coverage.content: 1.0
+#         loss.content: 0.710236132144928
+#         loss.state: 0.0
+#         nll.content: 0.710236132144928
+#         targets.known: 4096.0
+#         targets.unavailable: 0.0
+#         vocabulary.size: 2.0
+#       before_validation:
+#         accuracy.all: 0.68603515625
+#         accuracy.content: 0.68603515625
+#         accuracy.state: 1.0
+#         coverage.content: 1.0
+#         loss.content: 0.710236132144928
+#         loss.state: 0.0
+#         nll.content: 0.710236132144928
+#         targets.known: 4096.0
+#         targets.unavailable: 0.0
+#         vocabulary.size: 2.0
+#       cold:
+#         brier: 0.25025677901059445
+#         constant_rmse: 0.1832768630837761
+#         nll: 0.7102360496200697
+#         oracle_rmse: 0.16533115814184496
+#       learned:
+#         brier: 0.12703330772120547
+#         constant_rmse: 0.3581464679001816
+#         nll: 0.3728922615371408
+#         oracle_rmse: 0.08041273503482016
+#       shuffled:
+#         brier: 0.30907278196613025
+#         constant_rmse: 0.3581464679001816
+#         nll: 1.185680018041411
+#         oracle_rmse: 0.43103875096176353
+#       steps: 400
+#     '2':
+#       admission_max_drift: 0.0
+#       admission_mean_drift: 0.0
+#       admitted:
+#         brier: 0.23091117008085618
+#         constant_rmse: 0.1832768630837761
+#         nll: 0.6600815420009657
+#         oracle_rmse: 0.08695420407151533
+#       after_validation:
+#         accuracy.all: 0.6708984375
+#         accuracy.content: 0.6708984375
+#         accuracy.state: 1.0
+#         coverage.content: 1.0
+#         loss.content: 0.6600815653800964
+#         loss.state: 0.0
+#         nll.content: 0.6600815653800964
+#         targets.known: 4096.0
+#         targets.unavailable: 0.0
+#         vocabulary.size: 2.0
+#       before_validation:
+#         accuracy.all: 0.6708984375
+#         accuracy.content: 0.6708984375
+#         accuracy.state: 1.0
+#         coverage.content: 1.0
+#         loss.content: 0.6600815653800964
+#         loss.state: 0.0
+#         nll.content: 0.6600815653800964
+#         targets.known: 4096.0
+#         targets.unavailable: 0.0
+#         vocabulary.size: 2.0
+#       cold:
+#         brier: 0.23091117008085618
+#         constant_rmse: 0.1832768630837761
+#         nll: 0.6600815420009657
+#         oracle_rmse: 0.08695420407151533
+#       learned:
+#         brier: 0.13000353869416703
+#         constant_rmse: 0.3569987065711852
+#         nll: 0.3891625634822828
+#         oracle_rmse: 0.09318771445617331
+#       shuffled:
+#         brier: 0.31360807871628105
+#         constant_rmse: 0.3569987065711852
+#         nll: 1.2603889988298727
+#         oracle_rmse: 0.42845138798358834
+#       steps: 400
+#   mode: full
+#   outcome: not_met
+#   provenance:
+#     code_sha256: 275b84fb0628596489ac62f3ba8790a495aef7da3ed756c942b5ba61a2f04e34
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: ee5f285e6f21
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 49703b67296c75b163c322fc79d0a496d5d2b75200ecd34b5504a4a3d8276220
+#     source_sha256: bb10f4fdae095818597f97837c32d112f636cff41bbf7a9c1053a7f7c5108ad6
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7801
+#   started_at: '2026-11-01T00:21:31.500239+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

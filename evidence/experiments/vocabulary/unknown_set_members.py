@@ -4,8 +4,7 @@
 # categories:
 # - Vocabulary
 # evidence-id: P058
-# description: Train a Set field on known members without ever teaching it how unavailable members should
-#   affect prediction.
+# description: Train a Set field on known members without ever teaching it how unavailable members should affect prediction.
 # execute:
 #   enabled: false
 #   eval: false
@@ -22,6 +21,90 @@
 #   - boundary_predictions
 #   - all_unknown
 #   format: number
+# evidence-group: Vocabulary
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     All-unknown and empty inputs have identical known membership bits: true
+#     All-unknown and empty targets have identical membership bits: true
+#     Evaluation does not grow either vocabulary: true
+#     Known membership regression nRMSE below 0.15: true
+#     Known valued sets reconstruct above 0.95 exact accuracy: true
+#     Null remains distinct from valued empty content: true
+#     Shuffled tags remove predictive accuracy: true
+#     Unknown and duplicate members leave reconstructed sets unchanged: true
+#     Unknown and duplicate members leave regression unchanged: true
+#     Unknown target labels cannot be recovered: true
+#     Untrained fallback leaves all-unknown and empty predictions identical: true
+#   duration_seconds: 10.769
+#   metrics:
+#     all_unknown_target_exact_match: false
+#     baseline_rmse: 1.5152353198723871
+#     boundary_predictions:
+#       all_unknown: 0.012366260163679532
+#       empty: 0.012366260163679532
+#       'null': 3.045052232681446
+#       partial_unknown: 1.0116792574173123
+#     known_exact_set_accuracy: 1.0
+#     nrmse: 0.017415799624031225
+#     shuffled_nrmse: 1.4449872691101777
+#     steps: 400
+#     unknown_and_duplicate_drift: 0.0
+#     vocabularies:
+#       labels:
+#       - blue
+#       - red
+#       tags:
+#       - blue
+#       - red
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 11097c729f34dbcb9e6a6e5afca73a245226bd63f0f13c91426d1dd7f7b10f54
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 5b0b365a3425
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 6fbfa83f1b3040e7db15e3d6e2eddeafcd34ea2e01eac7d28e96578ada43bf5b
+#     source_sha256: 77b5da63b194caa1d4285b09fef9761c849b1f87d45b6820f42be53ee9c77ece
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 5801
+#   started_at: '2026-11-01T00:20:48.113609+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

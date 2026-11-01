@@ -4,8 +4,7 @@
 # categories:
 # - Learning from context
 # evidence-id: P072
-# description: Each record supplies four examples of a fresh straight-line rule and asks for the answer
-#   at a new input.
+# description: Each record supplies four examples of a fresh straight-line rule and asks for the answer at a new input.
 # execute:
 #   enabled: false
 #   eval: false
@@ -31,6 +30,118 @@
 #   - least_squares
 #   - normalized_rmse
 #   format: error
+# evidence-group: Composition
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     Familiar context swapping exceeds 0.80 normalized RMSE: true
+#     Familiar context swapping more than doubles RMSE: true
+#     Familiar query-only normalized RMSE exceeds 0.75: true
+#     'context: familiar predictions are finite': true
+#     'context: prediction leaves every weight unchanged': true
+#     'context: withheld predictions are finite': true
+#     'familiar: context more than halves query-only RMSE': true
+#     'familiar: context normalized RMSE below 0.35': true
+#     'familiar: swapped predictions are finite': true
+#     'familiar: visible-example least-squares RMSE below 0.03': true
+#     'query_only: familiar predictions are finite': true
+#     'query_only: prediction leaves every weight unchanged': true
+#     'query_only: withheld predictions are finite': true
+#     'withheld: context more than halves query-only RMSE': true
+#     'withheld: context normalized RMSE below 0.40': true
+#     'withheld: swapped predictions are finite': true
+#     'withheld: visible-example least-squares RMSE below 0.03': true
+#   duration_seconds: 65.453
+#   metrics:
+#     context:
+#       familiar:
+#         baseline_rmse: 0.8586269648305972
+#         least_squares:
+#           baseline_rmse: 0.8586269648305972
+#           normalized_rmse: 0.01348474940825404
+#           rmse: 0.011578369455910358
+#         normalized_rmse: 0.080137333036159
+#         rmse: 0.06880807503445595
+#         swapped_context:
+#           baseline_rmse: 0.8586269648305972
+#           normalized_rmse: 1.413318910084246
+#           rmse: 1.213513726103324
+#       parameters: 588114
+#       steps: 600
+#       withheld:
+#         baseline_rmse: 1.0593012958262034
+#         least_squares:
+#           baseline_rmse: 1.0593012958262034
+#           normalized_rmse: 0.01078544031707928
+#           rmse: 0.011425030903938259
+#         normalized_rmse: 0.2000332098012014
+#         rmse: 0.21189543835068744
+#         swapped_context:
+#           baseline_rmse: 1.0593012958262034
+#           normalized_rmse: 0.3491833337533002
+#           rmse: 0.36989035792578456
+#     query_only:
+#       familiar:
+#         baseline_rmse: 0.8586269648305972
+#         normalized_rmse: 0.9822884104150658
+#         rmse: 0.8434193164229599
+#       parameters: 410446
+#       steps: 600
+#       withheld:
+#         baseline_rmse: 1.0593012958262034
+#         normalized_rmse: 1.0701923399036597
+#         rmse: 1.1336561324432235
+#     test_rows_per_split: 2048
+#     train_rows: 4096
+#     training_mean: -0.20962522122372595
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 6f22ddf16a211935a98a2e87a67d383f6feaa84120ebb404b8d394c44f6f7633
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 5b7f323bdc63
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 05d98d3bf571790697b626dd29d152b6f526e5e809519b446e13544ddb60011c
+#     source_sha256: 640b605f77eb4ec35fdd2ecd027ffba90c0911c89c6f29ba3919293de6fe35dd
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 7201
+#   started_at: '2026-11-01T00:22:04.482421+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

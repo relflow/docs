@@ -23,6 +23,90 @@
 #   metric:
 #   - coverage
 #   format: percent
+# evidence-group: Vocabulary
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     All-row accuracy exposes the coverage ceiling: true
+#     Built-in accuracy agrees with known-only external scoring: true
+#     Candidate probabilities normalize over populated labels: true
+#     Coverage is exactly one half: true
+#     Evaluation preserves hint vocabulary and numerical moments: true
+#     Evaluation preserves output vocabulary and exposure counts: true
+#     Known-only content accuracy reaches 0.95: true
+#     Labels known in another field remain unknown here: true
+#     Predictions and candidates use populated output labels only: true
+#     Shuffling x removes known-label accuracy: true
+#     Unknown answers still receive confident known-label predictions: true
+#     Unknown target content uses the unavailable sentinel: true
+#     Unseen output labels cannot be emitted: true
+#   duration_seconds: 8.629
+#   metrics:
+#     all_row_accuracy: 0.5
+#     builtin_content_accuracy: 1.0
+#     coverage: 0.5
+#     hint_vocabulary:
+#     - novel-positive
+#     - novel-negative
+#     - positive
+#     - negative
+#     known_accuracy: 1.0
+#     majority_baseline: 0.25634765625
+#     output_vocabulary:
+#     - negative
+#     - positive
+#     shuffled_known_accuracy: 0.48046875
+#     steps: 350
+#     unknown_accuracy: 0.0
+#     unknown_mean_confidence: 0.9999986956827343
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 13ff1ca2ab23b333d10f4b37452305f325ba5fe09a26b186fa2be6abe6230392
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: e1a4a5ad5226
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: 2380d6a8916c416d4c5329f74d4a48e60bc33123a4f32a3be0b4a0744f94e725
+#     source_sha256: c040bf9aebb557c820b417767eeb3515a2ee85251929c14e4d262ab32d39dc20
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 5601
+#   started_at: '2026-11-01T00:20:39.746681+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example

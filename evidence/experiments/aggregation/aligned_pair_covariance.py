@@ -4,8 +4,7 @@
 # categories:
 # - Distribution statistics
 # evidence-id: P006
-# description: 'Predict covariance: whether paired measurements tend to rise together or move in opposite
-#   directions.'
+# description: 'Predict covariance: whether paired measurements tend to rise together or move in opposite directions.'
 # execute:
 #   enabled: false
 #   eval: false
@@ -22,6 +21,74 @@
 #   - corrupted
 #   - nrmse
 #   format: error
+# evidence-group: Aggregation
+# evidence-result:
+#   accelerator: cpu
+#   checks:
+#     All measurements finite: true
+#     Baseline RMSE above 0.35: true
+#     Corruption preserves baseline: true
+#     Covariance nRMSE below 0.35: true
+#     Shuffled pairing raises nRMSE by at least 0.35: true
+#   duration_seconds: 65.511
+#   metrics:
+#     corrupted:
+#       baseline_rmse: 0.47722980830253015
+#       nrmse: 1.3635274958463686
+#       rmse: 0.6507159654579915
+#     intact:
+#       baseline_rmse: 0.47722980830253015
+#       nrmse: 0.07266366666222125
+#       rmse: 0.0346772677117708
+#     steps: 1100
+#   mode: full
+#   outcome: met
+#   provenance:
+#     code_sha256: 2fbc37c24ad4f536bcb5443230a96fcb9751872211e94828a892f4b620a3c0b8
+#     cuda: null
+#     evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#     gpu: null
+#     host: 968c3f1dc258
+#     packages:
+#       lightning: 2.6.4
+#       numpy: 2.4.6
+#       polars: 2.0.0
+#       pyarrow: 24.0.0
+#       pydantic: 2.13.4
+#       relflow: 0.4.0
+#       tensordict: 0.12.4
+#       torch: 2.12.0+cpu
+#       torchmetrics: 1.9.0
+#     platform: Linux-6.8.0-138-generic-x86_64-with-glibc2.41
+#     python: 3.12.16
+#     relflow_path: /tmp/runtime/lib/python3.12/site-packages/relflow
+#     relflow_revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     relflow_source_sha256: 97b7b12d6fdc05c829f00a6e4a36559f0a1ae4bcc5c53cc5406a0b2c88587aca
+#     script_sha256: fb9a7d44188743ffdb4f0d06497d666e1358c4af5ef2b37d97636bfa5d7ba0da
+#     source_sha256: c03a0b0e199321437ee574e4a800e2f4025ba36bfc20509b4f931d67008e3492
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   seed: 3508
+#   started_at: '2026-11-01T00:05:22.863592+00:00'
+#   steps_override: null
+#   threads: 1
+# evidence-report:
+#   run_id: gh-41254785503-2
+#   candidate:
+#     revision: 9c246da8e84fb3414ba738d8155cf481de50b0b7
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   baseline:
+#     revision: be1e01d4b9540aa3803fbc190fa4a1200629e32d
+#     wheel_sha256: 460e2b28cbe9617f3900ae0a1341f38bb38d25bb476830ba582ca189ac89416b
+#   evidence_revision: 86f0472d5dd7b331d5e12844768f0b38e133fa9e
+#   manifest_sha256: 208987bcb5a67bd796f14c2eb24d922bb056eaca1d2f2bfd2b8a999c28a7128a
+#   passed: true
+#   github_run:
+#     event: pull_request
+#     head_branch: dev/evidence-in-docs
+#     head_sha: e1831feaed3b6984565784048b66e8f47ae533b1
+#     html_url: https://github.com/relflow/relflow/actions/runs/41254785503
+#     run_attempt: 2
+#     run_id: 41254785503
 # ---
 #
 # ## Example
@@ -104,7 +171,7 @@
 
 Learn the centered cross-moment and respond to pairing corruption.
 
-Run: uv run python proofs/run.py P006"""
+Run: uv run python evidence/experiments/run.py P006"""
 
 from __future__ import annotations
 
