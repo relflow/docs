@@ -17,7 +17,7 @@ jobs:
       - uses: actions/checkout@v4
         with:
           repository: relflow/docs
-          ref: 7f3343112fc93f4dab00743e0aac510f9b84c182
+          ref: e00d336e3dc4a3c3352ab3fe5535ba69d6ac682f
           persist-credentials: false
       - uses: astral-sh/setup-uv@v5
         with:
